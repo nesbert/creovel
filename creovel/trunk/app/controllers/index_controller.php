@@ -4,14 +4,12 @@ class index_controller extends application_controller
 
 	public function index()
 	{
-		$this->render_text = "Hello World!<br /><br />";
-		$this->render_text .= 'You have successfully installed <a href="http://www.creovel.org" target="_blank">creovel</a> version '.get_version().'!';
+		$this->say_hello();
 	}
-
-	public function test()
+	
+	private function say_hello()
 	{
-		$this->render_text = "Hello World!<br /><br />";
-		$this->render_text .= 'You have successfully installed <a href="http://www.creovel.org" target="_blank">creovel</a> version '.get_version().'!';
+		$this->render_text = "<p>$ Hello World!</p>";
 	}
 
 }

@@ -1,0 +1,1 @@
+<p>$ You have successfully installed <a href="http://www.creovel.org" target="_blank">creovel</a> version <?=get_version()?>!<span class="cursor">||||||</span></p>

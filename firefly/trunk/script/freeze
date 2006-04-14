@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?
+
+// Remove Old and Check Out Newest Version
+exec("rm -rf ".dirname(__FILE__)."/../vendor/creovel");
+exec("/usr/bin/env svn export http://www.creovel.org/svn/creovel/creovel/trunk/vendor/creovel/ ".dirname(__FILE__)."/../vendor/creovel");
+
+?>

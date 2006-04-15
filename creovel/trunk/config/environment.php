@@ -1,21 +1,10 @@
 <?php
-// define application paths
-define(BASE_PATH, 			dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR);
-define(APP_PATH, 			BASE_PATH.'app/');
-define(CONFIG_PATH, 		BASE_PATH.'config/');
-define(PUBLIC_PATH, 		BASE_PATH.'public/');
-define(CONTROLLERS_PATH, 	APP_PATH.'controllers/');
-define(HELPERS_PATH, 		APP_PATH.'helpers/');
-define(MODELS_PATH, 		APP_PATH.'models/');
-define(VIEWS_PATH, 			APP_PATH.'views/');
-define(VENDOR_PATH, 		BASE_PATH.'vendor/');
-define(CREOVEL_PATH, 		VENDOR_PATH.'creovel/');
-
-// include core libraries
-require_once(CREOVEL_PATH.'helpers/all.php');
+$_ENV['mode'] = 'test'; // development, test, production
 
 // Default Route Controller
-$_ENV['routes']['default']['controller']	= 'index';
+$_ENV['routes']['default']['controller'] = 'index';
+$_ENV['routes']['default']['action'] = 'index';
+$_ENV['routes']['default']['layout'] = 'default';
 
 // set development database properties
 $_ENV[development][adapter]		= 'mysql';
@@ -38,5 +27,21 @@ $_ENV[production][database]		= '';
 $_ENV[production][username]		= '';
 $_ENV[production][password]		= '';
 
-session_start();
+// define application paths
+define(BASE_PATH, 			dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR);
+define(APP_PATH, 			BASE_PATH.'app/');
+define(CONFIG_PATH, 		BASE_PATH.'config/');
+define(PUBLIC_PATH, 		BASE_PATH.'public/');
+define(CONTROLLERS_PATH, 	APP_PATH.'controllers/');
+define(HELPERS_PATH, 		APP_PATH.'helpers/');
+define(MODELS_PATH, 		APP_PATH.'models/');
+define(VIEWS_PATH, 			APP_PATH.'views/');
+define(VENDOR_PATH, 		BASE_PATH.'vendor/');
+define(CREOVEL_PATH, 		VENDOR_PATH.'creovel/');
+
+// include core libraries
+require_once(CREOVEL_PATH.'helpers/all.php');
+
+// start session
+//session_start();
 ?>

@@ -2,74 +2,87 @@
 /**
  * Class to handle all intreaction between models, views, and controllers
  * 
- * @todo
- *  Todo's [NH] 10/22/2005
- *	- create data scrubber(clean, dirty)
- *	-
  */
-
 class controller
 {
+	
+	private $html;
 
-	public $controller 	= 'index';
-	public $action 		= 'index';
-	public $render 		= 'index';
-	public $render_text = false;
-	public $layout 		= 'default';
+	public $controller;
+	public $action;
+	public $layout;
 	public $params;
 	
-	public function set_properties($params)
+	/**
+	 * Set the controller's events and layout
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function set_events($events)
 	{
-		// set framework events
-		$this->controller = ( $params['controller'] ? $params['controller'] : 'index' );
-		$this->action = ( $params['action'] ? $params['action'] : 'index' );
-		$this->render = ( $params['action'] ? $params['action'] : 'index' );
-		
-		// don't include contoller & action & set params
-		unset($params['controller']);
-		unset($params['action']);
+		$this->controller = $events['controller'];
+		$this->action = $events['action'];
+		$this->layout = $_ENV['routes']['default']['layout'];		
+	}
+
+	/**
+	 * Set the controller's params
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function set_params($params)
+	{
 		$this->params = $params;
 	}
 
-	public function build_page()
-	{
-	
-		$html = '';
-	
-		// include view
-		if ( $this->render !== false ) $view = $this->get_include_contents(VIEWS_PATH.$this->controller.DS.$this->render.'.php');
-		
-		// render text
-		if ( $this->render_text !== false ) $view = $this->render_text . $view;
-		
-		// include template
-		if ( $this->layout !== false ) {
-			
-			// get layout contents
-			$html = $this->get_include_contents(VIEWS_PATH.'layouts'.DS.$this->layout.'.php');
-			
-			if ( $html ) {
-				$html = str_replace('@@page_contents@@', $view, $html);
-			} else {
-				$html = $view;
-			}
-			
-		} else {
-		
-			$html = $view;
-			
-		}
-		
-		// display page
-		echo $html;
-		
-	}
-
+	/**
+	 * Executes the controller's action.
+	 *
+	 * @author John Faircloth
+	 * @access public 
+	 */
 	public function execute_action()
 	{
 		$action = $this->action;
 		$this->$action();
 	}
+	
+	/**
+	 * Builds the html page and display it.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 * @return string
+	 */
+	public function build_view()
+	{
+		
+		$html = new view();
+		$html->controller = $this->controller;
+		
+		if ( $this->render !== false ) $html->render = $this->render ? $this->render : $this->action;		
+		if ( $this->render_text ) $html->text = $this->render_text;
+		if ( $this->layout !== false ) $html->layout = $this->layout;
+		
+		$html->create();
+		
+		return $html->get_page();
+	}
+	
+	/**
+	 * Outputs the generate html to screen
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function display_view()
+	{
+		echo $this->build_view();
+	}
+	
+	// still need to check these last three function [NH] 4/15/2006
 
 	public function build_partial($partial, $locals = array(), $controller = null)
 	{
@@ -83,42 +96,12 @@ class controller
 
 	public function build_controller($controller, $action = '', $id = '', $extras = array())
 	{
+		$events = array('controller'=>$controller, 'action'=>$action);
+		
+		if ( $id ) $params['id'] = $id;
 
-		$params = array(
-			'controller' => $controller,
-			'action' => $action,
-			'id' => $id,
-			);
-
-		$params = array_merge($params, $extras);
-
-		creovel($params);
-
+		creovel::run($events, array_merge($params, $extras));
 	}
-
-	public function redirect_to($controller = '', $action = '', $id = '', $extras = array())
-	{
-		header('location: ' . url_for($controller, $action, $id, $extras));
-		die;
-	}
-	
-	/*
-	 * http://us3.php.net/manual/en/function.include.php
-	 * Example 16-11. Using output buffering to include a PHP file into a string
-	 */
-
-	public function get_include_contents($filename)
-	{
-	   if ( is_file($filename) ) {
-		   ob_start();
-		   include $filename;
-		   $contents = ob_get_contents();
-		   ob_end_clean();
-		   return $contents;
-	   }
-	   return false;
-	}
-
 	
 }
 ?>

@@ -1,2 +1,10 @@
-<h1>index View for milestones</h1>
-<p>You can find me in views/milestones/index.php</p>
+<h1>Milestones</h1>
+
+<? foreach ($this->milestones as $milestone) { ?>
+
+	<div class="milestone">
+		<h4><?= $milestone->name ?></h4>
+		<p><?= $milestone->info ?></p>
+	</div>
+
+<? } ?>

@@ -7,42 +7,34 @@ body {
 	font-size: 96%;
 	text-align: center;
 }
-h1 img, h2 img, h3 img, h4 img 
-{
-	margin-right: 6px;
-	vertical-align: middle;
-}
+
 h1, h2, h3, h4, h5 {
-	color: #222;
+	color: #03495F;
 	clear: both;
 }
-#content-body > h2 {
-	margin-top: 3em;
-}
-#content-body > h2:first-child {
-	margin-top: 0;
-}
-a {
-	text-decoration: none;
-}
-a:link {
-	color: #66e;
-}
-a:visited {
-	color: #a6a;
-}
+
+h1 { font-size: 20px; }
+h2 { font-size: 16px; }
+
+a { text-decoration: none; }
+a:link { color: #66e; }
+a:visited { color: #a6a; }
+
 a:active {
 	color: #fff !important;
 	background-color: #f50;
 }
+
 a:hover {
 	color: #f50;
 	text-decoration: underline;
 }
+
 a img {
 	border: 0;
 	vertical-align: middle;
 }
+
 div.floatright, div.tright, table.floatright {
 	clear: right;
 	float: right;
@@ -93,7 +85,7 @@ hr.dotted {
 }
 #header h1 {
 	text-indent: -200em;
-	background: transparent url(beagle-logo.png) no-repeat;
+	background: transparent url(/images/logo.png) no-repeat;
 	width: 300px;
 	height: 130px;
 	margin: 0;
@@ -139,7 +131,7 @@ hr.dotted {
 }
 #content {
 	text-align: left;
-	margin: 0 auto;
+	margin: 20px auto 0;
 	width: 760px;
 	line-height: 1.7em;
 }
@@ -252,3 +244,29 @@ textarea {
 pre {
 	font-size: 1.2em;
 }
+
+#footer {
+	text-align: center;
+	color: #ccc;
+	font-size: 11px;
+}
+
+
+
+
+
+
+
+.changeset {
+	margin: 0 0 15px;
+	padding: 10px;
+	border-bottom: 1px dotted #ccc;;
+}
+
+#changessets h2 {
+	margin: 0 0 5px;
+	padding: 0;
+	font-size: 20px;
+}
+
+#changessets p { margin: 0 0 5px; }

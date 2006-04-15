@@ -4,7 +4,7 @@
 <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>FireFly</title>
-		<?= stylesheet_include_tag(array( 'main' )) ?>
+		<?= stylesheet_include_tag(array( 'main', 'table' )) ?>
 </head>
 
 <body>
@@ -16,13 +16,13 @@
 <hr class="clear spacing" />
 
 <ul id="nav-top">
-	<li class="navMenuItem"><a href="/Main_Page">Home</a></li>
-	<li class="navMenuItem"><a href="/Getting_Started">Browse Source</a></li>
-	<li class="navMenuItem"><a href="/FAQ">FAQ</a></li>
-	<li class="navMenuItem"><a href="/Development">Milestones</a></li>
-	<li class="navMenuItem"><a href="/Newsletter">Tickets</a></li>
-	<li class="navMenuItem"><a href="http://www.planetbeagle.org">New Ticket</a></li>
-	<li class="navMenuItem"><a href="http://www.planetbeagle.org">Search</a></li>
+	<li class="navMenuItem"><a href="/">Changesets</a></li>
+	<li class="navMenuItem"><a href="http://creovel.org/svn/creovel/creovel/trunk/" target="blank">Browse Source</a></li>
+	<li class="navMenuItem"><a href="/milestones">Milestones</a></li>
+	<li class="navMenuItem"><a href="/tickets">Tickets</a></li>
+	<li class="navMenuItem"><a href="/tickets/create">New Ticket</a></li>
+	<li class="navMenuItem"><a href="/search">Search</a></li>
+	<li class="navMenuItem"><a href="/login">Login</a></li>
 	<li class="cheat"></li>
 </ul>
 
@@ -37,7 +37,7 @@
 </div>
 </div> 
 
-<div>
+<div id="footer">
 	<hr class="clear dotted spacing" />
 	Copyright &copy; 2006
 </div>

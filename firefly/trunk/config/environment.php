@@ -20,9 +20,9 @@ $_ENV['routes']['default']['controller']	= 'index';
 // set development database properties
 $_ENV[development][adapter]		= 'mysql';
 $_ENV[development][host]		= 'localhost';
-$_ENV[development][database]	= 'database';
-$_ENV[development][username]	= 'user';
-$_ENV[development][password]	= 'password';
+$_ENV[development][database]	= 'firefly';
+$_ENV[development][username]	= 'root';
+$_ENV[development][password]	= '7581001';
 
 // set test database properties
 $_ENV[test][adapter]			= 'mysql';
@@ -39,4 +39,7 @@ $_ENV[production][username]		= '';
 $_ENV[production][password]		= '';
 
 session_start();
+
+require_once(BASE_PATH.'lib/textile.php');
+
 ?>

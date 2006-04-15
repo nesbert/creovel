@@ -1,0 +1,19 @@
+table {
+	width: 100%;
+}
+
+table td {
+	vertical-align: top;
+}
+
+table.data {
+	width: 100%;
+	border-spacing: 0;
+	border-collpase: collapse;
+	border-top: 1px solid #ccc;
+}
+
+table.data td {
+	vertical-align: top;
+	border-bottom: 1px solid #ccc;
+}

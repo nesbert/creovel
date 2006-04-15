@@ -1,0 +1,254 @@
+body {
+	color: #444;
+	background: #fff url(/images/title_bg.png) 0 -80px repeat-x;
+	position: relative;
+	margin: 40px;
+	font-family: trebuchet ms,luxi sans,sans-serif;
+	font-size: 96%;
+	text-align: center;
+}
+h1 img, h2 img, h3 img, h4 img 
+{
+	margin-right: 6px;
+	vertical-align: middle;
+}
+h1, h2, h3, h4, h5 {
+	color: #222;
+	clear: both;
+}
+#content-body > h2 {
+	margin-top: 3em;
+}
+#content-body > h2:first-child {
+	margin-top: 0;
+}
+a {
+	text-decoration: none;
+}
+a:link {
+	color: #66e;
+}
+a:visited {
+	color: #a6a;
+}
+a:active {
+	color: #fff !important;
+	background-color: #f50;
+}
+a:hover {
+	color: #f50;
+	text-decoration: underline;
+}
+a img {
+	border: 0;
+	vertical-align: middle;
+}
+div.floatright, div.tright, table.floatright {
+	clear: right;
+	float: right;
+	position: relative;
+	margin: 0 1em 0.5em 0;
+	border: 0
+}
+div.floatleft, div.tleft, table.floatleft {
+	float: left;
+	position: relative;
+	margin: 0 1em 0.5em 0;
+	border: 0
+}
+.img-inset {
+	float:left;
+	padding: 0 1em 0.5em 0;
+}
+.img-alone {
+	display: block;
+	margin: 0.75em auto;
+	text-align: center;
+	border: 2px solid transparent;
+}
+.img-leader {
+	float: left;
+	margin-right: 12px;
+}
+a:hover > .img-alone {
+	border: 2px solid #f50;
+}
+.clear {
+	border: 0;
+	clear: both;
+}
+hr.dotted {
+	border-bottom: 1px dotted #ccc;
+}
+.spacing {
+	margin: 1em auto;
+}
+.spacing-2 {
+	margin: 2em auto;
+}
+#header {
+	width: 300px;
+	position: relative;
+	margin: 0 auto;
+}
+#header h1 {
+	text-indent: -200em;
+	background: transparent url(beagle-logo.png) no-repeat;
+	width: 300px;
+	height: 130px;
+	margin: 0;
+}
+
+.nav-bottom {
+	list-style: none;
+	font-size: 0.8em;
+}
+.nav-bottom li {
+	display: inline;
+	margin: 0;
+	padding: 7px;
+}
+
+#article-info {
+	font-size: 0.6em;
+}
+
+#nav-top, #nav-bottom {
+	clear: both;
+	text-align: center;
+	list-style-type: none;
+}
+#nav-top li, #nav-bottom li {
+	margin: 0;
+	display: inline;
+}
+#nav-top li a, #nav-bottom li a {
+	padding: 8px 12px;
+	text-decoration: none;
+	border-left: 1px dotted #ccc;
+}
+#nav-top li:first-child a, #nav-bottom li:first-child a {
+	border: 0;
+}
+#nav-top {
+	margin: 0;
+	padding: 0.5em;
+	border: 1px solid #ccc;
+	background-color: #f6f6f6;
+	-moz-border-radius: 2.5px;
+}
+#content {
+	text-align: left;
+	margin: 0 auto;
+	width: 760px;
+	line-height: 1.7em;
+}
+.with-sidebar #content {
+	background: transparent url(divider-vert.png) 540px 0 repeat-y;
+}
+.with-sidebar #content-body {
+	width: 510px;
+	float: left;
+	padding-right: 50px;
+}
+#sidebar {
+	float: left;
+	width: 200px;
+	font-size: small;
+}
+#sidebar h2 {
+	font-size: small;
+	margin: 1.5em 0 0.5em 0;
+}
+#sidebar h2:first-child {
+	margin-top: 0;
+}
+#sidebar ul {
+	margin: 0;
+	padding: 0;
+	padding-left: 20px;
+	line-height: 1.25em;
+}
+#sidebar ul > li {
+	margin: 0;
+}
+.summary {
+	font-weight: bold;
+}
+.split-half {
+	vertical-align: top;
+	width: 46%;
+	float: left;
+	padding: 1em 2% 1em;
+}
+.split-third {
+	vertical-align: top;
+	width: 29.333%;
+	float: left;
+	padding: 1em 2% 1em;
+}
+.split-tosize {
+	vertical-align: top;
+	float: left;
+	padding: 1em 2% 1em;
+}
+.split-half:first-child {
+	padding-top: 0;
+}
+.thumbcaption {
+	text-align: center;
+}
+ul#supported-items {
+	margin: 0 0 0 1em;
+	padding: 0;
+	list-style: none;
+	line-height: normal;
+}
+ul#supported-items > li {
+	float: left;
+	font-weight: bold;
+	width: 50%;
+	font-size: small;
+	margin-bottom: 1em;
+}
+ul#supported-items > li > img {
+	vertical-align: middle;
+	position: relative;
+	bottom: 2px;
+}
+ul#supported-items > li > ul {
+	margin: 0;
+	padding: 0 0 0 1em;
+}
+ul#supported-items > li > ul > li {
+	font-weight: normal;
+	float: left;
+	list-style: none;
+	padding-left: 6pt;
+	color: #999;
+	font-size: smaller;
+}
+span.nowrap {
+	white-space: nowrap;
+}
+ul > li {
+	margin-left: 2em;
+}
+.img-box {
+	text-align: center;
+}
+.img-box strong {
+}
+.urlexpansion, .printfooter, #toc {
+	display: none;
+}
+div.editsection {
+	margin-bottom: -5em;
+	font-size: 0.8em;
+}
+textarea {
+	width: 100%;
+}
+pre {
+	font-size: 1.2em;
+}

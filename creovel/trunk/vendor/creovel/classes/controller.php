@@ -57,14 +57,12 @@ class controller
 	 * @return string
 	 */
 	public function build_view()
-	{
+	{		
+		$html = new view();		
 		
-		$html = new view();
-		$html->controller = $this->controller;
-		
-		if ( $this->render !== false ) $html->render = $this->render ? $this->render : $this->action;		
 		if ( $this->render_text ) $html->text = $this->render_text;
-		if ( $this->layout !== false ) $html->layout = $this->layout;
+		if ( $this->render !== false ) $html->content_path = VIEWS_PATH.$this->controller.DS.( $this->render ? $this->render : $this->action ).'.php';
+		if ( $this->layout !== false ) $html->template_path = VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
 		
 		$html->create();
 		

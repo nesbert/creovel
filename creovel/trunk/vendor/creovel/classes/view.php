@@ -6,13 +6,14 @@
  class view
  {
  
+ 	private $content;
+	private $content_key = '@@page_contents@@';
+ 	private $template;
  	private $page;
- 	private $view;
 	
- 	public $controller;
- 	public $render;
+	public $content_path;
+	public $template_path;
  	public $text;
-	public $layout;
 	
 	/**
 	 * Creates the page to be displayed and sets it to the page property
@@ -22,27 +23,27 @@
 	 */
 	public function create()
 	{
-	
-		if ( $this->render ) $this->view = $this->get_include_contents(VIEWS_PATH.$this->controller.DS.$this->render.'.php');
-		if ( $this->text ) $this->view = $this->text . $this->view;
-		// include template
-		if ( $this->layout ) {
+		// set view content
+		$this->content = $this->get_include_contents($this->content_path);
+		$this->content = $this->text . $this->content;
+		
+		// combine content and template. else use content only
+		if ( $this->template_path ) {
 			
-			// get layout contents
-			$this->page = $this->get_include_contents(VIEWS_PATH.'layouts'.DS.$this->layout.'.php');
+			// get template
+			$this->template = $this->get_include_contents($this->template_path);
 			
-			if ( $this->page ) {
-				$this->page = str_replace('@@page_contents@@', $this->view, $this->page);
+			if ( $this->template ) {
+				$this->page = str_replace($this->content_key, $this->content, $this->template);
 			} else {
-				$this->page = $this->view;
+				$this->page = $this->content;
 			}
 			
 		} else {
 		
-			$this->page = $this->view;
+			$this->page = $this->content;
 			
 		}
-		
 	}
 	
 	/**

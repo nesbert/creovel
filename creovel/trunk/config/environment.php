@@ -40,7 +40,7 @@ define(VENDOR_PATH, 		BASE_PATH.'vendor/');
 define(CREOVEL_PATH, 		VENDOR_PATH.'creovel/');
 
 // include core libraries
-require_once(CREOVEL_PATH.'helpers/all.php');
+require_once(CREOVEL_PATH.'lib.php');
 
 // start session
 //session_start();

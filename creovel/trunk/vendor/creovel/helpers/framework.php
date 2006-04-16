@@ -47,25 +47,18 @@ function __autoload($classname) {
 	
 	try {
 	
-		if ( !file_exists($path) ) {
-			throw new Exception("{$classname} not found...");
-		} else {
+		if ( file_exists($path) ) {
+			echo $path . '<br />';
 			require_once($path);
+		} else {
+			throw new Exception("Looking for '{$classname}' at <strong>{$path}</strong>");
 		}
 	
 	} catch(Exception $e) {
 		
-		echo '<h1>Required File Not Found...</h1>';
-		echo "<p>Looking for <b>{$classname}</b> at <b>{$path}</b></p>";
-	 	
-		foreach ( debug_backtrace() as $path ) {
-			echo "<b>File:</b> {$path['file']}<br />";
-			echo "<b>Line:</b> {$path['line']}<br />";
-			echo "<b>Function:</b> {$path['function']}<br />";
-			echo "<hr />";
-		}
-		
-		die();
+		// add to errors				
+		$error	= new error();
+		$error->add('fatal', $e->getMessage(), $e);
 		
 	}
 	

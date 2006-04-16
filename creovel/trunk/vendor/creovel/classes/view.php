@@ -6,14 +6,56 @@
  class view
  {
  
- 	private $content;
-	private $content_key = '@@page_contents@@';
- 	private $template;
- 	private $page;
+ 	protected $view;
 	
-	public $content_path;
-	public $template_path;
- 	public $text;
+	/**
+	 * Initailize $view properties
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function __construct()
+	{
+		$this->view->content_key = '@@page_contents@@';		
+		$this->view->content_path = '';
+		$this->view->content = '';
+		$this->view->template_path = '';
+ 		$this->view->template = '';
+		$this->view->page = '';	
+	}
+	
+	/**
+	 * Set content for view
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function set_content($str)
+	{
+		$this->view->content = $str;
+	}
+	
+	/**
+	 * Set content path for view
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function set_content_path($path)
+	{
+		$this->view->content_path = $path;
+	}
+	
+	/**
+	 * Set template path for view
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function set_template_path($path)
+	{
+		$this->view->template_path = $path;
+	}
 	
 	/**
 	 * Creates the page to be displayed and sets it to the page property
@@ -21,27 +63,26 @@
 	 * @author Nesbert Hidalgo
 	 * @access public 
 	 */
-	public function create()
+	public function create_view()
 	{
 		// set view content
-		$this->content = $this->get_include_contents($this->content_path);
-		$this->content = $this->text . $this->content;
+		$this->view->content = $this->view->content . $this->get_include_contents($this->view->content_path);
 		
 		// combine content and template. else use content only
-		if ( $this->template_path ) {
+		if ( $this->view->template_path ) {
 			
 			// get template
-			$this->template = $this->get_include_contents($this->template_path);
+			$this->view->template = $this->get_include_contents($this->view->template_path);
 			
-			if ( $this->template ) {
-				$this->page = str_replace($this->content_key, $this->content, $this->template);
+			if ( $this->view->template ) {
+				$this->view->page = str_replace($this->view->content_key, $this->view->content, $this->view->template);
 			} else {
-				$this->page = $this->content;
+				$this->view->page = $this->view->content;
 			}
 			
 		} else {
 		
-			$this->page = $this->content;
+			$this->view->page = $this->view->content;
 			
 		}
 	}
@@ -53,9 +94,20 @@
 	 * @access public 
 	 * @return string 
 	 */
-	public function get_page()
+	public function get_view()
 	{
-		return $this->page;
+		return $this->view->page;
+	}
+
+	/**
+	 * Prints the $page
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function show_view()
+	{
+		print $this->view->page;
 	}
 
 	/*

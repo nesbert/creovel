@@ -22,12 +22,12 @@ class creovel
 		$events = $events ? $events : self::get_events();
 		$params = $params ? $params : self::get_params();
 		
-		#print_obj($events);
-		#print_obj($params);
-		
 		// set controller & action
 		$events['controller'] = $events['controller'] ? $events['controller'] : $_ENV['routes']['default']['controller'];
 		$events['action'] = $events['action'] ? $events['action'] : $_ENV['routes']['default']['action'];
+		
+		#print_obj($events);
+		#print_obj($params);
 		
 		// include controllers and helpers		
 		self::include_controllers($events['nested_controller_path'] . $events['controller']);		
@@ -46,7 +46,7 @@ class creovel
 		// build page
 		$controller->display_view();
 		
-		#print_obj($controller);
+		//print_obj($controller);
 		return $controller;
 	}
 	
@@ -67,9 +67,15 @@ class creovel
 		$args = explode('/', substr($uri[0], 1));
 		
 		// set events for framework with array indexes
-		$events['controller'] =  $args[count($args) - 3];
-		$events['action'] = $args[count($args) - 2];
-		$events['id'] = $args[count($args) - 1];
+		if ( count($args) > 2 ) {
+			$events['controller'] =  $args[count($args) - 3];
+			$events['action'] = $args[count($args) - 2];
+			$events['id'] = $args[count($args) - 1];
+		} else {
+			$events['controller'] =  $args[count($args) - 2];
+			$events['action'] = $args[count($args) - 1];
+			$events['id'] = $args[count($args)];
+		}
 		
 		// check for nested controller
 		if ( count($args) > 3 ) {
@@ -119,7 +125,7 @@ class creovel
 	}
 	
 	/**
-	 * Includes the required files for a controller and the controller helopers.
+	 * Includes the required files for a controller and the controller helpers.
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access private
@@ -127,30 +133,39 @@ class creovel
 	 */
 	private function include_controllers($controller_path)
 	{
-		$controllers = explode('/', $controller_path);
+		// include application controller
+		$controllers = array_merge(array('application'), explode('/', $controller_path));
 		
 		$path = '';
 		
 		foreach ( $controllers as $controller ) {
 		
-			$controller_path = CONTROLLERS_PATH . $path . $controller . '_controller.php';
+			$class = $controller . '_controller';
+			$controller_path = CONTROLLERS_PATH . $path . $class . '.php';
 			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
+			
+			#echo $controller_path. '<br />';
 			
 			try {
 				
-				require_once($controller_path);
+				if ( file_exists($controller_path) ) {				
+					require_once($controller_path);
+				} else {
+					throw new Exception("Controller '{$class}' not found in <strong>{$controller_path}</strong>");
+				}
 				
 			} catch ( Exception $e ) {
 			
 				// add to errors
-				print_obj($e);
+				$error	= new error();
+				$error->add('fatal', $e->getMessage(), $e);
 			
 			}
 			
 			// include helper
 			if ( file_exists($helper_path) ) require_once($helper_path);
 
-			$path .= $controller . DS;
+			$path .= str_replace('application/', '', $controller . DS);
 			#echo $path.'<br /><br />';
 		}
 	

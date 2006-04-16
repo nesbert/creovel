@@ -3,13 +3,12 @@
  * Class to handle all intreaction between models, views, and controllers
  * 
  */
-class controller
+class controller extends view
 {
 	
-	private $html;
-
-	public $controller;
-	public $action;
+	protected $controller;
+	protected $action;
+	
 	public $layout;
 	public $params;
 	
@@ -57,20 +56,20 @@ class controller
 	 * @return string
 	 */
 	public function build_view()
-	{		
-		$html = new view();		
+	{
+		// set view properties
+		if ( isset($this->render_text) ) $this->set_content($this->render_text);
+		if ( $this->render !== false ) $this->set_content_path(VIEWS_PATH.$this->controller.DS.( $this->render ? $this->render : $this->action ).'.php');
+		if ( $this->layout !== false ) $this->set_template_path(VIEWS_PATH.'layouts'.DS.$this->layout.'.php');
 		
-		if ( $this->render_text ) $html->text = $this->render_text;
-		if ( $this->render !== false ) $html->content_path = VIEWS_PATH.$this->controller.DS.( $this->render ? $this->render : $this->action ).'.php';
-		if ( $this->layout !== false ) $html->template_path = VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
+		// create view
+		$this->create_view();
 		
-		$html->create();
-		
-		return $html->get_page();
+		return $this->get_view();
 	}
 	
 	/**
-	 * Outputs the generate html to screen
+	 * Outputs the generated html to screen
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public 

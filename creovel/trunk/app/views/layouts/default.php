@@ -9,7 +9,6 @@
 	<title>creovel - A PHP Framework</title>
 	
 </head>
-
 <body>
 
 <div id="wrapper">

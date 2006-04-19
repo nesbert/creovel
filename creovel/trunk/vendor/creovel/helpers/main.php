@@ -62,81 +62,6 @@ function redirect_to($controller = '', $action = '', $id = '') {
 	
 }
 
-/**
- * Returns a stylesheets include tag.
- *
- * @author Nesbert Hidalgo
- * @param string/array $url required
- * @mparam string $/array optional default set to "screen"
- */ 
-
-function stylesheet_include_tag($url, $media = 'screen') {
-	if ( is_array($url) ) {
-	
-		foreach ( $url as $path ) {
-		
-			$str .= "<link rel=\"stylesheet\" type=\"text/css\" media=\"".$media."\" href=\"/stylesheets/".$path.".css\">\n";
-		
-		}
-		
-		return $str;
-	
-	} else {
-	
-		return sprintf('<link rel="stylesheet" type="text/css" media="'.$media.'" href="%s">', $url);
-		
-	}
-	
-}
-
-/**
- * Returns a javascript script tag.
- *
- * @author Nesbert Hidalgo
- * @param string $script required
- */
-
-function javascript_tag($script) {
-	return sprintf('<script language="javascript" type="text/javascript">%s</script>'."\n", $script);
-}
-
-/**
- * Returns a javascript include tag.
- *
- * @author Nesbert Hidalgo
- * @param string/array $url required
- */
- 
-function javascript_include_tag($url) {
-	if ( is_array($url) ) {
-	
-		foreach ( $url as $path ) {
-		
-			$str .= "<script language=\"javascript\" type=\"text/javascript\" src=\"/javascripts/".$path.".js\"></script>\n";
-		
-		}
-		
-		return $str;
-	
-	} else {
-	
-		return sprintf('<script language="javascript" type="text/javascript" src="%s"></script>', $url);
-		
-	}
-}
-
-/**
- * Returns MySQL Timestamp.
- *
- * @author Nesbert Hidalgo
- * @param string/array $url required
- */
- 
-function db_time($unix_timestamp = null) {
-
-	return date('Y-m-d H:i:s', ( $unix_timestamp ? $unix_timestamp : time() ));
-
-}
 
 /**
  * Returns a pluralized verision of a word.
@@ -179,32 +104,6 @@ function pluralize($word, $count = null) {
 
 
 
-
-
-
-
-function phone_to_db($phone_number) {
-
-	$search_array = array('-', '(', ') ');
-	
-	foreach ($search_array as $mixed_search) {
-	
-		$phone_number = str_replace($mixed_search , '', $phone_number);
-	
-	}
-	
-	return $phone_number;
-
-}
-
-function phone_to_web($phone_number) {
-
-	$phone_number = '('.substr($phone_number, 0, 3).') '.substr($phone_number, 3, 3).'-'.substr($phone_number, 6, 4);
-	
-	return $phone_number;
-
-}
-
 function in_csv_string($cvs_string, $mixed_needle) {
 
 	if ( in_array($mixed_needle, split(',', $cvs_string)) ) {
@@ -219,12 +118,6 @@ function in_csv_string($cvs_string, $mixed_needle) {
 
 }
 
-
-function quote_fix($string) {
-
-	return str_replace("\"", "&quot;", $string);
-
-}
 
 /**
  * Helpful for alternating between between two values during a loop.
@@ -330,57 +223,6 @@ function set_current(&$array, $key) {
 		if ( key($array) == $key ) break;
 		next($array);
 	}
-	
-}
-
-/*
- * Creates the floating tabs. Expects an array, key = url/javascript, value = label
- *
- * @author Nesbert Hidalgo
- * @param array $links required
- * @param string $current optional default set to 1
- * @param bool $use_small_tabs optional default set to false
- * @return string
- */
- 
-function tabs($links, $current = 1, $use_small_tabs = false) {
-
-	$tabs_id = 'tab'.rand();
-
-	$tabs = '<ul class="tabs'.( $use_small_tabs ? ' small_tabs' : '' ).'">';
-	
-	$count = 1;
-	
-	foreach ( $links as $link => $text ) {
-		$text_id = (is_numeric($current) ? $count : underscore(strip_tags($text)));
-		
-		$tabs .= '<li id="'.$tabs_id.'_'.$count.'" '.( $text_id == $current ? ' class="current"' : '').'><a href="'.$link.'" '.( strstr($link, 'javascript:') ? 'onclick="'.$tabs_id.'('.$count.', '.count($links).');"' : '' ).'><span>'.$text.'</span></a></li>';
-		$count++;
-	}
-		
-	$tabs .= '</ul>';
-	
-	?>
-	<script language="javascript" type="text/javascript">
-	<!--
-		function <?=$tabs_id?>(tab_id, tabs_count) {
-
-			for (var i=1; i <= tabs_count; i++) {
-			
-				if (tab_id == i) {
-					document.getElementById('<?=$tabs_id?>_' + i).className = 'current';
-				} else {
-					document.getElementById('<?=$tabs_id?>_' + i).className = '';
-				}
-			
-			}
-			
-		}
-	-->	
-	</script>
-	<?
-	
-	return $tabs;
 	
 }
 
@@ -627,5 +469,14 @@ function copyr($source, $dest) {
 	 return true;
 }
 
-
+/*
+ * Return user definde constats
+ *
+ * @author Nesbert Hidalgo
+ * @return array
+ */
+ function get_user_defined_constants() {
+ 	$return = get_defined_constants(true);
+	return $return['user'];
+ }
 ?>

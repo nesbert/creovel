@@ -5,6 +5,8 @@
  */
 class creovel
 {
+	public static $version = '0.01';
+	public static $release_date = '11/24/05';
 	
 	/**
 	 * Run framework.

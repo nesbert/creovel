@@ -79,17 +79,6 @@ class controller extends view
 		echo $this->build_view();
 	}
 	
-	// still need to check these last three function [NH] 4/15/2006
-
-	public function build_partial($partial, $locals = array(), $controller = null)
-	{
-		include ( VIEWS_PATH.( $controller ? $controller : $this->controller ).DS.$partial.'.php' );
-	}
-
-	public function render_partial($partial, $locals = array(), $controller = null)
-	{
-		$this->build_partial('_'.$partial, $locals, $controller);
-	}
 
 	public function build_controller($controller, $action = '', $id = '', $extras = array())
 	{
@@ -100,5 +89,14 @@ class controller extends view
 		creovel::run($events, array_merge($params, $extras));
 	}
 	
+	public function build_partial($view, $controller = null)
+	{
+		include ( VIEWS_PATH.( $controller ? $controller : $this->controller ).DS.$view.'.php' );
+	}
+
+	public function render_partial($view, $controller = null)
+	{
+		$this->build_partial('_'.$view, $locals, $controller);
+	}
 }
 ?>

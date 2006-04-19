@@ -5,6 +5,7 @@
 require_once('helpers/constants.php');
 require_once('helpers/framework.php');
 require_once('helpers/main.php');
+require_once('helpers/html.php');
 require_once('helpers/format.php');
 require_once('helpers/form.php');
 require_once('helpers/ajax.php');

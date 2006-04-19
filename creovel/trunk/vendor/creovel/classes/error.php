@@ -26,8 +26,8 @@ class error extends view
 	{
 		$this->message = $message;
 		$this->exception = $exception;
-		$this->set_content_path(CREOVEL_PATH.'views/debug_errors.php');
-		$this->set_template_path(CREOVEL_PATH.'templates/system_errors.php');
+		$this->set_content_path(CREOVEL_PATH.'views/fatal_errors.php');
+		$this->set_template_path(CREOVEL_PATH.'views/layouts/creovel.php');
 		$this->create_view();
 		$this->show_view();
 		die;

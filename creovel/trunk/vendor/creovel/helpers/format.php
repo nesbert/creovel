@@ -29,4 +29,41 @@ function strip_slashes($data) {
 	return $clean_values;
 	
 }
+
+
+
+
+
+
+
+function phone_to_db($phone_number) {
+
+	$search_array = array('-', '(', ') ');
+	
+	foreach ($search_array as $mixed_search) {
+	
+		$phone_number = str_replace($mixed_search , '', $phone_number);
+	
+	}
+	
+	return $phone_number;
+
+}
+
+function phone_to_web($phone_number) {
+
+	$phone_number = '('.substr($phone_number, 0, 3).') '.substr($phone_number, 3, 3).'-'.substr($phone_number, 6, 4);
+	
+	return $phone_number;
+
+}
+
+
+function quote_fix($string) {
+
+	return str_replace("\"", "&quot;", $string);
+
+}
+
+
 ?>

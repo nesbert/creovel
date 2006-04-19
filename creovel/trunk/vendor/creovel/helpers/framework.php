@@ -18,12 +18,14 @@ function __autoload($classname) {
 	
 	switch ( true ) {
 	
+		/*
 		case ( strstr($classname, '_controller') ):
 			$path = CONTROLLERS_PATH.$classname.'.php';
 			$controller = str_replace('_controller', '', $classname);
 			$helper_path = HELPERS_PATH.$controller.'_helper.php';
 			if ( file_exists($helper_path) ) require_once($helper_path);
 		break;
+		*/
 
 		case ( strstr($classname, '_model') ):
 		case ( strstr($classname, '_mailer') ):
@@ -36,8 +38,7 @@ function __autoload($classname) {
 		break;
 		
 		default:
-			$path = CREOVEL_PATH.'classes'.DS.$classname.'.php';
-			if ( !file_exists($path) ) $path = CREOVEL_PATH.'adapters'.DS.$classname.'.php';
+			$path = CREOVEL_PATH.'adapters'.DS.$classname.'.php';
 			if ( !file_exists($path) ) $path = CREOVEL_PATH.'services'.DS.$classname.'.php';
 			if ( !file_exists($path) ) $path = APP_PATH.'vendor'.DS.$classname.'.php';
 			if ( !file_exists($path) ) $path = CREOVEL_PATH.'vendor'.DS.$classname.'.php';
@@ -125,7 +126,7 @@ function get_params($param_to_return = null)
  */
 function get_version()
 {
-	return VERSION; 
+	return creovel::$version;
 }
 
 /**
@@ -137,6 +138,6 @@ function get_version()
  */
 function get_release_date()
 {
-	return RELEASE_DATE;
+	return creovel::$release_date;
 }
 ?>

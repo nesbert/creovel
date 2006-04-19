@@ -13,7 +13,7 @@ class mysql implements adapter_interface
 	private $query_link;	// MySQL result resource
 	private $table;			// current table
 	
-	public $pointer = 0;	// MySQL result pointer
+	public $pointer = -1;	// MySQL result pointer
 	public $row_count = 0;	// number of rows in MySQL result
 	public $insert_id;		// ID generated from a MySQL INSERT operation
 
@@ -47,10 +47,11 @@ class mysql implements adapter_interface
 	public function disconnect()
 	{
 		// free result memory
-		if ( $this->query_link ) mysql_free_result($this->query_link);
+		if ( $this->query_link ) @mysql_free_result($this->query_link);
 		
 		// close MySQL connection
-		mysql_close($this->db_link);	
+		
+		if ($this->db_link) @mysql_close($this->db_link);	
 	}
 	
 	public function set_database($database)
@@ -60,6 +61,11 @@ class mysql implements adapter_interface
 		
 		// select a MySQL database to use
 		mysql_select_db($this->db->database) or $this->handle_error("<strong>Error:</strong> Could not select database ({$this->db->database}@{$this->db->host}). " . mysql_error() . '<br />');
+	}
+	
+	public function get_database() {
+	
+		return $this->db->database;
 	}
 	
 	public function set_table($table)
@@ -126,6 +132,12 @@ class mysql implements adapter_interface
 		}
 	}
 	
+	public function rewind() {
+		$this->pointer = 0;
+		
+	}
+	
+	
 	public function get_row($pointer = 0)
 	{
 		// set pointer
@@ -136,6 +148,12 @@ class mysql implements adapter_interface
 		
 		// fetch and return a result row as an associative array
 		return mysql_fetch_assoc($this->query_link);			
+	}
+	
+	public function get_next() {
+		
+		
+	
 	}
 	
 	private function get_mysql_error()

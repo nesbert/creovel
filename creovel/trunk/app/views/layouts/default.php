@@ -7,7 +7,9 @@
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>creovel - A PHP Framework</title>
-	
+	<script type="text/javascript">
+		if (top !== self) top.location.href = '/index.html';
+	</script>
 </head>
 <body>
 

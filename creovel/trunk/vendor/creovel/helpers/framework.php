@@ -49,7 +49,7 @@ function __autoload($classname) {
 	try {
 	
 		if ( file_exists($path) ) {
-			echo $path . '<br />';
+			
 			require_once($path);
 		} else {
 			throw new Exception("Looking for '{$classname}' at <strong>{$path}</strong>");

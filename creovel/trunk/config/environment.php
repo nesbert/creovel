@@ -1,5 +1,5 @@
 <?php
-$_ENV['mode'] = 'test'; // development, test, production
+$_ENV['mode'] = 'development'; // development, test, production
 
 // Default Route Controller
 $_ENV['routes']['default']['controller'] = 'index';
@@ -9,9 +9,9 @@ $_ENV['routes']['default']['layout'] = 'default';
 // set development database properties
 $_ENV[development][adapter]		= 'mysql';
 $_ENV[development][host]		= 'localhost';
-$_ENV[development][database]	= 'database';
-$_ENV[development][username]	= 'user';
-$_ENV[development][password]	= 'password';
+$_ENV[development][database]	= 'creovel';
+$_ENV[development][username]	= 'root';
+$_ENV[development][password]	= 'd11b3r7';
 
 // set test database properties
 $_ENV[test][adapter]			= 'mysql';

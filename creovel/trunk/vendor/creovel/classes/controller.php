@@ -58,14 +58,11 @@ class controller extends view
 	public function build_view()
 	{
 		// set view properties
-		if ( isset($this->render_text) ) $this->set_content($this->render_text);
-		if ( $this->render !== false ) $this->set_content_path(VIEWS_PATH.$this->controller.DS.( $this->render ? $this->render : $this->action ).'.php');
-		if ( $this->layout !== false ) $this->set_template_path(VIEWS_PATH.'layouts'.DS.$this->layout.'.php');
+		if ( isset($this->render_text) ) $this->_set_view_content($this->render_text);
+		if ( $this->render !== false ) $this->_set_view_content_path(VIEWS_PATH.$this->controller.DS.( $this->render ? $this->render : $this->action ).'.php');
+		if ( $this->layout !== false ) $this->_set_view_layout_path(VIEWS_PATH.'layouts'.DS.$this->layout.'.php');
 		
-		// create view
-		$this->create_view();
-		
-		return $this->get_view();
+		return $this->_get_view();
 	}
 	
 	/**
@@ -98,5 +95,6 @@ class controller extends view
 	{
 		$this->build_partial('_'.$view, $locals, $controller);
 	}
+	
 }
 ?>

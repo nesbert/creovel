@@ -196,7 +196,7 @@ function is_serialized($data) {
 /**
  * Check if array is an associative array.
  *
- * http://us3.php.net/manual/en/function.is-array.php#41179
+ * http://us3.php.net/manual/en/function.is-array.php41179
  */
 
 function is_assoc_array($var) {
@@ -422,7 +422,7 @@ function remove_char($tempVal) {
 	$tempVal = str_replace ("<", "", $tempVal);
 	$tempVal = str_replace (">", "", $tempVal);
 	$tempVal = str_replace ("%", "", $tempVal);
-	$tempVal = str_replace ("#", "", $tempVal);
+	$tempVal = str_replace ("", "", $tempVal);
 	$tempVal = str_replace ("*", "", $tempVal);
 	$tempVal = str_replace ("+", "", $tempVal);
 	$tempVal = str_replace ("=", "", $tempVal);

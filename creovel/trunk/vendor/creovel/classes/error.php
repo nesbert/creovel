@@ -6,9 +6,6 @@
 class error extends view
 {
 
-	private $errors;
-	
-	
 	public function add($type, $message, $exception = null)
 	{
 	
@@ -24,14 +21,24 @@ class error extends view
 	
 	private function display_fatal_error($message, $exception = null)
 	{
+		$this->mode_check();
+		
 		$this->message = $message;
 		$this->exception = $exception;
-		$this->set_content_path(CREOVEL_PATH.'views/fatal_errors.php');
-		$this->set_template_path(CREOVEL_PATH.'views/layouts/creovel.php');
-		$this->create_view();
-		$this->show_view();
+		$this->_set_view_content_path(CREOVEL_PATH.'views/fatal_errors.php');
+		$this->_set_view_layout_path(CREOVEL_PATH.'views/layouts/creovel.php');
+		$this->_show_view();
 		die;
 	}
-
+	
+	private function mode_check()
+	{
+		if ( $_ENV['mode'] !== 'development' ) {
+			die('redirect 404 page!');
+		} else {
+			return true;
+		}
+	}
+	
 }
 ?>

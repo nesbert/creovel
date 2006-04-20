@@ -15,7 +15,7 @@ class model implements Iterator {
 	* @access protected
 	* @var string
 	*/
-	static protected $_db_name;
+	protected $_db_name;
 	
 	/**
 	* Table name the model is representing 
@@ -24,7 +24,7 @@ class model implements Iterator {
 	* @access protected
 	* @var string 
 	*/
-	static protected $_table_name;
+	protected $_table_name;
 	
 	/**
 	* Table columns
@@ -33,7 +33,7 @@ class model implements Iterator {
 	* @access private
 	* @var object
 	*/
-	 static protected $_fields;
+	protected $_fields;
 	 
 	/**
 	* The primary key column (underscore format).
@@ -52,6 +52,31 @@ class model implements Iterator {
     public $select_query;
 	
 	/**
+	* Adapter
+	* @author Nesbert Hidalgo
+	* @access private
+	* @var object
+	*/
+    public $action_query;
+	
+	/**
+	* Adapter
+	* @author Nesbert Hidalgo
+	* @access public
+	* @var array
+	*/
+    public $_links = array();
+	
+	/**
+	* Adapter
+	* @author Nesbert Hidalgo
+	* @access public
+	* @var array
+	*/
+    public $_valid = array();
+	
+	
+	/**
 	* Constructor.
 	*
 	* @author John Faircloth
@@ -67,11 +92,14 @@ class model implements Iterator {
 	private $_limit;
 	private $_offset;
 	private $_query_str;
-	
+	private $_inflector;
 	
 	public function __construct($data = null, $connection_properties = null) {
 		
+		$this->_inflector = new inflector();
 		$this->select_query = $this->_establish_connection($connection_properties);
+		$this->action_query = $this->_establish_connection($connection_properties);
+		
 		
 		if ($adapter) {
 			$this->_adpater = $adapter;
@@ -92,14 +120,19 @@ class model implements Iterator {
 		
 		if (!$this->_table_name) {
 			
-			$model_name =  str_replace('_model', '', get_class($this));
-			$this->_table_name = pluralize($model_name);
+			$model_name =  $this->_class();
+			$this->_table_name = $this->_inflector->pluralize($model_name);
 		
 		}
 		
 		$this->_db_name = $this->select_query->get_database();
 		$this->select_query->set_table($this->_table_name);
 		$this->_fields = $this->select_query->get_fields_object();
+	}
+	
+	private function _class() {
+		return str_replace('_model', '', get_class($this));
+			
 	}
 	
 	/**
@@ -169,6 +202,29 @@ class model implements Iterator {
 
 	protected function _set_data($data) {
 	
+		if ($data) {
+			if (is_array($data)) {
+				if (isset($data[$this->_primary_key])) {
+					$function = 'set_' . $this->_primary_key;
+					$this->$function($data[$this->_primary_key]);
+					
+				}
+						
+				foreach($data as $name => $value) {
+					if ($name != $this->_primary_key) {
+							
+						$function = 'set_' . $name;
+						
+						$this->$function($value);
+					}
+				}
+			} else {
+				$function = 'set_' . $this->_primary_key;
+				$this->$function($data);
+			}
+			
+		}
+		
 	}
 	
 	/**
@@ -207,12 +263,14 @@ class model implements Iterator {
 	
 	public function save() { 
 		$this->before_save();
-	
+		
 		$key = $this->key();
+		
 		if ($key) {
-			$ret_val = $this->update($this->values, $this->_primary_key . " = '" . mysql_real_escape_string($this->key()) . "'");
+			
+			$ret_val = $this->update($this->values(), $this->_primary_key . " = '" . $this->key() . "'");
 		} else {
-			$ret_val = $this->insert($this->values);
+			$ret_val = $this->insert($this->values());
 		}
 		
 		if ($ret_val) {
@@ -228,34 +286,152 @@ class model implements Iterator {
 	
 	public function insert($data) {
 		
-		foreach ( $this->_fields as $field => $obj ) {
+		$qry = "insert into $this->_db_name.$this->_table_name (";
 		
-			switch ( true ) {
-				case ( $field == $this->_primary_key );
-					break;			
-				case ( $field == 'created_at' ):
-				case ( $field == 'updated_at' ):
-					$fields[$field] = date('Y-m-d H:i:s');
-				break;
+		foreach ($data as $name => $value) {
+			
+			if ($name == $this->_primary_key) {
 				
-				default:
-					$fields[$field] = addslashes($obj->value);
-				break;
+				continue;
+
+			}
+
+			$qry .= $name . ', ';
+
+		}
+		
+		
+		$qry = substr($qry, 0, -2) . ') values (';
+		
+		foreach ($data as $name => $value) {
+
+			if ($name == $this->_primary_key) {
+				continue;
+
+			}
+			$this->_fields->$name->value = $value;
+			$obj = $this->_fields->$name;
+			
+			if ($name == 'created_at') {
+				
+				$qry .= "'" . date('Y-m-d H:i:s')  . "', ";
+
+			} elseif ($name == 'updated_at') {
+				
+				$qry .= "'" . date('Y-m-d H:i:s')  . "', ";
+
+			} elseif ($obj->null == 'YES' && ($obj->value === '' || $obj->value === null)) {
+			
+				$qry .= "NULL, ";
+				
+			} elseif (is_bool($obj->value)) {
+				
+				$qry .= "'" . ($obj->value ? 1 : 0) . "', ";
+				
+
+			} elseif (is_numeric($obj->value)) {
+				
+				$qry .= "'" . $obj->value . "', ";
+				
+			} elseif (is_string($obj->value)) {
+				
+				$qry .= "'" . addslashes(trim($obj->value)) . "', ";
+				
+			} elseif (is_array($obj->value)) {
+				
+				$qry .= "'" . addslashes(serialize($obj->value)) . "', ";
+							
+			}else {
+				
+				$qry .= "'" . $obj->default . "', ";
 				
 			}
-			
-		}
 
-		$sql = "INSERT INTO {$this->_db_name}.{$this->_table_name} (". implode(', ', array_keys($fields)) .") VALUES ('" . implode("', '", array_values($fields)) . "')";
-		echo $sql;
+			
+
+		}
+		$qry = substr($qry, 0, -2) ;
+		
+		$qry .= ')';
+		$this->action_query->query($qry);
+		
+		$key = $this->_primary_key;
+		$this->_fields->$key->value =  $this->action_query->insert_id;
+		
+		return $this->key(); 
+		 
 	}
 	
 	public function update($data, $where) {
+		
+		$qry = "update $this->_db_name.$this->_table_name set ";
+		
+		foreach ($data as $name => $value) {
+
+			if ($name == $this->_primary_key) {
+				continue;
+
+			}
+			$this->_fields->$name->value = $value;
+			$obj = $this->_fields->$name;
+			
+			if ($name == 'created_at') {
+				
+				continue;			
 	
-	
+			} elseif ($name == 'updated_at') {
+				
+				$qry .= $name . " = '" . date('Y-m-d H:i:s')  . "', ";
+
+			} elseif ($obj->null == 'YES' && ($obj->value === '' || $obj->value === null)) {
+			
+				$qry .= $name . " = " . "NULL, ";
+				
+			} elseif (is_bool($obj->value)) {
+				
+				$qry .= $name . " = " . "'" . ($obj->value ? 1 : 0) . "', ";
+				
+
+			} elseif (is_numeric($obj->value)) {
+				
+				$qry .= $name . " = " . "'" . $obj->value . "', ";
+				
+			} elseif (is_string($obj->value)) {
+				
+				$qry .= $name . " = " . "'" . addslashes(trim($obj->value)) . "', ";
+				
+			} elseif (is_array($obj->value)) {
+				
+				$qry .= $name . " = " . "'" . addslashes(serialize($obj->value)) . "', ";
+							
+			}else {
+				
+				$qry .= $name . " = " . "'" . $obj->default . "', ";
+				
+			}
+
+			
+
+		}
+		$qry = substr($qry, 0, -2) ;
+		$key = $data[$this->_primary_key];
+		$qry .= " where $this->_primary_key =  '$key'";
+		$this->action_query->query($qry);
+		
+		$key = $this->_primary_key;
+		$this->_fields->$key->value =  $this->action_query->insert_id;
+		
+		return $this->key(); 
 	}
 	
 	public function delete($where) {
+		if (!$where) {
+			return false;
+		}
+		
+		$this->action_query->query("delete from $this->_db_name.$this->_table_name where $where");
+		
+		return $this->action_query->row_count;
 		
 	}
 	
@@ -488,7 +664,7 @@ class model implements Iterator {
 			return $row;
 			
 		} else {
-			$this->_valid = true;
+			$this->_valid = false;
 			$this->select_query->pointer--;
 			return false;
 			
@@ -540,13 +716,13 @@ class model implements Iterator {
 				
 				if (isset($this->_fields->$regs[1])) {
 					
-					if (is_string($this->fields->$regs[1]->value)) {
+					if (is_string($this->_fields->$regs[1]->value)) {
 
-						return stripslashes($this->fields->$regs[1]->value);
+						return stripslashes($this->_fields->$regs[1]->value);
 
 					} else {
 
-						return $this->fields->$regs[1]->value;
+						return $this->_fields->$regs[1]->value;
 
 					}
 
@@ -564,7 +740,7 @@ class model implements Iterator {
 			}
 			case 	preg_match('/^set_(.+)$/', $method, $regs):
 
-				if (isset($this->fields[$regs[1]])) {
+				if (isset($this->_fields->$regs[1])) {
 
 					if ( count($arguments) != 1) {
 
@@ -575,8 +751,31 @@ class model implements Iterator {
 
 					} else {
 
-						$this->fields[$regs[1]]['value'] = $arguments[0];
+						if ($regs[1] == $this->_primary_key) {
+						
+							$this->reset();
+							
+							$this->select_query->query("select * from $this->_db_name.$this->_table_name where $this->_primary_key = '$arguments[0]'");
+							if ($this->select_query->row_count) {
+									
+								$row = $this->select_query->get_row();
+				
+								$this->load_values_into_fields($row, $type);
+				
+								return true;
+				
+							} else {
+				
+								return false;
+							
+							}
 
+						
+						} else {
+						
+							$this->_fields->$regs[1]->value = $arguments[0];
+						
+						}
 						return true;
 
 					}
@@ -626,7 +825,173 @@ class model implements Iterator {
 
 
 	}
+	
+	function __set($property, $value) {
+		
+		if (isset($this->_fields->$property)) {
 
+			$function = 'set_' . $property;
+			return $this->$function($value);
+		
+		} else {
+			 $x = debug_backtrace();
+  			$funcname = $x[1]['function'];
+			trigger_error('<b>$' . $property . '</b> is not a property in class <b>\'' . get_class($this) . '\'</b> Calling function: ' .$funcname, E_USER_ERROR);
+
+		}
+
+	}
+	
+	function __get($property) {
+				
+		if (isset($this->_fields->$property)) {
+		
+			$function = 'get_' . $property;
+			return $this->$function($value);
+		
+		} else if (array_key_exists($property, $this->_links)) {
+
+			return $this->get_link_object($property);
+		
+		} else {
+
+			$x = debug_backtrace();
+			$funcname = $x[1]['function'];
+			
+			trigger_error('<b>$' . $property . '</b> is not a property in class <b>\'' .  $x[1]['class'] . '\'</b> on line <b>' . $x[1]['line']  . '</b> Calling function: ' .$funcname, E_USER_ERROR);
+
+		}
+
+	}
+	
+	public function has_many($name, $options = array()) {
+		
+		$this->_links[$name]['type'] = 'has_many';
+		$this->_links[$name]['options'] = $options;
+		$this->_links[$name]['linked_to'] = false;
+		$this->_links[$name]['object'] = false;
+	
+	}
+	
+	public function belongs_to($name, $options = array()) {
+		
+		$this->_links[$name]['type'] = 'belongs_to';
+		$this->_links[$name]['options'] = $options;
+		$this->_links[$name]['linked_to'] = false;
+		$this->_links[$name]['object'] = false;
+		
+	}
+	
+	public function has_many_link($name, $options = array()) {
+		$this->_links[$name]['type'] = 'has_many_link';
+		$this->_links[$name]['options'] = $options;
+		$this->_links[$name]['linked_to'] = false;
+		$this->_links[$name]['object'] = false;
+	
+	}
+	
+	public function has_one($name, $options = array()) {
+	
+		$this->_links[$name]['type'] = 'has_one';
+		$this->_links[$name]['options'] = $options;
+		$this->_links[$name]['linked_to'] = false;
+		$this->_links[$name]['object'] = false;
+	
+	}
+	
+	private function get_link_object($name) {
+		
+		if (!$this->is_linked($name)) {
+	
+			if(!$this->create_link($name)) {
+
+				return false;
+			}
+		} 
+	
+		return $this->_links[$name]['object'];
+	}
+	
+	private function is_linked($name) {
+		if ($this->key()) {
+			if ($this->_links[$name]['linked_to'] == $this->key()) {
+				return true;
+			} else {
+				
+				return false;
+			}	
+		} else {
+			return false;
+		}
+	}
+	private function create_link($name) {
+		$inflector = new inflector();
+		
+		if ($this->_links[$name]['options']['class_name']) {
+			
+			$model_name = $this->_links[$name]['options']['class_name'];
+			
+		} else {
+		
+			$model_name = $inflector->singularize($name) . '_model';
+		
+		}
+		
+		$model_obj = new $model_name();
+		$args = $this->_links[$name]['options'];
+	
+		if (!$this->_links[$name]['options']['foreign_key']) {
+			$this->_links[$name]['options']['foreign_key'] = $this->_class() . '_id';
+		}		
+			
+		if ($this->get_id()) {
+			
+			switch($this->_links[$name]['type']) {
+				case 'has_many':
+					$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "' and (" . $args['where'] . ")" ; 
+					
+					$model_obj->find($args);
+					
+					break;
+				case 'has_many_link':
+				/*	$args['selected'] = $model_obj->get_table_name().'.*';
+					$args['from'] = $model_obj->get_table_name().', ' . $this->links[$name]['link_table'];
+					$args['conditions'] = $this->links[$name]['other_table_id'] . ' = ' . $model_obj->get_table_name(). '.id and '.$this->links[$name]['this_table_id'].' = ' . $this->get_id() .' ' . $args['conditions'];
+					
+					$model_obj->find($args);
+				*/
+					break;
+				case 'has_one':
+				
+					$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "' and (" . $args['where'] . ")" ; 
+					
+					$model_obj->find_first($args);
+					break;
+				
+				case 'belongs_to':
+					/*$function = 'get_' . $this->links[$name]['link_field'];
+					if ($this->links[$name]['link_field']) {
+						$args['conditions'] .= " id = '" . $this->$function() . "' "; 
+					}
+					$model_obj->find_first($args);
+					*/
+					break;
+			
+			}
+		} 
+				
+		$this->_links[$name]['object'] = $model_obj;
+		$this->_links[$name]['linked_to'] = $this->key();
+		
+		return true;
+	
+		
+	}
+	
+	
+	public function before_save() {}
+	public function after_save() {}
+	
 }
 
 

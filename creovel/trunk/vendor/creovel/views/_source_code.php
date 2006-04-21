@@ -30,7 +30,7 @@ if ($handle) {
 		
 		$buffer = fgets($handle, 4096);
 		if ( $count == $trace['line'] ) {
-			echo "<strong style=\"color:red;\">#{$zeros}{$count}</strong>&nbsp;&nbsp;\n<br />";
+			echo "<strong class=\"red\">#{$zeros}{$count}</strong>&nbsp;&nbsp;\n<br />";
 		} else {
 			echo "#{$zeros}{$count}&nbsp;&nbsp;\n<br />";
 		

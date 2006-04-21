@@ -24,10 +24,8 @@ class error extends view
 		$this->mode_check();
 		
 		$this->message = $message;
-		$this->exception = $exception;
-		$this->_set_view_content_path(CREOVEL_PATH.'views/fatal_errors.php');
-		$this->_set_view_layout_path(CREOVEL_PATH.'views/layouts/creovel.php');
-		$this->_show_view();
+		$this->traces = $exception->getTrace();
+		$this->_show_view(CREOVEL_PATH.'views/fatal_errors.php', CREOVEL_PATH.'views/layouts/creovel.php');
 		die;
 	}
 	

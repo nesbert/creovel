@@ -17,6 +17,11 @@
 	.code { display: block; overflow: auto; margin: 0 0 10px 0; padding: 8px; background: #f5f5f5; border: 1px dashed #333; text-align: left; font-family: monaco, 'Courier New', courier, monospace; font-size: 100%; }
 	.code table.source td { white-space: nowrap; padding: 0; }
 	
+	h1.top { font-size: 250%; color: #660; }
+	p.top { font-size: 125%; color: #333; }
+	
+	.red { color: red; }
+	
 	</style>
 	<script type="text/javascript">
 	function _Toggle(id){

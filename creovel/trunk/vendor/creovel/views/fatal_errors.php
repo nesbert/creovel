@@ -1,15 +1,15 @@
-<h1>Fatal Error</h1>
-<p><?=$this->message?></p>
+<h1 class="top">Fatal Error</h1>
+<p class="top"><?=$this->message?></p>
 
+<? if ( count($this->traces) ) { ?>
 <h1>Debug Trace</h1>
 <ul class="debug">
 <?
 $trace_count = 0;
-$traces = $this->exception->getTrace();
-foreach ( $traces as $trace ) {
+foreach ( $this->traces as $trace ) {
 	?>
 	<li>
-		#<?=(count($traces) - $trace_count)?> <?=$trace['class'] . $trace['type'] . $trace['function'] . str_replace("('')", '()', ("('" . implode("', '", $trace['args'])) . "')") ?> in <strong><a href="javascript:void(0);" onclick="_Toggle('source_<?=$trace_count?>');"><?=$trace['file']?></a></strong> on line <strong><?=$trace['line']?></strong>
+		#<?=(count($this->traces) - $trace_count)?> <?=$trace['class'] . $trace['type'] . $trace['function'] . str_replace("('')", '()', ("('" . implode("', '", $trace['args'])) . "')") ?> in <strong><a href="javascript:void(0);" onclick="_Toggle('source_<?=$trace_count?>');"><?=$trace['file']?></a></strong> on line <strong><?=$trace['line']?></strong>
 		<? include(dirname(__FILE__).DS.'_source_code.php') ?>
 	</li>
 	<?
@@ -17,8 +17,9 @@ foreach ( $traces as $trace ) {
 }
 ?>
 </ul>
+<? } ?>
 
-<p><a href="javascript:void(0);" onclick="var obj = document.getElementById('creoinfo'); if (obj.style.display='none') obj.style.display=''; this.style.display='none';">creoinfo()</a></p>
+<p><a href="javascript:void(0);" onclick="var obj = document.getElementById('creoinfo'); if (obj.style.display='none') obj.style.display=''; this.style.display='none';">More info...</a></p>
 
 <div id="creoinfo" style="display:none;">
 <? include(dirname(__FILE__).DS.'info.php') ?>

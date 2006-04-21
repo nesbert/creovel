@@ -15,8 +15,11 @@ class creovel
 	 * @access public 
 	 * @return object
 	 */
-	public function run($events = null, $params = null)
+	public function run($events = null, $params = null, $return_str = false)
 	{
+		// set error object
+		$_ENV['error'] = new error();
+		
 		// set-up environment
 		require_once( CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php' );
 		
@@ -32,24 +35,25 @@ class creovel
 		#print_obj($params);
 		
 		// include controllers and helpers		
-		self::include_controllers($events['nested_controller_path'] . $events['controller']);		
+		self::include_controller($events['nested_controller_path'] . $events['controller']);
 		
 		// create controller object and build the framework
 		$controller = $events['controller'] . '_controller';
 		$controller = new $controller();
 		
 		// set controller properties
-		$controller->set_events($events);
-		$controller->set_params($params);
+		$controller->_set_events($events);
+		$controller->_set_params($params);
 		
 		// execute action
-		$controller->execute_action();
-	
-		// build page
-		$controller->display_view();
+		$controller->_execute_action();
 		
-		//print_obj($controller);
-		return $controller;
+		if ( $return_str ) {
+			return $controller->_get_view();
+		} else {
+			$controller->_show_view();
+			return $controller;
+		}
 	}
 	
 	/**
@@ -133,7 +137,7 @@ class creovel
 	 * @access private
 	 * @param string $controller_path required
 	 */
-	private function include_controllers($controller_path)
+	private function include_controller($controller_path)
 	{
 		// include application controller
 		$controllers = array_merge(array('application'), explode('/', $controller_path));
@@ -153,14 +157,14 @@ class creovel
 				if ( file_exists($controller_path) ) {				
 					require_once($controller_path);
 				} else {
+					$controller_path = str_replace($class . '.php', '', $controller_path);
 					throw new Exception("Controller '{$class}' not found in <strong>{$controller_path}</strong>");
 				}
 				
 			} catch ( Exception $e ) {
 			
 				// add to errors
-				$error	= new error();
-				$error->add('fatal', $e->getMessage(), $e);
+				$_ENV['error']->add('fatal', $e->getMessage(), $e);
 			
 			}
 			

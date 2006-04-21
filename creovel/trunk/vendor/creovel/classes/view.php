@@ -6,85 +6,38 @@
  class view
  {
  
- 	protected $view;
-	
-	/**
-	 * Initailize $view properties
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public 
-	 */
-	public function __construct()
-	{
-		$this->view->content_key = '@@page_contents@@';		
-		$this->view->content_path = '';
-		//$this->view->content = '';
-		$this->view->layout_path = '';
- 		//$this->view->template = '';
-		//$this->view->page = '';	
-	}
-	
-	/**
-	 * Set content for view
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public 
-	 */
-	public function _set_view_content($str)
-	{
-		$this->view->content = $str;
-	}
-	
-	/**
-	 * Set content path for view
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public 
-	 */
-	public function _set_view_content_path($path)
-	{
-		$this->view->content_path = $path;
-	}
-	
-	/**
-	 * Set layout path for view
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public 
-	 */
-	public function _set_view_layout_path($path)
-	{
-		$this->view->layout_path = $path;
-	}
-	
 	/**
 	 * Creates the page to be displayed and sets it to the page property
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public 
+	 * @param string $view_path optional
+	 * @param string $layout_path optional
 	 */
-	public function _create_view()
+	public function _create_view($view_path = null, $layout_path = null)
 	{
+		$view_path = $view_path ? $view_path : VIEWS_PATH.$this->_controller.DS.( $this->render ? $this->render : $this->_action ).'.php';
+		$layout_path = $layout_path ? $layout_path : VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
+	
 		// set view content
-		$this->view->content = $this->view->content . $this->_get_include_contents($this->view->content_path);
+		$content = $this->render_text . ( $this->render !== false ? $this->_get_include_contents($view_path) : '' );
 		
 		// combine content and template. else use content only
-		if ( $this->view->layout_path ) {
-			
-			// get template
-			$this->view->layout = $this->_get_include_contents($this->view->layout_path);
-			
-			if ( $this->view->layout ) {
-				$this->view->page = str_replace($this->view->content_key, $this->view->content, $this->view->layout);
-			} else {
-				$this->view->page = $this->view->content;
-			}
-			
-		} else {
+		switch ( true ) {
 		
-			$this->view->page = $this->view->content;
-			
+			case ( $this->layout !== false ):				
+				// get layout template
+				$layout = $this->_get_include_contents($layout_path);
+				$page = str_replace('@@page_contents@@', $content, $layout);
+			break;
+		
+			default:
+				$page = $content;
+			break;
+		
 		}
+		
+		return $page;
 	}
 	
 	/**
@@ -94,22 +47,20 @@
 	 * @access public 
 	 * @return string 
 	 */
-	public function _get_view()
+	public function _get_view($view_path = null, $layout_path = null)
 	{
-		$this->_create_view();
-		return $this->view->page;
+		return $this->_create_view($view_path, $layout_path);
 	}
 
 	/**
-	 * Prints the $page
+	 * Print page to screen
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public 
 	 */
-	public function _show_view()
+	public function _show_view($view_path = null, $layout_path = null)
 	{
-		$this->_create_view();
-		print $this->view->page;
+		print $this->_create_view($view_path, $layout_path);
 	}
 
 	/*

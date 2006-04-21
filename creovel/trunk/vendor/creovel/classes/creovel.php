@@ -5,8 +5,8 @@
  */
 class creovel
 {
-	public static $version = '0.01';
-	public static $release_date = '11/24/05';
+	const VERSION = '0.01';
+	const RELEASE_DATE = '11/24/05';
 	
 	/**
 	 * Run framework.
@@ -31,9 +31,6 @@ class creovel
 		$events['controller'] = $events['controller'] ? $events['controller'] : $_ENV['routes']['default']['controller'];
 		$events['action'] = $events['action'] ? $events['action'] : $_ENV['routes']['default']['action'];
 		
-		#print_obj($events);
-		#print_obj($params);
-		
 		// include controllers and helpers		
 		self::include_controller($events['nested_controller_path'] . $events['controller']);
 		
@@ -51,7 +48,7 @@ class creovel
 		if ( $return_str ) {
 			return $controller->_get_view();
 		} else {
-			$controller->_show_view();
+			return $controller->_show_view();
 			return $controller;
 		}
 	}
@@ -150,8 +147,6 @@ class creovel
 			$controller_path = CONTROLLERS_PATH . $path . $class . '.php';
 			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
 			
-			#echo $controller_path. '<br />';
-			
 			try {
 				
 				if ( file_exists($controller_path) ) {				
@@ -170,9 +165,9 @@ class creovel
 			
 			// include helper
 			if ( file_exists($helper_path) ) require_once($helper_path);
-
+			
+			// append to path if a nested controller
 			$path .= str_replace('application/', '', $controller . DS);
-			#echo $path.'<br /><br />';
 		}
 	
 	}

@@ -125,7 +125,7 @@ function get_params($param_to_return = null)
  */
 function get_version()
 {
-	return creovel::$version;
+	return creovel::VERSION;
 }
 
 /**
@@ -137,6 +137,6 @@ function get_version()
  */
 function get_release_date()
 {
-	return creovel::$release_date;
+	return creovel::RELEASE_DATE;
 }
 ?>

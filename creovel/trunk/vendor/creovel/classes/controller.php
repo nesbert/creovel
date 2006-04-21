@@ -35,7 +35,7 @@ class controller extends view
 	public $layout;
 	
 	/**
-	 * Array of all server-isde requests
+	 * Array of all server-side requests
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public

@@ -15,6 +15,10 @@ class error extends view
 				$this->display_fatal_error($message, $exception);
 			break;
 		
+			case 'form':
+				$this->add_form_error($message, $exception);
+			break;
+		
 		}
 	
 	}
@@ -32,7 +36,7 @@ class error extends view
 	private function mode_check()
 	{
 		if ( $_ENV['mode'] !== 'development' ) {
-			die('redirect 404 page!');
+			die('redirect 500 page!');
 		} else {
 			return true;
 		}

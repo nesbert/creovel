@@ -6,17 +6,25 @@
 class error extends view
 {
 
-	public function add($type, $message, $exception = null)
+	private $type;
+
+	public function __construct($type)
 	{
+		$this->type = $type;
+	}
 	
-		switch ( $type ) {
+	public function add()
+	{
+		$args = func_get_args();
 		
-			case 'fatal':
-				$this->display_fatal_error($message, $exception);
+		switch ( $this->type ) {
+		
+			case 'application':
+				$this->display_fatal_error($args[0], $args[1]);
 			break;
 		
-			case 'form':
-				$this->add_form_error($message, $exception);
+			case 'model':
+				$this->add_form_error($args);
 			break;
 		
 		}
@@ -31,6 +39,12 @@ class error extends view
 		$this->traces = $exception->getTrace();
 		$this->_show_view(CREOVEL_PATH.'views/fatal_errors.php', CREOVEL_PATH.'views/layouts/creovel.php');
 		die;
+	}
+	
+	private function add_form_error($message, $error = null)
+	{
+		//$this->fields->$error['field'] = array();
+		$this->fields->$error['field'] = (object) array('message' => $error['message'], 'value' => $error['value']);
 	}
 	
 	private function mode_check()

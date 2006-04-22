@@ -1,4 +1,4 @@
-<h1 class="top">Fatal Error</h1>
+<h1 class="top">Application Error</h1>
 <p class="top"><?=$this->message?></p>
 
 <? if ( count($this->traces) ) { ?>

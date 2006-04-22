@@ -58,7 +58,7 @@ function __autoload($class)
 	} catch(Exception $e) {
 		
 		// add to errors				
-		$_ENV['error']->add('fatal', $e->getMessage(), $e);
+		$_ENV['error']->add($e->getMessage(), $e);
 		
 	}
 	

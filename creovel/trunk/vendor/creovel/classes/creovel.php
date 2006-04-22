@@ -18,7 +18,7 @@ class creovel
 	public function run($events = null, $params = null, $return_str = false)
 	{
 		// set error object
-		$_ENV['error'] = new error();
+		$_ENV['error'] = new error('application');
 		
 		// set-up environment
 		require_once( CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php' );
@@ -159,7 +159,7 @@ class creovel
 			} catch ( Exception $e ) {
 			
 				// add to errors
-				$_ENV['error']->add('fatal', $e->getMessage(), $e);
+				$_ENV['error']->add($e->getMessage(), $e);
 			
 			}
 			

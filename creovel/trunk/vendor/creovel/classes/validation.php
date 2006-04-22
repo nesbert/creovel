@@ -1,26 +1,27 @@
 <?php
 /*
  * Validation class.
- *
  */
 class validation
 {
 
 	/**
 	 * Class properties.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
 	 */
-
-	private $is_valid = false;
-	private $rules;
-	private $data;
-	private $replace_needles;
-	
-	public $errors;
+	private static $_is_valid = false;
+	private static $_rules;
+	private static $_data;
+	private static $_errors;
 	
 	/**
 	 * Class constants.
-	 */
-	 
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 */	 
 	const REGEX_NUMBER = '/^[0-9]+?[.]?[0-9]*$/';
 	const REGEX_ALPHA_NUMERIC = '/^[a-zA-Z0-9]+$/';
 	const REGEX_PHONE_NUMBER = '/^[01]?[- .]?(\([2-9]\d{2}\)|[2-9]\d{2})[- .]?\d{3}[- .]?\d{4}(| | x| ext| ext | ext.| ext. )\d{0,}$/';
@@ -35,195 +36,6 @@ class validation
 	const VALUE = '@@value@@';
 	
 	/**
-	 * Loads $rules, $data, $replace_needles class properties.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $rules_arr optional
-	 * @param array $data_arr optional
-	 */
-	
-	public function __construct($rules_arr = null, $data_arr = null)
-	{
-		if ( $rules_arr ) $this->set_rules($rules_arr);
-		if ( $data_arr ) $this->set_data($data_arr);
-		$this->replace_needles = array(self::FIELD_NAME, self::VALUE);
-	}
-	
-	/**
-	 * Sets $rules class properties.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $rules_arr required
-	 */
-	
-	public function set_rules($rules_arr)
-	{	
-		$this->rules = $rules_arr;
-	}
-	
-	/**
-	 * Sets $data class properties.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $data_arr required
-	 */
-	
-	public function set_data($data_arr)
-	{
-		$this->data = $data_arr;
-	}
-	
-	/**
-	 * Validates $data with $rules and sets $is_valid property true if 
-	 * $errors property is empty. If no rules are set checks that $errors 
-	 * property is empty and sets $is_valid property to true.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return bool
-	 */
-	
-	public function validate()
-	{
-		// reset is_valid
-		$this->is_valid = false;
-	
-		// if rules are set continue
-		if ( count($this->rules) ) {
-			
-			// foreach rule, set and call validate function
-			foreach ( $this->rules as $verify_function => $verify_data ) {
-			
-				foreach ($verify_data as $key => $val ) {
-					// if field is an array validate each field
-					if ( is_array($val['field']) ) {
-						foreach ( $val['field'] as $field ) {
-							$this->$verify_function($field, $this->data[$field], $val['msg'], $val['required'], $val['extra_1'], $val['extra_2']);
-						}
-					} else {
-						$this->$verify_function($val['field'], $this->data[$val['field']], $val['msg'], $val['required'], $val['extra_1'], $val['extra_2']);
-					}
-				}
-			
-			}			
-			
-		}
-		
-		// if no errors, set is_valid to true
-		if ( empty($this->errors) ) { 
-		
-			$this->is_valid = true;
-		
-		// load errors into session	
-		} else {
-		
-			$GLOBALS['form_errors'] = array_merge($GLOBALS['form_errors'], $this->errors);
-			
-		}
-		
-		return $this->is_valid;		
-	
-	}
-	
-	/**
-	 * Adds an error to $errors class property.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $field required
-	 * @param string $val required
-	 * @param string $msg required
-	 */
-	
-	public function add_to_error($field, $val, $msg)
-	{
-		$this->errors[$field]['value'] = $val;	
-		$this->errors[$field]['message'][] = $this->message_check($field, $val, $msg);
-	}
-	
-	/**
-	 * Gets a fields error message(s).
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $field required
-	 * @param string $glue optional default set to ", "
-	 * @return string
-	 */
-	
-	public function display_error_message($field, $glue = ", ")
-	{
-		return implode("{$glue}", $this->errors[$field]['message']);
-	}
-	
-	/**
-	 * Check if a field has an error
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $field required
-	 * @return bool
-	 */
-	
-	public function has_error($field)
-	{
-		return in_array($field, array_keys($this->errors));
-	}
-	
-	/**
-	 * Removes slashes and uppercase. Used for field names.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @param string $name required
-	 * @return string 
-	 */
-	
-	private function format_name($name)
-	{
-		return	ucwords(str_replace('_', ' ', strtolower($name)));
-	}
-	
-	/**
-	 * Replace keywords in error messages.
-	 * 
-	 * @@field_name@@ = formatted field name
-	 * @@value@@ = current value of the field being validated
-	 
-	 * <code>
-	 * $this->validate_email('email', ( $this->email ? '@@value@@ is not a valid email address.' : 'E-mail is a required field.' ), true);
-	 * </code>
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 * @param string $field required
-	 * @param mixed $val required
-	 * @param string $msg required
-	 * @return string 
-	 */
-	
-	private function message_check($field, $val, $msg)
-	{
-		foreach ( $this->replace_needles as $pattern ) {
-		
-			switch ( $pattern ) {
-				case self::FIELD_NAME:
-					$replace = $this->format_name($field);
-				break;
-				case self::VALUE:
-					$replace = $val;
-				break;
-			}
-			
-			$msg = str_replace($pattern, $replace, $msg);
-			
-		}		
-		return $msg;
-	}
-	
-	/**
 	 * Base function to validate by boolean value.
 	 * 
 	 * @author Nesbert Hidalgo
@@ -234,24 +46,21 @@ class validation
 	 * @param string $msg optional
 	 * @param string $required optional
 	 * @return bool 
-	 */
-	
+	 */	
 	private function validate_field_by_bool($bool, $field, $val, $msg = null, $required = false)
 	{
-
 		switch ( true ) {
 			case ( $required && $val && $bool ):
 			case ( !$required && $val && $bool ):
-			case ( !$required && !$val):
+			//case ( !$required && !$val):
 				return true;
 			break;
 			
 			default:
-				$this->add_to_error($field, $val, $msg);
+				self::add_error($field, $val, $msg);
 				return false;
 			break;			
 		}
-		
 	}
 	
 	/**
@@ -265,35 +74,55 @@ class validation
 	 * @param string $msg optional
 	 * @param string $required optional
 	 * @return bool 
-	 */
-	
-	public function validate_field_by_regex($regex, $field, $val, $msg = null, $required = false)
+	 */	
+	private function validate_field_by_regex($regex, $field, $val, $msg = null, $required = false)
 	{
-
 		// regular expression does not start or end with a forward slash add slashes
 		$regex = ( $regex{0} != '/' ? '/'.$regex : $regex );
 		$regex = ( $regex{strlen($regex)-1} != '/' ? $regex.'/' : $regex );
-		
-		return $this->validate_field_by_bool(preg_match($regex, $val), $field, $val, $msg, $required);
-		
+		return self::validate_field_by_bool(preg_match($regex, $val), $field, $val, $msg, $required);
 	}
 	
 	/**
-	 * Add to errors.
+	 * Format error message by adding fieldname or value we needed
 	 * 
 	 * @author Nesbert Hidalgo
 	 * @access private
 	 * @param string $field required
 	 * @param mixed $val required
-	 * @param string $msg optional
-	 * @return bool 
-	 */
-	
-	public function validate_add_to_error($field, $val, $msg = null)
+	 * @param string $msg required
+	 * @param string $default_msg required
+	 * @return string 
+	 */	
+	private function format_message($field, $val, $msg, $default_msg)
 	{
-		$msg = $msg ? $msg : self::FIELD_NAME." is invalid.";
-		$this->add_to_error($field, $val, $msg);
-		return false;
+		$message = $msg ? $msg : $default_msg;
+		
+		// check for fieldname and humanze it
+		if ( strstr($message, self::FIELD_NAME) ) {
+			$message = str_replace(self::FIELD_NAME, humanize($field), $message);
+		}
+		
+		// check for value and insert it into the message
+		if ( strstr($message, self::VALUE) ) {
+			$message = str_replace(self::VALUE, $val, $message);
+		}
+		
+		return $message;		
+	}
+	
+	/**
+	 * Adds form error to the environment error object.
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $field required
+	 * @param mixed $val required
+	 * @param string $msg required
+	 */	
+	private function add_error($field, $val, $msg)
+	{
+		//self::add('form', $msg, array('field' => $field, 'value' => $val, 'message' => $msg));
 	}
 	
 	/**
@@ -305,31 +134,59 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... is a required field."
 	 * @return bool 
-	 */
-	
+	 */	
 	public function validate_presence_of($field, $val, $msg = null)
 	{
-		$msg = $msg ? $msg : self::FIELD_NAME." is a required field.";
-		$val = trim($val);
-
-		if ( $val ) {
-			return true;
-		} else {
-			$this->add_to_error($field, $val, $msg);
-			return false;
-		}		
+		return self::validate_field_by_bool(true, $field, trim($val), self::format_message($field, $val, $msg, self::FIELD_NAME." is a required field."), true);
 	}
 
+	/**
+	 * Validates that $val and $val2 match.
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $field required
+	 * @param mixed $val required
+	 * @param mixed $val2 required
+	 * @param string $msg optional default is "... doesn't match."
+	 * @return bool 
+	 */	
 	public function validate_confirmation_of($field, $val, $val2, $msg = null)
 	{
-		$msg = $msg ? $msg : self::FIELD_NAME." doesn't match.";
-
-		if ($val == $val2) {
-			return true;
-		} else {
-			$this->add_to_error($field, $val, $msg);
-			return false;
-		}		
+		return self::validate_field_by_bool(($val == $val2), $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." doesn't match."));
+	}
+	
+	/**
+	 * Validates that $val is an integer.
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $field required
+	 * @param mixed $val required
+	 * @param string $msg optional default is "Enter a number only with no decimals for ..."
+	 * @param bool $required optional default is false
+	 * @return bool 
+	 */
+	public function validate_integer($field, $val, $msg = null, $required = false)
+	{
+		return self::validate_field_by_bool(( is_numeric($val) && !strstr($val, '.') ), $field, $val, self::format_message($field, $val, $msg, "Enter only a number with no decimals for ".self::FIELD_NAME."."), $required);
+	}	
+	
+	/**
+	 * Validates that $val preg_match with $pattern (regular expression).
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $field required
+	 * @param mixed $val required
+	 * @param string $msg optional default is "... is invalid."
+	 * @param bool $required default is false
+	 * @param string $pattern required regular expression
+	 * @return bool 
+	 */	
+	public function validate_format_of($field, $val, $msg = null, $required = false, $pattern)
+	{
+		return self::validate_field_by_regex($pattern, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is invalid."), $required);
 	}
 	
 	/**
@@ -343,11 +200,9 @@ class validation
 	 * @param bool $required optional default is false
 	 * @return bool 
 	 */
-	
 	public function validate_numericality_of($field, $val, $msg = null, $required = false)
 	{
-		$msg = $msg ? $msg : self::FIELD_NAME." is not a number.";
-		return $this->validate_field_by_regex(self::REGEX_NUMBER, $field, $val, $msg, $required);
+		return self::validate_field_by_regex(self::REGEX_NUMBER, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is not a number."), $required);
 	}
 	
 	/**
@@ -360,12 +215,10 @@ class validation
 	 * @param string $msg optional default is "... is an invalid email address."
 	 * @param bool $required optional default is false
 	 * @return bool 
-	 */
-	
+	 */	
 	public function validate_email($field, $val, $msg = null, $required = false)
 	{
-		$msg = $msg ? $msg : self::FIELD_NAME." is an invalid email address.";
-		return $this->validate_field_by_regex(self::REGEX_EMAIL_ADDRESS, $field, $val, $msg, $required);
+		return self::validate_field_by_regex(self::REGEX_EMAIL_ADDRESS, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is an invalid email address."), $required);
 	}
 	
 	/**
@@ -378,12 +231,10 @@ class validation
 	 * @param string $msg optional default is "... is an invalid web address."
 	 * @param bool $required optional default is false
 	 * @return bool 
-	 */
-	
+	 */	
 	public function validate_url($field, $val, $msg = null, $required = false)
 	{
-		$msg = $msg ? $msg : self::FIELD_NAME." must be a valid web address.";
-		return $this->validate_field_by_regex(self::REGEX_WEB_URL, $field, $val, $msg, $required);
+		return self::validate_field_by_regex(self::REGEX_WEB_URL, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." must be a valid web address."), $required);
 	}
 	
 	/**
@@ -396,13 +247,26 @@ class validation
 	 * @param string $msg optional default is "... is an invalid picture format."
 	 * @param bool $required optional default is false
 	 * @return bool 
-	 */
-	
+	 */	
 	public function validate_picture($field, $val, $msg = null, $required = false)
 	{
-		$msg = $msg ? $msg : self::FIELD_NAME." is an invalid picture format.";
-		return $this->validate_field_by_regex(self::REGEX_PICTURE, $field, $val, $msg, $required);
+		return self::validate_field_by_regex(self::REGEX_PICTURE, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is an invalid picture format."), $required);
 	}
+	
+	
+	
+	
+	
+	
+	
+	/* anything below i have not updated [NH] */
+	
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * Validates that $val is a valid date format (eb. MM/DD/YYYY).
@@ -459,25 +323,6 @@ class validation
 	}
 	
 	/**
-	 * Validates that $val preg_match with $pattern (regular expression).
-	 * 
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $field required
-	 * @param mixed $val required
-	 * @param string $msg optional default is "... is invalid."
-	 * @param bool $required default is false
-	 * @param string $pattern required regular expression
-	 * @return bool 
-	 */
-	
-	public function validate_format_of($field, $val, $msg = null, $required = false, $pattern)
-	{
-		$msg = $msg ? $msg : self::FIELD_NAME." is invalid.";
-		return $this->validate_field_by_regex($pattern, $field, $val, $msg, $required);
-	}
-	
-	/**
 	 * Validates that $val has no specail characters.
 	 * 
 	 * @author Nesbert Hidalgo
@@ -493,24 +338,6 @@ class validation
 	{
 		$msg = $msg ? $msg : self::FIELD_NAME." is invalid.";
 		return $this->validate_field_by_regex(self::REGEX_NON_SPECIAL_CHARS, $field, $val, $msg, $required);
-	}
-	
-	/**
-	 * Validates that $val is an integer.
-	 * 
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $field required
-	 * @param mixed $val required
-	 * @param string $msg optional default is "Enter a number only with no decimals for ..."
-	 * @param bool $required optional default is false
-	 * @return bool 
-	 */
-	
-	public function validate_integer($field, $val, $msg = null, $required = false)
-	{
-		$msg = $msg ? $msg : "Enter a number only with no decimals for ".self::FIELD_NAME.".";
-		return $this->validate_field_by_bool(( is_numeric($val) && !strstr($val, '.') ), $field, $val, $msg, $required = false);
 	}
 	
 	/**

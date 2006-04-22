@@ -147,12 +147,16 @@ class creovel
 			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
 			
 			try {
+			
+				if ( $class == '_controller' ) {
+					$_ENV['error']->add("Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
+				}
 				
 				if ( file_exists($controller_path) ) {				
 					require_once($controller_path);
 				} else {
 					$controller_path = str_replace($class . '.php', '', $controller_path);
-					throw new Exception("Controller '{$class}' not found in <strong>{$controller_path}</strong>");
+					throw new Exception("Controller '{$class}' not found in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
 				}
 				
 			} catch ( Exception $e ) {

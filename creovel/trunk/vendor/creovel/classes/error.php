@@ -36,7 +36,7 @@ class error extends view
 		$this->mode_check();
 		
 		$this->message = $message;
-		$this->traces = $exception->getTrace();
+		if ( is_object($exception) ) $this->traces = $exception->getTrace();
 		$this->_show_view(CREOVEL_PATH.'views/fatal_errors.php', CREOVEL_PATH.'views/layouts/creovel.php');
 		die;
 	}

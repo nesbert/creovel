@@ -75,9 +75,8 @@ class creovel
 			$events['action'] = $args[count($args) - 2];
 			$events['id'] = $args[count($args) - 1];
 		} else {
-			$events['controller'] =  $args[count($args) - 2];
-			$events['action'] = $args[count($args) - 1];
-			$events['id'] = $args[count($args)];
+			$events['controller'] =  $args[0];
+			$events['action'] = $args[1];
 		}
 		
 		// check for nested controller

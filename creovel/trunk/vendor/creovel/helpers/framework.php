@@ -7,10 +7,12 @@
  * AUTOLOAD ROUTINE
  *
  * @author Nesbert Hidalgo
+ * @access public
  */
-function __autoload($classname) {
+function __autoload($class)
+{
 
-	$folders = split('_', $classname);
+	$folders = split('_', $class);
 	
 	if ( count($folders) > 1 ) array_pop($folders);
 
@@ -18,41 +20,39 @@ function __autoload($classname) {
 	
 	switch ( true ) {
 	
-		/*
-		case ( strstr($classname, '_controller') ):
-			$path = CONTROLLERS_PATH.$classname.'.php';
-			$controller = str_replace('_controller', '', $classname);
-			$helper_path = HELPERS_PATH.$controller.'_helper.php';
-			if ( file_exists($helper_path) ) require_once($helper_path);
-		break;
-		*/
-
-		case ( strstr($classname, '_model') ):
-		case ( strstr($classname, '_mailer') ):
-			$path = MODELS_PATH.$classname.'.php';			
-			if ( !file_exists($path) ) $path = CREOVEL_PATH.'models'.DS.$classname.'.php';
-		break;
-		
-		case ( strstr($classname, '_interface') ):
-			$path = CREOVEL_PATH.'interfaces'.DS.$classname.'.php';
-		break;
-		
-		default:
-			$path = CREOVEL_PATH.'adapters'.DS.$classname.'.php';
-			if ( !file_exists($path) ) $path = CREOVEL_PATH.'services'.DS.$classname.'.php';
-			if ( !file_exists($path) ) $path = APP_PATH.'vendor'.DS.$classname.'.php';
-			if ( !file_exists($path) ) $path = CREOVEL_PATH.'vendor'.DS.$classname.'.php';
-		break;
-		
+		case ( true ):
+			$type = strstr($class, '_mailer') ? 'Mailer' : 'Model';
+			$path = MODELS_PATH.$class.'.php';
+			if ( file_exists($path) ) break;
+			
+		case ( true ):
+			$type = 'Interface';
+			$path = CREOVEL_PATH.'interfaces'.DS.$class.'.php';
+			if ( file_exists($path) ) break;
+			
+		case ( true ):
+			$type = 'Adapter';
+			$path = CREOVEL_PATH.'adapters'.DS.$class.'.php';
+			if ( file_exists($path) ) break;
+			
+		case ( true ):
+			$type = 'Service';
+			$path = CREOVEL_PATH.'services'.DS.$class.'.php';
+			if ( file_exists($path) ) break;
+			
+		case ( true ):
+			$type = 'Vendor';
+			$path = VENDOR_PATH.$class.DS.$class.'.php';
+			if ( file_exists($path) ) break;
+			
 	}
-	
+
 	try {
 	
-		if ( file_exists($path) ) {
-			
+		if ( file_exists($path) ) {			
 			require_once($path);
-		} else {
-			throw new Exception("Looking for '{$classname}' at <strong>{$path}</strong>");
+		} else {			
+			throw new Exception("{$type} '{$class}' not found in <strong>".str_replace($classname.'.php', '', $path)."</strong>");
 		}
 	
 	} catch(Exception $e) {

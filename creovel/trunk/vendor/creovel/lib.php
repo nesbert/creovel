@@ -22,4 +22,5 @@ require_once('classes/error.php');
 require_once('classes/mailer.php');
 require_once('classes/page.php');
 require_once('classes/validation.php');
+require_once('classes/inflector.php');
 ?>

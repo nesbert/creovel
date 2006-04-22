@@ -92,11 +92,9 @@ class model implements Iterator {
 	private $_limit;
 	private $_offset;
 	private $_query_str;
-	private $_inflector;
 	
 	public function __construct($data = null, $connection_properties = null) {
 		
-		$this->_inflector = new inflector();
 		$this->select_query = $this->_establish_connection($connection_properties);
 		$this->action_query = $this->_establish_connection($connection_properties);
 		
@@ -121,7 +119,7 @@ class model implements Iterator {
 		if (!$this->_table_name) {
 			
 			$model_name =  $this->_class();
-			$this->_table_name = $this->_inflector->pluralize($model_name);
+			$this->_table_name = pluralize($model_name);
 		
 		}
 		
@@ -925,7 +923,6 @@ class model implements Iterator {
 		}
 	}
 	private function create_link($name) {
-		$inflector = new inflector();
 		
 		if ($this->_links[$name]['options']['class_name']) {
 			
@@ -933,7 +930,7 @@ class model implements Iterator {
 			
 		} else {
 		
-			$model_name = $inflector->singularize($name) . '_model';
+			$model_name = singularize($name) . '_model';
 		
 		}
 		

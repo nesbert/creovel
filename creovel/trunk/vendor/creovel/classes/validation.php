@@ -11,10 +11,10 @@ class validation
 	 * @author Nesbert Hidalgo
 	 * @access private
 	 */
-	private static $_is_valid = false;
-	private static $_rules;
-	private static $_data;
-	private static $_errors;
+	private static $is_valid = false;
+	private static $rules;
+	private static $data;
+	private static $errors;
 	
 	/**
 	 * Class constants.
@@ -34,6 +34,11 @@ class validation
 	
 	const FIELD_NAME = '@@field_name@@';
 	const VALUE = '@@value@@';
+	
+	function __construct()
+	{
+		$this->errors = new error('model');
+	}
 	
 	/**
 	 * Base function to validate by boolean value.
@@ -57,7 +62,6 @@ class validation
 			break;
 			
 			default:
-				self::add_error($field, $val, $msg);
 				return false;
 			break;			
 		}
@@ -122,7 +126,7 @@ class validation
 	 */	
 	private function add_error($field, $val, $msg)
 	{
-		//self::add('form', $msg, array('field' => $field, 'value' => $val, 'message' => $msg));
+		//add('form', $msg, array('field' => $field, 'value' => $val, 'message' => $msg));
 	}
 	
 	/**

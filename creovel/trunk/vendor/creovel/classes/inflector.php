@@ -203,7 +203,7 @@ class inflector
     public function titleize($word, $uppercase = '')
     {
         $uppercase = $uppercase == 'first' ? 'ucfirst' : 'ucwords';
-        return $uppercase(Inflector::humanize(Inflector::underscore($word)));
+        return $uppercase(self::humanize(self::underscore($word)));
     }
 
     // }}}

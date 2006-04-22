@@ -44,7 +44,7 @@ class error extends view
 	private function add_form_error($message, $error = null)
 	{
 		//$this->fields->$error['field'] = array();
-		$this->fields->$error['field'] = (object) array('message' => $error['message'], 'value' => $error['value']);
+		//$this->fields->$error['field'] = (object) array('message' => $error['message'], 'value' => $error['value']);
 	}
 	
 	private function mode_check()

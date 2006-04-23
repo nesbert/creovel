@@ -139,4 +139,20 @@ function get_release_date()
 {
 	return creovel::RELEASE_DATE;
 }
+
+/**
+ * Throws an exception error and adds stop the application
+ *
+ * @author Nesbert Hidalgo
+ * @access public
+ * @return string
+ */
+function application_error($message, $thow_exception = false)
+{
+	if ($thow_exception) { 
+		$e = new Exception($message);
+	}
+	$_ENV['error']->add($message, $e);
+}
+
 ?>

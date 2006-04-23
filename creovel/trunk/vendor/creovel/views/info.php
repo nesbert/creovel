@@ -59,7 +59,9 @@
 
 <h1>Files</h1>
 <table cellspacing="0" class="block constants">
-<? foreach(get_included_files() as $key => $value) { ?>
-<tr><td class="sub"><?=( $key + 1 )?>.</td><td><a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$value?>"><?=$value?> (<?=get_filesize($value)?>)</a></td></tr>
+<? foreach(get_included_files() as $file => $value) { ?>
+<? $total_filesize += filesize($value);?>
+<tr><td class="sub"><?=( $file + 1 )?>.</td><td><a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$value?>"><?=$value?> (<?=get_filesize($value)?>)</a></td></tr>
 <? } ?>
+<tr><td class="sub">Total</td><td><?=( $file + 1 )?> Files (<?=get_filesize($total_filesize)?>)</td></tr>
 </table>

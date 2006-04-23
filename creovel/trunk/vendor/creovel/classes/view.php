@@ -18,7 +18,7 @@
 	{
 		$view_path = $view_path ? $view_path : VIEWS_PATH.$this->_controller.DS.( $this->render ? $this->render : $this->_action ).'.php';
 		$layout_path = $layout_path ? $layout_path : VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
-	
+		
 		// set view content
 		$content = $this->render_text . ( $this->render !== false ? $this->_get_include_contents($view_path) : '' );
 		
@@ -28,7 +28,11 @@
 			case ( $this->layout !== false ):				
 				// get layout template
 				$layout = $this->_get_include_contents($layout_path);
-				$page = str_replace('@@page_contents@@', $content, $layout);
+				if ($layout) {
+					$page = str_replace('@@page_contents@@', $content, $layout);
+				} else {
+					$page = $content;
+				}
 			break;
 		
 			default:
@@ -36,7 +40,7 @@
 			break;
 		
 		}
-		
+		//echo $page;
 		return $page;
 	}
 	

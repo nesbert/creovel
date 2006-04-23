@@ -44,9 +44,9 @@ class error extends view
 		$this->message = $message;
 		if ( is_object($exception) ) $this->traces = $exception->getTrace();
 		if ( isset($_GET['view_source']) ) {
-			$this->_show_view(CREOVEL_PATH.'views/view_source.php', CREOVEL_PATH.'views/layouts/creovel.php');
+			$this->_show_view(CREOVEL_PATH.'views'.DS.'view_source.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 		} else {
-			$this->_show_view(CREOVEL_PATH.'views/application_error.php', CREOVEL_PATH.'views/layouts/creovel.php');
+			$this->_show_view(CREOVEL_PATH.'views'.DS.'application_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 		}
 		die;
 	}

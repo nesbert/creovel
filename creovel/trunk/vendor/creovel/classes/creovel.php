@@ -6,7 +6,7 @@
 class creovel
 {
 	const VERSION = '0.01';
-	const RELEASE_DATE = '11/24/05';
+	const RELEASE_DATE = 'Nov 24 2005 16:55:55';
 	
 	/**
 	 * Run framework.
@@ -70,7 +70,7 @@ class creovel
 		$uri = explode('?', $_SERVER['REQUEST_URI']);
 		
 		// get event args from uri
-		$args = explode('/', substr($uri[0], 1));
+		$args = explode(DS, substr($uri[0], 1));
 		
 		// set events for framework with array indexes
 		if ( count($args) > 2 ) {
@@ -139,7 +139,7 @@ class creovel
 	private function include_controller($controller_path)
 	{
 		// include application controller
-		$controllers = array_merge(array('application'), explode('/', $controller_path));
+		$controllers = array_merge(array('application'), explode(DS, $controller_path));
 		
 		$path = '';
 		
@@ -173,7 +173,7 @@ class creovel
 			if ( file_exists($helper_path) ) require_once($helper_path);
 			
 			// append to path if a nested controller
-			$path .= str_replace('application/', '', $controller . DS);
+			$path .= str_replace('application'.DS, '', $controller.DS);
 		}
 	
 	}

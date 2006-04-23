@@ -8,134 +8,78 @@
  
 class mailer extends controller {
 
-	public $message_boundary;
-	public $mime_boundary;
-	public $charset = 'utf-8';
-	public $content_transfer_encoding = '7bit';
-	public $header;
-	public $message;
+	private $attachments;
+	private $content_type = 'text/plain';
+	private $content_transfer_encoding = '7bit';
+	private $message_boundary;
+	private $mime_boundary;
+	private $header;
 	
-	public $from;
-	public $to;
-	public $cc;
 	public $bcc;
+	public $cc;
+	public $charset = 'utf-8';
+	public $from;
+	public $headers;
+	public $recipients;
+	public $sent_on;
 	public $subject;
-	public $html;
-	public $text;	
-	public $attachments;
-	
-	protected $view_content;
-	
-	private $test_mode = false;
+	public $body;
 	
 	public function __construct()
 	{
-	
+		//echo 'mailer start<br />';
 		// set message boundarries
 		$this->message_boundary = uniqid(rand(), true);
 		$this->mime_boundary = uniqid(rand(), true);
-	
 	}
 	
 	public function __destruct()
 	{
-	
-		// set message boundary
-		//print_obj($this->message);
-	
+		//echo 'mailer end<br />';
 	}
 	
 	public function __call($method, $args)
 	{
+		$class = get_class($this);
 		
 		switch ( true ) {
 
 			case preg_match('/^create_(.+)$/', $method, $regs):
-				// set class variables
-				$this->render = $regs[1];
-				$this->action = $regs[1];
-				// call method
-				$this->$regs[1]($args[0]);
-				// set view content
-				$this->set_view_content();
+			
+				// set/call controller & action and pass arguments to child mailer class
+				$this->_controller = $class;				
+				$this->_action = $regs[1];				
+				call_user_func_array(array($this, $this->_action), $args);								
+				$this->content = $this->_get_view();
+				
 				// build message
-				$this->build_message();
+				$this->_create_email();
+				
+				print_obj($this, 1);
+
 			break;
 				
 			default:
-				$x = debug_backtrace();
-				trigger_error('Undefined method <b>$' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b>  in page <b>\'' . $x[0]['file'] . '\'</b> on line <b>' . $x[0]['line'] .' </b>.', E_USER_ERROR);
+				$_ENV['error']->add("Undefined action '{$method}' in <strong>{$class}</strong>");
 			break;
 			
 		}
 		
 	}
 	
-	public function get_from_address()
-	{	
-		return $this->from;
-	}	
 	
-	public function get_email_address($email_address)
-	{	
-		return ( is_array($email_address) ? implode(',', $email_address) : $email_address );
-	}
-	
-	public function send()
-	{
-	
-		if ( $this->test_mode === true ) return true;
-		
-		if ( mail($this->get_email_address($this->to), $this->subject, $this->message, $this->header) ) {
-		
-			return true;
-		
-		} else {
-		
-			return false;
-			
-		}
-	
-	}
-	
-	public function deliver()
-	{
-	
-		return $this->send();
-	
-	}
-	
-	private function set_header() {
-	
-		$this->header = '';
-		$this->header .= $this->cc ? "Cc: ".$this->get_email_address($this->cc)."\n" : "";
-		$this->header .= $this->bcc ? "Bcc: ".$this->get_email_address($this->bcc)."\n" : "";
-		$this->header .= "From: ".$this->get_from_address();
-		$this->header .= "\nDate: ".date("r");
-		$this->header .= "\nMIME-Version: 1.0\n";
-		
-		if ( $this->has_attachments() ) {
-		
-			$this->header .= 'Content-Type: multipart/mixed; boundary="'.$this->mime_boundary.'"';
-			$this->header .= "\n";
-			$this->header .= "--{$this->mime_boundary}\n";
-			
-		}
-		
-		$this->header .= 'Content-Type: multipart/alternative; boundary="'.$this->message_boundary.'"';
-		
-	}
-	
-	private function set_view_content()
-	{
-		$this->view_content = $this->get_include_contents(VIEWS_PATH.get_class($this).DS.$this->render.'.php');	
-	}
-	
-	private function build_message()
+	private function _create_email()
 	{
 	
 		// set message header
 		$this->set_header();
+		
+		if ( $this->is_plain_text() ) {
+			$message = $this->content;
+		}
+		
+		print_obj($message);
+		print_obj($this, 1);
 		
 		// create messsage string
 		$this->message = "\n";
@@ -155,6 +99,7 @@ class mailer extends controller {
 			$this->message .= "\n\n";
 		
 		}
+		
 		
 		if ( $this->html !== false ) {
 		
@@ -185,6 +130,81 @@ class mailer extends controller {
 		
 	}
 	
+	private function set_header() {
+	
+		$this->header .= "\nDate: ".date("r");
+		$this->header .= "\nFrom: ".$this->get_from_address();
+		$this->header .= "\nTo: ".$this->get_to_address();
+		$this->header .= $this->cc ? "\nCc: ".$this->get_email_address($this->cc) : "";
+		$this->header .= $this->bcc ? "\nBcc: ".$this->get_email_address($this->bcc) : "";
+		$this->header .= $this->subject ? "\nSubject: ".$this->subject : "";
+		
+		switch ( true ) {
+		
+			case ( $this->has_attachments() ):
+				$this->header .= "\nMIME-Version: 1.0";
+				$this->header .= '\nContent-Type: multipart/mixed; boundary="'.$this->mime_boundary.'"';
+				$this->header .= "\n";
+				$this->header .= "--{$this->mime_boundary}\n";			
+			break;
+			
+			case ( $this->is_plain_text() ):
+				$this->header .= "\n".'Content-Type: text/plain; charset='.$this->charset;
+			break;
+			
+			default:
+				$this->header .= "\n".'Content-Type: multipart/alternative; boundary="'.$this->message_boundary.'"';
+			break;
+		
+		}
+		
+		$this->header .= "\n";
+		
+	}
+	
+	private function is_plain_text()
+	{
+		return $this->content_type == 'text/plain' ? true : false;
+	}
+	
+	public function get_from_address()
+	{	
+		return $this->get_email_address($this->from);
+	}	
+	
+	public function get_to_address()
+	{	
+		return $this->get_email_address($this->recipients);
+	}	
+	
+	public function get_email_address($email_address)
+	{	
+		return ( is_array($email_address) ? implode(',', $email_address) : $email_address );
+	}
+	
+	public function send()
+	{
+	
+		if ( $this->test_mode === true ) return true;
+		
+		if ( mail($this->get_email_address($this->to), $this->subject, $this->message, $this->header) ) {
+		
+			return true;
+		
+		} else {
+		
+			return false;
+			
+		}
+	
+	}
+	
+	public function deliver()
+	{
+	
+		return $this->send();
+	
+	}
 	public function add_attachment($file_path, $content_type = null, $content_transfer_encoding = null)
 	{
 		$key = 'attachment'.count($this->attachments);

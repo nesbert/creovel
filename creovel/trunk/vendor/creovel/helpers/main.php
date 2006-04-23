@@ -96,19 +96,19 @@ function cycle($var1 = null, $var2 = null)
  }
  
 /*
- * Returns a human readable size
+ * Returns a human readable size or a file or a size
  * http://us2.php.net/manual/hk/function.filesize.php#64387
  *
  * @author Nesbert Hidalgo
- * @param string $file
+ * @param mixed $file_or_size
  * @return string
  */
-function get_filesize($file)
+function get_filesize($file_or_size)
 {
-	$size = filesize($file);
+	$iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");	
+	$size = is_numeric($file_or_size) ? $file_or_size : filesize($file_or_size);
 	$i = 0;
-	$iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
-	while ( ($size/1024)>1 ) {
+	while ( ($size/1024) > 1 ) {
 		$size = $size / 1024;
 		$i++;
 	}

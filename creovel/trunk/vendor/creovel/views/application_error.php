@@ -24,5 +24,3 @@ foreach ( $this->traces as $trace ) {
 <div id="creoinfo" style="display:none;">
 <? include(dirname(__FILE__).DS.'info.php') ?>
 </div>
-
-<p class="legal">&copy; 2005-<?=date(Y)?> <a href="http://creovel.org">creovel.org</a> - A PHP Framework</p>

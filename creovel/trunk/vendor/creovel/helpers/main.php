@@ -94,4 +94,24 @@ function cycle($var1 = null, $var2 = null)
  	$return = get_defined_constants(true);
 	return $return['user'];
  }
+ 
+/*
+ * Returns a human readable size
+ * http://us2.php.net/manual/hk/function.filesize.php#64387
+ *
+ * @author Nesbert Hidalgo
+ * @param string $file
+ * @return string
+ */
+function get_filesize($file)
+{
+	$size = filesize($file);
+	$i = 0;
+	$iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
+	while ( ($size/1024)>1 ) {
+		$size = $size / 1024;
+		$i++;
+	}
+	return substr($size, 0, strpos($size,'.') + 4).' '.$iec[$i];
+}
 ?>

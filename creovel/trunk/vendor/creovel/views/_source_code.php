@@ -1,4 +1,4 @@
-<div class="code" id="source_<?=$trace_count?>" style="display:none;">
+<div class="code" id="source_<?=$trace_count?>" style="display:<?=( isset($_GET['view_source']) ? 'block' : 'none' )?>;">
 	<table cellspacing="0" class="source">
 	<tr>
 		<td>

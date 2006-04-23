@@ -13,9 +13,12 @@ class creovel
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public 
+	 * @param array $events optional assoc. array of CONTORLLER, ACTION & ID
+	 * @param array $events optional assoc. array of params
+	 * @param bool $return_as_str optional returns controller as string
 	 * @return object
 	 */
-	public function run($events = null, $params = null, $return_str = false)
+	public function run($events = null, $params = null, $return_as_str = false)
 	{
 		// set error object
 		$_ENV['error'] = new error('application');
@@ -45,7 +48,7 @@ class creovel
 		// execute action
 		$controller->_execute_action();
 		
-		if ( $return_str ) {
+		if ( $return_as_str ) {
 			return $controller->_get_view();
 		} else {
 			return $controller->_show_view();

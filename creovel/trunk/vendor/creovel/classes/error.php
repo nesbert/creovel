@@ -1,11 +1,18 @@
 <?php
 /*
- * Errors class.
+ * Error class.
  *
  */
 class error extends view
 {
 
+	/**
+	 * Error type
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @var string
+	 */
 	private $type;
 
 	public function __construct($type)
@@ -20,7 +27,7 @@ class error extends view
 		switch ( $this->type ) {
 		
 			case 'application':
-				$this->display_fatal_error($args[0], $args[1]);
+				$this->application_error($args[0], $args[1]);
 			break;
 		
 			case 'model':
@@ -31,20 +38,17 @@ class error extends view
 	
 	}
 	
-	private function display_fatal_error($message, $exception = null)
+	private function application_error($message, $exception = null)
 	{
-		$this->mode_check();
-		
+		$this->mode_check();		
 		$this->message = $message;
 		if ( is_object($exception) ) $this->traces = $exception->getTrace();
-		$this->_show_view(CREOVEL_PATH.'views/fatal_errors.php', CREOVEL_PATH.'views/layouts/creovel.php');
+		if ( isset($_GET['view_source']) ) {
+			$this->_show_view(CREOVEL_PATH.'views/view_source.php', CREOVEL_PATH.'views/layouts/creovel.php');
+		} else {
+			$this->_show_view(CREOVEL_PATH.'views/application_error.php', CREOVEL_PATH.'views/layouts/creovel.php');
+		}
 		die;
-	}
-	
-	private function add_form_error($message, $error = null)
-	{
-		//$this->fields->$error['field'] = array();
-		//$this->fields->$error['field'] = (object) array('message' => $error['message'], 'value' => $error['value']);
 	}
 	
 	private function mode_check()
@@ -55,6 +59,12 @@ class error extends view
 			return true;
 		}
 	}
+	
+	private function add_form_error($message, $error = null)
+	{
+		//$this->fields->$error['field'] = array();
+		//$this->fields->$error['field'] = (object) array('message' => $error['message'], 'value' => $error['value']);
+	}	
 	
 }
 ?>

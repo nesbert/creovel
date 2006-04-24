@@ -26,7 +26,8 @@ class mysql implements adapter_interface
 	public function __destruct()
 	{
 		// free memory and close database connection	
-		$this->disconnect();		
+		
+		//	$this->disconnect();		
 	}
 	
 	public function connect($db_properties)
@@ -51,7 +52,7 @@ class mysql implements adapter_interface
 		
 		// close MySQL connection
 		
-		if ($this->db_link) @mysql_close($this->db_link);	
+		//if ($this->db_link) @mysql_close($this->db_link);	
 	}
 	
 	public function set_database($database)
@@ -107,14 +108,17 @@ class mysql implements adapter_interface
 		$this->query = $query;
 		
 		// send a MySQL query and set query_link resource on success
-		$this->query_link = mysql_query($this->query, $this->db_link) or $this->handle_error("<strong>Error:</strong> Query failed. " . $this->get_mysql_error() . "\n" . str_replace(', ', ",\n", $this->query) . "\n\n");
+		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error("<strong>Error:</strong> Query failed. " . $this->get_mysql_error() . "\n" . str_replace(', ', ",\n", $this->query) . "\n\n");
 		
-		// set row_count with number of rows in result
-		$this->row_count = 	mysql_num_rows($this->query_link);	
 		
 		// set insert_id with the ID generated from the previous INSERT operation
-		if ( mysql_insert_id() ) $this->insert_id = mysql_insert_id();
+		if ( mysql_insert_id() ) {
+			$this->insert_id = mysql_insert_id();
+		} else {
+			// set row_count with number of rows in result
+			$this->row_count = 	@mysql_num_rows($this->query_link);	
 		
+		}
 	}
 	
 	public function reset()
@@ -126,8 +130,9 @@ class mysql implements adapter_interface
 		$this->query = null;
 	
 		// release resource
+		
 		if ( $this->query_link ) {
-			mysql_free_result($this->query_link);
+			@mysql_free_result($this->query_link);
 			$this->query_link = null;
 		}
 	}

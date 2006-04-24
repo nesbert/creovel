@@ -1,20 +1,36 @@
 <?php
 /**
  * Emailer class.
- * @package Mailer
  *
- * @author Nesbert Hidalgo
+ * @todo
+ *	- auto-load attachments
+ *	- smtp support
+ *	- receiving emails
  */
- 
 class mailer extends controller {
 
-	private $attachments;
-	private $content_type = 'text/plain';
-	private $content_transfer_encoding = '7bit';
-	private $message_boundary;
-	private $mime_boundary;
-	private $header;
+	/**
+	 * Private class properties.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 */
+	private $_attachments;
+	private $_content;
+	private $_content_type = 'text/plain';
+	private $_content_transfer_encoding = '7bit';
+	private $_message_boundary;
+	private $_mime_boundary;
+	private $_header;
+	private $_send_on_close = false;
 	
+	/**
+	 * Public class properties.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 */
+	public $delivery_method = 'sendmail';
 	public $bcc;
 	public $cc;
 	public $charset = 'utf-8';
@@ -25,19 +41,39 @@ class mailer extends controller {
 	public $subject;
 	public $body;
 	
+	/**
+	 * Construct set message boundaries on load
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 */
 	public function __construct()
 	{
 		//echo 'mailer start<br />';
-		// set message boundarries
-		$this->message_boundary = uniqid(rand(), true);
-		$this->mime_boundary = uniqid(rand(), true);
+		// set message boundaries
+		$this->_message_boundary = uniqid(rand(), true);
+		$this->_mime_boundary = uniqid(rand(), true);
 	}
 	
+	/**
+	 * Destruct send email if $_send_on_close is true
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 */
 	public function __destruct()
 	{
-		//echo 'mailer end<br />';
+		if ( $this->_send_on_close ) $this->send();
 	}
 	
+	/**
+	 * Magic functions.
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $method required
+	 * @param array $args required
+	 */
 	public function __call($method, $args)
 	{
 		$class = get_class($this);
@@ -45,20 +81,16 @@ class mailer extends controller {
 		switch ( true ) {
 
 			case preg_match('/^create_(.+)$/', $method, $regs):
+			case preg_match('/^deliver_(.+)$/', $method, $regs):
 			
 				// set/call controller & action and pass arguments to child mailer class
-				$this->_controller = $class;				
-				$this->_action = $regs[1];				
-				call_user_func_array(array($this, $this->_action), $args);								
-				$this->content = $this->_get_view();
+				$this->_call_action($class, $regs[1], $args);
 				
-				// build message
-				$this->_create_email();
+				// if deliver_XXX send message
+				if ( preg_match('/^deliver_(.+)$/', $method) ) $this->_send_on_close = true;
 				
-				print_obj($this, 1);
-
 			break;
-				
+			
 			default:
 				$_ENV['error']->add("Undefined action '{$method}' in <strong>{$class}</strong>");
 			break;
@@ -67,169 +99,246 @@ class mailer extends controller {
 		
 	}
 	
-	
-	private function _create_email()
+	/**
+	 * Sets $_controller & $_action and call child method
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $class required
+	 * @param string $action required
+	 * @param array $args required
+	 */
+	private function _call_action($class, $action, $args)
 	{
+		$this->_controller = $class;				
+		$this->_action = $action;
+		if ( method_exists($this, $action) ) {
+			call_user_func_array(array($this, $this->_action), $args);								
+		} else {
+			$_ENV['error']->add("Undefined action '{$action}' in <strong>{$class}</strong>");
+		}
+	}
 	
-		// set message header
-		$this->set_header();
+	/**
+	 * Creates header of the message and loads it into $_header
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @return string
+	 */
+	private function _get_headers()
+	{
+		$this->_header = "";
+		$this->_header .= $this->from ? "From: ".$this->_get_email_address($this->from)."\n" : "";
+		$this->_header .= $this->reply_to ? "Reply-To: ".$this->_get_email_address($this->reply_to)."\n" : "";
+		$this->_header .= $this->cc ? "Cc: ".$this->_get_email_address($this->cc)."\n" : "";
+		$this->_header .= $this->bcc ? "Bcc: ".$this->_get_email_address($this->bcc)."\n" : "";
+		$this->_header .= "Date: ".( $this->sent_on ? $this->sent_on : date("r") )."\n";
 		
-		if ( $this->is_plain_text() ) {
-			$message = $this->content;
+		if ( $this->_has_attachments() ) {
+			$this->_header .= 'MIME-Version: 1.0'."\n";
+			$this->_header .= 'Content-Type: multipart/mixed; boundary="'.$this->_mime_boundary.'"'."\n";
+			$this->_header .= "--{$this->mime_boundary}"."\n";
 		}
 		
-		print_obj($message);
-		print_obj($this, 1);
+		if ( !$this->_is_plain_text() )  {
+			$this->_header .= 'Content-Type: multipart/alternative; boundary="'.$this->_message_boundary.'"'."\n";
+		}
 		
-		// create messsage string
-		$this->message = "\n";
+		return $this->_header;
+	}
+	
+	/**
+	 * Creates body of the message and loads it into $_content
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @return string
+	 */
+	private function _get_content()
+	{	
+		if ( $this->_is_plain_text() ) {
 		
-		if ( $this->text !== false ) {
-		
-			// if text not set use view_content
-			if ( !$this->text ) $this->text = $this->view_content;
+			$this->_content = $this->_get_view();
 			
+		} else {
+		
 			// add text verison to message
-			$this->message .= "--{$this->message_boundary}\n";
-			$this->message .= "Content-Type: text/plain; charset={$this->charset}\n";
-			$this->message .= "Content-Transfer-Encoding: {$this->content_transfer_encoding}\n";
-			$this->message .= "Content-Disposition: inline\n\n";
-			$this->message .= $this->text;
-			
-			$this->message .= "\n\n";
+			$this->_content .= "--{$this->_message_boundary}\n";
+			$this->_content .= "Content-Type: text/plain; charset={$this->charset}\n";
+			$this->_content .= "Content-Transfer-Encoding: {$this->content_transfer_encoding}\n";
+			$this->_content .= "Content-Disposition: inline\n\n";
+			$this->_content .= $this->_remove_html($this->_get_view());	
+			$this->_content .= "\n\n";
 		
-		}
-		
-		
-		if ( $this->html !== false ) {
-		
-			// if html not set use view_content
-			if ( !$this->html ) $this->html = $this->view_content;
-			
-			// insert html into layout (template) for html verison of the message
-			if ( $this->layout !== false ) {
-			
-				$template_path = VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
-				$html_body = str_replace('@@content@@', $this->html, $this->get_include_contents($template_path));
-				
-			}
-			
 			// add html verison to message
-			$this->message .= "--{$this->message_boundary}\n";
-			$this->message .= "Content-Type: text/html; charset={$this->charset}\n";
-			$this->message .= "Content-Transfer-Encoding: {$this->content_transfer_encoding}\n";
-			$this->message .= "Content-Disposition: inline\n\n";
-			$this->message .= ($html_body ? $html_body : $this->html);
-			
+			$this->_content .= "--{$this->_message_boundary}\n";
+			$this->_content .= "Content-Type: text/html; charset={$this->charset}\n";
+			$this->_content .= "Content-Transfer-Encoding: {$this->content_transfer_encoding}\n";
+			$this->_content .= "Content-Disposition: inline\n\n";
+			$this->_content .= $this->_get_view();
 		}
 		
-		$this->message .= "\n--{$this->message_boundary}--\n";
+		// get attachments string
+		if ( $this->_has_attachments() ) $this->_content .= $this->_get_attachments_str();
 		
-		// create messsage string
-		$this->message .= $this->get_attachments();
-		
+		return $this->_content;	
 	}
 	
-	private function set_header() {
-	
-		$this->header .= "\nDate: ".date("r");
-		$this->header .= "\nFrom: ".$this->get_from_address();
-		$this->header .= "\nTo: ".$this->get_to_address();
-		$this->header .= $this->cc ? "\nCc: ".$this->get_email_address($this->cc) : "";
-		$this->header .= $this->bcc ? "\nBcc: ".$this->get_email_address($this->bcc) : "";
-		$this->header .= $this->subject ? "\nSubject: ".$this->subject : "";
-		
-		switch ( true ) {
-		
-			case ( $this->has_attachments() ):
-				$this->header .= "\nMIME-Version: 1.0";
-				$this->header .= '\nContent-Type: multipart/mixed; boundary="'.$this->mime_boundary.'"';
-				$this->header .= "\n";
-				$this->header .= "--{$this->mime_boundary}\n";			
-			break;
-			
-			case ( $this->is_plain_text() ):
-				$this->header .= "\n".'Content-Type: text/plain; charset='.$this->charset;
-			break;
-			
-			default:
-				$this->header .= "\n".'Content-Type: multipart/alternative; boundary="'.$this->message_boundary.'"';
-			break;
-		
-		}
-		
-		$this->header .= "\n";
-		
-	}
-	
-	private function is_plain_text()
+	/**
+	 * Checks if content type is 'text/plain'
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @return bool
+	 */
+	private function _is_plain_text()
 	{
-		return $this->content_type == 'text/plain' ? true : false;
+		return $this->_content_type == 'text/plain' ? true : false;
 	}
 	
-	public function get_from_address()
-	{	
-		return $this->get_email_address($this->from);
-	}	
-	
-	public function get_to_address()
-	{	
-		return $this->get_email_address($this->recipients);
-	}	
-	
-	public function get_email_address($email_address)
+	/**
+	 * Formats email address properties into a string
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @access mixed $email_address required
+	 * @return string
+	 */
+	private function _get_email_address($email_address)
 	{	
 		return ( is_array($email_address) ? implode(',', $email_address) : $email_address );
 	}
 	
+	/**
+	 * Returns email subject
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @return string
+	 */
+	private function _get_subject()
+	{
+		return str_replace("\n", '', $this->subject);
+	}
+	
+	/**
+	 * Removes all html tags from a string
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $str required
+	 * @return string
+	 */
+	private function _remove_html($str)
+	{
+		return strip_tags($str);
+	}
+	
+	/**
+	 * Sets email content type ['text/plain', 'text/html']
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $type optional
+	 * @return string $type
+	 */	
+	public function set_content_type($type = 'text/plain')
+	{
+		return $this->_content_type = $type;
+	}
+	
+	/**
+	 * Sets email content transfer encoding
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $encoding optional
+	 * @return string $encoding
+	 */	
+	public function set_content_transfer_encoding($encoding = '7bit')
+	{
+		return $this->_content_transfer_encoding = $encoding;
+	}
+	
+	/**
+	 * Encodes the current email message into a string
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @return string
+	 */	
+	public function encoded()
+	{
+		$return = "To: ".$this->_get_email_address($this->recipients)."\n";
+		$return .= "Subject: ".$this->_get_subject()."\n";
+		return $return.$this->_get_headers().$this->_get_content();
+	}
+	
+	/**
+	 * Sends the current email message. Returns true on success.
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @return bool
+	 */	
 	public function send()
 	{
-	
-		if ( $this->test_mode === true ) return true;
+		switch ( true ) {
 		
-		if ( mail($this->get_email_address($this->to), $this->subject, $this->message, $this->header) ) {
+			case ( $this->delivery_method == 'smtp' ):
+				return false;
+			break;
 		
-			return true;
-		
-		} else {
-		
-			return false;
+			case ( $this->delivery_method == 'sendmail' ):
+				if ( mail($this->_get_email_address($this->recipients), $this->_get_subject(), $this->_get_content(), $this->_get_headers()) ) {
+					return true;
+				} else {		
+					return false;
+				}
+			break;
+			
+			case ( $this->delivery_method == 'test' ):
+				return true;
+			break;
+			
+			default:
+				return false;
+			break;
 			
 		}
-	
 	}
 	
+	/**
+	 * Alias to send(). Returns true on success.
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @return bool
+	 */	
 	public function deliver()
-	{
-	
-		return $this->send();
-	
-	}
-	public function add_attachment($file_path, $content_type = null, $content_transfer_encoding = null)
-	{
-		$key = 'attachment'.count($this->attachments);
-		$file_name = basename($file_path);
-		
-		$this->attachments[$key]['content_id'] = $key;		
-		$this->attachments[$key]['content_type'] = ( $content_type ? $content_type : $this->get_content_type($file_name) );
-		$this->attachments[$key]['content_transfer_encoding'] = ( $content_transfer_encoding ? $content_transfer_encoding : $this->get_transfer_encoding($file_name) );
-		$this->attachments[$key]['file_name'] = $file_name;
-		$this->attachments[$key]['content_data'] = $this->encode_attachment($file_path);
-				
-		return $key;
+	{	
+		return $this->send();	
 	}
 	
-	private function get_content_type($file_name)
+	/* need to finish attachment support */
+	
+	private function _has_attachments()
+	{
+		return ( count($this->_attachments) ? true : false );
+	}
+	
+	private function _get_content_type($file_name)
 	{
 		return get_mime_type($file_name);	
 	}
 	
-	private function get_transfer_encoding($file_name)
+	private function _get_transfer_encoding($file_name)
 	{
 		return 'base64';
 	}
 	
-	private function encode_attachment($file_path)
+	private function _encode_attachment($file_path)
 	{
 	
 		if ( file_exists($file_path) ) {
@@ -249,13 +358,13 @@ class mailer extends controller {
 	
 	}
 	
-	private function get_attachments()
+	private function _get_attachments_str()
 	{
-		if ( $this->has_attachments() ) {
+		if ( $this->_has_attachments() ) {
 	
-			$return = '';
+			$return = "\n--{$this->message_boundary}--\n";
 			
-			foreach ( $this->attachments as $content_id => $attachment ) {
+			foreach ( $this->_attachments as $content_id => $attachment ) {
 			
 				$return .= "\n--{$this->mime_boundary}\n";
 				$return .= "Content-Type: {$attachment[content_type]}; name={$attachment[file_name]}\n";
@@ -277,12 +386,18 @@ class mailer extends controller {
 		
 	}
 	
-	private function has_attachments()
+	public function add_attachment($file_path, $content_type = null, $content_transfer_encoding = null)
 	{
-	
-		return ( count($this->attachments) ? true : false );
-	
+		$key = 'attachment'.count($this->_attachments);
+		$file_name = basename($file_path);
+		
+		$this->_attachments[$key]['content_id'] = $key;		
+		$this->_attachments[$key]['content_type'] = ( $content_type ? $content_type : $this->_get_content_type($file_name) );
+		$this->_attachments[$key]['content_transfer_encoding'] = ( $content_transfer_encoding ? $content_transfer_encoding : $this->_get_transfer_encoding($file_name) );
+		$this->_attachments[$key]['file_name'] = $file_name;
+		$this->_attachments[$key]['content_data'] = $this->_encode_attachment($file_path);
+				
+		return $key;
 	}
-	
 }
 ?>

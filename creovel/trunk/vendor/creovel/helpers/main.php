@@ -14,7 +14,7 @@ function print_obj($obj, $kill = false)
 
 	echo '<pre class="print_obj" style="text-align: left;">'."\n";
 	print_r($obj);
-	echo '</pre>'."\n";
+	echo "\n</pre>\n";
 	if ( $kill ) die;
 
 }

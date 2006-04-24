@@ -21,7 +21,7 @@ class validation
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public
-	 */	 
+	 */
 	const REGEX_NUMBER = '/^[0-9]+?[.]?[0-9]*$/';
 	const REGEX_ALPHA_NUMERIC = '/^[a-zA-Z0-9]+$/';
 	const REGEX_PHONE_NUMBER = '/^[01]?[- .]?(\([2-9]\d{2}\)|[2-9]\d{2})[- .]?\d{3}[- .]?\d{4}(| | x| ext| ext | ext.| ext. )\d{0,}$/';
@@ -51,7 +51,7 @@ class validation
 	 * @param string $msg optional
 	 * @param string $required optional
 	 * @return bool 
-	 */	
+	 */
 	private function validate_field_by_bool($bool, $field, $val, $msg = null, $required = false)
 	{
 		switch ( true ) {
@@ -78,7 +78,7 @@ class validation
 	 * @param string $msg optional
 	 * @param string $required optional
 	 * @return bool 
-	 */	
+	 */
 	private function validate_field_by_regex($regex, $field, $val, $msg = null, $required = false)
 	{
 		// regular expression does not start or end with a forward slash add slashes
@@ -97,7 +97,7 @@ class validation
 	 * @param string $msg required
 	 * @param string $default_msg required
 	 * @return string 
-	 */	
+	 */
 	private function format_message($field, $val, $msg, $default_msg)
 	{
 		$message = $msg ? $msg : $default_msg;
@@ -123,7 +123,7 @@ class validation
 	 * @param string $field required
 	 * @param mixed $val required
 	 * @param string $msg required
-	 */	
+	 */
 	private function add_error($field, $val, $msg)
 	{
 		//add('form', $msg, array('field' => $field, 'value' => $val, 'message' => $msg));
@@ -137,8 +137,8 @@ class validation
 	 * @param string $field required
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... is a required field."
-	 * @return bool 
-	 */	
+	 * @return bool
+	 */
 	public function validate_presence_of($field, $val, $msg = null)
 	{
 		return self::validate_field_by_bool(true, $field, trim($val), self::format_message($field, $val, $msg, self::FIELD_NAME." is a required field."), true);
@@ -153,8 +153,8 @@ class validation
 	 * @param mixed $val required
 	 * @param mixed $val2 required
 	 * @param string $msg optional default is "... doesn't match."
-	 * @return bool 
-	 */	
+	 * @return bool
+	 */
 	public function validate_confirmation_of($field, $val, $val2, $msg = null)
 	{
 		return self::validate_field_by_bool(($val == $val2), $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." doesn't match."));
@@ -169,7 +169,7 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "Enter a number only with no decimals for ..."
 	 * @param bool $required optional default is false
-	 * @return bool 
+	 * @return bool
 	 */
 	public function validate_integer($field, $val, $msg = null, $required = false)
 	{
@@ -186,8 +186,8 @@ class validation
 	 * @param string $msg optional default is "... is invalid."
 	 * @param bool $required default is false
 	 * @param string $pattern required regular expression
-	 * @return bool 
-	 */	
+	 * @return bool
+	 */
 	public function validate_format_of($field, $val, $msg = null, $required = false, $pattern)
 	{
 		return self::validate_field_by_regex($pattern, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is invalid."), $required);
@@ -202,7 +202,7 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... is not a number."
 	 * @param bool $required optional default is false
-	 * @return bool 
+	 * @return bool
 	 */
 	public function validate_numericality_of($field, $val, $msg = null, $required = false)
 	{
@@ -218,8 +218,8 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... is an invalid email address."
 	 * @param bool $required optional default is false
-	 * @return bool 
-	 */	
+	 * @return bool
+	 */
 	public function validate_email($field, $val, $msg = null, $required = false)
 	{
 		return self::validate_field_by_regex(self::REGEX_EMAIL_ADDRESS, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is an invalid email address."), $required);
@@ -234,8 +234,8 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... is an invalid web address."
 	 * @param bool $required optional default is false
-	 * @return bool 
-	 */	
+	 * @return bool
+	 */
 	public function validate_url($field, $val, $msg = null, $required = false)
 	{
 		return self::validate_field_by_regex(self::REGEX_WEB_URL, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." must be a valid web address."), $required);
@@ -250,8 +250,8 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... is an invalid picture format."
 	 * @param bool $required optional default is false
-	 * @return bool 
-	 */	
+	 * @return bool
+	 */
 	public function validate_picture($field, $val, $msg = null, $required = false)
 	{
 		return self::validate_field_by_regex(self::REGEX_PICTURE, $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is an invalid picture format."), $required);
@@ -281,7 +281,7 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... is an invalid date format."
 	 * @param bool $required optional default is false
-	 * @return bool 
+	 * @return bool
 	 */
 	
 	public function validate_date($field, $val, $msg = null, $required = false)
@@ -299,7 +299,7 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... iis an invalid US Postal Code."
 	 * @param bool $required optional default is false
-	 * @return bool 
+	 * @return bool
 	 */
 	
 	public function validate_phone($field, $val, $msg = null, $required = false)
@@ -317,7 +317,7 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "... iis an invalid US Postal Code."
 	 * @param bool $required optional default is false
-	 * @return bool 
+	 * @return bool
 	 */
 	
 	public function validate_us_postal_code($field, $val, $msg = null, $required = false)
@@ -353,7 +353,7 @@ class validation
 	 * @param mixed $val required
 	 * @param string $msg optional default is "...  must be a positive number."
 	 * @param bool $required optional default is false
-	 * @return bool 
+	 * @return bool
 	 */
 	
 	public function validate_positive_number($field, $val, $msg = null, $required = false)
@@ -373,7 +373,7 @@ class validation
 	 * @param bool $required optional default is false
 	 * @param int $min optional default is 0
 	 * @param int $min optional default is 100
-	 * @return bool 
+	 * @return bool
 	 */
 	
 	public function validate_range($field, $val, $msg = null, $required = false, $min = 0, $max = 100)
@@ -394,7 +394,7 @@ class validation
 	 * @param bool $required optional default is false
 	 * @param int $min optional default is 0
 	 * @param int $min optional default is 100
-	 * @return bool 
+	 * @return bool
 	 */
 	
 	public function validate_length($field, $val, $msg = null, $required = false, $min = 0, $max = 100)
@@ -416,7 +416,7 @@ class validation
 	 * @param bool $required default is false
 	 * @param string $table_name required
 	 * @param int/array $id optional
-	 * @return bool 
+	 * @return bool
 	 */
 	
 	public function validate_uniqueness_of($field, $val, $msg = null, $required = false, $table_name, $id = null)
@@ -464,7 +464,7 @@ class validation
 	 * @param string $field 2
 	 * @param mixed $val 2
 	 * @param string $msg optional default is "... already exists, please enter another."
-	 * @return bool 
+	 * @return bool
 	 */
 	
 	public function verify_1_required_between_2($field_1, $val_1, $field_2, $val_2, $msg = null)

@@ -92,11 +92,13 @@ class model implements Iterator {
 	private $_limit;
 	private $_offset;
 	private $_query_str;
+	private $_inflector;
 	
 	public function __construct($data = null, $connection_properties = null) {
 		
-		$this->select_query = $this->_establish_connection($connection_properties);
-		$this->action_query = $this->_establish_connection($connection_properties);
+		$this->_inflector = new inflector();
+		$this->select_query = $this->establish_connection($connection_properties);
+		$this->action_query = $this->establish_connection($connection_properties);
 		
 		
 		if ($adapter) {
@@ -117,10 +119,8 @@ class model implements Iterator {
 	private function _set_table() {
 		
 		if (!$this->_table_name) {
-			
 			$model_name =  $this->_class();
 			$this->_table_name = pluralize($model_name);
-		
 		}
 		
 		$this->_db_name = $this->select_query->get_database();
@@ -142,7 +142,7 @@ class model implements Iterator {
 	* @param array $db_properties required
 	* @return object
 	*/
-	public function _establish_connection($connection_properties = false)
+	public function establish_connection($connection_properties = false)
 	{
 		if (!is_array($connection_properties)) {
 			
@@ -284,7 +284,7 @@ class model implements Iterator {
 	
 	public function insert($data) {
 		
-		$qry = "insert into $this->_db_name.$this->_table_name (";
+		$qry = "insert into $this->_table_name (";
 		
 		foreach ($data as $name => $value) {
 			
@@ -362,7 +362,7 @@ class model implements Iterator {
 	
 	public function update($data, $where) {
 		
-		$qry = "update $this->_db_name.$this->_table_name set ";
+		$qry = "update $this->_table_name set ";
 		
 		foreach ($data as $name => $value) {
 
@@ -427,7 +427,7 @@ class model implements Iterator {
 			return false;
 		}
 		
-		$this->action_query->query("delete from $this->_db_name.$this->_table_name where $where");
+		$this->action_query->query("delete from $this->_table_name where $where");
 		
 		return $this->action_query->row_count;
 		
@@ -577,7 +577,7 @@ class model implements Iterator {
 		if ($this->_from) {
 			$str .= "FROM " . $this->_from . "\n";
 		} else {
-			$str .= "FROM " . $this->_db_name . "." . $this->_table_name . "\n";
+			$str .= "FROM " . $this->_table_name . "\n";
 		}
 		
 		if ($this->_where) {
@@ -753,7 +753,7 @@ class model implements Iterator {
 						
 							$this->reset();
 							
-							$this->select_query->query("select * from $this->_db_name.$this->_table_name where $this->_primary_key = '$arguments[0]'");
+							$this->select_query->query("select * from $this->_table_name where $this->_primary_key = '$arguments[0]'");
 							if ($this->select_query->row_count) {
 									
 								$row = $this->select_query->get_row();
@@ -923,6 +923,7 @@ class model implements Iterator {
 		}
 	}
 	private function create_link($name) {
+
 		
 		if ($this->_links[$name]['options']['class_name']) {
 			
@@ -945,7 +946,11 @@ class model implements Iterator {
 			
 			switch($this->_links[$name]['type']) {
 				case 'has_many':
-					$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "' and (" . $args['where'] . ")" ; 
+					if ($args['where']) {
+						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "' and (" . $args['where'] . ")" ; 
+					} else {
+						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key();
+					}
 					
 					$model_obj->find($args);
 					
@@ -960,8 +965,11 @@ class model implements Iterator {
 					break;
 				case 'has_one':
 				
-					$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "' and (" . $args['where'] . ")" ; 
-					
+					if ($args['where']) {
+						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "' and (" . $args['where'] . ")" ; 
+					} else {
+						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key();
+					}
 					$model_obj->find_first($args);
 					break;
 				

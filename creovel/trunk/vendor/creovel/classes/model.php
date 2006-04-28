@@ -75,6 +75,13 @@ class model implements Iterator {
 	*/
     public $_valid = array();
 	
+	/**
+	* Paging object
+	* @author Nesbert Hidalgo
+	* @access public
+	* @var object
+	*/
+	public $page;
 	
 	/**
 	* Constructor.
@@ -997,7 +1004,34 @@ class model implements Iterator {
 	public function before_save() {}
 	public function after_save() {}
 	
+	
+	/**
+	* Alias to find and set the $page object. default page limit is 10 records
+	*
+	* @author Nesbert Hidalgo
+	* @access public
+	* @param array $args optional
+	*/
+	public function paginate($args = null)
+	{
+	
+		// create temp args
+		$temp = $args;
+		unset($temp['offset']);
+		$temp['total_records'] = $this->find_total($temp);
+		$temp = (object) $temp;
+		
+		// create page object
+		$this->page = new page($temp);
+		
+		// update agrs with paging data
+		$args['offset'] = $this->page->offset;
+		$args['limit'] = $this->page->limit;
+		
+		// execute query
+		$this->find($args);
+		
+	}
+	
 }
-
-
 ?>

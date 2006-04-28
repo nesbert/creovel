@@ -55,9 +55,9 @@ function camelize($word)
 /*
  * Transforms text like 'ProgrammersField' to 'programmers_field'
  */	
-function underscore($camel_cased_word)
+function underscore($word)
 {
-	return inflector::camelize($word);
+	return inflector::underscore($word);
 }
 
 /**
@@ -113,5 +113,19 @@ function get_filesize($file_or_size)
 		$i++;
 	}
 	return substr($size, 0, strpos($size,'.') + 4).' '.$iec[$i];
+}
+
+/*
+ * Replace every charactor of a string with $mask
+ *
+ * @author Nesbert Hidalgo
+ * @param string $str required
+ * @param string $mask optional default set to '*'
+ * @return string
+ */
+function mask($str, $mask = '*')
+{
+	for ( $i = 0; $i <= ( strlen($str) - 1 ); $i++ ) $return .= $mask;
+	return $return;
 }
 ?>

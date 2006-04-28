@@ -31,7 +31,7 @@
 		<dl>
 			<dt>development</dt>
 			<? if ( count($_ENV['development']) ) foreach($_ENV['development'] as $key => $val) { ?>
-			<dd><?=$key?> => <?=$val?></dd>
+			<dd><?=$key?> => <?=( $key == 'password' ? mask($val) : $val )?></dd>
 			<? } ?>
 		</dl>
 		<dl>

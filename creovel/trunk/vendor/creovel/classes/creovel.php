@@ -2,6 +2,7 @@
 /*
  * Framework base class.
  *
+ * @todo test nested controllers
  */
 class creovel
 {
@@ -74,9 +75,9 @@ class creovel
 		
 		// set events for framework with array indexes
 		if ( count($args) > 2 ) {
-			$events['controller'] =  $args[count($args) - 3];
-			$events['action'] = $args[count($args) - 2];
-			$events['id'] = $args[count($args) - 1];
+			$events['controller'] =  $args[0];
+			$events['action'] = $args[1];
+			$events['id'] = $args[2];
 		} else {
 			$events['controller'] =  $args[0];
 			$events['action'] = $args[1];
@@ -86,7 +87,7 @@ class creovel
 		if ( count($args) > 3 ) {
 			$events['nested_controller_path'] = implode(DS, array_slice($args, 0, count($args) - 3) ) . DS;
 		}
-				
+		
 		return ( $event_to_return ? $events[$event_to_return] : $events );		
 	}
 	

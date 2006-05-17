@@ -4,7 +4,7 @@ $_ENV['mode'] = 'development'; // development, test, production
 // set development database properties
 $_ENV[development][adapter]		= 'mysql';
 $_ENV[development][host]		= 'localhost';
-$_ENV[development][database]	= 'username';
+$_ENV[development][database]	= 'database';
 $_ENV[development][username]	= 'username';
 $_ENV[development][password]	= 'password';
 

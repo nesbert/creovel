@@ -1,11 +1,6 @@
 <?php
 $_ENV['mode'] = 'development'; // development, test, production
 
-// Default Route Controller
-$_ENV['routes']['default']['controller'] = 'index';
-$_ENV['routes']['default']['action'] = 'index';
-$_ENV['routes']['default']['layout'] = 'default';
-
 // set development database properties
 $_ENV[development][adapter]		= 'mysql';
 $_ENV[development][host]		= 'localhost';
@@ -26,6 +21,11 @@ $_ENV[production][host]			= 'localhost';
 $_ENV[production][database]		= '';
 $_ENV[production][username]		= '';
 $_ENV[production][password]		= '';
+
+// Default Route Controller
+$_ENV['routes']['default']['controller'] = 'index';
+$_ENV['routes']['default']['action'] = 'index';
+$_ENV['routes']['default']['layout'] = 'default';
 
 // define application paths
 define(BASE_PATH, 			dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR);

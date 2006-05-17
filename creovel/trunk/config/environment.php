@@ -4,9 +4,9 @@ $_ENV['mode'] = 'development'; // development, test, production
 // set development database properties
 $_ENV[development][adapter]		= 'mysql';
 $_ENV[development][host]		= 'localhost';
-$_ENV[development][database]	= 'creovel';
-$_ENV[development][username]	= 'root';
-$_ENV[development][password]	= 'd11b3r7';
+$_ENV[development][database]	= 'username';
+$_ENV[development][username]	= 'username';
+$_ENV[development][password]	= 'password';
 
 // set test database properties
 $_ENV[test][adapter]			= 'mysql';

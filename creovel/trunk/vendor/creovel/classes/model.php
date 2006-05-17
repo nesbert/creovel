@@ -61,7 +61,7 @@ class model implements Iterator {
 	
 	/**
 	* Adapter
-	* @author Nesbert Hidalgo
+	* @author John Faircloth
 	* @access public
 	* @var array
 	*/
@@ -69,7 +69,7 @@ class model implements Iterator {
 	
 	/**
 	* Adapter
-	* @author Nesbert Hidalgo
+	* @author John Faircloth
 	* @access public
 	* @var array
 	*/
@@ -84,13 +84,21 @@ class model implements Iterator {
 	public $page;
 	
 	/**
-	* Constructor.
-	*
-	* @author John Faircloth
+	* Errors object
+	* @author Nesbert Hidalgo
 	* @access public
-	* @params string array $data used to load the model with values
-	 */
-	 
+	* @var object
+	*/
+	public $errors;
+	
+	/**
+	* Errors object
+	* @author Nesbert Hidalgo
+	* @access public
+	* @var object
+	*/
+	public $validation;
+	
 	private $_select;
 	private $_from;
 	private $_where;
@@ -101,8 +109,17 @@ class model implements Iterator {
 	private $_query_str;
 	private $_inflector;
 	
+	/**
+	* Constructor.
+	*
+	* @author John Faircloth
+	* @access public
+	* @params string array $data used to load the model with values
+	 */	 
 	public function __construct($data = null, $connection_properties = null) {
 		
+		$this->errors = new error('model');
+		$this->validation = new validation($this->errors);
 		$this->_inflector = new inflector();
 		$this->select_query = $this->establish_connection($connection_properties);
 		$this->action_query = $this->establish_connection($connection_properties);
@@ -233,13 +250,12 @@ class model implements Iterator {
 	}
 	
 	/**
-	 * Does a describe on the table
+	 * Creates an object mapped to the current table's structure
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access private
-	 */
-	 
-	public function _get_fields_object()
+	 */	 
+	private function _get_fields_object()
 	{
 		// reset class properties
 		$this->reset();
@@ -264,21 +280,36 @@ class model implements Iterator {
 	}
 	
 	
-	
-	
-	public function save() { 
+	public function save()
+	{
+		// validate model on every save
+		$this->validate();
+		// if error return false		
+		if ( $this->errors->has_errors ) return false;
+		
 		$this->before_save();
 		
-		$key = $this->key();
+		if ( $key = $this->key() ) {
 		
-		if ($key) {
+			// validate model on every update
+			$this->validate_on_update();
+			// if error return false
+			if ( $this->errors->has_errors ) return false;
 			
 			$ret_val = $this->update($this->values(), $this->_primary_key . " = '" . $this->key() . "'");
+			
 		} else {
+		
+			// validate model on every insert
+			$this->validate_on_create();	
+			// if error return false
+			if ( $this->errors->has_errors ) return false;
+			
 			$ret_val = $this->insert($this->values());
+			
 		}
 		
-		if ($ret_val) {
+		if ( $ret_val ) {
 			$this->after_save();
 			return $this->key();
 		} else {
@@ -418,15 +449,16 @@ class model implements Iterator {
 			
 
 		}
+		
 		$qry = substr($qry, 0, -2) ;
 		$key = $data[$this->_primary_key];
-		$qry .= " where $this->_primary_key =  '$key'";
+		$qry .= " where $this->_primary_key = '$key'";
 		$this->action_query->query($qry);
 		
-		$key = $this->_primary_key;
-		$this->_fields->$key->value =  $this->action_query->insert_id;
+		//$key = $this->_primary_key;
+		//$this->_fields->$key->value = $this->action_query->insert_id;
 		
-		return $this->key(); 
+		return $key; 
 	}
 	
 	public function delete($where) {
@@ -688,11 +720,14 @@ class model implements Iterator {
 		return $this->_valid;
    	}
 	
-	function _create_child() {
+	private function _create_child()
+	{
 		return clone $this;
+		/*
 		$item = new $this;
 		$item->load_values_into_fields($this->values());
 		return $item;
+		*/
 	}
 	
 	public function get_pointer()
@@ -737,19 +772,21 @@ class model implements Iterator {
 
 					}
 
-
 				} else {
 
-				echo '<h1>Undefined method: <b>' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b></h1>';
-				foreach (debug_backtrace() as $path) {
-					echo "<b>File:</b> {$path['file']}<br />";
-					echo "<b>Line:</b> {$path['line']}<br />";
-					echo "<b>Function:</b> {$path['function']}<br />";
-					echo "<hr />";
+					echo '<h1>Undefined method: <b>' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b></h1>';
+					foreach (debug_backtrace() as $path) {
+						echo "<b>File:</b> {$path['file']}<br />";
+						echo "<b>Line:</b> {$path['line']}<br />";
+						echo "<b>Function:</b> {$path['function']}<br />";
+						echo "<hr />";
+					}
+					die();
 				}
-				die();
-			}
-			case 	preg_match('/^set_(.+)$/', $method, $regs):
+				
+			break;
+			
+			case preg_match('/^set_(.+)$/', $method, $regs):
 
 				if (isset($this->_fields->$regs[1])) {
 
@@ -826,6 +863,10 @@ class model implements Iterator {
 				$args = $arguments[1];
 				$args['conditions'] .= (isset($args['conditions'])) ? " AND {$regs[1]} = '{$arguments[0]}'" : "{$regs[1]} = '{$arguments[0]}'";
 				return $this->find_total($args);
+				break;
+				
+			case ( preg_match('/^validates_(.+)$/', $method, $regs) ):
+				$this->_validate($method, $arguments);
 				break;
 			
 			default:
@@ -1006,10 +1047,35 @@ class model implements Iterator {
 		
 	}
 	
-	
-	public function before_save() {}
-	public function after_save() {}
-	
+	/**
+	* Alias to find and set the $page object. default page limit is 10 records
+	*
+	* @author Nesbert Hidalgo
+	* @access private
+	* @param string $method required
+	* @param array $args optional
+	*/
+	private function _validate($method, $args = null)
+	{
+
+		switch ( $method ) {
+		
+			case 'validates_uniqueness_of':
+				die($method);
+			break;
+			
+			default:
+				if ( method_exists($this->validation, $method) ) {
+					call_user_func_array(array($this->validation, $method), $args);								
+				} else {
+					$_ENV['error']->add("Undefined validation '{$method->_action}' in <strong>{get_class()}</strong>");
+				}
+			break;
+			
+		}
+
+	}
+
 	
 	/**
 	* Alias to find and set the $page object. default page limit is 10 records
@@ -1039,5 +1105,14 @@ class model implements Iterator {
 		
 	}
 	
+	/*
+	 * Callback Functions -> Override If Needed
+	 */
+	public function before_save() {}
+	public function after_save() {}
+	public function validate() {}
+	public function validate_on_create() {}
+	public function validate_on_update() {}	
+
 }
 ?>

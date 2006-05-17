@@ -13,25 +13,27 @@ class error extends view
 	 * @access private
 	 * @var string
 	 */
-	private $type;
+	private $_type;
 
 	public function __construct($type)
 	{
-		$this->type = $type;
+		$this->_type = $type;
 	}
 	
 	public function add()
 	{
 		$args = func_get_args();
 		
-		switch ( $this->type ) {
+		$this->has_errors = true;
+		
+		switch ( $this->_type ) {
 		
 			case 'application':
 				$this->application_error($args[0], $args[1]);
 			break;
 		
 			case 'model':
-				$this->add_form_error($args);
+				$this->add_form_error($args[0], $args[1]);
 			break;
 		
 		}
@@ -60,10 +62,9 @@ class error extends view
 		}
 	}
 	
-	private function add_form_error($message, $error = null)
+	private function add_form_error($field, $message)
 	{
-		//$this->fields->$error['field'] = array();
-		//$this->fields->$error['field'] = (object) array('message' => $error['message'], 'value' => $error['value']);
+		$this->$field = $message;
 	}	
 	
 }

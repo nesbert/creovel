@@ -7,7 +7,7 @@
  *	- smtp support
  *	- receiving emails
  */
-class mailer extends controller {
+class mailer {
 
 	/**
 	 * Private class properties.
@@ -19,6 +19,7 @@ class mailer extends controller {
 	private $_content;
 	private $_content_type = 'text/plain';
 	private $_content_transfer_encoding = '7bit';
+	private $_mailer_name;
 	private $_message_boundary;
 	private $_mime_boundary;
 	private $_header;
@@ -40,6 +41,8 @@ class mailer extends controller {
 	public $sent_on;
 	public $subject;
 	public $body;
+	public $text;
+	public $html;
 	
 	/**
 	 * Construct set message boundaries on load
@@ -51,6 +54,7 @@ class mailer extends controller {
 	{
 		//echo 'mailer start<br />';
 		// set message boundaries
+		$this->_mailer_name = get_class($this);
 		$this->_message_boundary = uniqid(rand(), true);
 		$this->_mime_boundary = uniqid(rand(), true);
 	}
@@ -76,15 +80,15 @@ class mailer extends controller {
 	 */
 	public function __call($method, $args)
 	{
-		$class = get_class($this);
-		
 		switch ( true ) {
 
 			case preg_match('/^create_(.+)$/', $method, $regs):
 			case preg_match('/^deliver_(.+)$/', $method, $regs):
 			
+				$this->_action = $regs[1];
+			
 				// set/call controller & action and pass arguments to child mailer class
-				$this->_call_action($class, $regs[1], $args);
+				$this->_call_action($args);
 				
 				// if deliver_XXX send message
 				if ( preg_match('/^deliver_(.+)$/', $method) ) $this->_send_on_close = true;
@@ -92,11 +96,10 @@ class mailer extends controller {
 			break;
 			
 			default:
-				$_ENV['error']->add("Undefined action '{$method}' in <strong>{$class}</strong>");
+				$_ENV['error']->add("Undefined action '{$method}' in <strong>{$this->_mailer_name}</strong>");
 			break;
 			
 		}
-		
 	}
 	
 	/**
@@ -104,19 +107,27 @@ class mailer extends controller {
 	 * 
 	 * @author Nesbert Hidalgo
 	 * @access private
-	 * @param string $class required
-	 * @param string $action required
 	 * @param array $args required
 	 */
-	private function _call_action($class, $action, $args)
+	private function _call_action($args)
 	{
-		$this->_controller = $class;				
-		$this->_action = $action;
-		if ( method_exists($this, $action) ) {
+		if ( method_exists($this, $this->_action) ) {
 			call_user_func_array(array($this, $this->_action), $args);								
 		} else {
-			$_ENV['error']->add("Undefined action '{$action}' in <strong>{$class}</strong>");
+			$_ENV['error']->add("Undefined action '{$this->_action}' in <strong>{$this->_mailer_name}</strong>");
 		}
+	}
+	
+	/**
+	 * Checks if content type is 'text/plain'
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @return bool
+	 */
+	private function _is_plain_text()
+	{
+		return ( ($this->_content_type == 'text/plain') && !$this->html ? true : false );
 	}
 	
 	/**
@@ -156,10 +167,13 @@ class mailer extends controller {
 	 * @return string
 	 */
 	private function _get_content()
-	{	
+	{
+		// intialize content string
+		$this->_content = '';
+				
 		if ( $this->_is_plain_text() ) {
 		
-			$this->_content = $this->_get_view();
+			$this->_content = $this->_get_text();
 			
 		} else {
 		
@@ -168,7 +182,7 @@ class mailer extends controller {
 			$this->_content .= "Content-Type: text/plain; charset={$this->charset}\n";
 			$this->_content .= "Content-Transfer-Encoding: {$this->content_transfer_encoding}\n";
 			$this->_content .= "Content-Disposition: inline\n\n";
-			$this->_content .= $this->_remove_html($this->_get_view());	
+			$this->_content .= $this->_get_text();
 			$this->_content .= "\n\n";
 		
 			// add html verison to message
@@ -176,7 +190,7 @@ class mailer extends controller {
 			$this->_content .= "Content-Type: text/html; charset={$this->charset}\n";
 			$this->_content .= "Content-Transfer-Encoding: {$this->content_transfer_encoding}\n";
 			$this->_content .= "Content-Disposition: inline\n\n";
-			$this->_content .= $this->_get_view();
+			$this->_content .= $this->_get_html();
 		}
 		
 		// get attachments string
@@ -185,16 +199,59 @@ class mailer extends controller {
 		return $this->_content;	
 	}
 	
+	/*
+	 * http://us3.php.net/manual/en/function.include.php
+	 * Example 16-11. Using output buffering to include a PHP file into a string
+	 */
+	private function _get_include_contents($filename)
+	{
+	   if ( is_file($filename) ) {
+		   ob_start();
+		   include $filename;
+		   $contents = ob_get_contents();
+		   ob_end_clean();
+		   return $contents;
+	   }
+	   return false;
+	}
+	
 	/**
-	 * Checks if content type is 'text/plain'
+	 * Gets the view content for message
 	 * 
 	 * @author Nesbert Hidalgo
 	 * @access private
-	 * @return bool
+	 * @param string $str required
+	 * @return string
 	 */
-	private function _is_plain_text()
+	private function _get_view()
 	{
-		return $this->_content_type == 'text/plain' ? true : false;
+		return $this->_get_include_contents(VIEWS_PATH.$this->_mailer_name.DS.$this->_action.'.php');
+	}
+	
+	/**
+	 * Get text verison of message and remove all html tags from a string
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $str required
+	 * @return string
+	 */
+	private function _get_text()
+	{
+		return strip_tags( $this->text ? $this->text : $this->_get_view() );
+	}
+	
+	/**
+	 * Get html verison of message
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $str required
+	 * @return string
+	 */
+	private function _get_html()
+	{
+		return $this->_get_view();
 	}
 	
 	/**
@@ -220,19 +277,6 @@ class mailer extends controller {
 	private function _get_subject()
 	{
 		return str_replace("\n", '', $this->subject);
-	}
-	
-	/**
-	 * Removes all html tags from a string
-	 * 
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 * @param string $str required
-	 * @return string
-	 */
-	private function _remove_html($str)
-	{
-		return strip_tags($str);
 	}
 	
 	/**

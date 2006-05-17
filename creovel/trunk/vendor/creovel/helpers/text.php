@@ -1,24 +1,4 @@
 <?php
-/*
- * General top-level functions.
- */
-
-/**
- * Prints human-readable information about a variable much prettier.
- *
- * @author John Faircloth
- */
- 
-function print_obj($obj, $kill = false)
-{
-
-	echo '<pre class="print_obj" style="text-align: left;">'."\n";
-	print_r($obj);
-	echo "\n</pre>\n";
-	if ( $kill ) die;
-
-}
-
 /**
  * Returns a pluralized verision of a word.
  */
@@ -62,7 +42,6 @@ function underscore($word)
 
 /**
  * Helpful for alternating between between two values during a loop.
- * Ya'll don't want any of this!!!
  *
  * <code>
  *  <tr class="<?=cycle('data_alt1', 'data_alt2')?>">
@@ -84,35 +63,15 @@ function cycle($var1 = null, $var2 = null)
 }
 
 /*
- * Return user definde constats
+ * Replace every " (quote) with its html equevelant
  *
  * @author Nesbert Hidalgo
- * @return array
- */
- function get_user_defined_constants()
- {
- 	$return = get_defined_constants(true);
-	return $return['user'];
- }
- 
-/*
- * Returns a human readable size or a file or a size
- * http://us2.php.net/manual/hk/function.filesize.php#64387
- *
- * @author Nesbert Hidalgo
- * @param mixed $file_or_size
+ * @param string $str required
  * @return string
  */
-function get_filesize($file_or_size)
+function quote2string($str)
 {
-	$iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");	
-	$size = is_numeric($file_or_size) ? $file_or_size : filesize($file_or_size);
-	$i = 0;
-	while ( ($size/1024) > 1 ) {
-		$size = $size / 1024;
-		$i++;
-	}
-	return substr($size, 0, strpos($size,'.') + 4).' '.$iec[$i];
+	return str_replace("\"", "&quot;", $str);
 }
 
 /*
@@ -128,4 +87,5 @@ function mask($str, $mask = '*')
 	for ( $i = 0; $i <= ( strlen($str) - 1 ); $i++ ) $return .= $mask;
 	return $return;
 }
+
 ?>

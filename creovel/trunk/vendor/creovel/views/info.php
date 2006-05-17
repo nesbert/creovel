@@ -37,13 +37,13 @@
 		<dl>
 			<dt>test</dt>
 			<? if ( count($_ENV['test']) ) foreach($_ENV['test'] as $key => $val) { ?>
-			<dd><?=$key?> => <?=$val?></dd>
+			<dd><?=$key?> => <?=( $key == 'password' ? mask($val) : $val )?></dd>
 			<? } ?>
 		</dl>
 		<dl>
 			<dt>production</dt>
 			<? if ( count($_ENV['production']) ) foreach($_ENV['production'] as $key => $val) { ?>
-			<dd><?=$key?> => <?=$val?></dd>
+			<dd><?=$key?> => <?=( $key == 'password' ? mask($val) : $val )?></dd>
 			<? } ?>
 		</dl>
 	</td>

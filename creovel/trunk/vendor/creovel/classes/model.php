@@ -549,6 +549,11 @@ class model implements Iterator {
 		$this->_offset = $offset;
 	}
 	
+	public function offset($offset)
+	{
+		$this->_offset = $offset;
+	}
+	
 	public function query($str = null) {
 		if ($str) {
 			$this->_query_str = $str; 
@@ -684,6 +689,7 @@ class model implements Iterator {
    	}
 	
 	function _create_child() {
+		return clone $this;
 		$item = new $this;
 		$item->load_values_into_fields($this->values());
 		return $item;
@@ -1022,7 +1028,7 @@ class model implements Iterator {
 		$temp = (object) $temp;
 		
 		// create page object
-		$this->page = new page($temp);
+		$this->page = new pager($temp);
 		
 		// update agrs with paging data
 		$args['offset'] = $this->page->offset;

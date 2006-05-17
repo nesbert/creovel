@@ -130,7 +130,20 @@ function url_for($controller = '', $action = '', $id = '')
  */
 function link_to($link_title = 'Goto', $controller = '', $action = '', $id = '', $html_options = null)
 {
-	return '<a href="'.url_for($controller, $action, $id).'"'.html_options_str($html_options).'>'.$link_title.'</a>';
+	return '<a href="'.( $html_options['href'] ? $html_options['href'] : url_for($controller, $action, $id) ).'"'.html_options_str($html_options).'>'.$link_title.'</a>';
+}
+
+/**
+ * Creates an email link
+ *
+ * @author Nesbert Hidalgo
+ * @param string $email required
+ * @param string $link_title optional
+ * @param array $html_options optional
+ */
+function mail_to($email, $link_title = null, $html_options = null)
+{
+	return '<a href="mailto:'.$email.'"'.html_options_str($html_options).'>'.( $link_title ? $link_title : $email ) .'</a>';
 }
 
 /**
@@ -167,6 +180,7 @@ function html_options_str($html_options)
 				case 'action':
 				case 'confirm':
 				case 'controller':
+				case 'href':
 					continue;
 				break;
 				
@@ -184,17 +198,55 @@ function html_options_str($html_options)
 
 }
 
-/**
- * Creates an email link
+/*
+ * Creates the floating tabs. Expects an array, key = url/javascript, value = label
  *
  * @author Nesbert Hidalgo
- * @param string $email required
- * @param string $link_title optional
- * @param array $html_options optional
+ * @param array $links required
+ * @param string $current optional default set to 1
+ * @param bool $use_small_tabs optional default set to false
+ * @return string
  */
-function email_to($email, $link_title = null, $html_options = null)
-{
-	return '<a href="mailto:'.$email.'"'.html_options_str($html_options).'>'.( $link_title ? $link_title : $email ) .'</a>';
+ 
+function tabs($links, $current = 1, $use_small_tabs = false) {
+
+	$tabs_id = 'tab'.rand();
+
+	$tabs = '<ul class="tabs'.( $use_small_tabs ? ' small_tabs' : '' ).'">';
+	
+	$count = 1;
+	
+	foreach ( $links as $link => $text ) {
+		$text_id = (is_numeric($current) ? $count : underscore(strip_tags($text)));
+		
+		$tabs .= '<li id="'.$tabs_id.'_'.$count.'" '.( $text_id == $current ? ' class="current"' : '').'><a href="'.$link.'" '.( strstr($link, 'javascript:') ? 'onclick="'.$tabs_id.'('.$count.', '.count($links).');"' : '' ).'><span>'.$text.'</span></a></li>';
+		$count++;
+	}
+		
+	$tabs .= '</ul>';
+	
+	?>
+	<script language="javascript" type="text/javascript">
+	<!--
+		function <?=$tabs_id?>(tab_id, tabs_count) {
+
+			for (var i=1; i <= tabs_count; i++) {
+			
+				if (tab_id == i) {
+					document.getElementById('<?=$tabs_id?>_' + i).className = 'current';
+				} else {
+					document.getElementById('<?=$tabs_id?>_' + i).className = '';
+				}
+			
+			}
+			
+		}
+	-->	
+	</script>
+	<?
+	
+	return $tabs;
+	
 }
 
 ?>

@@ -49,7 +49,7 @@ class model implements Iterator {
 	* @access public
 	* @var object
 	*/
-    public $select_query;
+    public $_select_query;
 	
 	/**
 	* Adapter
@@ -57,7 +57,7 @@ class model implements Iterator {
 	* @access private
 	* @var object
 	*/
-    public $action_query;
+    public $_action_query;
 	
 	/**
 	* Adapter
@@ -107,7 +107,6 @@ class model implements Iterator {
 	private $_limit;
 	private $_offset;
 	private $_query_str;
-	private $_inflector;
 	
 	/**
 	* Constructor.
@@ -116,14 +115,14 @@ class model implements Iterator {
 	* @access public
 	* @params string array $data used to load the model with values
 	 */	 
-	public function __construct($data = null, $connection_properties = null) {
+	public function __construct($data = null, $connection_properties = null)
+	{
 		
 		$this->errors = new error('model');
 		$this->validation = new validation($this->errors);
-		$this->_inflector = new inflector();
-		$this->select_query = $this->establish_connection($connection_properties);
-		$this->action_query = $this->establish_connection($connection_properties);
-		
+
+		$this->_select_query = $this->establish_connection($connection_properties);
+		$this->_action_query = $this->establish_connection($connection_properties);		
 		
 		if ($adapter) {
 			$this->_adpater = $adapter;
@@ -140,21 +139,22 @@ class model implements Iterator {
 	* @author John Faircloth
 	* @access private
 	*/
-	private function _set_table() {
+	private function _set_table()
+	{
 		
 		if (!$this->_table_name) {
 			$model_name =  $this->_class();
 			$this->_table_name = pluralize($model_name);
 		}
 		
-		$this->_db_name = $this->select_query->get_database();
-		$this->select_query->set_table($this->_table_name);
-		$this->_fields = $this->select_query->get_fields_object();
+		$this->_db_name = $this->_select_query->get_database();
+		$this->_select_query->set_table($this->_table_name);
+		$this->_fields = $this->_select_query->get_fields_object();
 	}
 	
-	private function _class() {
-		return str_replace('_model', '', get_class($this));
-			
+	private function _class()
+	{
+		return str_replace('_model', '', get_class($this));			
 	}
 	
 	/**
@@ -169,7 +169,6 @@ class model implements Iterator {
 	public function establish_connection($connection_properties = false)
 	{
 		if (!is_array($connection_properties)) {
-			
 			$connection_properties = $this->_get_connection_properties();
 		}
 		
@@ -198,7 +197,6 @@ class model implements Iterator {
 	 * @access private
 	 * @return array
 	 */
-
 	private function _get_connection_properties()
 	{
 	
@@ -206,15 +204,18 @@ class model implements Iterator {
 		switch ( $_ENV['mode'] ) {
 		
 			case 'production':
+				$_ENV['production']['mode'] = 'production';
 				return $_ENV['production'];
 			break;
 		
 			case 'test':
+				$_ENV['test']['mode'] = 'test';
 				return $_ENV['test'];
 			break;
 		
 			case 'development':
 			default:
+				$_ENV['development']['mode'] = 'development';
 				return $_ENV['development'];
 			break;
 		
@@ -261,7 +262,7 @@ class model implements Iterator {
 		$this->reset();
 		
 		// send a DESCRIBE query and set result on success
-		$this->select_query->query('DESCRIBE ' . $this->_table_name);
+		$this->_select_query->query('DESCRIBE ' . $this->_table_name);
 		
 		// foreach row in results insert into fields object
 		while ( $row = mysql_fetch_assoc($result) ) {
@@ -322,7 +323,7 @@ class model implements Iterator {
 	
 	public function insert($data) {
 		
-		$qry = "insert into $this->_table_name (";
+		$qry = "INSERT INTO {$this->_table_name} (";
 		
 		foreach ($data as $name => $value) {
 			
@@ -337,7 +338,7 @@ class model implements Iterator {
 		}
 		
 		
-		$qry = substr($qry, 0, -2) . ') values (';
+		$qry = substr($qry, 0, -2) . ') VALUES (';
 		
 		foreach ($data as $name => $value) {
 
@@ -364,7 +365,6 @@ class model implements Iterator {
 				
 				$qry .= "'" . ($obj->value ? 1 : 0) . "', ";
 				
-
 			} elseif (is_numeric($obj->value)) {
 				
 				$qry .= "'" . $obj->value . "', ";
@@ -377,22 +377,21 @@ class model implements Iterator {
 				
 				$qry .= "'" . addslashes(serialize($obj->value)) . "', ";
 							
-			}else {
+			} else {
 				
 				$qry .= "'" . $obj->default . "', ";
 				
 			}
 
-			
-
 		}
+		
 		$qry = substr($qry, 0, -2) ;
 		
 		$qry .= ')';
-		$this->action_query->query($qry);
+		$this->_action_query->query($qry);
 		
 		$key = $this->_primary_key;
-		$this->_fields->$key->value =  $this->action_query->insert_id;
+		$this->_fields->$key->value =  $this->_action_query->insert_id;
 		
 		return $this->key(); 
 		 
@@ -400,7 +399,7 @@ class model implements Iterator {
 	
 	public function update($data, $where) {
 		
-		$qry = "update $this->_table_name set ";
+		$qry = "UPDATE {$this->_table_name} SET ";
 		
 		foreach ($data as $name => $value) {
 
@@ -447,28 +446,28 @@ class model implements Iterator {
 			}
 
 			
-
 		}
 		
 		$qry = substr($qry, 0, -2) ;
 		$key = $data[$this->_primary_key];
-		$qry .= " where $this->_primary_key = '$key'";
-		$this->action_query->query($qry);
+		$qry .= " WHERE {$this->_primary_key} = '{$key}'";
+		$this->_action_query->query($qry);
 		
 		//$key = $this->_primary_key;
-		//$this->_fields->$key->value = $this->action_query->insert_id;
+		//$this->_fields->$key->value = $this->_action_query->insert_id;
 		
 		return $key; 
 	}
 	
 	public function delete($where) {
+	
 		if (!$where) {
 			return false;
 		}
 		
-		$this->action_query->query("delete from $this->_table_name where $where");
+		$this->_action_query->query("DELETE FROM {$this->_table_name} WHERE $where");
 		
-		return $this->action_query->row_count;
+		return $this->_action_query->row_count;
 		
 	}
 	
@@ -548,11 +547,9 @@ class model implements Iterator {
 		unset($args['select']);
 		$this->find($args);
 		
-		$row = $this->select_query->get_row();
+		$row = $this->_select_query->get_row();
 		$this->reset();
 		return $row['total'];
-		
-		
 		
 	}
 	
@@ -593,7 +590,7 @@ class model implements Iterator {
 			$this->_build_qry();
 		}
 		
-		return $this->select_query->query($this->_query_str);
+		return $this->_select_query->query($this->_query_str);
 	}
 	
 	public function query_str($no_breaks = false) {
@@ -658,7 +655,7 @@ class model implements Iterator {
 		$this->_limit = null;
 		$this->_offset = null;
 		$this->_query_str = null;
-		$this->select_query->reset();
+		$this->_select_query->reset();
 	
 	}
 	
@@ -671,7 +668,7 @@ class model implements Iterator {
    	*/
  	function rewind(){
 		
-		$this->select_query->rewind();
+		$this->_select_query->rewind();
 		$this->next();
 	}
 
@@ -699,15 +696,15 @@ class model implements Iterator {
 		
   		if ( $this->get_pointer() <= ( $this->row_count() - 1 ) ) {
 		
-			$row = $this->select_query->get_row($this->get_pointer(), $type);
+			$row = $this->_select_query->get_row($this->get_pointer(), $type);
 			$this->load_values_into_fields($row, $type);
-			$this->select_query->pointer++;
+			$this->_select_query->pointer++;
 			$this->_valid = true;
 			return $row;
 			
 		} else {
 			$this->_valid = false;
-			$this->select_query->pointer--;
+			$this->_select_query->pointer--;
 			return false;
 			
 		}
@@ -732,12 +729,12 @@ class model implements Iterator {
 	
 	public function get_pointer()
 	{
-		return $this->select_query->pointer ? $this->select_query->pointer : 0;
+		return $this->_select_query->pointer ? $this->_select_query->pointer : 0;
 	}
 	
 	public function row_count() {
 		
-		return $this->select_query->row_count;
+		return $this->_select_query->row_count;
 	
 	}
 	
@@ -799,14 +796,14 @@ class model implements Iterator {
 
 					} else {
 
-						if ($regs[1] == $this->_primary_key) {
+						if ( $regs[1] == $this->_primary_key ) {
 						
 							$this->reset();
 							
-							$this->select_query->query("select * from $this->_table_name where $this->_primary_key = '$arguments[0]'");
-							if ($this->select_query->row_count) {
+							$this->_select_query->query("SELECT * FROM {$this->_table_name} WHERE {$this->_primary_key} = '{$arguments[0]}'");
+							if ($this->_select_query->row_count) {
 									
-								$row = $this->select_query->get_row();
+								$row = $this->_select_query->get_row();
 				
 								$this->load_values_into_fields($row, $type);
 				

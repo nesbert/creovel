@@ -7,11 +7,12 @@
 class mysql implements adapter_interface
 {
 
-	private $db;			// associative array of databse properties
+	private $mode;			// Server mode developement, test, productions
 	private $db_link;		// MySQL link identifier
 	private $query;			// SQL query
 	private $query_link;	// MySQL result resource
 	private $table;			// current table
+	private $database;		// current database
 	
 	public $pointer = -1;	// MySQL result pointer
 	public $row_count = 0;	// number of rows in MySQL result
@@ -31,14 +32,12 @@ class mysql implements adapter_interface
 	
 	public function connect($db_properties)
 	{	
-		// set database properties
-		$this->db->host = $db_properties['host'];
-		$this->db->username = $db_properties['username'];
-		$this->db->password = $db_properties['password'];
-		$this->db->mode = $db_properties['mode'];
+		// set properties
+		$this->database = $db_properties['database'];
+		$this->mode = $db_properties['mode'];
 		
 		// open a connection to a MySQL Server and set db_link
-		$this->db_link = @mysql_connect($this->db->host, $this->db->username, $this->db->password) or $this->handle_error('Could not connect to database ('.$db_properties['host'].'.'.$db_properties['database'].'). ' . mysql_error() . '.');
+		$this->db_link = @mysql_connect($db_properties['host'], $db_properties['username'], $db_properties['password']) or $this->handle_error('Could not connect to database ('.$db_properties['host'].'.'.$db_properties['database'].'). ' . mysql_error() . '.');
 		
 		// set database to use
 		$this->set_database($db_properties['database']);
@@ -55,21 +54,17 @@ class mysql implements adapter_interface
 	
 	public function set_database($database)
 	{
-		// set database property
-		$this->db->database = $database;
-		
 		// select a MySQL database to use
-		@mysql_select_db($this->db->database) or $this->handle_error("Could not select database ({$this->db->host}.{$this->db->database}). " . mysql_error() . '.');
+		@mysql_select_db($database) or $this->handle_error("Could not select database named <strong>{$database}</strong>. " . mysql_error() . '.');
 	}
 	
-	public function get_database() {
-	
-		return $this->db->database;
+	public function get_database()
+	{
+		return $this->database;
 	}
 	
 	public function set_table($table)
 	{
-		// set table property
 		$this->table = $table;
 	}
 		
@@ -120,25 +115,22 @@ class mysql implements adapter_interface
 	
 	public function reset()
 	{
-	
 		// reset properties
 		$this->pointer = 0;
 		$this->row_count = 0;
 		$this->query = null;
 	
 		// release resource
-		
 		if ( $this->query_link ) {
 			@mysql_free_result($this->query_link);
 			$this->query_link = null;
 		}
 	}
 	
-	public function rewind() {
+	public function rewind()
+	{
 		$this->pointer = 0;
-		
 	}
-	
 	
 	public function get_row($pointer = 0)
 	{
@@ -150,12 +142,6 @@ class mysql implements adapter_interface
 		
 		// fetch and return a result row as an associative array
 		return mysql_fetch_assoc($this->query_link);			
-	}
-	
-	public function get_next() {
-		
-		
-	
 	}
 	
 	private function get_mysql_error()
@@ -174,8 +160,6 @@ class mysql implements adapter_interface
 		}
 		
 	}
-	
-	// error_reporting(E_ALL);
 	
 }
 ?>

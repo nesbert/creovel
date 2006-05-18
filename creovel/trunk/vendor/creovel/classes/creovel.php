@@ -67,17 +67,17 @@ class creovel
 	 */
 	public function get_events($event_to_return = null)
 	{
-		// read URI which was given in order to access this page
-		$uri = explode('?', $_SERVER['REQUEST_URI']);
+		// read URI which was given in order to access this page, remove any trailing forward slashes
+		$uri = explode('?', ( $_SERVER['REQUEST_URI']{strlen($_SERVER['REQUEST_URI']) - 1} == '/' ? substr($_SERVER['REQUEST_URI'], 0, strlen($_SERVER['REQUEST_URI']) - 1) : $_SERVER['REQUEST_URI'] ));
 		
 		// get event args from uri
 		$args = explode(DS, substr($uri[0], 1));
 		
 		// set events for framework with array indexes
 		if ( count($args) > 2 ) {
-			$events['controller'] =  $args[0];
-			$events['action'] = $args[1];
-			$events['id'] = $args[2];
+			$events['controller'] =  $args[ count($args) - 3 ];
+			$events['action'] = $args[ count($args) - 2 ];
+			$events['id'] = $args[ count($args) - 1 ];
 		} else {
 			$events['controller'] =  $args[0];
 			$events['action'] = $args[1];
@@ -148,7 +148,6 @@ class creovel
 		
 			$class = $controller . '_controller';
 			$controller_path = CONTROLLERS_PATH . $path . $class . '.php';
-			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
 			
 			try {
 			

@@ -117,12 +117,12 @@ class pager {
 		return ( $this->current > $this->first ? $this->link_to($label, $this->prev, $extra_params, $html_options) : '' );
 	}
 
-	public function link_to_first($label = '&laquo;', $extra_params = null, $html_options = null)
+	public function link_to_first($label = 'First', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current > $this->first ? $this->link_to($label, $this->first, $extra_params, $html_options) : '' );
 	}
 
-	public function link_to_last($label = '&raquo;', $extra_params = null, $html_options = null)
+	public function link_to_last($label = 'Last', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current < $this->last ? $this->link_to($label, $this->last, $extra_params, $html_options) : '' );
 	}

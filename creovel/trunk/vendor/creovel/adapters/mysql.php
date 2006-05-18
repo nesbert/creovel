@@ -25,9 +25,8 @@ class mysql implements adapter_interface
 	
 	public function __destruct()
 	{
-		// free memory and close database connection	
-		
-		//	$this->disconnect();		
+		// free memory and close database connection
+		$this->disconnect();		
 	}
 	
 	public function connect($db_properties)
@@ -39,7 +38,7 @@ class mysql implements adapter_interface
 		$this->db->mode = $db_properties['mode'];
 		
 		// open a connection to a MySQL Server and set db_link
-		$this->db_link = mysql_connect($this->db->host, $this->db->username, $this->db->password) or $this->handle_error('<strong>Error:</strong> Could not connect to database. ' . mysql_error() . '<br />');		
+		$this->db_link = @mysql_connect($this->db->host, $this->db->username, $this->db->password) or $this->handle_error('Could not connect to database ('.$db_properties['host'].'.'.$db_properties['database'].'). ' . mysql_error() . '.');
 		
 		// set database to use
 		$this->set_database($db_properties['database']);
@@ -50,8 +49,7 @@ class mysql implements adapter_interface
 		// free result memory
 		if ( $this->query_link ) @mysql_free_result($this->query_link);
 		
-		// close MySQL connection
-		
+		// close MySQL connection		
 		//if ($this->db_link) @mysql_close($this->db_link);	
 	}
 	
@@ -61,7 +59,7 @@ class mysql implements adapter_interface
 		$this->db->database = $database;
 		
 		// select a MySQL database to use
-		mysql_select_db($this->db->database) or $this->handle_error("<strong>Error:</strong> Could not select database ({$this->db->database}@{$this->db->host}). " . mysql_error() . '<br />');
+		@mysql_select_db($this->db->database) or $this->handle_error("Could not select database ({$this->db->host}.{$this->db->database}). " . mysql_error() . '.');
 	}
 	
 	public function get_database() {
@@ -84,7 +82,7 @@ class mysql implements adapter_interface
 		$result = mysql_query('DESCRIBE ' . $this->table);
 		
 		// foreach row in results insert into fields object
-		while ( $row = mysql_fetch_assoc($result) ) {
+		while ( $row = @mysql_fetch_assoc($result) ) {
 		
 			// set fields into an associative array		
 			foreach ( $row as $key => $value ) if ( $key != 'Field' ) $temp_arr[strtolower($key)] = $value;
@@ -108,7 +106,7 @@ class mysql implements adapter_interface
 		$this->query = $query;
 		
 		// send a MySQL query and set query_link resource on success
-		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error("<strong>Error:</strong> Query failed. " . $this->get_mysql_error() . "\n" . str_replace(', ', ",\n", $this->query) . "\n\n");
+		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error($this->get_mysql_error() . ". Query \"" . str_replace(', ', ",\n", $this->query) . "\" failed.");
 		
 		
 		// set insert_id with the ID generated from the previous INSERT operation
@@ -116,8 +114,7 @@ class mysql implements adapter_interface
 			$this->insert_id = mysql_insert_id();
 		} else {
 			// set row_count with number of rows in result
-			$this->row_count = 	@mysql_num_rows($this->query_link);	
-		
+			$this->row_count = 	@mysql_num_rows($this->query_link);		
 		}
 	}
 	
@@ -173,7 +170,7 @@ class mysql implements adapter_interface
 		if ( $_ENV['mode'] == 'production' ) {
 			die('error_handler');
 		} else {
-			die($message);
+			$_ENV['error']->add($message);
 		}
 		
 	}

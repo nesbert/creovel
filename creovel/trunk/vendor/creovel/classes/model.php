@@ -866,7 +866,7 @@ class model implements Iterator {
 				break;
 				
 			case ( preg_match('/^validates_(.+)$/', $method, $regs) ):
-				$this->_validate($method, $arguments);
+				$this->_validate_by_method($method, $arguments);
 				break;
 			
 			default:
@@ -878,42 +878,57 @@ class model implements Iterator {
 
 	}
 	
-	function __set($property, $value) {
-		
-		if (isset($this->_fields->$property)) {
+	public function __set($property, $value)
+	{
 
-			$function = 'set_' . $property;
-			return $this->$function($value);
+		try {
+				
+			if ( isset($this->_fields->$property) ) {
+	
+				$function = 'set_' . $property;
+				return $this->$function($value);
+			
+			} else {
+			
+				throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
+	
+			}
+			
+		} catch ( Exception $e ) {
 		
-		} else {
-			 $x = debug_backtrace();
-  			$funcname = $x[1]['function'];
-			trigger_error('<b>$' . $property . '</b> is not a property in class <b>\'' . get_class($this) . '\'</b> Calling function: ' .$funcname, E_USER_ERROR);
-
-		}
+			// add to errors
+			$_ENV['error']->add($e->getMessage(), $e);
+		
+		}		
 
 	}
 	
-	function __get($property) {
+	public function __get($property) {
+	
+		try {
 				
-		if (isset($this->_fields->$property)) {
-		
-			$function = 'get_' . $property;
-			return $this->$function($value);
-		
-		} else if (array_key_exists($property, $this->_links)) {
-
-			return $this->get_link_object($property);
-		
-		} else {
-
-			$x = debug_backtrace();
-			$funcname = $x[1]['function'];
+			if ( isset($this->_fields->$property) ) {
 			
-			trigger_error('<b>$' . $property . '</b> is not a property in class <b>\'' .  $x[1]['class'] . '\'</b> on line <b>' . $x[1]['line']  . '</b> Calling function: ' .$funcname, E_USER_ERROR);
-
-		}
-
+				$function = 'get_' . $property;
+				return $this->$function($value);
+			
+			} else if (array_key_exists($property, $this->_links)) {
+	
+				return $this->get_link_object($property);
+			
+			} else {
+			
+				throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
+				
+			}
+			
+		} catch ( Exception $e ) {
+		
+			// add to errors
+			$_ENV['error']->add($e->getMessage(), $e);
+		
+		}		
+			
 	}
 	
 	public function has_many($name, $options = array()) {
@@ -1055,7 +1070,7 @@ class model implements Iterator {
 	* @param string $method required
 	* @param array $args optional
 	*/
-	private function _validate($method, $args = null)
+	private function _validate_by_method($method, $args = null)
 	{
 
 		switch ( $method ) {
@@ -1076,7 +1091,6 @@ class model implements Iterator {
 
 	}
 
-	
 	/**
 	* Alias to find and set the $page object. default page limit is 10 records
 	*

@@ -88,4 +88,26 @@ function mask($str, $mask = '*')
 	return $return;
 }
 
+/*
+ * Replace every charactor of a string with $mask
+ *
+ * @author Nesbert Hidalgo
+ * @param string $str required
+ * @param string $length optional default set to '*'
+ * @param string $tail optional default set to '...'
+ * @return string
+ */
+function truncate($str, $length = 30, $tail = '...')
+{	
+	$str = trim($str);
+
+	if ( strlen($str) >= $length ) {
+	
+		$str = trim(substr_replace($str, '', ($length - strlen($tail))));
+		$str .= $tail;
+	
+	}
+	
+	return $str;
+}
 ?>

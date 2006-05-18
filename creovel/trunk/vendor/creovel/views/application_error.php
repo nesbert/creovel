@@ -9,7 +9,7 @@ $trace_count = 0;
 foreach ( $this->traces as $trace ) {
 	?>
 	<li>
-		#<?=(count($this->traces) - $trace_count)?> <?=$trace['class'] . $trace['type'] . $trace['function'] . str_replace("('')", '()', ("('" . implode("', '", $trace['args'])) . "')") ?> in <strong><a href="javascript:void(0);" onclick="_Toggle('source_<?=$trace_count?>');"><?=$trace['file']?></a></strong> on line <strong><?=$trace['line']?></strong>
+		#<?=(count($this->traces) - $trace_count)?> <?=$trace['class'] . $trace['type'] . $trace['function'] . str_replace("('')", '()', ("('" . ( is_array($trace['args']) ? implode("', '", $trace['args']) : '')) . "')") ?> in <strong><a href="javascript:void(0);" onclick="_Toggle('source_<?=$trace_count?>');"><?=$trace['file']?></a></strong> on line <strong><?=$trace['line']?></strong>
 		<? include(dirname(__FILE__).DS.'_source_code.php') ?>
 	</li>
 	<?

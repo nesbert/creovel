@@ -751,128 +751,137 @@ class model implements Iterator {
 		
 	}
 	
-	function __call($method, $arguments) {
+	public function __call($method, $arguments)
+	{
+	
+		try {
 		
-		switch (true) {
-
-			case preg_match('/^get_(.+)$/', $method, $regs):
-				
-				if (isset($this->_fields->$regs[1])) {
+			switch (true) {
+	
+				case preg_match('/^get_(.+)$/', $method, $regs):
 					
-					if (is_string($this->_fields->$regs[1]->value)) {
-
-						return stripslashes($this->_fields->$regs[1]->value);
-
-					} else {
-
-						return $this->_fields->$regs[1]->value;
-
-					}
-
-				} else {
-
-					echo '<h1>Undefined method: <b>' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b></h1>';
-					foreach (debug_backtrace() as $path) {
-						echo "<b>File:</b> {$path['file']}<br />";
-						echo "<b>Line:</b> {$path['line']}<br />";
-						echo "<b>Function:</b> {$path['function']}<br />";
-						echo "<hr />";
-					}
-					die();
-				}
-				
-			break;
-			
-			case preg_match('/^set_(.+)$/', $method, $regs):
-
-				if (isset($this->_fields->$regs[1])) {
-
-					if ( count($arguments) != 1) {
-
-						$x = debug_backtrace();
-							//$funcname = $x[1]['function'];
-
-						trigger_error('Wrong parameter count given for method: <b>' . $method . '()</b> in page <b>\'' . $x[0]['file'] . '\'</b> on line <b>' . $x[0]['line'] .' </b>.<br> One Expected, ' . count($arguments) . ' Given!', E_USER_ERROR);
-
-					} else {
-
-						if ( $regs[1] == $this->_primary_key ) {
+					if (isset($this->_fields->$regs[1])) {
 						
-							$this->reset();
+						if (is_string($this->_fields->$regs[1]->value)) {
+	
+							return stripslashes($this->_fields->$regs[1]->value);
+	
+						} else {
+	
+							return $this->_fields->$regs[1]->value;
+	
+						}
+	
+					} else {
+	
+						echo '<h1>Undefined method: <b>' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b></h1>';
+						foreach (debug_backtrace() as $path) {
+							echo "<b>File:</b> {$path['file']}<br />";
+							echo "<b>Line:</b> {$path['line']}<br />";
+							echo "<b>Function:</b> {$path['function']}<br />";
+							echo "<hr />";
+						}
+						die();
+					}
+					
+				break;
+				
+				case preg_match('/^set_(.+)$/', $method, $regs):
+	
+					if (isset($this->_fields->$regs[1])) {
+	
+						if ( count($arguments) != 1) {
+	
+							$x = debug_backtrace();
+								//$funcname = $x[1]['function'];
+	
+							trigger_error('Wrong parameter count given for method: <b>' . $method . '()</b> in page <b>\'' . $x[0]['file'] . '\'</b> on line <b>' . $x[0]['line'] .' </b>.<br> One Expected, ' . count($arguments) . ' Given!', E_USER_ERROR);
+	
+						} else {
+	
+							if ( $regs[1] == $this->_primary_key ) {
 							
-							$this->_select_query->query("SELECT * FROM {$this->_table_name} WHERE {$this->_primary_key} = '{$arguments[0]}'");
-							if ($this->_select_query->row_count) {
-									
-								$row = $this->_select_query->get_row();
-				
-								$this->load_values_into_fields($row, $type);
-				
-								return true;
-				
+								$this->reset();
+								
+								$this->_select_query->query("SELECT * FROM {$this->_table_name} WHERE {$this->_primary_key} = '{$arguments[0]}'");
+								if ($this->_select_query->row_count) {
+										
+									$row = $this->_select_query->get_row();
+					
+									$this->load_values_into_fields($row, $type);
+					
+									return true;
+					
+								} else {
+					
+									return false;
+								
+								}
+	
+							
 							} else {
-				
-								return false;
+							
+								$this->_fields->$regs[1]->value = $arguments[0];
 							
 							}
-
-						
-						} else {
-						
-							$this->_fields->$regs[1]->value = $arguments[0];
-						
-						}
-						return true;
-
-					}
-
-				} else {
-					//$x = debug_backtrace();
-					//trigger_error('Undefined method <b>$' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b> in page <b>\'' . $x[0]['file'] . '\'</b> on line <b>' . $x[0]['line'] .' </b>.', E_USER_ERROR);
-					echo '<h1>Undefined method: <b>' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b></h1>';
-	 				foreach (debug_backtrace() as $path) {
-						echo "<b>File:</b> {$path['file']}<br />";
-						echo "<b>Line:</b> {$path['line']}<br />";
-						echo "<b>Function:</b> {$path['function']}<br />";
-						echo "<hr />";
-					}
-					die();
+							return true;
 	
-				}
-				break;
-
-			case preg_match('/^find_by_(.+)$/', $method, $regs):
-				$args = $arguments[1];
-				$args['conditions'] = "{$regs[1]} = '{$arguments[0]}'";
-				$args['limit'] = 1;
-				$this->find($args);
-				break;
-
-			case preg_match('/^find_first_by_(.+)$/', $method, $regs):
-				$args = $arguments[1];
-				$args['conditions'] = "{$regs[1]} = '{$arguments[0]}'";
-				$args['limit'] = 1;
-				$this->find($args);
-				$this->get_next();
-				break;
-
-			case preg_match('/^find_total_by_(.+)$/', $method, $regs):
-
-				$args = $arguments[1];
-				$args['conditions'] .= (isset($args['conditions'])) ? " AND {$regs[1]} = '{$arguments[0]}'" : "{$regs[1]} = '{$arguments[0]}'";
-				return $this->find_total($args);
-				break;
+						}
+	
+					} else {
+						//$x = debug_backtrace();
+						//trigger_error('Undefined method <b>$' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b> in page <b>\'' . $x[0]['file'] . '\'</b> on line <b>' . $x[0]['line'] .' </b>.', E_USER_ERROR);
+						echo '<h1>Undefined method: <b>' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b></h1>';
+						foreach (debug_backtrace() as $path) {
+							echo "<b>File:</b> {$path['file']}<br />";
+							echo "<b>Line:</b> {$path['line']}<br />";
+							echo "<b>Function:</b> {$path['function']}<br />";
+							echo "<hr />";
+						}
+						die();
+		
+					}
+					break;
+	
+				case preg_match('/^find_by_(.+)$/', $method, $regs):
+					$args = $arguments[1];
+					$args['conditions'] = "{$regs[1]} = '{$arguments[0]}'";
+					$args['limit'] = 1;
+					$this->find($args);
+					break;
+	
+				case preg_match('/^find_first_by_(.+)$/', $method, $regs):
+					$args = $arguments[1];
+					$args['conditions'] = "{$regs[1]} = '{$arguments[0]}'";
+					$args['limit'] = 1;
+					$this->find($args);
+					$this->get_next();
+					break;
+	
+				case preg_match('/^find_total_by_(.+)$/', $method, $regs):
+	
+					$args = $arguments[1];
+					$args['conditions'] .= (isset($args['conditions'])) ? " AND {$regs[1]} = '{$arguments[0]}'" : "{$regs[1]} = '{$arguments[0]}'";
+					return $this->find_total($args);
+					break;
+					
+				case ( preg_match('/^validates_(.+)$/', $method, $regs) ):
+					$this->_validate_by_method($method, $arguments);
+					break;
 				
-			case ( preg_match('/^validates_(.+)$/', $method, $regs) ):
-				$this->_validate_by_method($method, $arguments);
-				break;
-			
-			default:
-				$x = debug_backtrace();
-				trigger_error('Undefined method <b>$' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b>  in page <b>\'' . $x[0]['file'] . '\'</b> on line <b>' . $x[0]['line'] .' </b>.', E_USER_ERROR);
-				break;
+				default:
+					throw new Exception("Undefined method '{$method}' in <strong>".get_class($this)."</strong> model.");
+					break;
+					
+			}
+
+		} catch ( Exception $e ) {
+		
+			// add to errors
+			$_ENV['error']->add($e->getMessage(), $e);
+		
 		}
-
-
+		
 	}
 	
 	public function __set($property, $value)

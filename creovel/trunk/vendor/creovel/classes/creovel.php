@@ -148,6 +148,7 @@ class creovel
 		
 			$class = $controller . '_controller';
 			$controller_path = CONTROLLERS_PATH . $path . $class . '.php';
+			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
 			
 			try {
 			

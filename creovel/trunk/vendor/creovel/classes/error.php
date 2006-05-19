@@ -42,7 +42,8 @@ class error extends view
 	
 	private function application_error($message, $exception = null)
 	{
-		$this->mode_check();		
+		$this->mode_check();
+		@ob_end_clean(); // clean diaplay buffer
 		$this->message = $message;
 		if ( is_object($exception) ) $this->traces = $exception->getTrace();
 		if ( isset($_GET['view_source']) ) {

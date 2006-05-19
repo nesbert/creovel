@@ -751,18 +751,26 @@ class model implements Iterator {
 		
 	}
 	
+	/**
+	* Magic Functions
+	*
+	* @author John Faircloth, Nesbert Hidalgo
+	* @access public
+	* @param string $method name of function being called
+	* @param array $arguments passed to the function
+	*/
 	public function __call($method, $arguments)
 	{
 	
 		try {
 		
-			switch (true) {
+			switch ( true ) {
 	
 				case preg_match('/^get_(.+)$/', $method, $regs):
 					
-					if (isset($this->_fields->$regs[1])) {
+					if ( isset($this->_fields->$regs[1]) ) {
 						
-						if (is_string($this->_fields->$regs[1]->value)) {
+						if ( is_string($this->_fields->$regs[1]->value) ) {
 	
 							return stripslashes($this->_fields->$regs[1]->value);
 	
@@ -774,14 +782,8 @@ class model implements Iterator {
 	
 					} else {
 	
-						echo '<h1>Undefined method: <b>' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b></h1>';
-						foreach (debug_backtrace() as $path) {
-							echo "<b>File:</b> {$path['file']}<br />";
-							echo "<b>Line:</b> {$path['line']}<br />";
-							echo "<b>Function:</b> {$path['function']}<br />";
-							echo "<hr />";
-						}
-						die();
+						throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
+						
 					}
 					
 				break;
@@ -792,10 +794,7 @@ class model implements Iterator {
 	
 						if ( count($arguments) != 1) {
 	
-							$x = debug_backtrace();
-								//$funcname = $x[1]['function'];
-	
-							trigger_error('Wrong parameter count given for method: <b>' . $method . '()</b> in page <b>\'' . $x[0]['file'] . '\'</b> on line <b>' . $x[0]['line'] .' </b>.<br> One Expected, ' . count($arguments) . ' Given!', E_USER_ERROR);
+							throw new Exception("Too many parameters for method '{$method}' in <strong>".get_class($this)."</strong> model. One expected, ".count($arguments)." given.");
 	
 						} else {
 	
@@ -804,7 +803,8 @@ class model implements Iterator {
 								$this->reset();
 								
 								$this->_select_query->query("SELECT * FROM {$this->_table_name} WHERE {$this->_primary_key} = '{$arguments[0]}'");
-								if ($this->_select_query->row_count) {
+								
+								if ( $this->_select_query->row_count ) {
 										
 									$row = $this->_select_query->get_row();
 					
@@ -824,24 +824,18 @@ class model implements Iterator {
 								$this->_fields->$regs[1]->value = $arguments[0];
 							
 							}
+							
 							return true;
 	
 						}
 	
 					} else {
-						//$x = debug_backtrace();
-						//trigger_error('Undefined method <b>$' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b> in page <b>\'' . $x[0]['file'] . '\'</b> on line <b>' . $x[0]['line'] .' </b>.', E_USER_ERROR);
-						echo '<h1>Undefined method: <b>' . $method . '</b> in class <b>\'' . get_class($this) . '\'</b></h1>';
-						foreach (debug_backtrace() as $path) {
-							echo "<b>File:</b> {$path['file']}<br />";
-							echo "<b>Line:</b> {$path['line']}<br />";
-							echo "<b>Function:</b> {$path['function']}<br />";
-							echo "<hr />";
-						}
-						die();
+					
+						throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
 		
 					}
-					break;
+				
+				break;
 	
 				case preg_match('/^find_by_(.+)$/', $method, $regs):
 					$args = $arguments[1];
@@ -859,7 +853,6 @@ class model implements Iterator {
 					break;
 	
 				case preg_match('/^find_total_by_(.+)$/', $method, $regs):
-	
 					$args = $arguments[1];
 					$args['conditions'] .= (isset($args['conditions'])) ? " AND {$regs[1]} = '{$arguments[0]}'" : "{$regs[1]} = '{$arguments[0]}'";
 					return $this->find_total($args);
@@ -867,11 +860,21 @@ class model implements Iterator {
 					
 				case ( preg_match('/^validates_(.+)$/', $method, $regs) ):
 					$this->_validate_by_method($method, $arguments);
-					break;
+				break;
+				
+				/* Paging Links */
+				case ( preg_match('/^link_to_(.+)$/', $method, $regs) ):
+				case ( preg_match('/^paging_(.+)$/', $method, $regs) ):
+					if ( method_exists($this->page, $method) ) {
+						return call_user_func_array(array($this->page, $method), $args);								
+					} else {
+						throw new Exception("Undefined method '{$method}' in <strong>".get_class($this)."</strong> model.");
+					}
+				break;
 				
 				default:
 					throw new Exception("Undefined method '{$method}' in <strong>".get_class($this)."</strong> model.");
-					break;
+				break;
 					
 			}
 
@@ -997,6 +1000,7 @@ class model implements Iterator {
 			return false;
 		}
 	}
+	
 	private function create_link($name) {
 
 		
@@ -1098,12 +1102,12 @@ class model implements Iterator {
 	}
 
 	/**
-	* Alias to find and set the $page object. default page limit is 10 records
-	*
-	* @author Nesbert Hidalgo
-	* @access public
-	* @param array $args optional
-	*/
+	 * Alias to find and set the $page object. default page limit is 10 records
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $args optional
+	 */
 	public function paginate($args = null)
 	{
 	

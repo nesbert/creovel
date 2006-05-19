@@ -177,11 +177,12 @@ function flash_notice($message = null) {
 }
 
 /**
- * Throws an exception error and adds stop the application
+ * Stops the application and display an error message
  *
  * @author Nesbert Hidalgo
  * @access public
- * @return string
+ * @param string $message
+ * @param bool $thow_exception optional
  */
 function application_error($message, $thow_exception = false)
 {

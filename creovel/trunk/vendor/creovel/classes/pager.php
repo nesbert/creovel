@@ -25,8 +25,14 @@ class pager {
 		$this->set_properties($data);
 	}
 	
-	/*
-	 * set page class properties
+	/**
+	 * Set class properties
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $data required
+	 * @param int $page optional
+	 * @param int $limit optional
 	 */
 	public function set_properties($data, $page = null, $limit = null) {
 
@@ -77,17 +83,29 @@ class pager {
 
 	}
 	
-	/*
-	 * page an array
+	/**
+	 * Page an array
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $data required
+	 * @param bool $preserve_keys optional
+	 * @param bool $limit optional
+	 * @return mixed
 	 */
 	public function page_array($data, $preserve_keys = true, $limit = false)
 	{
-		if ( !$this->total_records ) self::set_properties($data);
+		if ( !$this->total_records ) $this->set_properties($data, null, $limit);
 		return array_slice($data, $this->offset, $this->limit, $preserve_keys);
 	}	
 	
-	/*
-	 * clean/create extra params links
+	/**
+	 * Clean/create extra params links
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param mixed $data required
+	 * @return mixed
 	 */
 	public function check_params($data)
 	{
@@ -100,52 +118,101 @@ class pager {
 		}	
 	}
 	
-	private function link_to($label = 'Next', $page, $extra_params = null, $html_options = null)
+	/**
+	 * Create link to page
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $label required
+	 * @param int $page required
+	 * @param array $extra_params optional
+	 * @param array $html_options optional
+	 * @return string
+	 */
+	private function link_to($label, $page, $extra_params = null, $html_options = null)
 	{
 		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->check_params($extra_params);
 		$html_options = ( is_array($html_options) ? array_merge(array('href' => $this->url.'?page='.$page.$extra_params), $html_options) : array('href' => $this->url.'?page='.$page.$extra_params) );
 		return link_to($label, null, null, null, $html_options);
 	}
 	
+	/**
+	 * Create link to the mext page
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $label optional
+	 * @param array $extra_params optional
+	 * @param array $html_options optional
+	 * @return string
+	 */
 	public function link_to_next($label = 'Next', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current < $this->last ? $this->link_to($label, $this->next, $extra_params, $html_options) : '' );
 	}
 
+	/**
+	 * Create link to the previous page
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $label optional
+	 * @param array $extra_params optional
+	 * @param array $html_options optional
+	 * @return string
+	 */
 	public function link_to_prev($label = 'Prev', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current > $this->first ? $this->link_to($label, $this->prev, $extra_params, $html_options) : '' );
 	}
 
+	/**
+	 * Create link to the first page
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $label optional
+	 * @param array $extra_params optional
+	 * @param array $html_options optional
+	 * @return string
+	 */
 	public function link_to_first($label = 'First', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current > $this->first ? $this->link_to($label, $this->first, $extra_params, $html_options) : '' );
 	}
-
+	
+	/**
+	 * Create link to the last page
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $label optional
+	 * @param array $extra_params optional
+	 * @param array $html_options optional
+	 * @return string
+	 */
 	public function link_to_last($label = 'Last', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current < $this->last ? $this->link_to($label, $this->last, $extra_params, $html_options) : '' );
 	}
 
-	/*
-	 * display paging 1 (eg. << Prev 1 ... 13 14 15 16 17 ... 25 Next >>)
+	/**
+	 * Create paging links eg. << Prev 1 ... 13 14 15 16 17 ... 25 Next >>
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $extra_params optional
+	 * @return string
 	 */
-	public function display_paging($extra_params = null, $show_page_of = false) {
+	public function paging_links($extra_params = null, $show_page_of = false) {
 	
 		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->check_params($extra_params);
 		$start_page = max($this->current - 2, 1);
 		
 		if ( $this->total_pages > 1 ) {
 		
-			$str = '<div class="page">';
+			$str = '<div class="page-links">';
 		
-			if ( $show_page_of ) {
-				$str .= '<strong class="label">Page '.$this->current.' of '.$this->total_pages.':</strong>';
-				
-			} else {
-				$str .= '<strong class="label">'.$this->total_pages.' Pages:</strong>';
-			}
-			
 			if ( $this->current > 1 ) {
 				$str .= '<a class="prev" href="'.$this->url.'?page='.$this->prev.$extra_params.'">&laquo; Prev</a>';
 			}
@@ -167,7 +234,7 @@ class pager {
 				
 			}
 			
-			if ( ($this->current + 3) <= $this->total_pages) {			
+			if ( ($this->current + 3) <= $this->total_pages ) {			
 				if ( ($this->current + 3) < $this->total_pages ) $str .= '<span="dots">...</span>';
 				$str .= '<a class="page-'.$this->total_pages.'" href="'.$this->url.'?page='.$this->total_pages.$extra_params.'">'.$this->total_pages.'</a>';
 			}
@@ -176,48 +243,54 @@ class pager {
 				$str .= '<a class="next" href="'.$this->url.'?page='.$this->next.$extra_params.'">Next &raquo;</a>';
 			}
 			
-			echo $str.'</div>';
+			$str .= '</div>';
 			
 		} else {
 			
-			echo '&nbsp;';
+			$str = '';
 			
 		}
+		
+		return $str;
 	
 	}
 	
-	/*
-	 * display page limiting selectbox
+	/**
+	 * Create page limiting selectbox
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $extra_params optional
+	 * @param array $default_limit optional
+	 * @return string
 	 */
-	public function display_page_limit($extra_params = NULL, $default_limit = NULL)
+	public function paging_limit($extra_params = null, $default_limit = 10)
 	{	
 		$extra_params = $this->check_params($extra_params);
 		$default_limit = (int) ( $default_limit ? $default_limit : $this->limit );
-		?>
-		<select OnChange="location.href=this.options[this.selectedIndex].value">
-		<?
-			// if default_limit not a default value(20,50,100) create option for limit
-			switch ( $default_limit ) {
-			
-				case 20:
-				case 50:
-				case 100:
-					break;
-					
-				default:
-			?>
-			<option value="<?=$this->url?>?page=<?=$this->current?>&limit=<?=$default_limit?><?=$extra_params?>"<?=($this->limit == $default_limit) ? " selected" : ""?>><?=$default_limit?></option>
-			<?
-				break;
-					
-			}
-		?>
-			<option value="<?=$this->url?>?page=<?=$this->current?>&limit=20<?=$extra_params?>"<?=($this->limit == 20) ? " selected" : ""?>>20</option>
-			<option value="<?=$this->url?>?page=<?=$this->current?>&limit=50<?=$extra_params?>"<?=($this->limit == 50) ? " selected" : ""?>>50</option>
-			<option value="<?=$this->url?>?page=<?=$this->current?>&limit=100<?=$extra_params?>"<?=($this->limit == 100) ? " selected" : ""?>>100</option>
-		</select>
-	  	<?
 		
+		$str = '<select OnChange="location.href=this.options[this.selectedIndex].value">'."\n";
+		
+		// if default_limit not a default value(20,50,100) create option for limit
+		switch ( $default_limit ) {
+		
+			case 20:
+			case 50:
+			case 100:
+				break;
+				
+			default:
+				$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit='.$default_limit.$extra_params.'"'.( $this->limit == $default_limit ? " selected" : "" ).'>'.$default_limit.'</option>'."\n";
+			break;
+			
+		}
+		
+		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=20'.$extra_params.'"'.( $this->limit == 20 ? ' selected="selected"' : '' ).'>20</option>'."\n";
+		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=50'.$extra_params.'"'.( $this->limit == 50 ? ' selected="selected"' : '' ).'>50</option>'."\n";
+		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=100'.$extra_params.'"'.( $this->limit == 100 ? ' selected="selected"' : '' ).'>100</option>'."\n";
+		$str .= "</select>\n";
+		
+		return $str;		
 	}
 
 }

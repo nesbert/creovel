@@ -79,9 +79,15 @@ class controller extends view
 			
 			if ( method_exists($this, $this->_action) ) {
 			
+				// call before filter
+				$this->before_filter();
+			
 				// controller execute action
 				$action = $this->_action;
 				$this->$action();
+				
+				// call before filter
+				$this->after_filter();
 				
 			} else {
 				throw new Exception("Action '{$this->_action}' not found in <strong>{$this->_controller}_controller</strong>");
@@ -141,7 +147,7 @@ class controller extends view
 	 */
 	public function build_partial($view, $controller = null)
 	{
-		include ( VIEWS_PATH.( $controller ? $controller : $this->controller ).DS.$view.'.php' );
+		include ( VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php' );
 	}
 	
 	/**
@@ -156,6 +162,15 @@ class controller extends view
 	{
 		$this->build_partial('_'.$view, $locals, $controller);
 	}
+	
+	/**
+	 * Callback functions
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function before_filter() {}
+	public function after_filter() {}
 	
 }
 ?>

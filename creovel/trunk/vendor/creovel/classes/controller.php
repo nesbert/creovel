@@ -112,16 +112,12 @@ class controller
 	public function _output($return_as_str)
 	{
 		// set options for view
+		$options['controller'] = $this->_controller;
+		$options['action'] = $this->_action;
+		$options['layout'] = $this->layout;
 		$options['render'] = $this->render;
 		$options['text'] = $this->render_text;
-		$options['layout'] = $this->layout;
-		
-		if ( $return_as_str ) {
-			return view::_get_view($this->_get_view_path(), $this->_get_layout_path(), $options);
-		} else {
-			view::_show_view($this->_get_view_path(), $this->_get_layout_path(), $options);
-			return $this;
-		}
+		return $this->render($options);		
 	}
 	
 	/**
@@ -151,42 +147,6 @@ class controller
 		return VIEWS_PATH.'layouts'.DS.( $layout ? $layout : $this->layout ).'.php';
 	}
 
-	/**
-	 * Allows the ability build a controller within a controller
-	 *
-	 * @author John Faircloth, Nesber Hidalgo
-	 * @access public
-	 * @param string $controller
-	 * @param string $action optional
-	 * @param string $id optional
-	 * @param string $extras optional
-	 * @param bool $to_str optional return controller as string
-	 * @return object controller object
-	 */
-	public function build_controller($controller, $action = '', $id = '', $extras = array(), $to_str = false)
-	{
-		$events = array('controller'=>$controller, 'action'=>$action);
-		$params = array();		
-		if ( $id ) $params['id'] = $id;
-		return creovel::run($events, array_merge($params, $extras), $to_str);
-	}
-	
-	/**
-	 * Alias to build_controller return controller as a string
-	 *
-	 * @author Nesber Hidalgo
-	 * @access public
-	 * @param string $controller
-	 * @param string $action optional
-	 * @param string $id optional
-	 * @param string $extras optional
-	 * @return string controller object
-	 */
-	public function build_controller_to_str($controller, $action = '', $id = '', $extras = array())
-	{
-		return $this->build_controller($controller, $action, $id, $extras, true);
-	}
-	
 	/**
 	 * Render views with options
 	 *
@@ -218,8 +178,6 @@ class controller
 		if ( isset($options['layout']) ) {
 			$layout = $options['layout'];
 			unset($options['layout']);
-		} else {
-			$layout = $this->layout;
 		}
 		
 		if ( $options['to_str'] ) {
@@ -303,6 +261,42 @@ class controller
 		if ( $controller ) $options['controller'] = $controller;
 		if ( !is_array($options) ) $options['partial'] = $options;			
 		$this->render($options);
+	}
+	
+	/**
+	 * Allows the ability build a controller within a controller
+	 *
+	 * @author John Faircloth, Nesber Hidalgo
+	 * @access public
+	 * @param string $controller
+	 * @param string $action optional
+	 * @param string $id optional
+	 * @param string $extras optional
+	 * @param bool $to_str optional return controller as string
+	 * @return object controller object
+	 */
+	public function build_controller($controller, $action = '', $id = '', $extras = array(), $to_str = false)
+	{
+		$events = array('controller'=>$controller, 'action'=>$action);
+		$params = array();		
+		if ( $id ) $params['id'] = $id;
+		return creovel::run($events, array_merge($params, $extras), $to_str);
+	}
+	
+	/**
+	 * Alias to build_controller return controller as a string
+	 *
+	 * @author Nesber Hidalgo
+	 * @access public
+	 * @param string $controller
+	 * @param string $action optional
+	 * @param string $id optional
+	 * @param string $extras optional
+	 * @return string controller object
+	 */
+	public function build_controller_to_str($controller, $action = '', $id = '', $extras = array())
+	{
+		return $this->build_controller($controller, $action, $id, $extras, true);
 	}
 	
 	/**

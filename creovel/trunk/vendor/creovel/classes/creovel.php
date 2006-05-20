@@ -49,12 +49,8 @@ class creovel
 		// execute action
 		$controller->_execute_action();
 		
-		if ( $return_as_str ) {
-			return $controller->_get_view();
-		} else {
-			return $controller->_show_view();
-			return $controller;
-		}
+		// output to user
+		return $controller->_output($return_as_str);		
 	}
 	
 	/**

@@ -70,6 +70,11 @@
 	/*
 	 * http://us3.php.net/manual/en/function.include.php
 	 * Example 16-11. Using output buffering to include a PHP file into a string
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 * @param string $filename
+	 * @return string
 	 */
 	public function _get_include_contents($filename)
 	{

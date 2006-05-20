@@ -11,23 +11,20 @@
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public 
-	 * @param string $view_path optional
-	 * @param string $layout_path optional
+	 * @param string $view_path
+	 * @param string $layout_path
 	 */
-	public function _create_view($view_path = null, $layout_path = null)
+	public function _create_view($view_path, $layout_path, $options = null)
 	{
-		$view_path = $view_path ? $view_path : VIEWS_PATH.$this->_controller.DS.( $this->render ? $this->render : $this->_action ).'.php';
-		$layout_path = $layout_path ? $layout_path : VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
-		
 		// set view content
-		$content = $this->render_text . ( $this->render !== false ? $this->_get_include_contents($view_path) : '' );
+		$content = $options['text'] . ( $options['render'] !== false ? self::_get_include_contents($view_path, $options) : '' );
 		
 		// combine content and template. else use content only
 		switch ( true ) {
 		
-			case ( $this->layout !== false ):				
+			case ( $options['layout'] !== false ):				
 				// get layout template
-				$layout = $this->_get_include_contents($layout_path);
+				$layout = self::_get_include_contents($layout_path, $options);
 				if ($layout) {
 					$page = str_replace('@@page_contents@@', $content, $layout);
 				} else {
@@ -51,9 +48,9 @@
 	 * @access public 
 	 * @return string 
 	 */
-	public function _get_view($view_path = null, $layout_path = null)
+	public function _get_view($view_path = null, $layout_path = null, $options = null)
 	{
-		return $this->_create_view($view_path, $layout_path);
+		return self::_create_view($view_path, $layout_path, $options);
 	}
 
 	/**
@@ -62,9 +59,9 @@
 	 * @author Nesbert Hidalgo
 	 * @access public 
 	 */
-	public function _show_view($view_path = null, $layout_path = null)
+	public function _show_view($view_path = null, $layout_path = null, $options = null)
 	{
-		print $this->_create_view($view_path, $layout_path);
+		print self::_create_view($view_path, $layout_path, $options);
 	}
 
 	/*
@@ -76,10 +73,14 @@
 	 * @param string $filename
 	 * @return string
 	 */
-	public function _get_include_contents($filename)
+	public function _get_include_contents($filename, $options = null)
 	{
 	   if ( is_file($filename) ) {
 		   ob_start();
+		   
+			// create a variable foreach other option, using its key as the vairable name
+			if ( count($options) ) foreach ( $options as $key => $values ) $$key = $values;
+
 		   include $filename;
 		   $contents = ob_get_contents();
 		   ob_end_clean();

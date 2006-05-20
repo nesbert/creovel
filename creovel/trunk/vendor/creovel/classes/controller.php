@@ -4,7 +4,7 @@
 * 
 * @todo filiters
 */
-class controller extends view
+class controller
 {
 
 	/**
@@ -102,7 +102,7 @@ class controller extends view
 	}
 	
 	/**
-	 * Out put contents to user
+	 * Output contents to user
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public
@@ -111,16 +111,48 @@ class controller extends view
 	 */
 	public function _output($return_as_str)
 	{
+		// set options for view
+		$options['render'] = $this->render;
+		$options['text'] = $this->render_text;
+		$options['layout'] = $this->layout;
+		
 		if ( $return_as_str ) {
-			return $this->_get_view();
+			return view::_get_view($this->_get_view_path(), $this->_get_layout_path(), $options);
 		} else {
-			$this->_show_view();
+			view::_show_view($this->_get_view_path(), $this->_get_layout_path(), $options);
 			return $this;
 		}
 	}
 	
 	/**
-	 * Allows the ability build a controller with a controller
+	 * Get the path of the view file
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $view
+	 * @param string $controller
+	 * @return string
+	 */
+	private function _get_view_path($view = null, $controller = null)
+	{
+		return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.( $view ? $view : ( $this->render ? $this->render : $this->_action ) ).'.php';
+	}
+	
+	/**
+	 * Get the path of the layout file
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $layout
+	 * @return string
+	 */
+	private function _get_layout_path($layout = null)
+	{
+		return VIEWS_PATH.'layouts'.DS.( $layout ? $layout : $this->layout ).'.php';
+	}
+
+	/**
+	 * Allows the ability build a controller within a controller
 	 *
 	 * @author John Faircloth, Nesber Hidalgo
 	 * @access public
@@ -181,38 +213,62 @@ class controller extends view
 		if ( $options['controller'] ) {
 			$controller = $options['controller'];
 			unset($options['controller']);
-		} else {
-			$controller = $this->_controller;
 		}
 		
-		if ( $options['layout'] ) { 
+		if ( isset($options['layout']) ) {
 			$layout = $options['layout'];
 			unset($options['layout']);
 		} else {
 			$layout = $this->layout;
 		}
 		
-		// create a variable foreach other option, using its key as the vairable name
-		if ( count($options) ) foreach ( $options as $key => $values ) $$key = $values;
+		if ( $options['to_str'] ) {
+			$return_as_str = true;
+			unset($options['to_str']);
+		}
+		
+		// set view path
+		$view_path = $this->_get_view_path($view, $controller);
 		
 		switch ( true ) {
 		
+			// if different layout get page content
 			case ( $layout ):
-				$view_path = VIEWS_PATH.$controller.DS.$view.'.php';
-				$layout_path = VIEWS_PATH.'layouts'.DS.$layout.'.php';
-				die($layout);
+				if ( $return_as_str ) {
+					return view::_get_view($view_path, $this->_get_layout_path($layout), $options);				
+				} else {
+					return view::_show_view($view_path, $this->_get_layout_path($layout), $options);
+				}
 			break;
-		
-			case ( include ( VIEWS_PATH.$controller.DS.$view.'.php' ) ):
+			
+			// if same layout include files and set variables
+			case ( file_exists($view_path) ):			
+				// create a variable foreach other option, using its key as the variable name
+				if ( count($options) ) foreach ( $options as $key => $values ) $$key = $values;
+				// include partial
+				include ( $view_path );				
 				return;
 			break;
 
 			default:
-				$_ENV['error']->add("Failed to render '{$view}'. Not found <strong>".VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS."</strong>.");
+				$_ENV['error']->add("Unable to render '{$view}.php'. File not found <strong>".VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS."</strong>.");
 			break;
 			
 		}
-					
+	
+	}
+	
+	/**
+	 * Render views with options to a string
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $options
+	 */
+	public function render_to_str($options)
+	{
+		$options['to_str'] = true;
+		return $this->render($options);
 	}
 
 	/**
@@ -220,14 +276,15 @@ class controller extends view
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public
-	 * @param mixed $view action to render or an array of render $options
+	 * @param mixed $options action to render or an array of render $options
 	 * @param array $locals optional
 	 * @param string $controller optional controller name
 	 */
-	public function build_partial($view, $locals = null, $controller = null)
+	public function build_partial($options, $locals = null, $controller = null)
 	{
-		$options = array('action' => $view, 'locals' => $locals, 'controller' => $controller);
-		if ( is_array($view) ) $options = array_merge($options, $view);
+		if ( $locals ) $options['locals'] = $locals;
+		if ( $controller ) $options['controller'] = $controller;
+		if ( !is_array($options) ) $options['action'] = $options;			
 		$this->render($options);
 	}
 	
@@ -236,17 +293,24 @@ class controller extends view
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public 
-	 * @param mixed $view partial to render or an array of render $options
+	 * @param mixed $options partial to render or an array of render $options
 	 * @param array $locals optional
 	 * @param string $controller optional controller name
 	 */
-	public function render_partial($view, $locals = null, $controller = null)
+	public function render_partial($options, $locals = null, $controller = null)
 	{
-		$options = array('partial' => $view, 'locals' => $locals, 'controller' => $controller);
-		if ( is_array($view) ) $options = array_merge($options, $view);
+		if ( $locals ) $options['locals'] = $locals;
+		if ( $controller ) $options['controller'] = $controller;
+		if ( !is_array($options) ) $options['partial'] = $options;			
 		$this->render($options);
 	}
-
+	
+	/**
+	 * Magic functions
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
 	public function __call($method, $arguments)
 	{
 		$_ENV['error']->add("Call to undefined method '{$method}' not found in <strong>".get_class($this)."</strong>.");
@@ -260,7 +324,6 @@ class controller extends view
 	 */
 	public function before_filter() {}
 	public function after_filter() {}
-	
 	
 }
 ?>

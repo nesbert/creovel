@@ -3,7 +3,7 @@
  * Error class.
  *
  */
-class error extends view
+class error
 {
 
 	/**
@@ -76,9 +76,9 @@ class error extends view
 		if ( is_object($exception) ) $this->traces = $exception->getTrace();
 		
 		if ( isset($_GET['view_source']) ) {
-			$this->_show_view(CREOVEL_PATH.'views'.DS.'view_source.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
+			view::_show_view(CREOVEL_PATH.'views'.DS.'view_source.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 		} else {
-			$this->_show_view(CREOVEL_PATH.'views'.DS.'application_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
+			view::_show_view(CREOVEL_PATH.'views'.DS.'application_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 		}
 		
 		die;

@@ -252,11 +252,15 @@ class controller
 	 * @param array $locals optional
 	 * @param string $controller optional controller name
 	 */
-	public function build_partial($options, $locals = null, $controller = null)
+	public function build_partial($partial, $locals = null, $controller = null)
 	{
+		if ( is_array($partial) ) {
+			$options = $partial;
+		} else {
+			$options['render'] = $partial;
+		}
 		if ( $locals ) $options['locals'] = $locals;
 		if ( $controller ) $options['controller'] = $controller;
-		if ( !is_array($options) ) $options['action'] = $options;			
 		$this->render($options);
 	}
 	
@@ -269,11 +273,16 @@ class controller
 	 * @param array $locals optional
 	 * @param string $controller optional controller name
 	 */
-	public function render_partial($options, $locals = null, $controller = null)
+	public function render_partial($partial, $locals = null, $controller = null)
 	{
+		if ( is_array($partial) ) {
+			$options = $partial;
+		} else {
+			$options['partial'] = $partial;
+		}
 		if ( $locals ) $options['locals'] = $locals;
 		if ( $controller ) $options['controller'] = $controller;
-		if ( !is_array($options) ) $options['partial'] = $options;			
+		
 		$this->render($options);
 	}
 	
@@ -321,7 +330,16 @@ class controller
 	 */
 	public function __call($method, $arguments)
 	{
-		$_ENV['error']->add("Call to undefined method '{$method}' not found in <strong>".get_class($this)."</strong>.");
+		try {
+			
+			throw new Exception("Call to undefined method '{$method}' not found in <strong>".get_class($this)."</strong>.");
+		
+		} catch ( Exception $e ) {
+		
+			// add to errors
+			$_ENV['error']->add($e->getMessage(), $e);
+		
+		}		
 	}
 	
 	/**

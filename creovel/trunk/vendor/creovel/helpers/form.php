@@ -45,13 +45,23 @@ function error_messages_for($name_or_object = null, $title = null, $description 
 	if (!$description) {
 		 $description = 'There were problems with the following fields.';
 	}
-	if ( is_object($name_or_object) ) {
-		$errors = $name_or_object->errors;
-		$name = get_class($name_or_object);
-		$GLOBALS['form_errors'] = $errors;
-	} else {
-		$errors = $GLOBALS['form_errors'];
-		$name = $name_or_object;
+	
+	switch ( true ) {
+	
+		case ( is_array($name_or_object) ):
+			$errors = $name_or_object;
+		break;
+		
+		case ( is_object($name_or_object) ):
+			$errors = $name_or_object->errors;
+			$name = get_class($name_or_object);
+			$GLOBALS['form_errors'] = $errors;
+		break;
+		
+		default:
+			$errors = $GLOBALS['form_errors'];
+			$name = $name_or_object;
+		break;
 	}
 	
 	$errors_count = count($errors);
@@ -68,16 +78,12 @@ function error_messages_for($name_or_object = null, $title = null, $description 
 		<div class="top"></div>
 	
 		<div class="body">
-	
 			<?=( $title ? '<h1 class="error_title">'.$title.'</h1>' : '' )?>
 			<?=( $description ? '<p>'.$description.'</p>' : '' )?>
 			<ul>
-				<? foreach ( $errors as $error => $field ) { ?>
-					<? foreach ( $field['message'] as $message ) {
-						if ( $message == 'no_message') continue;
-						?>
+				<? foreach ( $errors as $field => $message ) { ?>
+					<? if ( $message == 'no_message') continue; ?>
 				<li><a href="#error_<?=$error?>"><?=$message?></a></strong></li>
-					<? } ?>
 				<? } ?>
 			</ul>
 		</div>

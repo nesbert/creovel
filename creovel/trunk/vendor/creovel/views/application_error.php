@@ -9,8 +9,8 @@ $trace_count = 0;
 $offset = 0;
 foreach ( $this->traces as $trace ) {
 
-	// skip traces with no file or line number
-	if ( !$trace['file'] || !$trace['file'] ) {
+	// skip traces with no file or line number or magic fucntion calls
+	if ( !$trace['file'] || !$trace['file'] || strstr($trace['function'], '__call') ) {
 		$offset++;
 		continue;
 	}

@@ -16,29 +16,43 @@
 	 */
 	public function _create_view($view_path, $layout_path, $options = null)
 	{
-		// set view content
-		$content = $options['text'] . ( $options['render'] !== false ? self::_get_include_contents($view_path, $options) : '' );
-		
-		// combine content and template. else use content only
-		switch ( true ) {
-		
-			case ( $options['layout'] !== false ):				
-				// get layout template
-				$layout = self::_get_include_contents($layout_path, $options);
-				if ($layout) {
-					$page = str_replace('@@page_contents@@', $content, $layout);
+		try {
+			// set content data
+			if ( $options['render'] !== false ) {
+				if ( file_exists($view_path) ) {
+					$content = $options['text'] . self::_get_include_contents($view_path, $options);
 				} else {
-					$page = $content;
+					throw new Exception("Unable to render 'view'. File not found <strong>{$view_path}</strong>.");
 				}
-			break;
+			} else {
+				$content = '';
+			}
+			
+			// combine content and template. else use content only
+			switch ( true ) {
+			
+				case ( $options['layout'] !== false ):				
+					if ( file_exists($layout_path) ) {
+						$page = str_replace('@@page_contents@@', $content, self::_get_include_contents($layout_path, $options));
+					} else {
+						throw new Exception("Unable to render 'layout'. File not found <strong>{$layout_path}</strong>.");
+					}
+				break;
+			
+				default:
+					$page = $content;
+				break;
+			
+			}
+			
+			return $page;
+			
+		} catch ( Exception $e ) {
 		
-			default:
-				$page = $content;
-			break;
+			// add to errors
+			$_ENV['error']->add($e->getMessage());
 		
-		}
-		//echo $page;
-		return $page;
+		}		
 	}
 	
 	/**
@@ -78,7 +92,7 @@
 	   if ( is_file($filename) ) {
 		   ob_start();
 		   
-			// create a variable foreach other option, using its key as the vairable name
+			// create a variable foreach option, using its key as the vairable name
 			if ( count($options) ) foreach ( $options as $key => $values ) $$key = $values;
 
 		   include $filename;

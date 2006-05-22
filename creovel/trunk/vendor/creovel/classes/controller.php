@@ -115,7 +115,11 @@ class controller
 		$options['controller'] = $this->_controller;
 		$options['action'] = $this->_action;
 		$options['layout'] = $this->layout;
-		$options['render'] = $this->render;
+		if ( $this->render === false ) {
+			$options['render'] = false;
+		} else {
+			$options['render'] = $this->render ? $this->render : $this->_action;
+		}
 		$options['text'] = $this->render_text;
 		return $this->render($options);		
 	}
@@ -131,7 +135,7 @@ class controller
 	 */
 	private function _get_view_path($view = null, $controller = null)
 	{
-		return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.( $view ? $view : ( $this->render ? $this->render : $this->_action ) ).'.php';
+		return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
 	}
 	
 	/**
@@ -159,15 +163,20 @@ class controller
 		// check options
 		if ( !is_array($options) ) return false;
 		
+		// set and unset reserved $options
 		if ( $options['partial'] ) {
 			$view = '_'.$options['partial'];
 			unset($options['partial']);
 		}
 		
-		// set and unset reserved $options
 		if ( $options['action'] ) {
 			$view = $options['action'];
 			unset($options['action']);
+		}
+		
+		if ( isset($options['render']) ) {
+			$view = $options['render'];
+			unset($options['render']);
 		}
 		
 		if ( $options['controller'] ) {
@@ -190,7 +199,12 @@ class controller
 		
 		switch ( true ) {
 		
-			// if different layout get page content
+			// if view equaqls false render nothing
+			case ( $view === false ):
+				return;
+			break;
+
+			// if layout get page content with layout
 			case ( $layout ):
 				if ( $return_as_str ) {
 					return view::_get_view($view_path, $this->_get_layout_path($layout), $options);				
@@ -207,9 +221,9 @@ class controller
 				include ( $view_path );				
 				return;
 			break;
-
+			
 			default:
-				$_ENV['error']->add("Unable to render '{$view}.php'. File not found <strong>".VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS."</strong>.");
+				$_ENV['error']->add("Unable to render 'view'. File not found <strong>{$view_path}</strong>.");
 			break;
 			
 		}

@@ -107,15 +107,15 @@ class pager {
 	 * @param mixed $data required
 	 * @return mixed
 	 */
-	public function check_params($data)
+	public function params_to_str($data)
 	{
-		if ( is_array($data) ) {
-			$new = '';
-			foreach ( $data as $key => $val ) $new .="&".$key."=".urlencode($val);
-			return $new;
-		} else {
-			return $data;
-		}	
+		$data = is_array($data) ? array_merge($_GET, $data) : $_GET;
+		$str = '';
+		foreach ( $data as $key => $val ) {
+			if ( $key == 'page' || $key == 'limit') continue;
+			$str .="&".$key."=".urlencode($val);
+		}
+		return $str;
 	}
 	
 	/**
@@ -131,7 +131,7 @@ class pager {
 	 */
 	private function link_to($label, $page, $extra_params = null, $html_options = null)
 	{
-		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->check_params($extra_params);
+		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->params_to_str($extra_params);
 		$html_options = ( is_array($html_options) ? array_merge(array('href' => $this->url.'?page='.$page.$extra_params), $html_options) : array('href' => $this->url.'?page='.$page.$extra_params) );
 		return link_to($label, null, null, null, $html_options);
 	}
@@ -204,14 +204,17 @@ class pager {
 	 * @param array $extra_params optional
 	 * @return string
 	 */
-	public function paging_links($extra_params = null, $show_page_of = false) {
+	public function paging_links($extra_params = null, $show_label = false)
+	{
 	
-		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->check_params($extra_params);
+		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->params_to_str($extra_params);
 		$start_page = max($this->current - 2, 1);
 		
 		if ( $this->total_pages > 1 ) {
 		
 			$str = '<div class="page-links">';
+			
+			if ( $show_label ) $str .= $this->paging_label();
 		
 			if ( $this->current > 1 ) {
 				$str .= '<a class="prev" href="'.$this->url.'?page='.$this->prev.$extra_params.'">&laquo; Prev</a>';
@@ -266,7 +269,7 @@ class pager {
 	 */
 	public function paging_limit($extra_params = null, $default_limit = 10)
 	{	
-		$extra_params = $this->check_params($extra_params);
+		$extra_params = $this->params_to_str($extra_params);
 		$default_limit = (int) ( $default_limit ? $default_limit : $this->limit );
 		
 		$str = '<select OnChange="location.href=this.options[this.selectedIndex].value">'."\n";
@@ -291,6 +294,18 @@ class pager {
 		$str .= "</select>\n";
 		
 		return $str;		
+	}
+	
+	/**
+	 * Create paging label: Page 1 of 10
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @return string
+	 */
+	public function paging_label()
+	{
+		return '<span class="page-label">Page '.$this->current.' of '.$this->total_pages.'</span>';
 	}
 
 }

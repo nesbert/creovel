@@ -21,11 +21,6 @@ function __autoload($class)
 	switch ( true ) {
 	
 		case ( true ):
-			$type = strstr($class, '_mailer') ? 'Mailer' : 'Model';
-			$path = MODELS_PATH.$class.'.php';
-			if ( file_exists($path) ) break;
-			
-		case ( true ):
 			$type = 'Interface';
 			$path = CREOVEL_PATH.'interfaces'.DS.$class.'.php';
 			if ( file_exists($path) ) break;
@@ -45,14 +40,20 @@ function __autoload($class)
 			$path = VENDOR_PATH.$class.DS.$class.'.php';
 			if ( file_exists($path) ) break;
 			
+		case ( true ):
+			$type = strstr($class, '_mailer') ? 'Mailer' : 'Model';
+			$path = MODELS_PATH.$class.'.php';
+			if ( file_exists($path) ) break;
+			
 	}
 
 	try {
 	
 		if ( file_exists($path) ) {			
 			require_once($path);
-		} else {			
-			throw new Exception("{$type} '{$class}' not found in <strong>".str_replace($classname.'.php', '', $path)."</strong>");
+		} else {
+			if ( $type == 'Model' ) $class = singularize($class);
+			throw new Exception("{$type} '{$class}' not found in <strong>{$path}</strong>");
 		}
 	
 	} catch(Exception $e) {

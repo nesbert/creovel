@@ -866,7 +866,7 @@ class model implements Iterator {
 				case ( preg_match('/^link_to_(.+)$/', $method, $regs) ):
 				case ( preg_match('/^paging_(.+)$/', $method, $regs) ):
 					if ( method_exists($this->page, $method) ) {
-						return call_user_func_array(array($this->page, $method), $args);								
+						return call_user_func_array(array($this->page, $method), $arguments);								
 					} else {
 						throw new Exception("Undefined method '{$method}' in <strong>".get_class($this)."</strong> model.");
 					}

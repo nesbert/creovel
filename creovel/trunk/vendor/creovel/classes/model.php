@@ -118,7 +118,7 @@ class model implements Iterator {
 	public function __construct($data = null, $connection_properties = null)
 	{
 		
-		$this->errors = new error('model');
+		$this->errors = new error(get_class($this));
 		$this->validation = new validation($this->errors);
 
 		$this->_select_query = $this->establish_connection($connection_properties);
@@ -286,7 +286,7 @@ class model implements Iterator {
 		// validate model on every save
 		$this->validate();
 		// if error return false		
-		if ( $this->errors->has_errors ) return false;
+		if ( $this->errors->has_errors() ) return false;
 		
 		$this->before_save();
 		
@@ -295,7 +295,7 @@ class model implements Iterator {
 			// validate model on every update
 			$this->validate_on_update();
 			// if error return false
-			if ( $this->errors->has_errors ) return false;
+			if ( $this->errors->has_errors() ) return false;
 			
 			$ret_val = $this->update($this->values(), $this->_primary_key . " = '" . $this->key() . "'");
 			
@@ -304,7 +304,9 @@ class model implements Iterator {
 			// validate model on every insert
 			$this->validate_on_create();	
 			// if error return false
-			if ( $this->errors->has_errors ) return false;
+			if ( $this->errors->has_errors() ) return false;
+			
+			$this->before_create();
 			
 			$ret_val = $this->insert($this->values());
 			
@@ -1086,7 +1088,6 @@ class model implements Iterator {
 	*/
 	private function _validate_by_method($method, $args = null)
 	{
-
 		switch ( $method ) {
 		
 			case 'validates_uniqueness_of':
@@ -1095,14 +1096,13 @@ class model implements Iterator {
 			
 			default:
 				if ( method_exists($this->validation, $method) ) {
-					call_user_func_array(array($this->validation, $method), $args);								
+					call_user_func_array(array($this->validation, $method), $args);
 				} else {
 					$_ENV['error']->add("Undefined validation '{$method->_action}' in <strong>{get_class()}</strong>");
 				}
 			break;
 			
 		}
-
 	}
 	
 	/**
@@ -1158,7 +1158,7 @@ class model implements Iterator {
 			return str_replace('OR OR ', 'OR ', $return);
 		}
 		
-		// hande "AND" and create/return sql string
+		// handle "AND" and create/return sql string
 		if ( strstr($method, '_and_') ) {
 			$ands = explode('_and_', $method);
 			foreach ( $ands as $field ) {
@@ -1205,6 +1205,7 @@ class model implements Iterator {
 	 * Callback Functions -> Override If Needed
 	 */
 	public function before_save() {}
+	public function before_create() {}
 	public function after_save() {}
 	public function validate() {}
 	public function validate_on_create() {}

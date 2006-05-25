@@ -13,7 +13,16 @@ class error
 	 * @access private
 	 * @var string
 	 */
-	private $_type;
+	private $type;
+
+	/**
+	 * Error count
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @var string
+	 */
+	private $error_count = 0;
 
 	/**
 	 * Set error type in construct
@@ -24,7 +33,7 @@ class error
 	 */
 	public function __construct($type)
 	{
-		$this->_type = $type;
+		$this->type = $type;
 	}
 	
 	/**
@@ -37,22 +46,45 @@ class error
 	 */
 	public function add()
 	{
+		$this->error_count++;
 		$args = func_get_args();
 		
-		$this->has_errors = true;
-		
-		switch ( $this->_type ) {
+		switch ( $this->type ) {
 		
 			case 'application':
 				$this->application_error($args[0], $args[1]);
 			break;
 		
-			case 'model':
-				$this->add_form_error($args[0], $args[1]);
+			default:
+				$this->model_error($args[0], $args[1]);
 			break;
 		
 		}
 	
+	}
+	
+	/**
+	 * Returns bool value for errors
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @return bool
+	 */
+	public function has_errors()
+	{
+		return $this->error_count ? true : false;
+	}
+	
+	/**
+	 * Returns $error_count
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @return int
+	 */
+	public function count()
+	{
+		return $this->error_count;
 	}
 	
 	/**
@@ -109,7 +141,7 @@ class error
 	 * @param string $field required
 	 * @param object $message required
 	 */
-	private function add_form_error($field, $message)
+	private function model_error($field, $message)
 	{
 		$this->$field = $message;
 	}	

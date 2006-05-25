@@ -36,7 +36,7 @@ class validation
 		switch ( true ) {
 			case ( $required && $val && $bool ):
 			case ( !$required && $val && $bool ):
-			//case ( !$required && !$val):
+			case ( !$required && !$val ):
 				return true;
 			break;
 			
@@ -118,7 +118,7 @@ class validation
 	 * @param bool $required optional default is false
 	 * @return bool
 	 */
-	public function validates_email($field, $val, $msg = null, $required = false)
+	public function validates_email_of($field, $val, $msg = null, $required = false)
 	{
 		return self::validate_field_by_bool(is_email($val), $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is an invalid email address."), $required);
 	}

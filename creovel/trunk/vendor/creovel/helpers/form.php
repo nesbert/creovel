@@ -40,36 +40,29 @@ $GLOBALS['form_errors'] = array();
  * @return string
  */
 
-function error_messages_for($name_or_object = null, $title = null, $description = null, $mailto = false) {
-	
-	if (!$description) {
-		 $description = 'There were problems with the following fields.';
-	}
+function error_messages_for($errors = null, $title = null, $description = 'There were problems with the following fields.')
+{
 	
 	switch ( true ) {
 	
-		case ( is_array($name_or_object) ):
-			$errors = $name_or_object;
+		case ( is_object($errors) ):
+			if ( $errors_count = $errors->errors->count() ) { 
+				$model = get_class($errors);
+				$errors = $errors->errors;
+			} else {
+				return;
+			}
 		break;
 		
-		case ( is_object($name_or_object) ):
-			$errors = $name_or_object->errors;
-			$name = get_class($name_or_object);
-			$GLOBALS['form_errors'] = $errors;
+		case ( is_array($errors) ):
+			$errors_count =	count($errors);
 		break;
 		
-		default:
-			$errors = $GLOBALS['form_errors'];
-			$name = $name_or_object;
-		break;
 	}
-	
-	$errors_count = count($errors);
 	
 	if ( $errors_count ) {
 	
-		$name = ( $name ? $name : 'Form' );
-		$title = ( $title ? $title : "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".humanize($name)." from being saved." );
+		$title = ( $title ? $title : "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".( $model ? humanize($model) : 'Form' )." from being saved." );
 		$title = str_replace(array('@@errors_count@@','@@title@@'), array($errors_count, $title), $title);
 		
 	?>

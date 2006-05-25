@@ -20,6 +20,11 @@ function __autoload($class)
 	
 	switch ( true ) {
 	
+		case ( strstr($class, '_controller') ):
+			$type = 'Controller';
+			$path = CONTROLLERS_PATH.$class.'.php';
+		break;
+			
 		case ( true ):
 			$type = 'Interface';
 			$path = CREOVEL_PATH.'interfaces'.DS.$class.'.php';

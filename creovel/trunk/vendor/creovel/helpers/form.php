@@ -393,7 +393,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 		}	
 		foreach ( $choices as $value => $description ) {
 			if (!is_array($description)) {
-				$value = ( is_assoc_array($choices) ? $value : $description );
+				//$value = ( is_assoc_array($choices) ? $value : $description );
 				if (is_array($selected)) {
 					$select_str = ( in_array($value, $selected) ? ' selected="selected"' : '' );
 				} else {
@@ -642,18 +642,28 @@ function select_redirect($name, $names_and_urls, $html_options = null) {
 
 
 /**
- * date_select 
+ * Create date selectboxes
  * 
- * @author Russ Smith
- * @param mixed $name 
- * @param int $date
+ * @author Nesbert
  * @access public
- * @return void
+ * @param string $name 
+ * @param mixed $date
+ * @return string
  */
 function date_select($name, $date = null)
 {
-	$date = ($date == null) ? mktime() : $date;
+	switch ( true ) {
+	
+		case ( !$date  || ($date == '0000-00-00 00:00:00') ):
+			$date = time();
+		break;
 
+		case ( is_string($date) ):
+			$date = strtotime($date);
+		break;	
+		
+	}
+	
 	$i = 1;
 	$months = array();
 	while ($i <= 12) { $months[$i] = $i; $i++; }	

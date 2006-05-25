@@ -18,20 +18,16 @@
 	{
 		try {
 			// set content data
+			$content = $options['text'];
+			
 			if ( $options['render'] !== false ) {
-				if ( file_exists($view_path) ) {
-					$content = $options['text'] . self::_get_include_contents($view_path, $options);
-				} else {
-					throw new Exception("Unable to render 'view'. File not found <strong>{$view_path}</strong>.");
-				}
-			} else {
-				$content = '';
+				$content .= self::_get_include_contents($view_path, $options);
 			}
 			
 			// combine content and template. else use content only
 			switch ( true ) {
 			
-				case ( $options['layout'] !== false ):				
+				case ( $options['layout'] !== false ):
 					if ( file_exists($layout_path) ) {
 						$page = str_replace('@@page_contents@@', $content, self::_get_include_contents($layout_path, $options));
 					} else {

@@ -53,7 +53,8 @@ class controller
 	{
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
-		$this->layout = $_ENV['routes']['default']['layout'];		
+		$this->layout = $_ENV['routes']['default']['layout'];
+		$this->_nested_controller_path = $events['nested_controller_path'];
 	}
 
 	/**
@@ -135,7 +136,17 @@ class controller
 	 */
 	private function _get_view_path($view = null, $controller = null)
 	{
-		return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
+		// nested controllers check [NH] might need to find a better way to do this
+		if ( $this->_nested_controller_path ) {
+			$view_path =  VIEWS_PATH.$this->_nested_controller_path.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
+			if ( file_exists($view_path) ) {
+				return $view_path;			
+			} else {
+				return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';			
+			}		
+		} else {
+			return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
+		}
 	}
 	
 	/**
@@ -169,7 +180,7 @@ class controller
 			unset($options['partial']);
 		}
 		
-		if ( $options['action'] ) {
+		if ( isset($options['action']) ) {
 			$view = $options['action'];
 			unset($options['action']);
 		}
@@ -223,6 +234,7 @@ class controller
 			break;
 			
 			default:
+				//print_obj($options, 1);
 				$_ENV['error']->add("Unable to render 'view'. File not found <strong>{$view_path}</strong>.");
 			break;
 			
@@ -281,8 +293,7 @@ class controller
 			$options['partial'] = $partial;
 		}
 		if ( $locals ) $options['locals'] = $locals;
-		if ( $controller ) $options['controller'] = $controller;
-		
+		if ( $controller ) $options['controller'] = $controller;		
 		$this->render($options);
 	}
 	

@@ -327,16 +327,13 @@ class model implements Iterator {
 		
 		foreach ($data as $name => $value) {
 			
-			if ($name == $this->_primary_key) {
-				
+			if ($name == $this->_primary_key) {				
 				continue;
-
 			}
 
 			$qry .= $name . ', ';
 
-		}
-		
+		}		
 		
 		$qry = substr($qry, 0, -2) . ') VALUES (';
 		
@@ -344,7 +341,6 @@ class model implements Iterator {
 
 			if ($name == $this->_primary_key) {
 				continue;
-
 			}
 			$this->_fields->$name->value = $value;
 			$obj = $this->_fields->$name;
@@ -374,8 +370,13 @@ class model implements Iterator {
 				$qry .= "'" . addslashes(trim($obj->value)) . "', ";
 				
 			} elseif (is_array($obj->value)) {
-				
-				$qry .= "'" . addslashes(serialize($obj->value)) . "', ";
+			
+				// if datetime save array
+				if ( $this->_fields->$name->type == 'datetime' ) {
+					$qry .= "'".date('Y-m-d h:i:s', strtotime("{$obj->value[year]}-{$obj->value[month]}-{$obj->value[day]} ".( $obj->value['hour'] ? $obj->value['hour'] : '00').":".( $obj->value['minutes'] ? $obj->value['minutes'] : '00').":".( $obj->value['seconds'] ? $obj->value['seconds'] : '00')))."', ";
+				} else {				
+					$qry .= "'" . addslashes(serialize($obj->value)) . "', ";					
+				}
 							
 			} else {
 				
@@ -437,7 +438,12 @@ class model implements Iterator {
 				
 			} elseif (is_array($obj->value)) {
 				
-				$qry .= $name . " = " . "'" . addslashes(serialize($obj->value)) . "', ";
+				// if datetime save array
+				if ( $this->_fields->$name->type == 'datetime' ) {
+					$qry .= $name . " = " . "'".date('Y-m-d h:i:s', strtotime("{$obj->value[year]}-{$obj->value[month]}-{$obj->value[day]} ".( $obj->value['hour'] ? $obj->value['hour'] : '00').":".( $obj->value['minutes'] ? $obj->value['minutes'] : '00').":".( $obj->value['seconds'] ? $obj->value['seconds'] : '00')))."', ";
+				} else {				
+					$qry .= $name . " = " . "'" . addslashes(serialize($obj->value)) . "', ";					
+				}
 							
 			}else {
 				
@@ -459,16 +465,17 @@ class model implements Iterator {
 		return $key; 
 	}
 	
-	public function delete($where) {
-	
-		if (!$where) {
-			return false;
+	public function delete($where = null)
+	{
+		// if no $where	delete current load record
+		if ( !$where ) {
+			$property = $this->_primary_key;
+			$where = "{$this->_primary_key} = '{$this->$property}' LIMIT 1";
 		}
 		
 		$this->_action_query->query("DELETE FROM {$this->_table_name} WHERE $where");
 		
 		return $this->_action_query->row_count;
-		
 	}
 	
 	public function values() {
@@ -838,23 +845,20 @@ class model implements Iterator {
 				break;
 	
 				case preg_match('/^find_by_(.+)$/', $method, $regs):
-					$args = $arguments[1];
-					$args['conditions'] = "{$regs[1]} = '{$arguments[0]}'";
+					$args['where'] = $this->_conditions_str_from_method($method, $arguments);
 					$args['limit'] = 1;
 					$this->find($args);
 					break;
 	
 				case preg_match('/^find_first_by_(.+)$/', $method, $regs):
-					$args = $arguments[1];
-					$args['conditions'] = "{$regs[1]} = '{$arguments[0]}'";
+					$args['where'] = $this->_conditions_str_from_method($method, $arguments);
 					$args['limit'] = 1;
 					$this->find($args);
-					$this->get_next();
-					break;
+					$this->next();
+				break;
 	
 				case preg_match('/^find_total_by_(.+)$/', $method, $regs):
-					$args = $arguments[1];
-					$args['conditions'] .= (isset($args['conditions'])) ? " AND {$regs[1]} = '{$arguments[0]}'" : "{$regs[1]} = '{$arguments[0]}'";
+					$args['where'] = $this->_conditions_str_from_method($method, $arguments);
 					return $this->find_total($args);
 					break;
 					
@@ -1100,6 +1104,73 @@ class model implements Iterator {
 		}
 
 	}
+	
+	/**
+	* Creates SQL string for conditons used for find_by... magic funtions
+	*
+	* @author Nesbert Hidalgo
+	* @access private
+	* @param string $method required
+	* @param array $args required
+	* @return string
+	*/
+	private function _conditions_str_from_method($method, $args)
+	{
+		// remove find_by... from method name
+		$method = str_replace(array('find_by_','find_first_by_', 'find_total_by_'), '', $method);
+		$args_index = 0;
+		$return = '';
+		
+		// if no "AND" or "OR" return single column sql
+		if ( !strstr($method, '_and_') && !strstr($method, '_or_') ) {
+			return  "{$method} = '{$args[0]}'";
+		}
+		
+		// hande "OR" and create/return sql string
+		if ( strstr($method, '_or_') ) {
+			$ors = explode('_or_', $method);
+			$or_count = 1;
+			foreach ( $ors as $or ) {
+				// hande "AND" and append to sql string
+				if ( strstr($or, '_and_') ) {				
+					$ands = explode('_and_', $or);
+					$return .= '(';
+					foreach ( $ands as $field ) {
+						$return .= "{$field} = '{$args[$args_index]}' AND ";
+						$args_index++;			
+					}
+					$return = substr($return, 0, -4).')';
+				} else {
+					$return .= "{$or} = '{$args[$args_index]}'";
+					$args_index++;			
+				}
+				
+				// and or if not last $or
+				if ( count($ors) != $or_count ) $return .= ' OR ';
+				$or_count++;		
+			}
+			
+			// clean return string
+			if ( substr($return, strlen($return) -3, 3) == 'OR ' ) {
+				$return = substr($return, 0, -3);
+			}
+			
+			return str_replace('OR OR ', 'OR ', $return);
+		}
+		
+		// hande "AND" and create/return sql string
+		if ( strstr($method, '_and_') ) {
+			$ands = explode('_and_', $method);
+			foreach ( $ands as $field ) {
+				$return .= "{$field} = '{$args[$args_index]}' AND ";
+				$args_index++;			
+			}
+			$return = substr($return, 0, -4);
+		}
+		
+		return $return;
+	
+	}
 
 	/**
 	 * Alias to find and set the $page object. default page limit is 10 records
@@ -1128,6 +1199,7 @@ class model implements Iterator {
 		$this->find($args);
 		
 	}
+	
 	
 	/*
 	 * Callback Functions -> Override If Needed

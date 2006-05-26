@@ -144,7 +144,21 @@ class error
 	private function model_error($field, $message)
 	{
 		$this->$field = $message;
-	}	
+		$this->load_to_global_errors($field, $message);
+	}
+	
+	/**
+	 * Load model error to $GLOBALS['model_errors']
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 * @param string $field required
+	 * @param object $message required
+	 */
+	private function load_to_global_errors($field, $message)
+	{
+		$GLOBALS['model_errors'][$field] = $message;
+	}
 	
 }
 ?>

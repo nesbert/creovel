@@ -1091,7 +1091,14 @@ class model implements Iterator {
 		switch ( $method ) {
 		
 			case 'validates_uniqueness_of':
-				die($method);
+				// check if a column with that value exists in the current table and is not the currentlly loaded row
+				$this->_action_query->query("SELECT * FROM {$this->_table_name} WHERE {$args[0]} = '{$args[1]}' AND {$this->_primary_key} != '{$this->id}'");
+				// if record found add error
+				if ( $this->_action_query->row_count ) {
+					$this->errors->add($args[0], ( $args[2] ? $args[2] : humanize($args[0]).' is not unique.' ));
+				} else {
+					return true;				
+				}
 			break;
 			
 			default:

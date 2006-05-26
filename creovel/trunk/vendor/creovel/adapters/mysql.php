@@ -101,8 +101,7 @@ class mysql implements adapter_interface
 		$this->query = $query;
 		
 		// send a MySQL query and set query_link resource on success
-		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error($this->get_mysql_error() . ". Query \"" . str_replace(', ', ",\n", $this->query) . "\" failed.");
-		
+		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error($this->get_mysql_error() . ". Query \"" . str_replace(', ', ",\n", $this->query) . "\" failed.");		
 		
 		// set insert_id with the ID generated from the previous INSERT operation
 		if ( mysql_insert_id() ) {

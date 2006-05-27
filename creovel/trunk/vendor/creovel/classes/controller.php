@@ -26,6 +26,15 @@ class controller
 	protected $_action;
 	
 	/**
+	 * Page to be outputted
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @var string
+	 */
+	public $render;
+	
+	/**
 	 * Layout name
 	 *
 	 * @author Nesbert Hidalgo
@@ -53,6 +62,7 @@ class controller
 	{
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
+		$this->render = $events['action'];
 		$this->layout = $_ENV['routes']['default']['layout'];
 		$this->_nested_controller_path = $events['nested_controller_path'];
 	}
@@ -116,11 +126,7 @@ class controller
 		$options['controller'] = $this->_controller;
 		$options['action'] = $this->_action;
 		$options['layout'] = $this->layout;
-		if ( $this->render === false ) {
-			$options['render'] = false;
-		} else {
-			$options['render'] = $this->render ? $this->render : $this->_action;
-		}
+		$options['render'] = $this->render;
 		$options['text'] = $this->render_text;
 		return $this->render($options);		
 	}

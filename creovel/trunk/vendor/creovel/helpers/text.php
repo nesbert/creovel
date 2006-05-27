@@ -4,7 +4,7 @@
  */
 function pluralize($word, $count = null)
 {
-	if ( $count === 1 ) return $word;
+	if ( $count == 1 ) return $word;
 	return inflector::pluralize($word);
 }
 

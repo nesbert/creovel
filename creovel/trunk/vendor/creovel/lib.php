@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Include base helpers library.
  */
 require_once('helpers/ajax.php');
@@ -12,7 +12,7 @@ require_once('helpers/html.php');
 require_once('helpers/text.php');
 require_once('helpers/validation.php');
 
-/**
+/*
  * Include base classes library.
  */
 require_once('classes/creovel.php');
@@ -25,4 +25,25 @@ require_once('classes/mailer.php');
 require_once('classes/pager.php');
 require_once('classes/validation.php');
 
+/*
+ * Set error object
+ */
+$_ENV['error'] = new error('application');
+
+/*
+ * Session logic.
+ */
+if ( $_ENV['sessions'] ) {
+
+	if ( $_ENV['sessions'] == 'table' ) {	
+		// include/create session db object
+		require_once('classes/session.php');
+		$_session = new session();
+		// include session helpers
+		require_once('helpers/session.php');
+	}
+	
+	session_start();
+
+}
 ?>

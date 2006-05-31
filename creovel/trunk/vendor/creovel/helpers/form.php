@@ -58,15 +58,11 @@ function error_messages_for($errors = null, $title = null, $description = 'There
 			$errors_count =	count($errors);
 		break;
 		
-		default:
-			$errors = $GLOBALS['model_errors'];
-			$errors_count =	count($errors);
-		break;
 	}
 	
 	if ( $errors_count ) {
 	
-		$title = ( $title ? $title : "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".( $model ? humanize($model) : 'form' )." from being saved." );
+		$title = ( $title ? $title : "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".( $model ? humanize($model) : 'Form' )." from being saved." );
 		$title = str_replace(array('@@errors_count@@','@@title@@'), array($errors_count, $title), $title);
 		
 	?>
@@ -103,8 +99,8 @@ function error_messages_for($errors = null, $title = null, $description = 'There
  */
 
 function error_check($html_str) {
-	if ( is_array($GLOBALS['model_errors']) ) {
-		foreach ( $GLOBALS['model_errors'] as $field => $vals ) {
+	if (is_array($GLOBALS['form_errors'])) {
+		foreach ( $GLOBALS['form_errors'] as $field => $vals ) {
 		
 			// need to figure out a better way of doing this [NH] 11/9/20005
 			if ( strstr($html_str, '['.$field.']') || ( strstr($html_str, '"'.$field.'"') && !strstr($html_str, 'value="'.$field.'"') ) ) {
@@ -650,24 +646,17 @@ function select_redirect($name, $names_and_urls, $html_options = null) {
 function date_select($name, $date = null)
 {
 	switch ( true ) {
-
+	
 		case ( !$date  || ($date == '0000-00-00 00:00:00') ):
 			$date = time();
 		break;
-
-		case ( is_numeric($date) ):
-		break;
-		
-		case ( is_array($date) ):
-			$date = mktime($date['hour'], $date['minute'], $date['second'], $date['month'], $date['day'], $date['year']);
-		break;		
 
 		case ( is_string($date) ):
 			$date = strtotime($date);
 		break;	
 		
 	}
-
+	
 	$i = 1;
 	$months = array();
 	while ($i <= 12) { $months[$i] = $i; $i++; }	

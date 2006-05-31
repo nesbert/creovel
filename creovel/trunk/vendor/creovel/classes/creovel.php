@@ -21,9 +21,6 @@ class creovel
 	 */
 	public function run($events = null, $params = null, $return_as_str = false)
 	{
-		// set error object
-		$_ENV['error'] = new error('application');
-		
 		// set-up environment
 		require_once( CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php' );
 		

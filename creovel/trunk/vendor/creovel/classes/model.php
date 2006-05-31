@@ -375,7 +375,7 @@ class model implements Iterator {
 			
 				// if datetime save array
 				if ( $this->_fields->$name->type == 'datetime' ) {
-					$qry .= "'".date('Y-m-d h:i:s', strtotime("{$obj->value[year]}-{$obj->value[month]}-{$obj->value[day]} ".( $obj->value['hour'] ? $obj->value['hour'] : '00').":".( $obj->value['minutes'] ? $obj->value['minutes'] : '00').":".( $obj->value['seconds'] ? $obj->value['seconds'] : '00')))."', ";
+					$qry .= "'".datetime($obj->value)."', ";
 				} else {				
 					$qry .= "'" . addslashes(serialize($obj->value)) . "', ";					
 				}
@@ -442,7 +442,7 @@ class model implements Iterator {
 				
 				// if datetime save array
 				if ( $this->_fields->$name->type == 'datetime' ) {
-					$qry .= $name . " = " . "'".date('Y-m-d h:i:s', strtotime("{$obj->value[year]}-{$obj->value[month]}-{$obj->value[day]} ".( $obj->value['hour'] ? $obj->value['hour'] : '00').":".( $obj->value['minutes'] ? $obj->value['minutes'] : '00').":".( $obj->value['seconds'] ? $obj->value['seconds'] : '00')))."', ";
+					$qry .= $name . " = " . "'".datetime($obj->value)."', ";
 				} else {				
 					$qry .= $name . " = " . "'" . addslashes(serialize($obj->value)) . "', ";					
 				}
@@ -747,6 +747,11 @@ class model implements Iterator {
 	
 	}
 	
+	public function get_affected_rows()
+	{
+		return $this->_select_query->get_affected_rows();
+	}
+	
 	private function load_values_into_fields($data, $type = self::ROW_ASSOC)
 	{
 	
@@ -758,6 +763,15 @@ class model implements Iterator {
 			
 		}
 		
+	}
+	
+	public function get_values()
+	{
+		$ret_array = array();
+		foreach ( $this->_fields as $field => $attributes ) {
+			$ret_array[$field] = $attributes->value;
+		}
+		return $ret_array;
 	}
 	
 	/**

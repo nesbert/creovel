@@ -78,8 +78,8 @@ class pager {
 		$this->last			= $this->total_pages;
 		
 		// set url path
-		$url = @explode('?', $_SERVER['REQUEST_URI']);
-		$this->url = $url[0];
+		$params = get_events();
+		$this->url = url_for($params['controller'], $params['action'], $params['id']);
 
 	}
 	

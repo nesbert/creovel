@@ -9,6 +9,7 @@ interface adapter_interface
 	public function query();
 	public function reset();
 	public function get_row();
+	public function get_affected_rows();
 	
 }
 ?>

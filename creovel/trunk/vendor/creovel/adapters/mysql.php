@@ -143,6 +143,11 @@ class mysql implements adapter_interface
 		return mysql_fetch_assoc($this->query_link);			
 	}
 	
+	public function get_affected_rows()
+	{
+		return @mysql_affected_rows($this->query_link);	
+	}
+	
 	private function get_mysql_error()
 	{
 		// returns the text of the error message from previous MySQL operation

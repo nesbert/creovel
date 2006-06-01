@@ -42,7 +42,9 @@ $GLOBALS['form_errors'] = array();
 
 function error_messages_for($errors = null, $title = null, $description = 'There were problems with the following fields.')
 {
-	
+	// if no errors check global variable
+	if ( !$errors ) $errors = $_ENV['model_error'];
+
 	switch ( true ) {
 	
 		case ( is_object($errors) ):
@@ -97,21 +99,17 @@ function error_messages_for($errors = null, $title = null, $description = 'There
  * @param string $html_str
  * @return string
  */
-
-function error_check($html_str) {
-	if (is_array($GLOBALS['form_errors'])) {
-		foreach ( $GLOBALS['form_errors'] as $field => $vals ) {
+function error_check($html_str)
+{
+	if ( is_array($_ENV['model_error']) ) foreach ( $_ENV['model_error'] as $field => $vals ) {
 		
-			// need to figure out a better way of doing this [NH] 11/9/20005
-			if ( strstr($html_str, '['.$field.']') || ( strstr($html_str, '"'.$field.'"') && !strstr($html_str, 'value="'.$field.'"') ) ) {
-				$html_str = '<a name="error_'.$field.'"></a><span class="errors_field">'.$html_str.'</span>';
-			}
-		
+		// need to figure out a better way of doing this [NH] 11/9/20005
+		if ( strstr($html_str, '['.$field.']') || ( strstr($html_str, '"'.$field.'"') && !strstr($html_str, 'value="'.$field.'"') ) ) {
+			$html_str = '<a name="error_'.$field.'"></a><span class="errors_field">'.$html_str.'</span>';
 		}
-	
-	}
-	return $html_str;
-	
+		
+	}	
+	return $html_str;	
 }
 
 /**
@@ -650,7 +648,14 @@ function date_select($name, $date = null)
 		case ( !$date  || ($date == '0000-00-00 00:00:00') ):
 			$date = time();
 		break;
-
+		
+		case ( is_array($date) ):
+			$date = mktime($date['hour'], $date['minute'], $date['second'], $date['month'], $date['day'], $date['year']);
+		break;
+		
+		case ( is_numeric($date) ):
+		break;
+		
 		case ( is_string($date) ):
 			$date = strtotime($date);
 		break;	

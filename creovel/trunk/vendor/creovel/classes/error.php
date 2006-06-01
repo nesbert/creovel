@@ -144,6 +144,8 @@ class error
 	private function model_error($field, $message)
 	{
 		$this->$field = $message;
+		// add to globals
+		$_ENV['model_error'][$field] = $message;
 	}	
 	
 }

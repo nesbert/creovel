@@ -123,5 +123,20 @@ class validation
 		return self::validate_field_by_bool(is_email($val), $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is an invalid email address."), $required);
 	}
 	
+	/**
+	 * Validates that $val is numeric.
+	 * 
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $field required
+	 * @param mixed $val required
+	 * @param string $msg optional default is "... is not a number."
+	 * @param bool $required optional default is false
+	 * @return bool
+	 */	
+	public function validates_numericality_of($field, $val, $msg = null, $required = false)
+	{
+		return self::validate_field_by_bool(is_number($val), $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is not a number."), $required);
+	}
 }
 ?>

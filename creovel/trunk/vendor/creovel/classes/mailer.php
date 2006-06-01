@@ -36,6 +36,7 @@ class mailer {
 	public $cc;
 	public $charset = 'utf-8';
 	public $from;
+	public $reply_to;
 	public $headers;
 	public $recipients;
 	public $sent_on;

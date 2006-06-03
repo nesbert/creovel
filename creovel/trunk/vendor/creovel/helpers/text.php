@@ -89,7 +89,7 @@ function mask($str, $mask = '*')
 }
 
 /*
- * Replace every charactor of a string with $mask
+ * Truncates a tring and add trailing periods to it
  *
  * @author Nesbert Hidalgo
  * @param string $str required

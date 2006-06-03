@@ -20,6 +20,7 @@ require_once('classes/model.php');
 require_once('classes/view.php');
 require_once('classes/controller.php');
 require_once('classes/error.php');
+require_once('classes/file.php');
 require_once('classes/inflector.php');
 require_once('classes/mailer.php');
 require_once('classes/pager.php');

@@ -1,4 +1,5 @@
 <?php
+// set application mode
 $_ENV['mode'] = 'development'; // development, test, production
 
 // set development database properties
@@ -42,6 +43,6 @@ define(CREOVEL_PATH, 		VENDOR_PATH.'creovel/');
 // include core libraries
 require_once(CREOVEL_PATH.'lib.php');
 
-// start session
-//session_start();
+// set session handler
+$_ENV['sessions'] = false; // false, true, 'table'
 ?>

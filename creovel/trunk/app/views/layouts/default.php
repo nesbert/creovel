@@ -2,14 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-	<?=stylesheet_include_tag(array('creovel'))?>
-	<link rel="SHORTCUT ICON" href="/images/favicon.ico">
+	<?=stylesheet_include_tag(array('styles'))?>
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>creovel - A PHP Framework</title>
-	<script type="text/javascript">
-		if (top !== self) top.location.href = '/index.html';
-	</script>
+
 </head>
 <body>
 
@@ -27,7 +24,7 @@
 	</div>
 	
 	<div id="footer">
-		<p class="legal"><strong>Disclaimer:</strong> legal shit...</p>
+		<p class="legal"><strong>Disclaimer:</strong> legal stuff...</p>
 	</div>
 	
 </div>

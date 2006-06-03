@@ -7,15 +7,6 @@
  */
  
 /**
- * Variable used to temporarily store the errors array used by
- * error_check().
- *
- * @access global
- * @var array
- */
-$GLOBALS['form_errors'] = array();
-
-/**
  * Prints out a formatted errors message box for an object. Erros
  * styles below: 
  *

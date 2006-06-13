@@ -62,8 +62,8 @@ class controller
 	{
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
-		$this->render = $events['action'];
-		$this->layout = $_ENV['routes']['default']['layout'];
+		if (!$this->render) $this->render = $events['action'];
+		if (!$this->layout) $this->layout = $_ENV['routes']['default']['layout'];
 		$this->_nested_controller_path = $events['nested_controller_path'];
 	}
 

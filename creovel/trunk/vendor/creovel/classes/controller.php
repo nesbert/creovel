@@ -86,6 +86,9 @@ class controller
 	 */
 	public function _execute_action()
 	{
+		// initialize callback
+		$this->initialize();
+		
 		try {
 			
 			if ( method_exists($this, $this->_action) ) {
@@ -365,6 +368,7 @@ class controller
 	 * @author Nesbert Hidalgo
 	 * @access public 
 	 */
+	public function initialize() {}
 	public function before_filter() {}
 	public function after_filter() {}
 	

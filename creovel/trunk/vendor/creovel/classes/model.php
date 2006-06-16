@@ -275,7 +275,7 @@ class model implements Iterator {
 			$fields->$row['Field'] = (object) $temp_arr;
 			
 		}
-	
+		
 		return $fields;
 		
 	}
@@ -394,7 +394,7 @@ class model implements Iterator {
 		$this->_action_query->query($qry);
 		
 		$key = $this->_primary_key;
-		$this->_fields->$key->value =  $this->_action_query->insert_id;
+		$this->_fields->$key->value =  $this->_action_query->get_insert_id();
 		
 		return $this->key(); 
 		 

@@ -10,6 +10,7 @@ interface adapter_interface
 	public function reset();
 	public function get_row();
 	public function get_affected_rows();
+	public function get_insert_id();
 	
 }
 ?>

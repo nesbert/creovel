@@ -16,8 +16,8 @@ class mysql implements adapter_interface
 	
 	public $pointer = -1;	// MySQL result pointer
 	public $row_count = 0;	// number of rows in MySQL result
-	public $insert_id;		// ID generated from a MySQL INSERT operation
-
+	
+	
 	public function  __construct($db_properties = null)
 	{
 		// if properties passed connect to database
@@ -27,7 +27,7 @@ class mysql implements adapter_interface
 	public function __destruct()
 	{
 		// free memory and close database connection
-		$this->disconnect();		
+		$this->disconnect();
 	}
 	
 	public function connect($db_properties)
@@ -48,8 +48,8 @@ class mysql implements adapter_interface
 		// free result memory
 		if ( $this->query_link ) @mysql_free_result($this->query_link);
 		
-		// close MySQL connection		
-		//if ($this->db_link) @mysql_close($this->db_link);	
+		// close MySQL connection
+		//if ($this->db_link) @mysql_close($this->db_link);
 	}
 	
 	public function set_database($database)
@@ -79,7 +79,7 @@ class mysql implements adapter_interface
 		// foreach row in results insert into fields object
 		while ( $row = @mysql_fetch_assoc($result) ) {
 		
-			// set fields into an associative array		
+			// set fields into an associative array
 			foreach ( $row as $key => $value ) if ( $key != 'Field' ) $temp_arr[strtolower($key)] = $value;
 			// get default value for field
 			$temp_arr['value'] = ( $row['Default'] !== 'NULL' ? $row['Default'] : null );
@@ -87,7 +87,7 @@ class mysql implements adapter_interface
 			$fields->$row['Field'] = (object) $temp_arr;
 			
 		}
-	
+		
 		return $fields;
 		
 	}
@@ -103,13 +103,8 @@ class mysql implements adapter_interface
 		// send a MySQL query and set query_link resource on success
 		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error($this->get_mysql_error() . ". Query \"" . str_replace(', ', ",\n", $this->query) . "\" failed.");		
 		
-		// set insert_id with the ID generated from the previous INSERT operation
-		if ( mysql_insert_id() ) {
-			$this->insert_id = mysql_insert_id();
-		} else {
-			// set row_count with number of rows in result
-			$this->row_count = 	@mysql_num_rows($this->query_link);		
-		}
+		// set row_count with number of rows in result
+		$this->row_count = 	@mysql_num_rows($this->query_link);
 	}
 	
 	public function reset()
@@ -140,7 +135,7 @@ class mysql implements adapter_interface
 		mysql_data_seek($this->query_link, $this->pointer);
 		
 		// fetch and return a result row as an associative array
-		return mysql_fetch_assoc($this->query_link);			
+		return mysql_fetch_assoc($this->query_link);
 	}
 	
 	public function get_affected_rows()
@@ -148,10 +143,15 @@ class mysql implements adapter_interface
 		return @mysql_affected_rows($this->query_link);	
 	}
 	
+	public function get_insert_id()
+	{
+		return @mysql_insert_id();	
+	}
+	
 	private function get_mysql_error()
 	{
 		// returns the text of the error message from previous MySQL operation
-		return mysql_error($this->db_link);		
+		return mysql_error($this->db_link);
 	}
 	
 	private function handle_error($message)

@@ -23,7 +23,6 @@ class mailer {
 	private $_message_boundary;
 	private $_mime_boundary;
 	private $_header;
-	private $_send_on_close = false;
 	
 	/**
 	 * Public class properties.
@@ -61,17 +60,6 @@ class mailer {
 	}
 	
 	/**
-	 * Destruct send email if $_send_on_close is true
-	 * 
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 */
-	public function __destruct()
-	{
-		if ( $this->_send_on_close ) $this->send();
-	}
-	
-	/**
 	 * Magic functions.
 	 * 
 	 * @author Nesbert Hidalgo
@@ -92,7 +80,9 @@ class mailer {
 				$this->_call_action($args);
 				
 				// if deliver_XXX send message
-				if ( preg_match('/^deliver_(.+)$/', $method) ) $this->_send_on_close = true;
+				if ( preg_match('/^deliver_(.+)$/', $method) ) {
+					return $this->send();
+				}
 				
 			break;
 			

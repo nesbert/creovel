@@ -23,7 +23,10 @@ $_ENV[production][database]		= '';
 $_ENV[production][username]		= '';
 $_ENV[production][password]		= '';
 
-// Default Route Controller
+// set session handler
+$_ENV['sessions'] = false; // false, true, 'table'
+
+// default routing: controller, action, layout
 $_ENV['routes']['default']['controller'] = 'index';
 $_ENV['routes']['default']['action'] = 'index';
 $_ENV['routes']['default']['layout'] = 'default';
@@ -42,7 +45,4 @@ define(CREOVEL_PATH, 		VENDOR_PATH.'creovel/');
 
 // include core libraries
 require_once(CREOVEL_PATH.'lib.php');
-
-// set session handler
-$_ENV['sessions'] = false; // false, true, 'table'
 ?>

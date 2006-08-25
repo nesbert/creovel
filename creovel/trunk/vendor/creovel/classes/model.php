@@ -892,6 +892,87 @@ class model implements Iterator {
 					}
 				break;
 				
+				case preg_match('/^text_field_for_(.+)$/', $method, $regs):
+					$html_options = $arguments[0];
+					$get_function = 'get_' . $regs[1];
+					$error_function = 'error_for_' . $regs[1];
+					
+					$html_str = text_field($this->_class(). '[' . $regs[1] . ']', $this->$get_function(), $html_options);
+					
+					return $html_str;
+				
+				break;
+				
+				case preg_match('/^password_field_for_(.+)$/', $method, $regs):
+					$html_options = $arguments[0];
+					$function = 'get_' . $regs[1];
+					return password_field($this->_class(). '[' . $regs[1] . ']', $this->$function(), $html_options);
+				break;
+				
+				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
+					$html_options = $arguments[0];
+					$function = 'get_' . $regs[1];
+					
+					return textarea($this->_class(). '[' . $regs[1] . ']', $this->$function(), $html_options);
+				break;
+				
+				case preg_match('/^hidden_field_for_(.+)$/', $method, $regs):
+					$html_options = $arguments[0];
+					$function = 'get_' . $regs[1];
+					return hidden_field($this->_class(). '[' . $regs[1] . ']', $this->$function(), $html_options);
+				break;
+				
+				
+				case preg_match('/^select_for_(.+)$/', $method, $regs):
+					$options = $arguments[0];
+					$html_options = $arguments[1];
+					$function = 'get_' . $regs[1];
+					return select($this->_class(). '[' . $regs[1] . ']', $this->$function(), $options, $html_options);
+				break;
+				
+				case preg_match('/^label_for_(.+)$/', $method, $regs):
+					$title = $arguments[0];
+					$html_options = $arguments[1];
+					return label($this->_class(). '[' . $regs[1] . ']', $title, $html_options);
+				break;
+			
+				case preg_match('/^error_for_(.+)$/', $method, $regs):
+					if ($this->errors->$regs[1]) {
+						return true;
+					} else {
+						return false;
+					}
+				break;
+	
+				case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
+					$value = $arguments[0];
+					$text = $arguments[1] ? $arguments[1] : humanize($value);
+					$html_options = $arguments[2];
+					$function = 'get_' . $regs[1];
+					
+					return radio_button($this->_class(). '[' . $regs[1] . ']', $value, $html_options, $this->$function(), $text);
+				break;
+				
+				case preg_match('/^check_box_for_(.+)$/', $method, $regs):
+					$value = $arguments[0];
+					$text = $arguments[1] ? $arguments[1] : humanize($value);
+					$html_options = $arguments[2];
+					$function = 'get_' . $regs[1];
+					
+					return check_box($this->_class(). '[' . $regs[1] . ']', $value, $html_options, $this->$function(), $text);
+				break;
+				
+				case preg_match('/^multi_check_box_for_(.+)$/', $method, $regs):
+					$value = $arguments[0];
+					   
+					$text = $arguments[1] ? $arguments[1] : humanize($value);
+					$html_options = $arguments[2];
+					$function = 'get_' . $regs[1];
+					
+					return check_box($this->_class(). '[' . $regs[1] . '][]', $value, $html_options, $this->$function(), $text);
+				break;
+				
+	
 				default:
 					throw new Exception("Undefined method '{$method}' in <strong>".get_class($this)."</strong> model.");
 				break;
@@ -1000,7 +1081,6 @@ class model implements Iterator {
 		if (!$this->is_linked($name)) {
 	
 			if(!$this->create_link($name)) {
-
 				return false;
 			}
 		} 
@@ -1093,7 +1173,7 @@ class model implements Iterator {
 	}
 	
 	/**
-	* Alias to find and set the $page object. default page limit is 10 records
+	* Validate by method name to valitaion object
 	*
 	* @author Nesbert Hidalgo
 	* @access private
@@ -1102,6 +1182,9 @@ class model implements Iterator {
 	*/
 	private function _validate_by_method($method, $args = null)
 	{
+		// if no value pasted use model's value
+		if ( !$args[1] ) $args[1] = $this->$args[0];
+		
 		switch ( $method ) {
 		
 			case 'validates_uniqueness_of':
@@ -1117,7 +1200,7 @@ class model implements Iterator {
 			
 			default:
 				if ( method_exists($this->validation, $method) ) {
-					call_user_func_array(array($this->validation, $method), $args);
+					return call_user_func_array(array($this->validation, $method), $args);
 				} else {
 					$_ENV['error']->add("Undefined validation '{$method->_action}' in <strong>{get_class()}</strong>");
 				}

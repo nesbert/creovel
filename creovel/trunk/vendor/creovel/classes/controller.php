@@ -372,5 +372,18 @@ class controller
 	public function before_filter() {}
 	public function after_filter() {}
 	
+	/**
+	 * Excute and render pasted argument
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 * @param string $action
+	 */
+	public function run($action)
+	{
+		$this->$action();
+		$this->render = $action;
+	}
+	
 }
 ?>

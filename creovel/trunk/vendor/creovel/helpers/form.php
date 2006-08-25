@@ -69,7 +69,7 @@ function error_messages_for($errors = null, $title = null, $description = 'There
 			<ul>
 				<? foreach ( $errors as $field => $message ) { ?>
 					<? if ( $message == 'no_message') continue; ?>
-				<li><a href="#error_<?=$error?>"><?=$message?></a></strong></li>
+				<li><a href="#error_<?=$field?>"><?=$message?></a></strong></li>
 				<? } ?>
 			</ul>
 		</div>
@@ -90,17 +90,25 @@ function error_messages_for($errors = null, $title = null, $description = 'There
  * @param string $html_str
  * @return string
  */
-function error_check($html_str)
-{
-	if ( is_array($_ENV['model_error']) ) foreach ( $_ENV['model_error'] as $field => $vals ) {
+function error_check($field, $html_str)
+{		
+	
+	$args = explode('[', $field);
+	$field = str_replace(']', '', end($args));
+	
+	if ( is_array($_ENV['model_error']) && array_key_exists($field, $_ENV['model_error'])) {
 		
 		// need to figure out a better way of doing this [NH] 11/9/20005
-		if ( strstr($html_str, '['.$field.']') || ( strstr($html_str, '"'.$field.'"') && !strstr($html_str, 'value="'.$field.'"') ) ) {
-			$html_str = '<a name="error_'.$field.'"></a><span class="errors_field">'.$html_str.'</span>';
-		}
+		//if ( strstr($html_str, '['.$field.']') || ( strstr($html_str, '"'.$field.'"') && !strstr($html_str, 'value="'.$field.'"') ) ) {
+			$html_str = error_wrapper($field, $html_str); 
+		//}
 		
 	}	
 	return $html_str;	
+}
+
+function error_wrapper($field, $html_str) {
+	return '<a name="error_'.$field.'"></a><span class="errors_field">'.$html_str.'</span>';
 }
 
 /**
@@ -191,16 +199,16 @@ function name_to_id($name) {
  
 function create_input_tag($type, $name, $value = null, $html_options = null, $on_value = null, $text = null) {
 
-	if (is_string($text)) {
-		$append_text = $text;
-	} else {
-		$prepend_text = $text[0];
-		$append_text = $text[1];
-	}
-
 	if ( $value == $on_value ) $html_options['checked'] = 'checked';
 	$id = name_to_id($name).( $type == 'radio' || $type == 'checkbox' ? '_'.str_replace(' ', '', $value) : '' );
-	return error_check($prepend_text.' <input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.html_options_str($html_options).' /> '.$append_text);
+	
+	if (is_string($text)) {
+		$append_text = $text ? label($id, $text) : null;
+	} else {
+		$prepend_text = $text[0] ? label($id, $text[0]) : null;
+		$append_text = $text[1] ? label($id, $text[1]) : null;
+	}
+	return error_check($name, $prepend_text.' <input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.html_options_str($html_options).' /> '.$append_text);
 	
 }
 
@@ -328,28 +336,30 @@ function button_tag($name = '', $value = 'Button', $html_options = null) {
  * @return string
  */ 
 
-function text_area($name, $value = '', $html_options = null) {
+function textarea($name, $value = '', $html_options = null) {
 
-	return error_check('<textarea id="'.name_to_id($name).'" name="'.$name.'"'.html_options_str($html_options).'>'.$value.'</textarea>');
+	return error_check($name, '<textarea id="'.name_to_id($name).'" name="'.$name.'"'.html_options_str($html_options).'>'.$value.'</textarea>');
 
 }
 
 /**
  * Creates a label tag. Modified to accept html_options [NH] 2/3
  *
- * @author Russ Smith
+ * @author John Faircloth
  * @param string $name required
  * @param string $field required
  * @param boolean $required required
  * @return string
  */ 
 
-function label_tag($name, $field, $required = true, $html_options = null)
+function label($name, $title = null, $html_options = null)
 {
-
-	$html_options['class'] = ( $required ? ' required' : '' ) . ( is_array($GLOBALS['form_errors']) && in_array($field, array_keys($GLOBALS['form_errors'])) ? ' errors_field' : '' ) . ' ' . $html_options['class'];
-
-	return '<label for="'.$field.'"'.html_options_str($html_options).'>'.$name.'</label>';
+	if (!$title) {
+		$args = explode('[', $name);
+		$title = str_replace(']', '', end($args));
+	}
+	
+	return error_check($name, '<label for="'.name_to_id($name).'"'.html_options_str($html_options).'>'.humanize($title).':</label>');
 }
 
 /**
@@ -416,7 +426,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 
 	$return .= "</select>\n\r";
 
-	return error_check($return);
+	return error_check($name, $return);
 
 }
 
@@ -500,10 +510,10 @@ function select_states_tag($name, $selected = null, $choices = null, $html_optio
 		$choices = ( $choices ? $choices : array('all' => 'All States..') );
 	}
 	
-	$state = new state_country_model();
+	//$state = new state_country_model();
 	
-	$state_arr = array_merge($choices, $state->get_states_by_country_code());
-	
+	$state_arr = $_ENV['countries']['US']['states'];
+	$state_arr = array_merge($choices, $state_arr);
 	return select($name, $selected, $state_arr, $html_options);
 	
 }

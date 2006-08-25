@@ -36,7 +36,7 @@ $_ENV['error'] = new error('application');
  */
 if ( $_ENV['sessions'] ) {
 
-	if ( $_ENV['sessions'] == 'table' ) {	
+	if ( $_ENV['sessions'] === 'table' ) {	
 		// include/create session db object
 		require_once('classes/session.php');
 		$_session = new session();

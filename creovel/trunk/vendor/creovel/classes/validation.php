@@ -43,7 +43,7 @@ class validation
 			default:
 				$this->errors->add($field, $msg);
 				return false;
-			break;			
+			break;
 		}
 	}
 	
@@ -72,7 +72,7 @@ class validation
 			$message = str_replace(self::VALUE, $val, $message);
 		}
 		
-		return $message;		
+		return $message;
 	}
 	
 	/**

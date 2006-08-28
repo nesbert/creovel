@@ -40,7 +40,7 @@ define(MODELS_PATH, 		APP_PATH.'models/');
 define(VIEWS_PATH, 			APP_PATH.'views/');
 define(CONTROLLERS_PATH, 	APP_PATH.'controllers/');
 define(HELPERS_PATH, 		APP_PATH.'helpers/');
-define(SCRIPTS_PATH, 		BASE_PATH.'scripts/');
+define(SCRIPT_PATH, 		BASE_PATH.'script/');
 define(VENDOR_PATH, 		BASE_PATH.'vendor/');
 define(CREOVEL_PATH, 		VENDOR_PATH.'creovel/');
 

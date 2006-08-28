@@ -33,13 +33,14 @@ $_ENV['routes']['default']['layout'] = 'default';
 
 // define application paths
 define(BASE_PATH, 			dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR);
-define(APP_PATH, 			BASE_PATH.'app/');
 define(CONFIG_PATH, 		BASE_PATH.'config/');
 define(PUBLIC_PATH, 		BASE_PATH.'public/');
-define(CONTROLLERS_PATH, 	APP_PATH.'controllers/');
-define(HELPERS_PATH, 		APP_PATH.'helpers/');
+define(APP_PATH, 			BASE_PATH.'app/');
 define(MODELS_PATH, 		APP_PATH.'models/');
 define(VIEWS_PATH, 			APP_PATH.'views/');
+define(CONTROLLERS_PATH, 	APP_PATH.'controllers/');
+define(HELPERS_PATH, 		APP_PATH.'helpers/');
+define(SCRIPTS_PATH, 		BASE_PATH.'scripts/');
 define(VENDOR_PATH, 		BASE_PATH.'vendor/');
 define(CREOVEL_PATH, 		VENDOR_PATH.'creovel/');
 

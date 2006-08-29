@@ -373,7 +373,7 @@ class controller
 	public function after_filter() {}
 	
 	/**
-	 * Excute and render pasted argument
+	 * Excute and render pasted action
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public 

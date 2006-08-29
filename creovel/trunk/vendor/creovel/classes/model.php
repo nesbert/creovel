@@ -765,15 +765,6 @@ class model implements Iterator {
 		
 	}
 	
-	public function get_values()
-	{
-		$ret_array = array();
-		foreach ( $this->_fields as $field => $attributes ) {
-			$ret_array[$field] = $attributes->value;
-		}
-		return $ret_array;
-	}
-	
 	/**
 	* Magic Functions
 	*

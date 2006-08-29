@@ -199,7 +199,7 @@ function name_to_id($name) {
  
 function create_input_tag($type, $name, $value = null, $html_options = null, $on_value = null, $text = null) {
 
-	if ( $value == $on_value ) $html_options['checked'] = 'checked';
+	if ( $value === $on_value ) $html_options['checked'] = 'checked';
 	$id = name_to_id($name).( $type == 'radio' || $type == 'checkbox' ? '_'.str_replace(' ', '', $value) : '' );
 	
 	if (is_string($text)) {
@@ -357,9 +357,10 @@ function label($name, $title = null, $html_options = null)
 	if (!$title) {
 		$args = explode('[', $name);
 		$title = str_replace(']', '', end($args));
+		$title = humanize($title);
 	}
 	
-	return error_check($name, '<label for="'.name_to_id($name).'"'.html_options_str($html_options).'>'.humanize($title).':</label>');
+	return error_check($name, '<label for="'.name_to_id($name).'"'.html_options_str($html_options).'>'.$title.'</label>');
 }
 
 /**

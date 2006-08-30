@@ -88,6 +88,12 @@ switch ( false )
 
 }
 
+// set email address if passed
+$email = $_SERVER['argv'][1];
+if ( is_email($email) ) {
+	$contact_controller = str_replace('email@address.com', $email, $contact_controller);
+}
+
 // create directories
 mkdir(VIEWS_PATH . 'contact');
 mkdir(VIEWS_PATH . 'contact_mailer');
@@ -110,5 +116,5 @@ switch ( false )
 
 }
 
-echo "Finished creating contact form.\n";
+echo "Finished creating contact form!\n";
 ?>

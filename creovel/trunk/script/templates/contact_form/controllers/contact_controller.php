@@ -13,7 +13,7 @@ class contact_controller extends application_controller
 		
 		if ( $_POST  ) {
 		
-			$this->contact->to_email = 'nhidalgo@propertyline.com';
+			$this->contact->to_email = 'email@address.com';
 			
 			// save info to database		
 			if ( $this->contact->save() ) {

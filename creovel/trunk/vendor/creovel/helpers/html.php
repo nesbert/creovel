@@ -31,7 +31,7 @@ function stylesheet_include_tag($url, $media = 'screen')
 	
 		foreach ( $url as $path ) {
 		
-			$str .= "<link rel=\"stylesheet\" type=\"text/css\" media=\"".$media."\" href=\"/stylesheets/".$path.".css\">\n";
+			$str .= '<link rel="stylesheet" type="text/css" media="'.$media.'" href="'.CCS_URL.$path.'.css">'."\n";
 		
 		}
 		
@@ -68,7 +68,7 @@ function javascript_include_tag($url)
 	
 		foreach ( $url as $path ) {
 		
-			$str .= "<script language=\"javascript\" type=\"text/javascript\" src=\"/javascripts/".$path.".js\"></script>\n";
+			$str .= '<script language="javascript" type="text/javascript" src="'.JAVASCRIPT_URL.$path.'.js"></script>'."\n";
 		
 		}
 		

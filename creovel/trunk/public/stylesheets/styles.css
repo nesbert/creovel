@@ -11,6 +11,6 @@ body { margin: 0; padding: 0; background-color: #fdfdfd; font-size: 105%; }
 #content p { margin: 0 20px; }
 #content a { color: blue; border-bottom: 1px dashed blue; font-weight: bold; text-decoration: none; }
 
-#footer p.legal { margin: 20px; color: #d1d1d1; font-family: Arial, Helvetica, sans-serif; font-size: 75%; }
+#footer p { margin: 20px; color: #d1d1d1; font-family: Arial, Helvetica, sans-serif; font-size: 75%; }
 
 .cursor { padding-right: 10px; border-right: 10px solid #0f0; }

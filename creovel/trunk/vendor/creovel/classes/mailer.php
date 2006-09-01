@@ -22,10 +22,12 @@
 /**
  * Emailer class.
  *
- * @todo
- *	- auto-load attachments
- *	- smtp support
- *	- receiving emails
+ * @copyright	Copyright (c) 2005-2006, creovel.org
+ * @package		creovel
+ * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @todo		- auto-load attachments 
+ *				- smtp support
+ *				- receiving emails
  */
 class mailer {
 

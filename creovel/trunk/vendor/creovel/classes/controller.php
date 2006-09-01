@@ -20,10 +20,13 @@
  */
 
 /**
-* Class to handle all intreaction between models, views, and controllers
-* 
-* @todo filiters
-*/
+ * Class to handle all intreaction between models, views, and controllers
+ *
+ * @copyright	Copyright (c) 2005-2006, creovel.org
+ * @package		creovel
+ * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @todo		filiters
+ */
 class controller
 {
 

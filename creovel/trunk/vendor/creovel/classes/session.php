@@ -19,12 +19,14 @@
  * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
  */
 
-/*
+/**
  * Table session class.
  *
- * @todo storing class/object bug
+ * @copyright	Copyright (c) 2005-2006, creovel.org
+ * @package		creovel
+ * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @todo		storing class/object bug
  */
-
 class session extends model
 {
 

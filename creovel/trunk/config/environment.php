@@ -69,6 +69,6 @@ define(SCRIPT_PATH, 		BASE_PATH.'script'.DIRECTORY_SEPARATOR);
 define(VENDOR_PATH, 		BASE_PATH.'vendor'.DIRECTORY_SEPARATOR);
 define(CREOVEL_PATH, 		VENDOR_PATH.'creovel'.DIRECTORY_SEPARATOR);
 
-// include core libraries
-require_once(CREOVEL_PATH.'lib.php');
+// initialize framework and include core libraries
+require_once(CREOVEL_PATH.'initialize.php');
 ?>

@@ -1,1 +1,1 @@
-<p>$ You have successfully installed <a href="http://www.creovel.org" target="_blank">creovel</a> version <?=get_version()?> (<?=get_release_date()?>)<span class="cursor">.</span></p>
+<p>$ You have successfully installed <a href="http://www.creovel.org" target="_blank">creovel</a> version <?=get_version()?> (<?=get_release_date()?>). <span class="cursor">|||||</span></p>

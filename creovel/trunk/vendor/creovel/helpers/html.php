@@ -218,7 +218,7 @@ function html_options_str($html_options)
 
 }
 
-/*
+/**
  * Creates the floating tabs. Expects an array, key = url/javascript, value = label
  *
  * @author Nesbert Hidalgo

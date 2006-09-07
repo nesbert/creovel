@@ -51,10 +51,6 @@ class creovel
 		$events = $events ? $events : self::get_events();
 		$params = $params ? $params : self::get_params();
 		
-		// set controller & action
-		$events['controller'] = $events['controller'] ? $events['controller'] : $_ENV['routes']['default']['controller'];
-		$events['action'] = $events['action'] ? $events['action'] : $_ENV['routes']['default']['action'];
-
 		// include controllers and helpers
 		if ( is_array($events['nested_controllers']) ) {
 			$path = '';
@@ -135,16 +131,9 @@ class creovel
 			
 		}
 		
-		/*
-		
-		$controller_path = '';
-		if ( is_array($events['nested_controllers']) ) {
-			foreach ($events['nested_controllers'] as $controller) {
-				$controller_path .= $controller.DS;
-			}
-			$events['nested_controller_path'] = $controller_path;
-		}
-		*/		
+		// set controller & action
+		$events['controller'] = $events['controller'] ? $events['controller'] : $_ENV['routes']['default']['controller'];
+		$events['action'] = $events['action'] ? $events['action'] : $_ENV['routes']['default']['action'];
 
 		return ( $event_to_return ? $events[$event_to_return] : $events );		
 	}

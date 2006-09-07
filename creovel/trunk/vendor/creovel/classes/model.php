@@ -1140,7 +1140,7 @@ class model implements Iterator {
 					if ($args['where']) {
 						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "' and (" . $args['where'] . ")" ; 
 					} else {
-						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key();
+						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "'";
 					}
 					
 					$model_obj->find($args);

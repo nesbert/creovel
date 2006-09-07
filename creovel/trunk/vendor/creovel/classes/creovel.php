@@ -54,9 +54,17 @@ class creovel
 		// set controller & action
 		$events['controller'] = $events['controller'] ? $events['controller'] : $_ENV['routes']['default']['controller'];
 		$events['action'] = $events['action'] ? $events['action'] : $_ENV['routes']['default']['action'];
-		
-		// include controllers and helpers		
-		self::include_controller($events['nested_controller_path'] . $events['controller']);
+
+		// include controllers and helpers
+		if ( is_array($events['nested_controllers']) ) {
+			$path = '';
+			foreach ( $events['nested_controllers'] as $nested_controller ) {
+				self::include_controller($path.$nested_controller);
+				$path .= $nested_controller.DS;
+			}
+		} else {
+			self::include_controller($events['controller']);
+		}
 		
 		// create controller object and build the framework
 		$controller = $events['controller'] . '_controller';
@@ -74,7 +82,7 @@ class creovel
 	}
 	
 	/**
-	 * Returns the framework events (CONTORLLER, ACTION & ID).
+	 * Returns the framework events (CONTROLLER, ACTION & ID).
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public
@@ -85,25 +93,59 @@ class creovel
 	{
 		// read URI which was given in order to access this page, remove any trailing forward slashes
 		$uri = explode('?', ( $_SERVER['REQUEST_URI']{strlen($_SERVER['REQUEST_URI']) - 1} == '/' ? substr($_SERVER['REQUEST_URI'], 0, strlen($_SERVER['REQUEST_URI']) - 1) : $_SERVER['REQUEST_URI'] ));
-		
+
+		if (isset($_ENV['routes'][$uri[0]])) header('Location: '.$_ENV['routes'][$uri[0]]);
+
 		// get event args from uri
 		$args = explode(DS, substr($uri[0], 1));
 		
+		// check/set nested controllers
+		$path = '';
+		foreach ( $args as $arg ) {
+			if ( file_exists(CONTROLLERS_PATH.$path.$arg.'_controller.php') ) {
+				$events['nested_controllers'][] = $arg;
+			}
+			$path .= $arg.DS;
+		}
+		
 		// set events for framework with array indexes
-		if ( count($args) > 2 ) {
-			$events['controller'] =  $args[ count($args) - 3 ];
-			$events['action'] = $args[ count($args) - 2 ];
-			$events['id'] = $args[ count($args) - 1 ];
-		} else {
-			$events['controller'] =  $args[0];
-			$events['action'] = $args[1];
+		switch ( true ) {
+		
+			case ( count($events['nested_controllers']) > 1 ):
+				$events['controller'] =  $events['nested_controllers'][ count($events['nested_controllers']) - 1 ];
+				foreach ( $args as $key => $arg ) {
+					if ( $arg == $events['controller'] ) {
+						$events['action'] = $args[ $key + 1 ];
+						$_ENV['param_id'] = $args[ $key + 2 ];
+						break;					
+					}
+				}
+			break;
+			
+			case ( count($args) > 2 ):
+				$events['controller'] =  $args[ count($args) - 3 ];
+				$events['action'] = $args[ count($args) - 2 ];
+				$_ENV['param_id'] = $args[ count($args) - 1 ];
+			break;
+			
+			default:
+				$events['controller'] =  $args[0];
+				$events['action'] = $args[1];
+			break;
+			
 		}
 		
-		// check for nested controller
-		if ( count($args) > 3 ) {
-			$events['nested_controller_path'] = implode(DS, array_slice($args, 0, count($args) - 3) ) . DS;
-		}
+		/*
 		
+		$controller_path = '';
+		if ( is_array($events['nested_controllers']) ) {
+			foreach ($events['nested_controllers'] as $controller) {
+				$controller_path .= $controller.DS;
+			}
+			$events['nested_controller_path'] = $controller_path;
+		}
+		*/		
+
 		return ( $event_to_return ? $events[$event_to_return] : $events );		
 	}
 	
@@ -117,11 +159,8 @@ class creovel
 	 */
 	public function get_params($param_to_return = null)
 	{
-		// get id from events	
-		$id = self::get_events('id');
-		
 		// intialize params	
-		$params = $id ? array('id'=>$id) : array();
+		$params = $_ENV['param_id'] ? array('id'=>$_ENV['param_id']) : array();
 			
 		$requests = array($_GET, $_POST);
 	
@@ -159,13 +198,13 @@ class creovel
 		$controllers = array_merge(array('application'), explode(DS, $controller_path));
 		
 		$path = '';
-		
+
 		foreach ( $controllers as $controller ) {
 		
 			$class = $controller . '_controller';
 			$controller_path = CONTROLLERS_PATH . $path . $class . '.php';
 			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
-			
+	
 			try {
 			
 				if ( $class == '_controller' ) {

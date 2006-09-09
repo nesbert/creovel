@@ -61,6 +61,7 @@ class model implements Iterator {
 	* @author John Faircloth
 	* @access private
 	* @var object
+	* print_r($this->vacation);
 	*/
     protected $_primary_key = 'id';
 	
@@ -175,7 +176,7 @@ class model implements Iterator {
 	
 	private function _class()
 	{
-		return str_replace('_model', '', get_class($this));			
+		return get_class($this);			
 	}
 	
 	/**
@@ -304,12 +305,12 @@ class model implements Iterator {
 	
 	public function save()
 	{
+		$this->before_save();
+
 		// validate model on every save
 		$this->validate();
 		// if error return false		
 		if ( $this->errors->has_errors() ) return false;
-		
-		$this->before_save();
 		
 		if ( $key = $this->key() ) {
 		
@@ -496,7 +497,9 @@ class model implements Iterator {
 			$where = "{$this->_primary_key} = '{$this->$property}' LIMIT 1";
 		}
 		
+		$this->before_delete();
 		$this->_action_query->query("DELETE FROM {$this->_table_name} WHERE $where");
+		$this->after_delete();
 		
 		return $this->_action_query->row_count;
 	}
@@ -1121,8 +1124,8 @@ class model implements Iterator {
 			$model_name = $this->_links[$name]['options']['class_name'];
 			
 		} else {
-		
-			$model_name = singularize($name) . '_model';
+
+			$model_name = singularize($name);
 		
 		}
 		
@@ -1132,7 +1135,7 @@ class model implements Iterator {
 		if (!$this->_links[$name]['options']['foreign_key']) {
 			$this->_links[$name]['options']['foreign_key'] = $this->_class() . '_id';
 		}		
-			
+
 		if ($this->get_id()) {
 			
 			switch($this->_links[$name]['type']) {
@@ -1155,26 +1158,34 @@ class model implements Iterator {
 				*/
 					break;
 				case 'has_one':
-				
 					if ($args['where']) {
 						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "' and (" . $args['where'] . ")" ; 
 					} else {
-						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key();
+						$args['where'] = ' ' . $this->_links[$name]['options']['foreign_key'] . " = '" . $this->key() . "'";
 					}
+
 					$model_obj->find_first($args);
+					
+					if ($model_obj->_select_query->row_count == 0) $model_obj = false;
+
 					break;
 				
+			}
+
+		} else {
+
+			switch($this->_links[$name]['type'])
+			{
 				case 'belongs_to':
-					/*$function = 'get_' . $this->links[$name]['link_field'];
-					if ($this->links[$name]['link_field']) {
-						$args['conditions'] .= " id = '" . $this->$function() . "' "; 
+					$function = 'get_'.$this->_links[$name]['foreign_key'];
+					if ($this->_links[$name]['foreign_key']) {
+						$args['conditions'] .= " id = '".$this->$function()."' "; 
 					}
 					$model_obj->find_first($args);
-					*/
 					break;
-			
 			}
-		} 
+
+		}
 				
 		$this->_links[$name]['object'] = $model_obj;
 		$this->_links[$name]['linked_to'] = $this->key();
@@ -1200,8 +1211,16 @@ class model implements Iterator {
 		switch ( $method ) {
 		
 			case 'validates_uniqueness_of':
+			
+				if ($args[3]) {
+					$where_ext = $args[3];	
+				} else {
+					$where_ext = '1';	
+				}
 				// check if a column with that value exists in the current table and is not the currentlly loaded row
-				$this->_action_query->query("SELECT * FROM {$this->_table_name} WHERE {$args[0]} = '{$args[1]}' AND {$this->_primary_key} != '{$this->id}'");
+				$this->_action_query->query("SELECT * FROM {$this->_table_name} WHERE {$args[0]} = '{$args[1]}' AND {$this->_primary_key} != '{$this->id}' and (".$where_ext.")");
+
+
 				// if record found add error
 				if ( $this->_action_query->row_count ) {
 					$this->errors->add($args[0], ( $args[2] ? $args[2] : humanize($args[0]).' is not unique.' ));
@@ -1323,6 +1342,8 @@ class model implements Iterator {
 	public function before_save() {}
 	public function before_create() {}
 	public function after_save() {}
+	public function before_delete() {}
+	public function after_delete() {}
 	public function validate() {}
 	public function validate_on_create() {}
 	public function validate_on_update() {}	

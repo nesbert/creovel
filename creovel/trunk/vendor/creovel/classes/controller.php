@@ -268,8 +268,7 @@ class controller
 			break;
 			
 			default:
-				//print_obj($options, 1);
-				$_ENV['error']->add("Unable to render 'view'. File not found <strong>{$view_path}</strong>.");
+				$_ENV['error']->add("Unable to render '".( $view{0} == '_' ? 'partial' : 'view' )."'. File not found <strong>{$view_path}</strong>.");
 			break;
 			
 		}
@@ -334,7 +333,7 @@ class controller
 	/**
 	 * Allows the ability build a controller within a controller
 	 *
-	 * @author John Faircloth, Nesber Hidalgo
+	 * @author John Faircloth, Nesbert Hidalgo
 	 * @access public
 	 * @param string $controller
 	 * @param string $action optional
@@ -354,7 +353,7 @@ class controller
 	/**
 	 * Alias to build_controller return controller as a string
 	 *
-	 * @author Nesber Hidalgo
+	 * @author Nesbert Hidalgo
 	 * @access public
 	 * @param string $controller
 	 * @param string $action optional
@@ -385,6 +384,17 @@ class controller
 			$_ENV['error']->add($e->getMessage(), $e);
 		
 		}		
+	}
+
+	/**
+	 * Is Posted
+	 *
+	 * @author Russ Smith
+	 * @access public 
+	 */
+	public function is_posted()
+	{
+		return (empty($_POST)) ? false : true;
 	}
 	
 	/**

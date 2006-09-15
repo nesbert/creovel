@@ -228,7 +228,7 @@ function create_input_tag($type, $name, $value = null, $html_options = null, $on
 		$prepend_text = $text[0] ? label($id, $text[0]) : null;
 		$append_text = $text[1] ? label($id, $text[1]) : null;
 	}
-	return error_check($name, $prepend_text.' <input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.html_options_str($html_options).' /> '.$append_text);
+	return error_check($name, $prepend_text.' <input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.html_options_str($html_options).' /> ' .$append_text."\n");
 	
 }
 

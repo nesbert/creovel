@@ -175,4 +175,35 @@ function create_sortable_list($id_of_container, $list_tag = null) {
 	
 }
 
+
+/**
+ * Creates draggable popup.
+ *
+ * </code>
+ *	<?=create_popup('popup_id', 'Popup')?>
+ * </code>
+ *
+ * Note:
+ * None
+ *	
+ * @param string $element_id required
+ * @param int $title optional default value is Popup
+ */
+
+function create_popup($element_id, $title = 'Popup') {
+	?>
+<div class="popup" id="<?=$element_id?>_container" style="position:absolute; display:none;">
+
+	<div class="title_bar" id="<?=$element_id?>_title_bar">
+		<div class="title"><?=$title?></div>
+		<div class="buttons"><a class="close" href="javascript: hidePopUp();"><span>Close Window</span></a></div>
+	</div>
+	
+	<div class="body" id="<?=$element_id?>"></div>
+	<div class="bottom"></div>
+	
+</div>
+	<?	
+}
+
 ?>

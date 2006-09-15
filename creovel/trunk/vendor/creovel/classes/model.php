@@ -301,7 +301,11 @@ class model implements Iterator {
 		return $fields;
 		
 	}
-	
+
+	public function update_field($name, $value)
+	{
+		$this->update(array( 'id' => $this->key(), $name => $value ));
+	}
 	
 	public function save()
 	{
@@ -422,7 +426,7 @@ class model implements Iterator {
 		 
 	}
 	
-	public function update($data, $where) {
+	public function update($data) {
 		
 		$qry = "UPDATE {$this->_table_name} SET ";
 		
@@ -477,7 +481,7 @@ class model implements Iterator {
 
 			
 		}
-		
+
 		$qry = substr($qry, 0, -2) ;
 		$key = $data[$this->_primary_key];
 		$qry .= " WHERE {$this->_primary_key} = '{$key}'";
@@ -877,7 +881,7 @@ class model implements Iterator {
 	
 				case preg_match('/^find_by_(.+)$/', $method, $regs):
 					$args['where'] = $this->_conditions_str_from_method($method, $arguments);
-					$args['limit'] = 1;
+					//$args['limit'] = 1;
 					$this->find($args);
 					break;
 	
@@ -1168,6 +1172,14 @@ class model implements Iterator {
 					
 					if ($model_obj->_select_query->row_count == 0) $model_obj = false;
 
+					break;
+
+				case 'belongs_to':
+					$function = 'get_'.$this->_links[$name]['foreign_key'];
+					if ($this->_links[$name]['foreign_key']) {
+						$args['conditions'] .= " id = '".$this->$function()."' "; 
+					}
+					$model_obj->find_first($args);
 					break;
 				
 			}

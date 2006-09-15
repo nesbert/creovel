@@ -420,5 +420,17 @@ class controller
 		$this->render = $action;
 	}
 	
+	/**
+	 * Don't render layout or view. Usefull for ajax calls.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public 
+	 */
+	public function no_view()
+	{
+		$this->layout = false;
+		$this->render = false;		
+	}
+	
 }
 ?>

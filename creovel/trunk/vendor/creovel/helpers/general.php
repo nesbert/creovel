@@ -285,4 +285,17 @@ function strip_slashes($data) {
 	
 }
 
+/*
+ * String replaces a string using array_key with array_val
+ *
+ * @author Nesbert Hidalgo
+ * @param string $str
+ * @param array $array associative array
+ * @return string
+ */
+function str_replace_array($str, $array)
+{
+	return str_replace(array_keys($array), array_values($array), $str);
+}
+
 ?>

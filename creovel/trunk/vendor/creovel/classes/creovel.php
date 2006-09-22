@@ -88,7 +88,8 @@ class creovel
 	public function get_events($event_to_return = null)
 	{
 		// read URI which was given in order to access this page, remove any trailing forward slashes
-		$uri = explode('?', ( $_SERVER['REQUEST_URI']{strlen($_SERVER['REQUEST_URI']) - 1} == '/' ? substr($_SERVER['REQUEST_URI'], 0, strlen($_SERVER['REQUEST_URI']) - 1) : $_SERVER['REQUEST_URI'] ));
+		$uri = $uri ? $uri : $_SERVER['REQUEST_URI'];
+		$uri = explode('?', ( $uri{strlen($uri) - 1} == '/' ? substr($uri, 0, strlen($uri) - 1) : $uri ));
 
 		if (isset($_ENV['routes'][$uri[0]])) header('Location: '.$_ENV['routes'][$uri[0]]);
 
@@ -112,7 +113,7 @@ class creovel
 				foreach ( $args as $key => $arg ) {
 					if ( $arg == $events['controller'] ) {
 						$events['action'] = $args[ $key + 1 ];
-						$_ENV['param_id'] = $args[ $key + 2 ];
+						$id = $args[ $key + 2 ];
 						break;					
 					}
 				}
@@ -121,7 +122,7 @@ class creovel
 			case ( count($args) > 2 ):
 				$events['controller'] =  $args[ count($args) - 3 ];
 				$events['action'] = $args[ count($args) - 2 ];
-				$_ENV['param_id'] = $args[ count($args) - 1 ];
+				$id = $args[ count($args) - 1 ];
 			break;
 			
 			default:
@@ -129,6 +130,11 @@ class creovel
 				$events['action'] = $args[1];
 			break;
 			
+		}
+		
+		// return id only
+		if ( $event_to_return == 'id' ) {
+			return $id;
 		}
 		
 		// set controller & action
@@ -149,7 +155,7 @@ class creovel
 	public function get_params($param_to_return = null)
 	{
 		// intialize params	
-		$params = $_ENV['param_id'] ? array('id'=>$_ENV['param_id']) : array();
+		$params = ( $id = self::get_events('id') ) ? array('id'=>$id) : array();
 			
 		$requests = array($_GET, $_POST);
 	

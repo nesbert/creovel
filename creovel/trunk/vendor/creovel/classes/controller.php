@@ -344,7 +344,7 @@ class controller
 	 */
 	public function build_controller($controller, $action = '', $id = '', $extras = array(), $to_str = false)
 	{
-		$events = array('controller'=>$controller, 'action'=>$action);
+		$events = creovel::get_events(null, url_for($controller, $action, $id));
 		$params = array();		
 		if ( $id ) $params['id'] = $id;
 		return creovel::run($events, array_merge($params, $extras), $to_str);
@@ -387,17 +387,6 @@ class controller
 	}
 
 	/**
-	 * Is Posted
-	 *
-	 * @author Russ Smith
-	 * @access public 
-	 */
-	public function is_posted()
-	{
-		return (empty($_POST)) ? false : true;
-	}
-	
-	/**
 	 * Callback functions
 	 *
 	 * @author Nesbert Hidalgo
@@ -432,5 +421,16 @@ class controller
 		$this->render = false;		
 	}
 	
+	/**
+	 * Is Posted
+	 *
+	 * @author Russ Smith
+	 * @access public 
+	 */
+	public function is_posted()
+	{
+		return (empty($_POST)) ? false : true;
+	}
+
 }
 ?>

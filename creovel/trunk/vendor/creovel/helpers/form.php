@@ -219,7 +219,6 @@ function name_to_id($name) {
  
 function create_input_tag($type, $name, $value = null, $html_options = null, $on_value = null, $text = null) {
 
-	if ( $value === $on_value ) $html_options['checked'] = 'checked';
 	$id = name_to_id($name).( $type == 'radio' || $type == 'checkbox' ? '_'.str_replace(' ', '', $value) : '' );
 	
 	if (is_string($text)) {
@@ -293,6 +292,7 @@ function password_field($name, $value = '', $html_options = null, $text = null) 
 
 function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null) {
 
+	if ( $value == $on_value ) $html_options['checked'] = 'checked';
 	return create_input_tag('radio', $name, $value, $html_options, $on_value, $text);
 
 }
@@ -310,6 +310,7 @@ function radio_button($name, $value = '', $html_options = null, $on_value = null
 
 function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null) {
 
+	if ( $value == $on_value ) $html_options['checked'] = 'checked';
 	return create_input_tag('checkbox', $name, $value, $html_options, $on_value, $text);
 
 }

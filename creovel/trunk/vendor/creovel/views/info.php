@@ -25,8 +25,30 @@
 
 <table cellspacing="0" class="block">
 <tr><td class="sub">Release Date</td><td><?=get_release_date()?></td></tr>
-<tr><td class="sub">Registered Adapters</td><td>coming soon...</td></tr>
-<tr><td class="sub">Registered Services</td><td>coming soon...</td></tr>
+<tr>
+	<td class="sub">Registered Adapters</td>
+	<td>
+		<em>
+		<? if ( $adapters = get_creovel_adapters() ) foreach ( $adapters as $name => $file) { ?>
+		<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$file?>"><?=$name?></a>
+		<? } else { ?>
+		Not Available
+		<? } ?>
+		</em>
+	</td>
+</tr>
+<tr>
+	<td class="sub">Registered Services</td>
+	<td>
+		<em>
+		<? if ( $services = get_creovel_services() ) foreach ( $services as $name => $file) { ?>
+		<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$file?>"><?=$name?></a>
+		<? } else { ?>
+		Not Available
+		<? } ?>
+		</em>
+	</td>
+</tr>
 </table>
 
 

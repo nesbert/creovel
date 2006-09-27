@@ -218,4 +218,52 @@ function application_error($message, $thow_exception = false)
 	$_ENV['error']->add($message, $e);
 }
 
+/**
+ * Gets a directories files in a directory by file type. Returns an
+ * associative array with the file_name as key and file_path as value.
+ *
+ * @author Nesbert Hidalgo
+ * @access public
+ * @param string $dir_path required
+ * @param string $file_type optional default set to 'php'
+ * @return object
+ */
+function get_files_from_dir($dir_path, $file_type = 'php')
+{
+	$files = array();
+	if ( $handle = opendir($dir_path) ) {
+	   while ( false !== ($file = readdir($handle)) ) {
+		   if ( strstr($file, '.'.$file_type) ) {
+			   $files[substr($file, 0, -4)] = $dir_path.DS.$file;
+		   }
+	   }
+	   closedir($handle);
+	}
+	return $files;
+}
+
+/**
+ * Returns an array of the adapters available to the framework.
+ *
+ * @author Nesbert Hidalgo
+ * @access public 
+ * @return array
+ */	
+function get_creovel_adapters()
+{
+	return get_files_from_dir(CREOVEL_PATH.'adapters');
+}
+
+/**
+ * Returns an array of the services available to the framework.
+ *
+ * @author Nesbert Hidalgo
+ * @access public 
+ * @return array
+ */	
+function get_creovel_services()
+{
+	return get_files_from_dir(CREOVEL_PATH.'services');
+}
+
 ?>

@@ -43,13 +43,18 @@ $_ENV['production']['database']		= '';
 $_ENV['production']['username']		= '';
 $_ENV['production']['password']		= '';
 
-// set session handler
-$_ENV['sessions'] = false; // false, true, 'table'
-
-// default routing: controller, action, layout
+// set default routing: controller, action, layout
 $_ENV['routes']['default']['controller']	= 'index';
 $_ENV['routes']['default']['action'] 		= 'index';
 $_ENV['routes']['default']['layout']		= 'default';
+
+// set error routing: controller, action, layout
+$_ENV['routes']['error']['controller'] 		= 'index';
+$_ENV['routes']['error']['action'] 			= 'error';
+$_ENV['routes']['error']['layout'] 			= 'default';
+
+// set session handler
+$_ENV['sessions'] = false; // false, true, 'table'
 
 // define application urls
 define(BASE_URL, 			'http'.( getenv('HTTPS') == 'on' ? 's' : '' ).'://'.getenv('HTTP_HOST'));

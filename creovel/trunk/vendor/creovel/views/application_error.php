@@ -47,8 +47,10 @@ foreach ( $this->traces as $trace ) {
 </ul>
 <? } ?>
 
+<? if ( $_ENV['mode'] == 'development' ) { ?>
 <p><a href="javascript:void(0);" onclick="var obj = document.getElementById('creoinfo'); if (obj.style.display='none') obj.style.display=''; this.style.display='none';">More info...</a></p>
 
 <div id="creoinfo" style="display:none;">
 <? include(dirname(__FILE__).DS.'info.php') ?>
 </div>
+<? } ?>

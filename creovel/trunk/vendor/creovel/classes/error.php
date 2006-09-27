@@ -149,8 +149,19 @@ class error
 	 */
 	private function handle_error()
 	{
-		if ( $_ENV['mode'] !== 'development' ) {
-			die('redirect 500 page!');
+		if ( $_ENV['mode'] != 'development' ) {
+			switch ( true )
+			{
+				// if routes error set show this error page else show creovel error
+				case ( is_array($_ENV['routes']['error']) ):
+					view::_show_view(VIEWS_PATH.( $_ENV['routes']['error']['controller'] ? $_ENV['routes']['error']['controller'] : ( $_ENV['routes']['default']['controller'] ? $_ENV['routes']['default']['controller'] : 'index' ) ).DS.( $_ENV['routes']['error']['action'] ? $_ENV['routes']['error']['action'] : 'error' ).'.php', VIEWS_PATH.'layouts'.DS.( $_ENV['routes']['error']['layout'] ? $_ENV['routes']['error']['layout'] : ( $_ENV['routes']['default']['layout'] ? $_ENV['routes']['default']['layout'] : 'default' ) ).'.php');
+					die;
+				break;
+				
+				default:
+					return true;
+				break;
+			}
 		} else {
 			return true;
 		}

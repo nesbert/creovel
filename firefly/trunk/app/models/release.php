@@ -1,0 +1,7 @@
+<?
+
+class release extends model
+{
+}
+
+?>

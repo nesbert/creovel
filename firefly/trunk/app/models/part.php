@@ -1,0 +1,7 @@
+<?
+
+class part extends model
+{
+}
+
+?>

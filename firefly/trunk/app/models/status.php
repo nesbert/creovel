@@ -1,0 +1,7 @@
+<?
+
+class status extends model
+{
+}
+
+?>

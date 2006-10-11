@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?
+
+require dirname(__FILE__).'/../config/environment.php';
+
+if (!$_SERVER['argv'][1]) die("You must provide an environment to use.\n");
+
+echo "Dumping '{$_SERVER['argv'][1]}' database ...\n";
+
+exec("mysqldump --no-data --databases {$_ENV[$_SERVER['argv'][1]]['database']} -u{$_ENV[$_SERVER['argv'][1]]['username']} -p{$_ENV[$_SERVER['argv'][1]]['password']} > ".dirname(__FILE__)."/../db/{$_SERVER['argv'][1]}.sql");
+
+?>

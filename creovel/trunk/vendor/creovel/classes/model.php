@@ -1358,7 +1358,39 @@ class model implements Iterator {
 	public function after_delete() {}
 	public function validate() {}
 	public function validate_on_create() {}
-	public function validate_on_update() {}	
+	public function validate_on_update() {}
+	
+    /**
+     * Validate model object.
+     *
+     * @author Nesbert Hidalgo
+     * @return bool
+     */
+    public function is_valid()
+    {
+        // validate model on every save
+        $this->validate();
+        
+        // if error return false        
+        if ( $this->errors->has_errors() ) {
+            return false;
+        } else {
+            return true;
+        }    
+    }
+
+    /**
+     * Check if a table exits in the current database.
+     *
+     * @author Nesbert Hidalgo
+     * @author string $table_name required
+     * @return bool
+     */
+    public function table_exits($table_name)
+    {
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->table_exits($table_name);
+    }
 
 }
 ?>

@@ -19,14 +19,15 @@
  * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
  */
 
-/*
- * Google Maps Service Version 2 (4/8/2006)
+/**
+ * Google Maps Service Version 2
  *
  * @copyright	Copyright (c) 2005-2006, creovel.org
  * @package		creovel
  * @subpackage	services
  * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
  * @author		Nesbert Hidalgo
+ * @version		2 (4/8/2006)
  */
 class google_maps
 {

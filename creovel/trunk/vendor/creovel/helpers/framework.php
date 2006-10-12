@@ -74,12 +74,24 @@ function __autoload($class)
 
 	try {
 	
-		if ( file_exists($path) ) {			
-			require_once($path);
-		} else {
-			if ( $type == 'Model' ) $class = singularize($class);
-			throw new Exception("{$type} '{$class}' not found in <strong>{$path}</strong>");
-		}
+        switch ( true )
+        {
+        
+            case ( file_exists($path) ):
+                require_once($path);
+            break;
+            
+            // create virtual class for models
+            case ( model::table_exits( pluralize($class) ) ):
+                eval('class ' . $class . ' extends model {}');
+            break;
+            
+            default:
+                if ( $type == 'Model' ) $class = singularize($class);
+                throw new Exception("{$type} '{$class}' not found in <strong>{$path}</strong>");
+            break;
+            
+        }
 	
 	} catch(Exception $e) {
 		

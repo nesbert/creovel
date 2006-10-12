@@ -1,9 +1,9 @@
 #!/usr/bin/env php
-<?
+<?php
 define(CREOVEL_PATH, dirname(dirname(__FILE__))."/vendor/creovel/");
 
 // include core libraries
-require_once(CREOVEL_PATH.'lib.php');
+require_once(CREOVEL_PATH.'initialize.php');
 
 echo "Starting, creovel ".get_version()." update...\n";
 

@@ -208,7 +208,6 @@ class lastRSS {
             }
 
             $result['items_count'] = $i;
- 			print_obj($result, 1);
 			
            return $result;
         }

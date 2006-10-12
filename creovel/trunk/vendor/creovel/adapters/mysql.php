@@ -90,6 +90,11 @@ class mysql implements adapter_interface
 	{
 		$this->table = $table;
 	}
+	
+	public function table_exits($table)
+    {
+        return mysql_query('DESCRIBE ' . $table) or false;
+    }
 		
 	public function get_fields_object()
 	{

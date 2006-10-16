@@ -6,7 +6,7 @@
 		<h1><a href="/milestones/view/<?= $milestone->id ?>">Milestone: <?= $milestone->name ?></a></h1>
 		<?= $this->textile->TextileThis($milestone->description) ?>
 		<div class="progress_bar">
-			<div class="text"><?= @($milestone->closed_tickets->row_count() / $milestone->tickets->row_count()) * 100 ?>%</div>
+			<div class="text"><?= ceil(@($milestone->closed_tickets->row_count() / $milestone->tickets->row_count()) * 100) ?>%</div>
 			<div class="progress" style="width: <?= @($milestone->closed_tickets->row_count() / $milestone->tickets->row_count()) * 100 ?>%;"></div>
 		</div>
 		<p class="grey">

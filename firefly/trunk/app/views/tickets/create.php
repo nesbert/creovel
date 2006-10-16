@@ -14,12 +14,12 @@
 		
 		<div class="required">
 			<?= $this->ticket->label_for_title('Title') ?>
-			<?= $this->ticket->text_field_for_title(array('class' => 'field', 'size' => 20, 'maxlength' => 16)) ?>
+			<?= $this->ticket->text_field_for_title(array('class' => 'field', 'size' => 20, 'maxlength' => 255)) ?>
 		</div>		
 
 		<div class="required">
 			<?= $this->ticket->label_for_author('Author') ?>
-			<?= $this->ticket->text_field_for_author(array('class' => 'field', 'size' => 20, 'maxlength' => 16)) ?>
+			<?= $this->ticket->text_field_for_author(array('class' => 'field', 'size' => 20, 'maxlength' => 255)) ?>
 		</div>		
 
 		<div class="required">

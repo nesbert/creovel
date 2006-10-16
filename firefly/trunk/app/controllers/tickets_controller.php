@@ -38,6 +38,8 @@ class tickets_controller extends application_controller
 			} else {
 				$where .= "status_id = {$this->status} AND ";
 			}
+		} else {
+			$where .= 'status_id = 1 AND ';
 		}
 
 		$in_queue = ($where == '') ? 'in_queue = 0' : 'in_queue = 0 AND ';

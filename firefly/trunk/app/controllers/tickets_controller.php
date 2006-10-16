@@ -4,6 +4,7 @@ class tickets_controller extends application_controller
 {
 	public function index()
 	{
+
 		$this->user = new user($_SESSION['user_id']);
 
 		$this->milestones = &new milestone();

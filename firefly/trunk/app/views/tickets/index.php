@@ -6,6 +6,7 @@
 		<th>Title</th>
 		<th>Milestone</th>
 		<th>Status</th>
+		<th>Assigned To</th>
 		<th>Severity</th>
 		<th>Part</th>
 		<th>Created At</th>
@@ -32,6 +33,7 @@
 			<td><?= $ticket->title ?></td>
 			<td><?= $ticket->milestone->name ?></td>
 			<td><?= ucwords($ticket->status->name) ?></td>
+			<td><?= $ticket->user->name ? $ticket->user->name : 'Unassigned' ?></td>
 			<td><?= $ticket->severity->name ?></td>
 			<td><?= $ticket->part->name ?></td>
 			<td align="right"><?= display_date($ticket->created_at) ?></td>
@@ -51,6 +53,7 @@
 			<th>Title</th>
 			<th>Milestone</th>
 			<th>Status</th>
+			<th>Assigned To</th>
 			<th>Severity</th>
 			<th>Part</th>
 			<th>Created At</th>
@@ -61,6 +64,7 @@
 				<td><?= $ticket->title ?></td>
 				<td><?= $ticket->milestone->name ?></td>
 				<td><?= ucwords($ticket->status->name) ?></td>
+				<td><?= $ticket->user->name ? $ticket->user->name : 'Unassigned' ?></td>
 				<td><?= $ticket->severity->name ?></td>
 				<td><?= $ticket->part->name ?></td>
 				<td align="right"><?= display_date($ticket->created_at) ?></td>

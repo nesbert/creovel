@@ -9,8 +9,10 @@ class ticket extends model
 		$this->belongs_to('part');
 		$this->belongs_to('severity');
 		$this->belongs_to('milestone');
+		$this->belongs_to('user');
 		$this->belongs_to('status', array( 'class_name' => 'status' ));
 		$this->has_many('comments');
+		
 	}
 }
 

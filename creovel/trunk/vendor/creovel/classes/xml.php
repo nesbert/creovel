@@ -29,6 +29,7 @@
  * @author		Nesbert Hidalgo
  * @version		0.1 (10/16/2006)
  * @todo		validate CDATA
+ *				might not need get_attributes()
  */
 class xml
 {
@@ -182,8 +183,11 @@ class xml
 				$elements[$index] = new element;
 				$elements[$index]->name = $tag['tag'];
 				$elements[$index]->cdata = trim($tag['value']);
-				$elements[$index]->attributes = $this->get_attributes($tag['attributes']);
 				
+				if ( $tag['attributes'] ) {
+					$elements[$index]->attributes = (object) $tag['attributes'];
+				}
+								
 				if ( $tag['type'] == 'open' ) {  // push
 					$elements[$index]->children = array();
 					$stack[count($stack)] = &$elements;

@@ -242,16 +242,18 @@ class mailer {
 	}
 	
 	/**
-	 * Get text verison of message and remove all html tags from a string
-	 * 
+	 * Get text verison of message and remove all html tags from a string. it also replaces links
+	 * with a text friendly link.
+	 *
 	 * @author Nesbert Hidalgo
 	 * @access private
-	 * @param string $str required
 	 * @return string
 	 */
 	private function _get_text()
 	{
-		return strip_tags( $this->text ? $this->text : $this->_get_view() );
+		$return = $this->text ? $this->text : $this->_get_view();
+		$return = preg_replace('/<a(.*?)href="(.*?)"(.*?)>(.*?)<\\/a>/i', '$4 ($2)', $return);
+		return strip_tags( $return );
 	}
 	
 	/**

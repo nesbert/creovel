@@ -265,6 +265,10 @@ class rss implements Iterator
 		 */
 	public function load($url)
 	{
+		$xml = new xml; 
+		print_obj($xml);
+		print_obj($this, 1);
+		
 		require_once(CREOVEL_PATH.'vendor/lastRSS.php');
 		
 		// create lastRSS object

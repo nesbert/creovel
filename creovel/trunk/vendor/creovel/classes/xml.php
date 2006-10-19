@@ -30,6 +30,7 @@
  * @version		0.1 (10/16/2006)
  * @todo		validate CDATA
  *				might not need get_attributes()
+ *				mapper -> xml to array -> easier interface/view
  */
 class xml
 {
@@ -93,8 +94,11 @@ class xml
 	 */	
 	public function file()
 	{
-		header('Content-Type: application/xml');
-		die($this->to_str());
+		header("Connection: close");
+		header("Content-Length: " . strlen( $output = $this->to_str() ));
+		header("Content-Type: application/xml");
+		header("Date: " . date("r"));
+		die($output);
 	}
 	
 	/**

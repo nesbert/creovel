@@ -35,11 +35,11 @@
 class xml
 {
 
-	public $version			= '1.0';
-	public $encoding		= 'ISO-8859-1';
-	public $data;
+	public $version			= '1.0'; // XML version
+	public $encoding		= 'ISO-8859-1'; // file encoding
+	public $data			= ''; // Data object of XML structure
 	
-	private $parser;
+	private $parser			= ''; // PHP xml_parser_create()
 	
 	/**
 	 * Initialize class and set data property.
@@ -62,15 +62,22 @@ class xml
 	 * @return object
 	 */
 	public function load($xml_file)
-	{
+	{	
 		if ( is_string($xml_file) ) {
 			// load xml file
 			$data = file_get_contents($xml_file);
+			$error = "Unable to load XML data. File not found <strong>{$xml_file}</strong>";
 		} else {
 			// create xml from array and load xml file
 			$data = $this->array_to_xml($xml_file);
+			$error = 'XML structure not valid.';
 		}
-		return $this->data->children = $this->parse($data);
+		
+		if ($data) {
+			return $this->data->children = $this->parse($data);
+		} else {
+			application_error($error);
+		}	
 	}
 	
 	/**

@@ -28,19 +28,22 @@
  * @subpackage	classes
  * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
  * @author		Nesbert Hidalgo
- * @version		0.1 (10/2/2006)
- * @todo		need a write a base XML class (builder, parser)
- *				add support for RSS 0.91, 0.92 and 2.0 versions
- *				right own RSS parser lastRSS does not handle complex feeds
+ * @version		0.2 (10/19/2006)	
+ *				0.1 (10/2/2006)
+ * @todo		(Done on 10/16/2006) need a write a base XML class (builder, parser)
+ *				add support for RSS 0.91, 0.92 and x2.0x versions
+ *				(Done on 10/19/2006) right own RSS parser lastRSS does not handle complex feeds
+ *				Use XML classes to build feed
+ *				Add caching
  */
 class rss implements Iterator
 {
 
 	public $encoding		= "utf-8";
+	public $version			= '2.0';
 	public $title			= "RSS Syndication Title"; // The name of the channel. It's how people refer to your service. If you have an HTML website that contains the same information as your RSS file, the title of your channel should be the same as the title of your website.
 	public $link			= BASE_URL; // The URL to the HTML website corresponding to the channel.
 	public $description		= "Description of your syndication.";
-
 	public $language		= "en-us"; // The language the channel is written in. This allows aggregators to group all Italian language sites, for example, on a single page. A list of allowable values for this element, as provided by Netscape, is here. You may also use values defined by the W3C(http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes).
 	
 	/*
@@ -61,9 +64,10 @@ class rss implements Iterator
 	public $skipDays		= ""; // A hint for aggregators telling them which days they can skip.
 	*/
 	
+	public $items_as_array	= false; // Return each item as an Array or Object.
 	public $items			= array(); // an array of items for this syndication.
 	
-	private $version		= 2.0;
+	private $xml;
 	
 	/**
 	 * Description.
@@ -75,15 +79,42 @@ class rss implements Iterator
 	 */
 	public function initialize()
 	{
+		if ( !is_object($this->xml) ) $this->xml = new xml;
+		$this->xml->encoding = $this->encoding;
 	}
 	
 	/**
-	 * Description.
+	 * Loads RSS feed into class.
 	 *
 	 * @author Nesbert Hidalgo
 	 * @access public
-	 * @param bool $var required
-	 * @return object
+	 */
+	public function load($url)
+	{
+		$this->initialize();
+		
+		// load feed to xml parser
+		$this->xml->load($url);
+		
+		// set rss version and map xml data to rss
+		switch ( $this->version = $this->xml->data->children->attributes->version )
+		{
+			case 2:
+				$this->map_rss20();
+			break;
+			
+			default:
+				application_error("RSS {$this->version} version currently not supported!");
+			break;
+		}
+	}
+	
+	/**
+	 * Add an item to $items property.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param object $data required
 	 */
 	public function add_item($data)
 	{
@@ -256,41 +287,7 @@ class rss implements Iterator
 		header('Content-Type: application/xml');
 		die($this->create_file());
 	}
-	
-	/**
-	 * Loads RSS feed into class.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-		 */
-	public function load($url)
-	{
-		$xml = new xml; 
-		print_obj($xml);
-		print_obj($this, 1);
 		
-		require_once(CREOVEL_PATH.'vendor/lastRSS.php');
-		
-		// create lastRSS object
-		$rss = new lastRSS; 
-		
-		// setup transparent cache
-		/*
-		$rss->cache_dir = './cache'; 
-		$rss->cache_time = 3600; // one hour
-		*/
-		
-		// load some RSS file
-		if ( $rs = $rss->get($url) ) {
-			// here we can work with RSS fields
-			foreach ( $rs as $tag => $value ) {
-				$this->$tag = $value;
-			}
-		} else {
-			die ('Error: RSS file not found...');
-		}	
-	}
-	
 	public function rewind()
 	{
 		reset($this->items);
@@ -299,7 +296,7 @@ class rss implements Iterator
 	public function current()
 	{
 		if ( $var = current($this->items) ) {
-			return (object) $var;
+			return $var;
 		} else {
 			return false;
 		}
@@ -320,5 +317,43 @@ class rss implements Iterator
 		return $this->current() !== false;
 	}
 	
+	/**
+	 * Map XML data to RSS 2.0 structure.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access private
+	 */
+	private function map_rss20()
+	{
+		foreach ( $this->xml->data->children->children[0]->children as $element ) {
+			// load items else load properties
+			if ( $element->name == 'item' ) {
+				(object) $item = null;
+				foreach ( $element->children as $elm ) {
+					$property = $elm->name;
+					// handle nested item elements
+					if ( !$elm->cdata && is_array($elm->children) ) {
+						foreach ( $elm->children as $child ) {
+							$child_name = $child->name;
+							$item->$property->$child_name = $child->cdata;
+						}
+						if ( $this->items_as_array ) {
+							$item->$property = (array) $item->$property;
+						}
+					} else {						
+						$item->$property = $elm->cdata;
+					}					
+				}
+				if ( $this->items_as_array ) {
+					$item = (array) $item;
+				}
+				// load item to class				
+				$this->add_item($item);
+			} else {
+				$property = $element->name;
+				$this->$property = $element->cdata;
+			}
+		}
+	}
 }
 ?>

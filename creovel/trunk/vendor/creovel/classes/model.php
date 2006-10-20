@@ -1270,7 +1270,7 @@ class model implements Iterator {
 		
 		// if no "AND" or "OR" return single column sql
 		if ( !strstr($method, '_and_') && !strstr($method, '_or_') ) {
-			return  "{$method} = '{$args[0]}'";
+			return $this->_conditions_str_helper($method, $args[0]);
 		}
 		
 		// hande "OR" and create/return sql string
@@ -1283,16 +1283,16 @@ class model implements Iterator {
 					$ands = explode('_and_', $or);
 					$return .= '(';
 					foreach ( $ands as $field ) {
-						$return .= "{$field} = '{$args[$args_index]}' AND ";
+						$return .= $this->_conditions_str_helper($field, $args[$args_index], ' AND ');
 						$args_index++;			
 					}
 					$return = substr($return, 0, -4).')';
 				} else {
-					$return .= "{$or} = '{$args[$args_index]}'";
+					$return .= $this->_conditions_str_helper($or, $args[$args_index]);
 					$args_index++;			
 				}
 				
-				// and or if not last $or
+				// and or if not last $or 
 				if ( count($ors) != $or_count ) $return .= ' OR ';
 				$or_count++;		
 			}
@@ -1309,7 +1309,7 @@ class model implements Iterator {
 		if ( strstr($method, '_and_') ) {
 			$ands = explode('_and_', $method);
 			foreach ( $ands as $field ) {
-				$return .= "{$field} = '{$args[$args_index]}' AND ";
+				$return .= $this->_conditions_str_helper($field, $args[$args_index], ' AND ');
 				$args_index++;			
 			}
 			$return = substr($return, 0, -4);
@@ -1318,7 +1318,40 @@ class model implements Iterator {
 		return $return;
 	
 	}
-
+	
+	/**
+	* Helps creates SQL conditon string.
+	*
+	* @author Nesbert Hidalgo
+	* @access private
+	* @param string $field required
+	* @param string $value required
+	* @param string $append optional
+	* @return string
+	*/
+	private function _conditions_str_helper($field, $value, $append = '')
+	{
+		$return = '';
+		switch ( true )
+		{
+			
+			case ( strstr($field, '_like') ):
+				if ( !strstr($value, '%') ) $value = '%' . $value . '%';
+				$return = str_replace('_like', '', $field) . " LIKE '{$value}'";
+			break;
+			
+			case ( strstr($field, '_not') ):
+				$return = str_replace('_not', '', $field) . " != '{$value}'";
+			break;
+			
+			default:
+				$return = "{$field} = '{$value}'";
+			break;
+			
+		}
+		return $return . $append;
+	}
+	
 	/**
 	 * Alias to find and set the $page object. default page limit is 10 records
 	 *

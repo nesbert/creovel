@@ -86,7 +86,7 @@ class controller
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
 		if (!$this->render) $this->render = $events['action'];
-		if (!$this->layout) $this->layout = $_ENV['routes']['default']['layout'];		
+		if (!$this->layout) $this->layout = $_ENV['routes']['default']['layout'];
 		if ( count($events['nested_controllers']) ) {
 			$this->_nested_controller_path = str_replace($this->_controller, '', implode(DS, $events['nested_controllers']));
 		}
@@ -156,7 +156,7 @@ class controller
 		$options['layout'] = $this->layout;
 		$options['render'] = $this->render;
 		$options['text'] = $this->render_text;
-		return $this->render($options);		
+		return $this->render($options);
 	}
 	
 	/**
@@ -176,7 +176,7 @@ class controller
 			if ( file_exists($view_path) ) {
 				return $view_path;			
 			} else {
-				return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';			
+				return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
 			}		
 		} else {
 			return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
@@ -252,7 +252,7 @@ class controller
 			// if layout get page content with layout
 			case ( $layout ):
 				if ( $return_as_str ) {
-					return view::_get_view($view_path, $this->_get_layout_path($layout), $options);				
+					return view::_get_view($view_path, $this->_get_layout_path($layout), $options);
 				} else {
 					return view::_show_view($view_path, $this->_get_layout_path($layout), $options);
 				}
@@ -263,7 +263,7 @@ class controller
 				// create a variable foreach other option, using its key as the variable name
 				if ( count($options) ) foreach ( $options as $key => $values ) $$key = $values;
 				// include partial
-				include ( $view_path );				
+				include ( $view_path );
 				return;
 			break;
 			
@@ -326,7 +326,7 @@ class controller
 			$options['partial'] = $partial;
 		}
 		if ( $locals ) $options['locals'] = $locals;
-		if ( $controller ) $options['controller'] = $controller;		
+		if ( $controller ) $options['controller'] = $controller;
 		$this->render($options);
 	}
 	
@@ -383,7 +383,7 @@ class controller
 			// add to errors
 			$_ENV['error']->add($e->getMessage(), $e);
 		
-		}		
+		}
 	}
 
 	/**
@@ -405,8 +405,8 @@ class controller
 	 */
 	public function run($action)
 	{
-		$this->$action();
 		$this->render = $action;
+		$this->$action();
 	}
 	
 	/**
@@ -418,7 +418,7 @@ class controller
 	public function no_view()
 	{
 		$this->layout = false;
-		$this->render = false;		
+		$this->render = false;
 	}
 	
 	/**

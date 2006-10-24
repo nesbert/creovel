@@ -83,7 +83,7 @@ function __autoload($class)
             
             // create virtual class for models
             case ( model::table_exits( pluralize($class) ) ):
-                eval('class ' . $class . ' extends model { public $is_virtual = true; }');
+                eval('class ' . $class . ' extends model { private $_is_virtual = true; }');
             break;
             
             default:
@@ -95,7 +95,7 @@ function __autoload($class)
 	
 	} catch(Exception $e) {
 		
-		// add to errors				
+		// add to errors
 		$_ENV['error']->add($e->getMessage(), $e);
 		
 	}

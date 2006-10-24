@@ -74,7 +74,7 @@ class creovel
 		$controller->_execute_action();
 		
 		// output to user
-		return $controller->_output($return_as_str);		
+		return $controller->_output($return_as_str);
 	}
 	
 	/**
@@ -98,7 +98,7 @@ class creovel
 		
 		// check/set nested controllers
 		$path = '';
-		foreach ( $args as $arg ) {
+		if ( count($args) ) foreach ( $args as $arg ) {
 			if ( file_exists(CONTROLLERS_PATH.$path.$arg.'_controller.php') ) {
 				$events['nested_controllers'][] = $arg;
 			}
@@ -141,7 +141,7 @@ class creovel
 		$events['controller'] = $events['controller'] ? $events['controller'] : $_ENV['routes']['default']['controller'];
 		$events['action'] = $events['action'] ? $events['action'] : $_ENV['routes']['default']['action'];
 
-		return ( $event_to_return ? $events[$event_to_return] : $events );		
+		return ( $event_to_return ? $events[$event_to_return] : $events );
 	}
 	
 	/**
@@ -162,7 +162,7 @@ class creovel
 		// add each request add keys & values to $params
 		foreach ( $requests as $request ) {
 	
-			if ( count($request) === 0 ) continue;	
+			if ( count($request) === 0 ) continue;
 			foreach ( $request as $field => $value ) $params[$field] = $value;
 	
 		}
@@ -206,7 +206,7 @@ class creovel
 					$_ENV['error']->add("Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
 				}
 				
-				if ( file_exists($controller_path) ) {				
+				if ( file_exists($controller_path) ) {
 					require_once($controller_path);
 				} else {
 					$controller_path = str_replace($class . '.php', '', $controller_path);

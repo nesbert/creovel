@@ -27,7 +27,8 @@
  * @subpackage	services
  * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
  * @author		Nesbert Hidalgo
- * @version		2 (4/8/2006)
+ * @version		2.3 (10/24/2006)
+ *				2 (4/8/2006)
  */
 class google_maps
 {
@@ -44,14 +45,23 @@ class google_maps
 	public $type_control		= 'map';		// map type -> false, 'map', 'satellite', 'hybrid'
 	public $overview_control	= false;		// a collapsible overview map in the corner of the screen;
 	public $markers;							// array of markers
-	public $listeners;							// array of listeners
 	public $icons;								// array of icons
+	public $listeners;							// array of listeners
 	public $open_at;							// name of marker that will be opened on map load
 	
 	// private properties
 	private $key;								// Google Maps API Key
 	private $id;								// GMap object ID
 	
+	/**
+	 * Class construct. You have the option to pass the Google Maps API key and DOM ID when
+	 * initializing the class.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $key optional
+	 * @param string $id optional
+	 */
 	public function __construct($key = null, $id = null)
 	{
 		// set API key
@@ -63,17 +73,41 @@ class google_maps
 			$this->set_id('map_'.uniqid());
 		}
 	}
-
+	
+	/**
+	 * Set Google Maps API key. Required to use google maps.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $key required
+	 * @link http://www.google.com/apis/maps/signup.html
+	 */
 	public function set_key($key)
 	{
 		$this->key = $key;
 	}
 	
+	/**
+	 * Set DOM ID for map.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $id required
+	 */
 	public function set_id($id)
 	{
 		$this->id = $id;
 	}
 	
+	/**
+	 * Google Maps RUN-TIME. Creates javascript code and map ojects used by this class.
+	 * Outputs to screen where ever called.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $html_options optional
+	 * @return string
+	 */
 	public function display_map($html_options = null)
 	{
 		if ( !strstr($this->width, 'px') && !strstr($this->width, '%') ) $this->width .= 'px';
@@ -97,31 +131,32 @@ if ( GBrowserIsCompatible() ) {
 		
 		// properties
 		<?=$this->gmap()?>
-		<? if ( $this->auto_zoom ) echo "this.bounds = new GLatLngBounds();"; ?>
+		<? if ( $this->auto_zoom ) echo "this.bounds = new GLatLngBounds();\n"; ?>
 		
-		<? if ( count($this->icons) ) { ?>// icons
-		this.icons = new Object;
-		<? foreach ( $this->icons as $icon => $vals ) { echo $this->create_icon($vals['name'], $vals); } } ?>
-		<? if ( $this->controls ) { ?>
-		
+		<?
+			if ( count($this->icons) ) {
+				echo "// icons\n";
+				echo "\t\tthis.icons = new Object;\n";
+				foreach ( $this->icons as $icon => $vals ) echo $this->create_icon($vals['name'], $vals);
+			}
+		?>
 		// controls
-		<?=$this->add_control($this->get_controls())?>
-		<? if ( $this->scale_control ) echo $this->add_control('new GScaleControl()');?>
-		<? if ( $this->type_control ) echo $this->add_control('new GMapTypeControl()');?>
-		<? if ( $this->overview_control ) echo $this->add_control('new GOverviewMapControl()');?>
-		<? } ?>
+		<? if ( $this->controls ) echo $this->add_control($this->get_controls()); ?>
+		<? if ( $this->controls && $this->scale_control ) echo $this->add_control('new GScaleControl()'); ?>
+		<? if ( $this->controls && $this->type_control ) echo $this->add_control('new GMapTypeControl()'); ?>
+		<? if ( $this->overview_control ) echo $this->add_control('new GOverviewMapControl()'); ?>
 		
 		// center map
 		<?=$this->set_center($this->default_lat, $this->default_lng, $this->zoom, $this->get_map_type())?>
 		<?
 			if ( count($this->markers) ) {
-				echo "\n// markers\n";
-				echo "this.markers = new Object;\n";
+				echo "\n\t\t// markers\n";
+				echo "\t\tthis.markers = new Object;\n";
 				foreach ( $this->markers as $marker => $result ) echo $this->create_marker($result['name'], $result)."\n";
 			}
-			if ( ( $this->auto_zoom || $this->open_at ) && count($this->markers) ) echo "// extra work\n";
-			if ( $this->auto_zoom && count($this->markers) ) echo "this.map.autoZoom(this.bounds);\n";
-			if ( $this->open_at && count($this->markers) ) echo "this.map.openWindow(this.markers.{$this->open_at});\n";
+			if ( ( $this->auto_zoom || $this->open_at ) && count($this->markers) ) echo "\n\t\t// extra work\n";
+			if ( $this->auto_zoom && count($this->markers) ) echo "\t\tthis.map.autoZoom(this.bounds);\n";
+			if ( $this->open_at && count($this->markers) ) echo "\t\tthis.map.openWindow(this.markers.{$this->open_at});\n";
 		?>
 		
 	}
@@ -137,44 +172,123 @@ if ( GBrowserIsCompatible() ) {
 		<?
 	}
 	
+	/**
+	 * Create JavaScript include string for API.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @return string
+	 */
 	public function include_api()
 	{
 		static $return;
 		if ( !$return ) {
-			return $return = '<script src="http://maps.google.com/maps?file=api&v=2&key=' . $this->key . '" type="text/javascript"></script>'."\n";
+			return $return = '<script type="text/javascript" src="http://maps.google.com/maps?file=api&v=2&key=' . $this->key . '"></script>'."\n";
 		}
 	}
 	
+	/**
+	 * Create GMap2 object.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @return string
+	 */
 	public function gmap($container = null, $options = null)
 	{
 		$id = $container ? $container : $this->id;
 		return 'this.map = new GMap2(document.getElementById("' . $id . '"));'."\n";
 	}
 	
+	/**
+	 * Create GLatLng (geographical coordinates longitude and latitude) object.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $latitude required
+	 * @param string $longitude required
+	 * @return string
+	 */
 	public function glatlng($latitude, $longitude)
 	{
 		return 'new GLatLng(' . (float) $latitude . ', ' . (float) $longitude . ')';
 	}
 	
+	/**
+	 * Set center point of map.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $latitude required
+	 * @param string $longitude required
+	 * @param string $zoom optional default set to 4
+	 * @param string $map_type optional 'map', 'satellite', 'hybrid'
+	 * @return string
+	 */
 	public function set_center($latitude, $longitude, $zoom = 4, $map_type = null)
 	{
 		return 'this.map.setCenter(' . $this->glatlng($latitude, $longitude) . ', ' . (int) $zoom . ( $map_type ? ', ' . $map_type : '' ) . ");\n";
 	}
 	
+	/**
+	 * Pan map to a geographical coordinates longitude and latitude.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $latitude required
+	 * @param string $longitude required
+	 * @return string
+	 */
 	public function pan_to($latitude, $longitude)
 	{	
 		return 'this.map.panTo(' . $this->glatlng($latitude, $longitude) . ");\n";
 	}
 	
+	/**
+	 * Open info window for a marker.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $name required marker name
+	 * @return string
+	 */
+	public function open_window($name)
+	{
+		return "{$this->id}.map.openWindow(map.markers.{$name});";
+	}
+	
+	/**
+	 * Add a control to map.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $control required
+	 * @param string $position optional
+	 * @link http://www.google.com/apis/maps/documentation/reference.html#GControl
+	 * @return string
+	 */
 	public function add_control($control, $position = null)
 	{
 		return 'this.map.addControl('. $control .");\n";
 	}
 	
-
-	
+	/**
+	 * Create a GMarker object.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $name required
+	 * @param string/array $latitude required
+	 * @param string $longitude optional
+	 * @param string $icon optional
+	 * @param string $html_or_tabs optional
+	 * @param bool $onclick optional
+	 * @link http://www.google.com/apis/maps/documentation/reference.html#GMarker
+	 * @return string
+	 */	
 	public function create_marker($name, $latitude, $longitude = null, $icon = '', $html_or_tabs = '', $onclick = false)
 	{
+		// if $latitude is an array use its values instead.
 		if ( is_array($latitude) ) {
 			$icon = $latitude['icon'];
 			$html_or_tabs = ( $latitude['tabs'] ? $latitude['tabs'] : $latitude['html'] );
@@ -182,44 +296,56 @@ if ( GBrowserIsCompatible() ) {
 			$longitude = $latitude['longitude'];
 			$latitude = $latitude['latitude'];
 		}
-		$return = "this.latlng = {$this->glatlng($latitude, $longitude)};\n";
-		if ( $this->auto_zoom ) $return .= "this.bounds.extend(this.latlng);\n";
-		$return .= "this.markers.{$name} = this.map.createMarker(this.latlng" . ( $icon ? ', this.icons.' . $icon : '' ). ");\n";
-		switch ( true ) {
 		
+		// set GLatLng points
+		$return = "\t\tthis.latlng = {$this->glatlng($latitude, $longitude)};\n";
+		
+		// if auto_zoom set add marker location to bounds
+		if ( $this->auto_zoom ) $return .= "\t\tthis.bounds.extend(this.latlng);\n";
+		
+		// create marker object
+		$return .= "\t\tthis.markers.{$name} = this.map.createMarker(this.latlng" . ( $icon ? ', this.icons.' . $icon : '' ). ");\n";
+		
+		switch ( true )
+		{
+			// set InfoWindow tabs		
 			case ( is_array($html_or_tabs) ):
-				$return .= 'this.markers.' . $name . '.tabs = [';
+				$return .= "\t\tthis.markers." . $name . '.tabs = [';
 				foreach ( $html_or_tabs as $tab => $content ) {
-					$return .= 'new GInfoWindowTab("' . addslashes($tab) . '", "' . addslashes($content) .  '"), ';
+					$return .= "\t\t".'new GInfoWindowTab("' . addslashes($tab) . '", "' . addslashes($content) .  '"), ';
 				}
 				$return = rtrim($return, ', ');
 				$return .= "];\n";
-				$return .= "this.map.createOnClickInfoWindowTabs(this.markers.{$name});\n";
+				$return .= "\t\tthis.map.createOnClickInfoWindowTabs(this.markers.{$name});\n";
 			break;
-		
+			
+			// set regular InfoWidow		
 			case ( $html_or_tabs ):
-				$return .= 'this.markers.' . $name . '.html = "'. addslashes($html_or_tabs) .'";'."\n";
-				$return .= "this.map.createOnClickInfoWindow(this.markers.{$name});\n";
+				$return .= "\t\tthis.markers." . $name . '.html = "'. addslashes($html_or_tabs) .'";'."\n";
+				$return .= "\t\tthis.map.createOnClickInfoWindow(this.markers.{$name});\n";
 			break;
 			
 		}
-		$return .= "this.map.addOverlay(this.markers.{$name});";
+		
+		// add marker overlay to map
+		$return .= "\t\tthis.map.addOverlay(this.markers.{$name});";
+		
 		return $return;
 	}
 	
-	public function create_listener($source, $event, $handler = null)
-	{
-		if ( is_array($source) ) {
-			$handler = $source['handler'];
-			$event = $source['event'];
-			$source = $source['source'];
-		}
-		return "GEvent.addListener({$source}, '{$event}', {$handler});";
-	}
-	
+	/**
+	 * Create a GIcon object.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $name required
+	 * @param array $data required
+	 * @link http://www.google.com/apis/maps/documentation/reference.html#GIcon
+	 * @return string
+	 */
 	public function create_icon($name, $data)
 	{
-		$name = 'this.icons.' . $name;
+		$name = "\t\t".'this.icons.' . $name;
 		$return = $name . ' = new GIcon(' . ( $data['baseIcon'] ? 'this.icons.' . $data['baseIcon'] : '' ) . ");\n";
 		if ( $data['image'] ) $return .= $name . '.image = "' . $data['image'] . '";'."\n";
 		if ( $data['shadow'] ) $return .= $name . '.shadow = "' . $data['shadow'] . '";'."\n";
@@ -235,6 +361,37 @@ if ( GBrowserIsCompatible() ) {
 		return $return."\n";
 	}
 	
+	/**
+	 * Create a GPoint object.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param string $source required
+	 * @param string $event required
+	 * @param string $handler optional
+	 * @link http://www.google.com/apis/maps/documentation/reference.html#GEvent
+	 * @return string
+	 */
+	public function create_listener($source, $event, $handler = null)
+	{
+		if ( is_array($source) ) {
+			$handler = $source['handler'];
+			$event = $source['event'];
+			$source = $source['source'];
+		}
+		return "GEvent.addListener({$source}, '{$event}', {$handler});";
+	}
+	
+	/**
+	 * Create a GPoint object.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param int $x required
+	 * @param int $y optional
+	 * @link http://www.google.com/apis/maps/documentation/reference.html#GPoint
+	 * @return string
+	 */
 	public function gpoint($x, $y = null)
 	{
 		if ( strstr($x, ',') ) {
@@ -245,6 +402,16 @@ if ( GBrowserIsCompatible() ) {
 		return "new GPoint(" . (int) $x . ", " . (int) $y .")";
 	}
 	
+	/**
+	 * Create a GSize object.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param int $width required
+	 * @param int $height optional
+	 * @link http://www.google.com/apis/maps/documentation/reference.html#GSize
+	 * @return string
+	 */
 	public function gsize($width, $height = null)
 	{
 		if ( strstr($width, ',') ) {
@@ -255,26 +422,49 @@ if ( GBrowserIsCompatible() ) {
 		return "new GSize(" . (int) $width . ", " . (int) $height .")";
 	}
 	
-	public function open_window($name)
-	{
-		return "{$this->id}.map.openWindow(map.markers.{$name});";
-	}
-	
+	/**
+	 * Alias to add_marker().
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $marker required
+	 */
 	public function add($marker)
 	{
 		$this->add_marker($marker);
 	}
 	
+	/**
+	 * Add a marker to class markers array.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $marker required
+	 */
 	public function add_marker($marker)
 	{
 		$this->markers[] = $marker;
 	}
 	
+	/**
+	 * Add a listener to class listeners array.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $args required
+	 */
 	public function add_listener($args)
 	{
 		$this->listeners[] = $args;
 	}
 	
+	/**
+	 * Add an icon to class icons array.
+	 *
+	 * @author Nesbert Hidalgo
+	 * @access public
+	 * @param array $args required
+	 */
 	public function add_icon($args)
 	{
 		$this->icons[] = $args;
@@ -538,7 +728,7 @@ if ( GBrowserIsCompatible() ) {
 		this.setCenter(center, zoom);
 		this.savePosition();
 	}
-			<?
+	<?
 			case ( !$count ):
 			?>// create markers
 	GMap2.prototype.createMarker = function(latlng, icon) {

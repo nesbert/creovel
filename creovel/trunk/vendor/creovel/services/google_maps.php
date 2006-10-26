@@ -126,42 +126,42 @@ if ( GBrowserIsCompatible() ) {
 	var <?=$this->id?>;
 	
 	// google map object
-	function <?=$this->id?>_obj()
+	function <?=$this->id?>Obj()
 	{
 		
 		// properties
 		<?=$this->gmap()?>
-		<? if ( $this->auto_zoom ) echo "this.bounds = new GLatLngBounds();\n"; ?>
+		<? if ( $this->auto_zoom ) echo "this.Bounds = new GLatLngBounds();\n"; ?>
+		
+		// controls
+		this.Controls = new Object;
+		<? if ( $this->controls ) echo $this->add_control('( this.Controls.ControlSize = '.$this->get_controls().' )'); ?>
+		<? if ( $this->controls && $this->scale_control ) echo $this->add_control('( this.Controls.GScaleControl = new GScaleControl() )'); ?>
+		<? if ( $this->controls && $this->type_control ) echo $this->add_control('( this.Controls.GMapTypeControl = new GMapTypeControl() )'); ?>
+		<? if ( $this->overview_control ) echo $this->add_control('( this.Controls.GOverviewMapControl = new GOverviewMapControl() )'); ?>
+		
+		// center map
+		<?=$this->set_center($this->default_lat, $this->default_lng, $this->zoom, $this->get_map_type())?>
 		
 		<?
 			if ( count($this->icons) ) {
 				echo "// icons\n";
-				echo "\t\tthis.icons = new Object;\n";
+				echo "\t\tthis.Icons = new Object;\n";
 				foreach ( $this->icons as $icon => $vals ) echo $this->create_icon($vals['name'], $vals);
 			}
-		?>
-		// controls
-		<? if ( $this->controls ) echo $this->add_control($this->get_controls()); ?>
-		<? if ( $this->controls && $this->scale_control ) echo $this->add_control('new GScaleControl()'); ?>
-		<? if ( $this->controls && $this->type_control ) echo $this->add_control('new GMapTypeControl()'); ?>
-		<? if ( $this->overview_control ) echo $this->add_control('new GOverviewMapControl()'); ?>
-		
-		// center map
-		<?=$this->set_center($this->default_lat, $this->default_lng, $this->zoom, $this->get_map_type())?>
-		<?
+
 			if ( count($this->markers) ) {
-				echo "\n\t\t// markers\n";
-				echo "\t\tthis.markers = new Object;\n";
+				echo "// markers\n";
+				echo "\t\tthis.Markers = new Object;\n";
 				foreach ( $this->markers as $marker => $result ) echo $this->create_marker($result['name'], $result)."\n";
 			}
 			if ( ( $this->auto_zoom || $this->open_at ) && count($this->markers) ) echo "\n\t\t// extra work\n";
-			if ( $this->auto_zoom && count($this->markers) ) echo "\t\tthis.map.autoZoom(this.bounds);\n";
-			if ( $this->open_at && count($this->markers) ) echo "\t\tthis.map.openWindow(this.markers.{$this->open_at});\n";
-		?>
-		
+			if ( $this->auto_zoom && count($this->markers) ) echo "\t\tthis.GMap.autoZoom(this.Bounds);\n";
+			if ( $this->open_at && count($this->markers) ) echo "\t\tthis.GMap.openWindow(this.Markers.{$this->open_at});\n";
+		?>		
 	}
 	
-	<?=$this->onload("{$this->id} = new {$this->id}_obj();")?>
+	<?=$this->onload("{$this->id} = new {$this->id}Obj();")?>
 	<?=$this->unload()?>
 	
 }
@@ -197,7 +197,7 @@ if ( GBrowserIsCompatible() ) {
 	public function gmap($container = null, $options = null)
 	{
 		$id = $container ? $container : $this->id;
-		return 'this.map = new GMap2(document.getElementById("' . $id . '"));'."\n";
+		return 'this.GMap = new GMap2(document.getElementById("' . $id . '"));'."\n";
 	}
 	
 	/**
@@ -227,7 +227,7 @@ if ( GBrowserIsCompatible() ) {
 	 */
 	public function set_center($latitude, $longitude, $zoom = 4, $map_type = null)
 	{
-		return 'this.map.setCenter(' . $this->glatlng($latitude, $longitude) . ', ' . (int) $zoom . ( $map_type ? ', ' . $map_type : '' ) . ");\n";
+		return 'this.GMap.setCenter(' . $this->glatlng($latitude, $longitude) . ', ' . (int) $zoom . ( $map_type ? ', ' . $map_type : '' ) . ");\n";
 	}
 	
 	/**
@@ -241,20 +241,7 @@ if ( GBrowserIsCompatible() ) {
 	 */
 	public function pan_to($latitude, $longitude)
 	{	
-		return 'this.map.panTo(' . $this->glatlng($latitude, $longitude) . ");\n";
-	}
-	
-	/**
-	 * Open info window for a marker.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $name required marker name
-	 * @return string
-	 */
-	public function open_window($name)
-	{
-		return "{$this->id}.map.openWindow(map.markers.{$name});";
+		return 'this.GMap.panTo(' . $this->glatlng($latitude, $longitude) . ");\n";
 	}
 	
 	/**
@@ -269,7 +256,7 @@ if ( GBrowserIsCompatible() ) {
 	 */
 	public function add_control($control, $position = null)
 	{
-		return 'this.map.addControl('. $control .");\n";
+		return 'this.GMap.addControl('. $control .");\n";
 	}
 	
 	/**
@@ -298,37 +285,37 @@ if ( GBrowserIsCompatible() ) {
 		}
 		
 		// set GLatLng points
-		$return = "\t\tthis.latlng = {$this->glatlng($latitude, $longitude)};\n";
+		$return = "\t\tthis.LatLng = {$this->glatlng($latitude, $longitude)};\n";
 		
 		// if auto_zoom set add marker location to bounds
-		if ( $this->auto_zoom ) $return .= "\t\tthis.bounds.extend(this.latlng);\n";
+		if ( $this->auto_zoom ) $return .= "\t\tthis.Bounds.extend(this.LatLng);\n";
 		
 		// create marker object
-		$return .= "\t\tthis.markers.{$name} = this.map.createMarker(this.latlng" . ( $icon ? ', this.icons.' . $icon : '' ). ");\n";
+		$return .= "\t\tthis.Markers.{$name} = this.GMap.createMarker(this.LatLng" . ( $icon ? ', this.Icons.' . $icon : '' ). ");\n";
 		
 		switch ( true )
 		{
 			// set InfoWindow tabs		
 			case ( is_array($html_or_tabs) ):
-				$return .= "\t\tthis.markers." . $name . '.tabs = [';
+				$return .= "\t\tthis.Markers." . $name . '.tabs = [';
 				foreach ( $html_or_tabs as $tab => $content ) {
-					$return .= "\t\t".'new GInfoWindowTab("' . addslashes($tab) . '", "' . addslashes($content) .  '"), ';
+					$return .= 'new GInfoWindowTab("' . addslashes($tab) . '", "' . addslashes($content) .  '"), ';
 				}
 				$return = rtrim($return, ', ');
 				$return .= "];\n";
-				$return .= "\t\tthis.map.createOnClickInfoWindowTabs(this.markers.{$name});\n";
+				$return .= "\t\tthis.GMap.createOnClickInfoWindowTabs(this.Markers.{$name});\n";
 			break;
 			
 			// set regular InfoWidow		
 			case ( $html_or_tabs ):
-				$return .= "\t\tthis.markers." . $name . '.html = "'. addslashes($html_or_tabs) .'";'."\n";
-				$return .= "\t\tthis.map.createOnClickInfoWindow(this.markers.{$name});\n";
+				$return .= "\t\tthis.Markers." . $name . '.html = "'. addslashes($html_or_tabs) .'";'."\n";
+				$return .= "\t\tthis.GMap.createOnClickInfoWindow(this.Markers.{$name});\n";
 			break;
 			
 		}
 		
 		// add marker overlay to map
-		$return .= "\t\tthis.map.addOverlay(this.markers.{$name});";
+		$return .= "\t\tthis.GMap.addOverlay(this.Markers.{$name});";
 		
 		return $return;
 	}
@@ -345,8 +332,8 @@ if ( GBrowserIsCompatible() ) {
 	 */
 	public function create_icon($name, $data)
 	{
-		$name = "\t\t".'this.icons.' . $name;
-		$return = $name . ' = new GIcon(' . ( $data['baseIcon'] ? 'this.icons.' . $data['baseIcon'] : '' ) . ");\n";
+		$name = "\t\t".'this.Icons.' . $name;
+		$return = $name . ' = new GIcon(' . ( $data['baseIcon'] ? 'this.Icons.' . $data['baseIcon'] : '' ) . ");\n";
 		if ( $data['image'] ) $return .= $name . '.image = "' . $data['image'] . '";'."\n";
 		if ( $data['shadow'] ) $return .= $name . '.shadow = "' . $data['shadow'] . '";'."\n";
 		if ( $data['iconSize'] ) $return .= $name . '.iconSize = ' . $this->gsize($data['iconSize']) . ';'."\n";
@@ -443,6 +430,11 @@ if ( GBrowserIsCompatible() ) {
 	 */
 	public function add_marker($marker)
 	{
+		// auto set default coors if first marker
+		if ( !count($this->markers) ) {
+			$this->default_lat = ( $marker['latitude'] ? $marker['latitude'] : $marker['Latitude'] );
+			$this->default_lng = ( $marker['longitude'] ? $marker['longitude'] : $marker['Longitude'] );
+		}
 		$this->markers[] = $marker;
 	}
 	

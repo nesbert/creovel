@@ -49,6 +49,13 @@
 			<?= $this->ticket->select_for_user_id($this->users, array('class' => 'field' )) ?>
 		</div>		
 
+		<input type="hidden" name="comment[ticket_id]" value="<?= $this->ticket->id ?>" />
+		<input type="hidden" name="comment[author]" value="<?= $this->user->name ?>" />
+		<div class="required">
+			<?= $this->comment->label_for_description('Comment') ?>
+			<?= $this->comment->textarea_for_description(array('class' => 'field', 'size' => 20, 'rows' => 10)) ?>
+		</div>		
+
 	</fieldset>
 
 	<div class="submit">
@@ -79,7 +86,7 @@
 	<input type="hidden" name="comment[author]" value="<?= $this->user->name ?>" />
 
 	<fieldset>
-		<legend><strong>Edit Ticket Information</strong></legend>
+		<legend><strong>New Comment</strong></legend>
 		<div class="required">
 			<?= $this->comment->label_for_description('Comment') ?>
 			<?= $this->comment->textarea_for_description(array('class' => 'field', 'size' => 20, 'rows' => 10)) ?>

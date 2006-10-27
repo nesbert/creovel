@@ -84,9 +84,13 @@ class tickets_controller extends application_controller
 		$users->find_all();
 		foreach ($users as $user) $this->users[$user->id] = $user->name;
 
-		if ($this->is_posted()) {
+		if ($this->is_posted())
+		{
 			$this->ticket = new ticket($this->params['ticket']);
 			$this->ticket->save();
+
+			$this->comment = new comment($this->params['comment']);
+			$this->comment->save();
 
 			flash_notice('Ticket Saved');
 			redirect_to('tickets');

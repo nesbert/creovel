@@ -18,7 +18,7 @@
 		<tr id="ticket_filter" style="display: none; background: #ccc; margin: 0 0 15px; padding: 5px;">
 	<? } ?>
 
-		<td colspan="7">
+		<td colspan="8">
 			Status: <? foreach ($this->statuses as $status) { ?> <a href="<?= filter_link('status', $status->id, $this->params) ?>"><?= ($this->params['status'] == $status->id) ? "<b>{$status->name}</b>" : $status->name ?></a> &nbsp; <? } ?><br />
 			Parts: <? foreach ($this->parts as $part) { ?> <a href="<?= filter_link('part', $part->id, $this->params) ?>"><?= ($this->params['part'] == $part->id) ? "<b>{$part->name}</b>" : $part->name ?></a> &nbsp; <? } ?><br />
 			Severities: <? foreach ($this->severities as $severity) { ?> <a href="<?= filter_link('severity', $severity->id, $this->params) ?>"><?= ($this->params['severity'] == $severity->id) ? "<b>{$severity->name}</b>" : $severity->name ?></a> &nbsp; <? } ?><br />

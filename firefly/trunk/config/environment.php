@@ -1,7 +1,7 @@
 <?
 
-define(BROWSE_REPOSITORY_PREFIX, 'http://dev.propertyline.com/svn/webskribe/');
-define(LOCAL_REPOSITORY_PATH, '/usr/local/lib/subversion/');
+define(BROWSE_REPOSITORY_PREFIX, 'http://dev.propertyline.com/pldsvn/');
+define(LOCAL_REPOSITORY_PATH, '/usr/local/lib/pldsvn/');
 define(SVNLOOK_PATH, '/usr/bin/svnlook');
 
 // set application mode
@@ -10,7 +10,7 @@ $_ENV['mode'] = 'development'; // development, test, production
 // set development database properties
 $_ENV['development']['adapter']		= 'mysql';
 $_ENV['development']['host']		= 'localhost';
-$_ENV['development']['database']	= 'firefly';
+$_ENV['development']['database']	= 'bugs_pld';
 $_ENV['development']['username']	= 'root';
 $_ENV['development']['password']	= 'b4mb4m';
 

@@ -10,6 +10,11 @@ class milestone extends model
 		$this->has_many('open_tickets', array( 'class_name' => 'ticket', 'where' => "status_id = 1 AND in_queue = 0" ));
 		$this->has_many('closed_tickets', array( 'class_name' => 'ticket', 'where' => "status_id > 1 AND in_queue = 0" ));
 	}
+
+	public function percentage_completed()
+	{
+		return ceil(($this->closed_tickets->row_count() / $this->tickets->row_count()) * 100);
+	}
 }
 
 ?>

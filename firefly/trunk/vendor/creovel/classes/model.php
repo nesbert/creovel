@@ -379,11 +379,11 @@ class model implements Iterator {
 			$this->_fields->$name->value = $value;
 			$obj = $this->_fields->$name;
 			
-			if ($name == 'created_at') {
+			if ($name == 'created_at' && ($value == '' || $value == null)) {
 				
 				$qry .= "'" . date('Y-m-d H:i:s')  . "', ";
 
-			} elseif ($name == 'updated_at') {
+			} elseif ($name == 'updated_at' && ($value == '' || $value == null)) {
 				
 				$qry .= "'" . date('Y-m-d H:i:s')  . "', ";
 

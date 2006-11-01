@@ -19,10 +19,6 @@
 -- Current Database: `firefly`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `firefly` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_general_ci */;
-
-USE `firefly`;
-
 --
 -- Table structure for table `changesets`
 --

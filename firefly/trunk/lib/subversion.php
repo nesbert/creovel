@@ -41,8 +41,9 @@ class Subversion
 			}
 		}
 
-		preg_match("/^(\d+-\d+-\d+ \d+:\d+:\d+)/", $info['created_at'], $matches);
+		preg_match("/^(\d+-\d+-\d+ \d+:\d+:\d+)/ie", $info['created_at'], $matches);
 		$info['created_at'] = $matches[1];
+		$info['updated_at'] = $matches[1];
 
 		return $info;
 	}

@@ -664,7 +664,7 @@ function select_redirect($name, $names_and_urls, $html_options = null) {
  * @param mixed $date
  * @return string
  */
-function date_select($name, $date = null)
+function date_select($name, $date = null, $html_options = null)
 {
 	switch ( true ) {
 	
@@ -698,9 +698,9 @@ function date_select($name, $date = null)
 	while ($i <= (date('Y') + 3)) { $years[$i] = $i; $i++; }	
 
 	$out = "";
-	$out .= select("{$name}[month]", date('m', $date), $months);
-	$out .= select("{$name}[day]", date('j', $date), $days);
-	$out .= select("{$name}[year]", date('Y', $date), $years);
+	$out .= select("{$name}[month]", date('m', $date), $months, $html_options);
+	$out .= select("{$name}[day]", date('j', $date), $days, $html_options);
+	$out .= select("{$name}[year]", date('Y', $date), $years, $html_options);
 
 	return $out;
 }

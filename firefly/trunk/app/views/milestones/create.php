@@ -19,7 +19,7 @@
 	</fieldset>
 
 	<div class="submit">
-		<input type="submit" value="Save Milstone" />
+		<input type="submit" value="Save Milestone" />
 	</div>
 
 </form>

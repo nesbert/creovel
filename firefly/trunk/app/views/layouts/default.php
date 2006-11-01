@@ -5,6 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>FireFly</title>
 	<?= stylesheet_include_tag(array( 'main', 'table' )) ?>
+	<link rel="stylesheet" type="text/css" href="/stylesheets/print.css" media="print" />
 	<?=javascript_include_tag(array('prototype'))?>
 	<?=javascript_include_tag(array('scriptaculous/scriptaculous'))?>
 </head>
@@ -37,6 +38,7 @@ $nav = array
 <div id="sideArea">
 	<div id="navcontainer">
 	  <ul id="navlist">
+		<li><a href="/reports/">Reports</a></li>
 		<li><a href="/parts/">Parts</a></li>
 		<li><a href="/users/">Users</a></li>
 		<li><a href="/login/logout">Logout</a></li>

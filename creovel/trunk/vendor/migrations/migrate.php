@@ -128,7 +128,7 @@ class Migrate
 			$schema_info->version = 0;
 			$schema_info->save();
 
-			if ($destroy == 'Y') exec('rm -rf '.dirname(__FILE__).'/../db/migrations/*');
+			if ($destroy == 'Y') exec('rm -rf '.MIGRATIONS_PATH.'/*');
 
 			$this->stdout('');
 			$this->stdout('  Schema version reset to zero.');
@@ -284,9 +284,9 @@ class Migrate
 
 				foreach ($table_model->field_breakdown($table) as $field)
 				{
-					if ($field->field->value == 'id') continue;
+					if ($field['field'] == 'id') continue;
 
-					$data .= "        - name: {$field->field}\n";
+					$data .= "        - name: {$field['field']}\n";
 
 					switch (true)
 					{
@@ -347,13 +347,15 @@ class Migrate
 					}
 				}
 
-				$data .= "      keys:\n";
-				foreach ($keys as $key)
-				{
-					$data .= "        - type: {$key['type']}\n";
-					$data .= "          name: {$key['name']}\n";
-					$data .= "          fields:\n";
-					foreach ($key['fields'] as $field) $data .= "            - {$field}\n";
+				if (count($keys) > 0) {
+					$data .= "      keys:\n";
+					foreach ($keys as $key)
+					{
+						$data .= "        - type: {$key['type']}\n";
+						$data .= "          name: {$key['name']}\n";
+						$data .= "          fields:\n";
+						foreach ($key['fields'] as $field) $data .= "            - {$field}\n";
+					}
 				}
 			}
 		}

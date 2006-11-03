@@ -302,6 +302,11 @@ class model implements Iterator {
 		
 	}
 
+	public function get_fields_object()
+	{
+		return $this->_fields;
+	}
+
 	public function update_field($name, $value)
 	{
 		$this->update(array( 'id' => $this->key(), $name => $value ));
@@ -1425,5 +1430,23 @@ class model implements Iterator {
         return $db_obj->table_exits($table_name);
     }
 
+	public function all_tables()
+	{
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+		return $db_obj->all_tables();
+	}
+
+	public function field_breakdown($table_name)
+	{
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->field_breakdown($table_name);
+	}
+
+	public function key_breakdown($table_name)
+	{
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->key_breakdown($table_name);
+	}
 }
+
 ?>

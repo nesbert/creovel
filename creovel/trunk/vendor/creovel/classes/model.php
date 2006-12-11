@@ -527,7 +527,8 @@ class model implements Iterator {
 	
 	public function find($args = false) {
 		$this->reset();
-		
+
+		$this->before_find();	
 	
 		switch (true) {
 			case isset($args['total']):
@@ -563,8 +564,12 @@ class model implements Iterator {
 		if (isset($args['offset'])) {
 			$this->offset($args['offset']);	
 		}
-		
-		return $this->query();
+
+		$result = $this->query();
+
+		$this->after_find();	
+
+		return $result;
 	}
 	
 	public function find_all($args = null) {
@@ -1389,11 +1394,13 @@ class model implements Iterator {
 	/*
 	 * Callback Functions -> Override If Needed
 	 */
-	public function before_save() {}
-	public function before_create() {}
 	public function after_save() {}
-	public function before_delete() {}
+	public function before_save() {}
+	public function after_find() {}
+	public function before_find() {}
+	public function before_create() {}
 	public function after_delete() {}
+	public function before_delete() {}
 	public function validate() {}
 	public function validate_on_create() {}
 	public function validate_on_update() {}

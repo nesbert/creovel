@@ -6,6 +6,7 @@ class unittest
 	private $num_assertions = 0;
 	private $num_failed_assertions = 0;
 	private $num_passed_assertions = 0;
+	private $messages = array();
 
 	public function run()
 	{
@@ -32,11 +33,24 @@ class unittest
 				echo "\033[31;1m".humanize($test).": FAILED ({$this->num_passed_assertions}/{$this->num_assertions})\033[0m\n";
 			}
 
+			if (count($this->messages) > 0) {
+				foreach ($this->messages as $message)
+				{
+					switch ($message['type'])
+					{
+						case 'error':
+							echo "  \033[31m{$message['message']}\033[0m\n";
+					}
+				}
+				echo "\n";
+			}
+
 			$this->num_tests++;
 			$total_num_assertions += $this->num_assertions;
 			$this->num_assertions = 0;
 			$this->num_failed_assertions = 0;
 			$this->num_passed_assertions = 0;
+			$this->messages = array();
 		}
 
 		echo "\n\033[36;1m{$this->num_tests} Tests ({$total_num_passed}/{$this->num_tests} ".number_format(($total_num_passed/$this->num_tests) * 100)."%) : {$total_num_assertions} Assertions\033[0m\n\n";
@@ -49,17 +63,23 @@ class unittest
 
 	public function assert_true($val)
 	{
-		$this->assert(true, $val);
+		if (!$this->assert(true, $val)) {
+			$this->messages[] = array( 'type' => 'error', 'message' => "'{$val}' is not TRUE" );
+		}
 	}
 
 	public function assert_false($val)
 	{
-		$this->assert(false, $val);
+		if (!$this->assert(false, $val)) {
+			$this->messages[] = array( 'type' => 'error', 'message' => "'{$val}' is not FALSE" );
+		}
 	}
 
 	public function assert_equal($val1, $val2)
 	{
-		$this->assert(true, ($val1 === $val2));
+		if (!$this->assert(true, ($val1 === $val2))) {
+			$this->messages[] = array( 'type' => 'error', 'message' => "'{$val1}' does not equal '{$val2}'" );
+		}
 	}
 
 	public function assert($val1, $val2)

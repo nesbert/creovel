@@ -83,6 +83,7 @@ class creovel
 	 * @author Nesbert Hidalgo
 	 * @access public
 	 * @param string $event_to_return optional name of event to return
+	 * @param string $uri optional url routing path
 	 * @return array
 	 */
 	public function get_events($event_to_return = null, $uri = null)

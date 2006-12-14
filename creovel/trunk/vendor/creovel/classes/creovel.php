@@ -85,7 +85,7 @@ class creovel
 	 * @param string $event_to_return optional name of event to return
 	 * @return array
 	 */
-	public function get_events($event_to_return = null)
+	public function get_events($event_to_return = null, $uri = null)
 	{
 		// read URI which was given in order to access this page, remove any trailing forward slashes
 		$uri = $uri ? $uri : $_SERVER['REQUEST_URI'];

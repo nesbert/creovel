@@ -1147,7 +1147,11 @@ class model implements Iterator {
 		$args = $this->_links[$name]['options'];
 	
 		if (!$this->_links[$name]['options']['foreign_key']) {
-			$this->_links[$name]['options']['foreign_key'] = $this->_class() . '_id';
+			if ($this->_links[$name]['type'] == 'belongs_to') {
+				$this->_links[$name]['options']['foreign_key'] = $model_name . '_id';
+			} else {
+				$this->_links[$name]['options']['foreign_key'] = $this->_class() . '_id';
+			}
 		}		
 
 		if ($this->get_id()) {
@@ -1185,11 +1189,13 @@ class model implements Iterator {
 					break;
 
 				case 'belongs_to':
-					$function = 'get_'.$this->_links[$name]['foreign_key'];
-					if ($this->_links[$name]['foreign_key']) {
-						$args['conditions'] .= " id = '".$this->$function()."' "; 
-					}
+					case 'belongs_to':
+					$function = 'get_'.$this->_links[$name]['options']['foreign_key'];
+					
+					$args['where'] .= " id = '".$this->$function()."' "; 
+					
 					$model_obj->find_first($args);
+
 					break;
 				
 			}
@@ -1199,10 +1205,10 @@ class model implements Iterator {
 			switch($this->_links[$name]['type'])
 			{
 				case 'belongs_to':
-					$function = 'get_'.$this->_links[$name]['foreign_key'];
-					if ($this->_links[$name]['foreign_key']) {
-						$args['conditions'] .= " id = '".$this->$function()."' "; 
-					}
+					$function = 'get_'.$this->_links[$name]['options']['foreign_key'];
+					
+					$args['where'] .= " id = '".$this->$function()."' "; 
+					
 					$model_obj->find_first($args);
 					break;
 			}

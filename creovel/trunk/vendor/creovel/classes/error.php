@@ -130,8 +130,10 @@ class error
 		
 		if ( is_object($exception) ) $this->traces = $exception->getTrace();
 		
-		if ( $_ENV['view_source'] && isset($_GET['view_source']) && strstr($_GET['view_source'], BASE_PATH) ) {
-			view::_show_view(CREOVEL_PATH.'views'.DS.'view_source.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
+		if ( isset($_GET['view_source']) ) {
+			if ( $_ENV['view_source'] && strstr($_GET['view_source'], BASE_PATH) ) {		
+				view::_show_view(CREOVEL_PATH.'views'.DS.'view_source.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
+			}
 		} else {
 			view::_show_view(CREOVEL_PATH.'views'.DS.'application_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 		}

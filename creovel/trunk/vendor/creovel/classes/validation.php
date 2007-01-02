@@ -38,9 +38,26 @@ class validation
 	const FIELD_NAME = '@@field_name@@';
 	const VALUE = '@@value@@';
 	
-	public function __construct(&$errors)
+	public function __construct(&$errors  = null)
 	{
-		$this->errors = $errors;
+		if ($errors) {
+			$this->errors = $errors;
+		} else {
+			$this->errors = new error('model');
+		}
+	}
+	
+	
+	/**
+	 * Test for errors
+	 * 
+	 * @author John Faircloth
+	 * @access public
+	 * @return bool 
+	 */
+	 
+	public function has_errors() {
+		return $this->errors->has_errors();
 	}
 	
 	/**

@@ -10,6 +10,8 @@ class unittest
 
 	public function run()
 	{
+		$start_time = microtime();
+
 		echo "\033[36m---------------------------------------\033[0m\n";
 		echo "\033[36mStarting Tests\033[0m\n";
 		echo "\033[36m---------------------------------------\033[0m\n";
@@ -56,7 +58,7 @@ class unittest
 		echo "\n\033[36;1m{$this->num_tests} Tests ({$total_num_passed}/{$this->num_tests} ".number_format(($total_num_passed/$this->num_tests) * 100)."%) : {$total_num_assertions} Assertions\033[0m\n\n";
 
 		echo "\033[36m---------------------------------------\033[0m\n";
-		echo "\033[36mFinished Tests\033[0m\n";
+		echo "\033[36mFinished Tests in ".(microtime() - $start_time)." seconds.\033[0m\n";
 		echo "\033[36m---------------------------------------\033[0m\n";
 
 	}

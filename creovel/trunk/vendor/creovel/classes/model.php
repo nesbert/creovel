@@ -567,7 +567,7 @@ class model implements Iterator {
 
 		$result = $this->query();
 
-		$this->after_find();	
+		$this->after_find();
 
 		return $result;
 	}

@@ -245,7 +245,7 @@ class model implements Iterator {
 
 	}
 
-	protected function _set_data($data) {
+	public function _set_data($data) {
 	
 		if ($data) {
 			if (is_array($data)) {
@@ -312,14 +312,23 @@ class model implements Iterator {
 		$this->update(array( 'id' => $this->key(), $name => $value ));
 	}
 	
-	public function save()
+	public function validate_model()
 	{
-		$this->before_save();
-
 		// validate model on every save
 		$this->validate();
 		// if error return false		
 		if ( $this->errors->has_errors() ) return false;
+		
+		return true;
+	}
+		
+	public function save()
+	{
+		$this->before_save();
+
+		if (!$this->validate_model()) {
+			return false;
+		}
 		
 		if ( $key = $this->key() ) {
 		

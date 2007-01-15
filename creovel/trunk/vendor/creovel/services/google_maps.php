@@ -48,6 +48,7 @@ class google_maps
 	public $icons;								// array of icons
 	public $listeners;							// array of listeners
 	public $open_at;							// name of marker that will be opened on map load
+	public $geocoder			= false; 		// set GClientGeocoder object
 	
 	// private properties
 	private $key;								// Google Maps API Key
@@ -124,6 +125,7 @@ if ( GBrowserIsCompatible() ) {
 	
 	// global vairables
 	var <?=$this->id?>;
+	<? if ( $this->geocoder ) echo "var geocoder;\n"; ?>
 	
 	// google map object
 	function <?=$this->id?>Obj()
@@ -131,6 +133,7 @@ if ( GBrowserIsCompatible() ) {
 		
 		// properties
 		<?=$this->gmap()?>
+		<? if ( $this->geocoder ) echo "geocoder = new GClientGeocoder();\n"; ?>
 		<? if ( $this->auto_zoom ) echo "this.Bounds = new GLatLngBounds();\n"; ?>
 		
 		// controls
@@ -149,10 +152,11 @@ if ( GBrowserIsCompatible() ) {
 				echo "\t\tthis.Icons = new Object;\n";
 				foreach ( $this->icons as $icon => $vals ) echo $this->create_icon($vals['name'], $vals);
 			}
-
+		?>
+		<?
 			if ( count($this->markers) ) {
 				echo "// markers\n";
-				echo "\t\tthis.Markers = new Object;\n";
+				echo "\t\tthis.Markers = new Array();\n";
 				foreach ( $this->markers as $marker => $result ) echo $this->create_marker($result['name'], $result)."\n";
 			}
 			if ( ( $this->auto_zoom || $this->open_at ) && count($this->markers) ) echo "\n\t\t// extra work\n";

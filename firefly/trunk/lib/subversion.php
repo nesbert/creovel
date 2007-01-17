@@ -42,6 +42,7 @@ class Subversion
 		}
 
 		preg_match("/^(\d+-\d+-\d+ \d+:\d+:\d+)/ie", $info['created_at'], $matches);
+		$info['commit_date'] = $matches[1];
 		$info['created_at'] = $matches[1];
 		$info['updated_at'] = $matches[1];
 

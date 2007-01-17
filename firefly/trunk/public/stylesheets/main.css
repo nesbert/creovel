@@ -266,3 +266,6 @@ table.diff_file tr td.line {
 	text-align: left;
 	border-bottom: 1px solid #ccc;
 }
+
+div.page-links { margin: 5px 0; }
+	div.page-links a { padding: 0 5px; }

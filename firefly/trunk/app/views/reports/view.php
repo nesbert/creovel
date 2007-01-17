@@ -23,7 +23,8 @@
 <h2>Changesets</h2>
 <? if ($this->changesets->row_count() > 0) foreach ($this->changesets as $changeset) { ?>
 	<div style="border-top: 1px solid #ccc;">
-		<h3>Revision <?= $changeset->revision ?></h3>
+		<h3 style="margin-bottom: 0;">Revision <?= $changeset->revision ?> : <?= $changeset->commit_date ?></h3>
+		<h4 style="margin-top: 0;">User: <?= $changeset->author ?></h4>
 		<?= ($changeset->log == '') ? 'No description entered.' : $this->textile->TextileThis($changeset->log) ?>
 	</div>
 <? } else { ?>

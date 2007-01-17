@@ -128,8 +128,7 @@ class model implements Iterator {
 	private $_order;
 	private $_limit;
 	private $_offset;
-	public $_query_str;
-	//private $_logger;
+	private $_query_str;
 	
 	/**
 	* Constructor.
@@ -140,9 +139,7 @@ class model implements Iterator {
 	 */	 
 	public function __construct($data = null, $connection_properties = null)
 	{
-
-		//global $logger;
-
+		
 		$this->errors = new error(get_class($this));
 		$this->validation = new validation($this->errors);
 
@@ -155,9 +152,7 @@ class model implements Iterator {
 		
 		$this->_set_table();
 		$this->_set_data($data);
-
-		//$this->_logger = $logger;
-
+		
 	}
 	
 	/**
@@ -307,6 +302,11 @@ class model implements Iterator {
 		
 	}
 
+	public function get_fields_object()
+	{
+		return $this->_fields;
+	}
+
 	public function update_field($name, $value)
 	{
 		$this->update(array( 'id' => $this->key(), $name => $value ));
@@ -318,7 +318,6 @@ class model implements Iterator {
 
 		// validate model on every save
 		$this->validate();
-		
 		// if error return false		
 		if ( $this->errors->has_errors() ) return false;
 		
@@ -379,11 +378,11 @@ class model implements Iterator {
 			$this->_fields->$name->value = $value;
 			$obj = $this->_fields->$name;
 			
-			if ($name == 'created_at' && ($value == '' || $value == null)) {
+			if ($name == 'created_at') {
 				
 				$qry .= "'" . date('Y-m-d H:i:s')  . "', ";
 
-			} elseif ($name == 'updated_at' && ($value == '' || $value == null)) {
+			} elseif ($name == 'updated_at') {
 				
 				$qry .= "'" . date('Y-m-d H:i:s')  . "', ";
 
@@ -626,16 +625,13 @@ class model implements Iterator {
 		$this->_offset = $offset;
 	}
 	
-	public function query($str = null)
-	{
+	public function query($str = null) {
 		if ($str) {
 			$this->_query_str = $str; 
 		} else {
 			$this->_build_qry();
 		}
-
-		//$this->_logger->write('SQL', str_replace(array( "\n", "\t" ), ' ', $this->_query_str));
-
+		
 		return $this->_select_query->query($this->_query_str);
 	}
 	
@@ -974,7 +970,7 @@ class model implements Iterator {
 	
 				case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
 					$value = $arguments[0];
-					$text = $arguments[1];// ? $arguments[1] : humanize($value);
+					$text = $arguments[1] ? $arguments[1] : humanize($value);
 					$html_options = $arguments[2];
 					$function = 'get_' . $regs[1];
 					
@@ -1183,9 +1179,11 @@ class model implements Iterator {
 
 					break;
 
-			case 'belongs_to':
-					$function = 'get_'.$model_name.'_id';
-					$args['where'] .= " id = '".$this->$function()."' "; 
+				case 'belongs_to':
+					$function = 'get_'.$this->_links[$name]['foreign_key'];
+					if ($this->_links[$name]['foreign_key']) {
+						$args['conditions'] .= " id = '".$this->$function()."' "; 
+					}
 					$model_obj->find_first($args);
 					break;
 				
@@ -1196,8 +1194,10 @@ class model implements Iterator {
 			switch($this->_links[$name]['type'])
 			{
 				case 'belongs_to':
-					$function = 'get_'.$model_name.'_id';
-					$args['where'] .= " id = '".$this->$function()."' "; 
+					$function = 'get_'.$this->_links[$name]['foreign_key'];
+					if ($this->_links[$name]['foreign_key']) {
+						$args['conditions'] .= " id = '".$this->$function()."' "; 
+					}
 					$model_obj->find_first($args);
 					break;
 			}
@@ -1275,7 +1275,7 @@ class model implements Iterator {
 		
 		// if no "AND" or "OR" return single column sql
 		if ( !strstr($method, '_and_') && !strstr($method, '_or_') ) {
-			return  "{$method} = '{$args[0]}'";
+			return $this->_conditions_str_helper($method, $args[0]);
 		}
 		
 		// hande "OR" and create/return sql string
@@ -1288,16 +1288,16 @@ class model implements Iterator {
 					$ands = explode('_and_', $or);
 					$return .= '(';
 					foreach ( $ands as $field ) {
-						$return .= "{$field} = '{$args[$args_index]}' AND ";
+						$return .= $this->_conditions_str_helper($field, $args[$args_index], ' AND ');
 						$args_index++;			
 					}
 					$return = substr($return, 0, -4).')';
 				} else {
-					$return .= "{$or} = '{$args[$args_index]}'";
+					$return .= $this->_conditions_str_helper($or, $args[$args_index]);
 					$args_index++;			
 				}
 				
-				// and or if not last $or
+				// and or if not last $or 
 				if ( count($ors) != $or_count ) $return .= ' OR ';
 				$or_count++;		
 			}
@@ -1314,7 +1314,7 @@ class model implements Iterator {
 		if ( strstr($method, '_and_') ) {
 			$ands = explode('_and_', $method);
 			foreach ( $ands as $field ) {
-				$return .= "{$field} = '{$args[$args_index]}' AND ";
+				$return .= $this->_conditions_str_helper($field, $args[$args_index], ' AND ');
 				$args_index++;			
 			}
 			$return = substr($return, 0, -4);
@@ -1323,7 +1323,40 @@ class model implements Iterator {
 		return $return;
 	
 	}
-
+	
+	/**
+	* Helps creates SQL conditon string.
+	*
+	* @author Nesbert Hidalgo
+	* @access private
+	* @param string $field required
+	* @param string $value required
+	* @param string $append optional
+	* @return string
+	*/
+	private function _conditions_str_helper($field, $value, $append = '')
+	{
+		$return = '';
+		switch ( true )
+		{
+			
+			case ( strstr($field, '_like') ):
+				if ( !strstr($value, '%') ) $value = '%' . $value . '%';
+				$return = str_replace('_like', '', $field) . " LIKE '{$value}'";
+			break;
+			
+			case ( strstr($field, '_not') ):
+				$return = str_replace('_not', '', $field) . " != '{$value}'";
+			break;
+			
+			default:
+				$return = "{$field} = '{$value}'";
+			break;
+			
+		}
+		return $return . $append;
+	}
+	
 	/**
 	 * Alias to find and set the $page object. default page limit is 10 records
 	 *
@@ -1365,25 +1398,55 @@ class model implements Iterator {
 	public function validate_on_create() {}
 	public function validate_on_update() {}
 	
-	
-	/**
-	 * Validate model object.
-	 *
-	 * @authur Nesbert Hidalgo
-	 * @return bool
-	 */
-	public function is_valid()
+    /**
+     * Validate model object.
+     *
+     * @author Nesbert Hidalgo
+     * @return bool
+     */
+    public function is_valid()
+    {
+        // validate model on every save
+        $this->validate();
+        
+        // if error return false        
+        if ( $this->errors->has_errors() ) {
+            return false;
+        } else {
+            return true;
+        }    
+    }
+
+    /**
+     * Check if a table exits in the current database.
+     *
+     * @author Nesbert Hidalgo
+     * @author string $table_name required
+     * @return bool
+     */
+    public function table_exits($table_name)
+    {
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->table_exits($table_name);
+    }
+
+	public function all_tables()
 	{
-		// validate model on every save
-		$this->validate();
-		
-		// if error return false		
-		if ( $this->errors->has_errors() ) {
-			return false;
-		} else {
-			return true;
-		}	
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+		return $db_obj->all_tables();
 	}
 
+	public function field_breakdown($table_name)
+	{
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->field_breakdown($table_name);
+	}
+
+	public function key_breakdown($table_name)
+	{
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->key_breakdown($table_name);
+	}
 }
+
 ?>

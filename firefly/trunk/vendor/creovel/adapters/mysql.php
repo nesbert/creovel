@@ -90,6 +90,11 @@ class mysql implements adapter_interface
 	{
 		$this->table = $table;
 	}
+	
+	public function table_exits($table)
+    {
+        return mysql_query('DESCRIBE ' . $table) or false;
+    }
 		
 	public function get_fields_object()
 	{
@@ -112,7 +117,6 @@ class mysql implements adapter_interface
 		}
 		
 		return $fields;
-		
 	}
 	
 	public function query($query = null)
@@ -169,6 +173,62 @@ class mysql implements adapter_interface
 	public function get_insert_id()
 	{
 		return @mysql_insert_id();	
+	}
+
+	public function all_tables()
+	{
+		$this->reset();
+		
+		$result = mysql_query('SHOW TABLES');
+		
+		while ( $row = @mysql_fetch_assoc($result) ) $tables[] = $row['Tables_in_'.$this->database];
+		return $tables;
+	}
+
+	public function field_breakdown($table_name)
+	{
+		// reset class properties
+		$this->reset();
+		
+		// send a DESCRIBE query and set result on success
+		$result = mysql_query('DESCRIBE ' . $table_name);
+		
+		// foreach row in results insert into fields object
+		while ( $row = @mysql_fetch_assoc($result) ) {
+		
+			// set fields into an associative array
+			foreach ( $row as $key => $value ) $temp_arr[strtolower($key)] = $value;
+			// get default value for field
+			$temp_arr['value'] = ( $row['Default'] !== 'NULL' ? $row['Default'] : null );
+			// set property in fields object
+			$fields[] = $temp_arr;
+			
+		}
+		
+		return $fields;
+	}
+
+	public function key_breakdown($table_name)
+	{
+		// reset class properties
+		$this->reset();
+		
+		// send a DESCRIBE query and set result on success
+		$result = mysql_query('SHOW INDEX FROM ' . $table_name);
+		
+		// foreach row in results insert into fields object
+		while ( $row = @mysql_fetch_assoc($result) ) {
+		
+			// set fields into an associative array
+			foreach ( $row as $key => $value ) $temp_arr[strtolower($key)] = $value;
+			// get default value for field
+			$temp_arr['value'] = ( $row['Default'] !== 'NULL' ? $row['Default'] : null );
+			// set property in fields object
+			$keys[] = $temp_arr;
+			
+		}
+		
+		return $keys;
 	}
 	
 	private function get_mysql_error()

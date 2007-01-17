@@ -1,0 +1,143 @@
+#
+# migration YAML file
+#
+UP:
+  create table:
+    - name: changesets
+      columns:
+        - name: revision
+          type: integer
+          limit: 11
+          not_null: true
+        - name: author
+          type: string
+          limit: 40
+          not_null: true
+        - name: log
+        - name: changed_files
+        - name: diff
+        - name: created_at
+        - name: updated_at
+  create table:
+    - name: comments
+      columns:
+        - name: ticket_id
+          type: integer
+          limit: 11
+          not_null: true
+        - name: author
+          type: string
+          limit: 255
+          not_null: true
+        - name: description
+        - name: created_at
+        - name: updated_at
+  create table:
+    - name: milestones
+      columns:
+        - name: name
+          type: string
+          limit: 60
+          not_null: true
+        - name: description
+        - name: created_at
+        - name: updated_at
+  create table:
+    - name: parts
+      columns:
+        - name: name
+          type: string
+          limit: 80
+          not_null: true
+  create table:
+    - name: sessions
+      columns:
+        - name: expires
+          type: integer
+          limit: 10
+          not_null: true
+        - name: data
+  create table:
+    - name: severities
+      columns:
+        - name: position
+          type: integer
+          limit: 1
+          not_null: true
+        - name: name
+          type: string
+          limit: 80
+          not_null: true
+  create table:
+    - name: statuses
+      columns:
+        - name: position
+          type: integer
+          limit: 1
+          not_null: true
+        - name: name
+          type: string
+          limit: 80
+          not_null: true
+  create table:
+    - name: tickets
+      columns:
+        - name: milestone_id
+          type: integer
+          limit: 11
+          not_null: true
+        - name: part_id
+          type: integer
+          limit: 2
+          not_null: true
+        - name: status_id
+          type: integer
+          limit: 2
+          not_null: true
+        - name: severity_id
+          type: integer
+          limit: 2
+          not_null: true
+        - name: user_id
+          type: integer
+          limit: 11
+          not_null: true
+        - name: author
+          type: string
+          limit: 80
+          not_null: true
+        - name: title
+          type: string
+          limit: 60
+          not_null: true
+        - name: description
+        - name: created_at
+        - name: in_queue
+          type: integer
+          limit: 1
+          not_null: true
+        - name: updated_at
+  create table:
+    - name: users
+      columns:
+        - name: name
+          type: string
+          limit: 255
+          not_null: true
+        - name: email
+          type: string
+          limit: 255
+          not_null: true
+        - name: password
+          type: string
+          limit: 80
+          not_null: true
+        - name: access_level
+          type: enum
+          values:
+          not_null: true
+            - developer
+            - tester
+        - name: created_at
+        - name: updated_at
+DOWN: null

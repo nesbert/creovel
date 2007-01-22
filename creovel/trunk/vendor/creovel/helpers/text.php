@@ -109,25 +109,24 @@ function mask($str, $mask = '*')
 }
 
 /*
- * Truncates a tring and add trailing periods to it
+ * Truncates a tring and add trailing periods to it. Now handles words
+ * better thank you Mel for the suggestion.
  *
  * @author Nesbert Hidalgo
  * @param string $str required
- * @param string $length optional default set to '*'
+ * @param string $length optional default set to 100 characters
  * @param string $tail optional default set to '...'
  * @return string
  */
-function truncate($str, $length = 30, $tail = '...')
+function truncate($str, $length = 100, $tail = '...')
 {	
 	$str = trim($str);
-
+	
 	if ( strlen($str) >= $length ) {
-	
-		$str = trim(substr_replace($str, '', ($length - strlen($tail))));
-		$str .= $tail;
-	
+		if ( $length > 1 ) $offset = strpos($str, " ", $length - 1);
+		$str = substr_replace($str, '', ( $offset ? $offset : $length) ) . $tail;	
 	}
-	
+		
 	return $str;
 }
 ?>

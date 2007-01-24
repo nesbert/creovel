@@ -156,6 +156,8 @@ class controller
 		$options['layout'] = $this->layout;
 		$options['render'] = $this->render;
 		$options['text'] = $this->render_text;
+		$options['to_str'] = $return_as_str;
+		
 		return $this->render($options);
 	}
 	
@@ -260,11 +262,17 @@ class controller
 			
 			// if same layout include files and set variables
 			case ( file_exists($view_path) ):			
+		
 				// create a variable foreach other option, using its key as the variable name
 				if ( count($options) ) foreach ( $options as $key => $values ) $$key = $values;
 				// include partial
-				include ( $view_path );
-				return;
+				$options['layout'] = false;
+
+				if ( $return_as_str ) {
+					return view::_get_view($view_path, null, $options);				
+				} else {
+					return view::_show_view($view_path, null, $options);
+				}
 			break;
 			
 			default:

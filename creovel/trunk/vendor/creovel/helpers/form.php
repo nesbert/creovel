@@ -735,8 +735,13 @@ function date_time_select($name, $datetime = null)
 
 function get_timestamp_from_post($key)
 {
-	$_POST[$key]['hour'] = ($_POST[$key]['ampm'] == 'pm') ? ($_POST[$key]['hour'] + 12) : $_POST[$key]['hour'];
-	return mktime($_POST[$key]['hour'], $_POST[$key]['minute'], 0, $_POST[$key]['month'], $_POST[$key]['day'], $_POST[$key]['year']);
+	$array['hour'] = ($array['ampm'] == 'pm') ? ($array['hour'] + 12) : $array['hour'];
+	return mktime($array['hour'], $array['minute'], 0, $array['month'], $array['day'], $array['year']);
+}
+function get_timestamp_from_array($array)
+{
+	$array['hour'] = ($array['ampm'] == 'pm') ? ($array['hour'] + 12) : $array['hour'];
+	return mktime($array['hour'], $array['minute'], 0, $array['month'], $array['day'], $array['year']);
 }
 
 function select_time_zone_tag($name, $selected = null, $choices = null, $html_options = null)

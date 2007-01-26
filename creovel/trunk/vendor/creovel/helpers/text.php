@@ -126,13 +126,13 @@ function truncate($str, $length = 100, $tail = '...', $strict = false)
 	
 	if ( strlen($str) >= $length ) {
 		if ($strict) {
-		
+			$str = trim(substr_replace($str, '', ($length - strlen($tail))));
 		} else {
 			if ( $length > 1 ) $offset = strpos($str, " ", $length - 1);
-			$str = substr_replace($str, '', ( $offset ? $offset : $length) ) . $tail;
+			$str = substr_replace($str, '', ( $offset ? $offset : $length) );
 		}
 	}
 		
-	return $str;
+	return $str.$tail;
 }
 ?>

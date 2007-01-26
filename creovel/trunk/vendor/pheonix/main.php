@@ -1,6 +1,9 @@
 <?
 
 define(LN, "/bin/ln -s ");
+define(LS, "/bin/ls ");
+define(RM, "/bin/rm ");
+define(SVN, "/usr/bin/svn ");
 
 class Pheonix
 {
@@ -11,11 +14,15 @@ class Pheonix
 	private $lowCtrl = null;
 	private $interactive = false;
 
+	private $config;
+
 	public function __construct()
 	{
-	  $this->stdin	= fopen('php://stdin', 'r');
-	  $this->stdout	= fopen('php://stdout', 'w');
-	  $this->stderr	= fopen('php://stderr', 'w');
+		$this->stdin	= fopen('php://stdin', 'r');
+		$this->stdout	= fopen('php://stdout', 'w');
+		$this->stderr	= fopen('php://stderr', 'w');
+
+		if (!$this->load_configuration(PHEONIX_CONFIG)) die("Unable to parse YAML Migration file");
 	}
 
 	public function main()
@@ -36,17 +43,17 @@ class Pheonix
 			{
 				case 'H':
 					$invalidSelection = false;
-					$this->halt();
+					foreach ($this->config['servers'] as $name => $config) $this->halt($name, $config);
 					break;
 
 				case 'R':
 					$invalidSelection = false;
-					$this->release();
+					foreach ($this->config['servers'] as $name => $config) $this->release($name, $config);
 					break;
 
 				case 'F':
 					$invalidSelection = false;
-					$this->fallback();
+					foreach ($this->config['servers'] as $name => $config) $this->fallback($name, $config);
 					break;
 
 				case 'A':
@@ -61,27 +68,64 @@ class Pheonix
 		}
 	}
 
-	public function halt()
+	public function load_configuration($file)
 	{
-		$this->stdout('Halting Application');
-
-		$halt_path = $this->getInput('Enter in the Halt Document Web Root:');
-
-		$this->stdout('Application Halted. Please Come back Soon!');
+		$this->config = Spyc::YAMLLoad($file);
+		
+		return (is_array($this->config));
 	}
 
-	public function release()
+	public function halt($name, $config)
 	{
-		$this->stdout('Release Application');
+		$connection = $this->ssh_connect($config);
 
-		$this->stdout('Application Released');
+		$stream = ssh2_exec($connection, RM."{$this->config['config']['apps_path']}/current");
+		$stream = ssh2_exec($connection, LN."{$this->config['config']['apps_path']}/halt {$this->config['config']['apps_path']}/current");
+
+		$this->stdout("Application Halted on {$name}");
 	}
 
-	public function fallback()
+	public function release($name, $config)
 	{
-		$this->stdout('Falling Back Application');
+		$connection = $this->ssh_connect($config);
 
-		$this->stdout('Application Reset to the Last Version');
+		$release_stamp = strftime("%Y%m%d%H%M", time());
+
+		$branch = $this->getInput('What branch do you want to release?');
+		$branch = ($branch == 'trunk') ? 'trunk' : "branches/{$branch}";
+
+		$stream = ssh2_exec($connection, SVN." co {$this->config['config']['svn_base_url']}/{$branch} {$this->config['config']['apps_path']}/releases/{$release_stamp}");
+
+		$stream = ssh2_exec($connection, RM."{$this->config['config']['apps_path']}/current");
+		$stream = ssh2_exec($connection, LN."{$this->config['config']['apps_path']}/releases/{$release_stamp} {$this->config['config']['apps_path']}/current");
+
+		$this->stdout("Application Released on {$name}");
+	}
+
+	public function fallback($name, $config)
+	{
+		$connection = $this->ssh_connect($config);
+
+		$stream = ssh2_exec($connection, LS."-r {$this->config['config']['apps_path']}/releases");
+
+		stream_set_blocking($stream, true);
+		$releases = explode("\n", fread($stream, 4096));
+		array_pop($releases);
+		fclose($stream);
+
+		$stream = ssh2_exec($connection, RM."-rf {$this->config['config']['apps_path']}/releases/".$releases[0]);
+		$stream = ssh2_exec($connection, RM."{$this->config['config']['apps_path']}/current");
+		if ($releases[1]) $stream = ssh2_exec($connection, LN."{$this->config['config']['apps_path']}/releases/".$releases[1]." {$this->config['config']['apps_path']}/current");
+
+		$this->stdout("Application Reset to the Last Version on {$name}");
+	}
+
+	private function ssh_connect($config)
+	{
+		$connection = ssh2_connect($config['address'], $config['port']);
+		ssh2_auth_password($connection, $config['user'], $config['pass']);
+
+		return $connection;
 	}
 
 	/*----General purpose functions----*/

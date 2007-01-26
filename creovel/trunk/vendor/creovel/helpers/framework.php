@@ -68,7 +68,17 @@ function __autoload($class)
 		case ( true ):
 			$type = strstr($class, '_mailer') ? 'Mailer' : 'Model';
 			$path = MODELS_PATH.$class.'.php';
-			if ( file_exists($path) ) break;
+			// if model found locallly
+			if ( file_exists($path) ) {
+				break;
+			} else {
+				// check shared
+				$shared_path = SHARED_PATH.'models'.DS.$class.'.php';
+				if ( file_exists($shared_path) ) {
+					$path = $shared_path;
+					break;
+				}
+			}
 			
 	}
 
@@ -93,7 +103,7 @@ function __autoload($class)
             
         }
 	
-	} catch(Exception $e) {
+	} catch (Exception $e) {
 		
 		// add to errors
 		$_ENV['error']->add($e->getMessage(), $e);

@@ -24,6 +24,7 @@
 <head>
 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 	<title>creovel <?=get_version()?> - A PHP Framework</title>
 	<style type="text/css">
 	#creovel { margin: 20px; color: #333; background-color: #fff; font: 75% 'Lucida Grande', Geneva, Verdana, Arial, Helvetica, sans-serif; }

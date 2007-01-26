@@ -18,6 +18,12 @@
  *
  * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
  */
+
+/**
+ * Layout view used by creovel to display application information.
+ *
+ * @author Nesbert Hidalgo
+ */
 ?>
 <div class="block title">
 	<h1>creovel <?=get_version()?></h1>
@@ -29,11 +35,11 @@
 	<td class="sub">Registered Adapters</td>
 	<td>
 		<em>
-		<? if ( $adapters = get_creovel_adapters() ) foreach ( $adapters as $name => $file) { ?>
+		<?php if ( $adapters = get_creovel_adapters() ) foreach ( $adapters as $name => $file) { ?>
 		<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$file?>"><?=$name?></a>
-		<? } else { ?>
+		<?php } else { ?>
 		Not Available
-		<? } ?>
+		<?php } ?>
 		</em>
 	</td>
 </tr>
@@ -41,16 +47,15 @@
 	<td class="sub">Registered Services</td>
 	<td>
 		<em>
-		<? if ( $services = get_creovel_services() ) foreach ( $services as $name => $file) { ?>
+		<?php if ( $services = get_creovel_services() ) foreach ( $services as $name => $file) { ?>
 		<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$file?>"><?=$name?></a>
-		<? } else { ?>
+		<?php } else { ?>
 		Not Available
-		<? } ?>
+		<?php } ?>
 		</em>
 	</td>
 </tr>
 </table>
-
 
 <h1>Environment</h1>
 <table cellspacing="0" class="block environment">
@@ -58,14 +63,14 @@
 <tr>
 	<td class="sub">Routes</td>
 	<td>
-		<? if ( count($_ENV['routes']) ) foreach($_ENV['routes'] as $route => $value) { ?>
+		<?php if ( count($_ENV['routes']) ) foreach($_ENV['routes'] as $route => $value) { ?>
 		<dl>
 			<dt><?=$route?></dt>
-			<? if ( count($value) ) foreach($value as $key => $val) { ?>
+			<?php if ( count($value) ) foreach($value as $key => $val) { ?>
 			<dd><?=$key?> => <?=$val?></dd>
-			<? } ?>
+			<?php } ?>
 		</dl>
-		<? } ?>	
+		<?php } ?>	
 	</td>
 </tr>
 <tr>
@@ -73,21 +78,21 @@
 	<td>
 		<dl>
 			<dt>development</dt>
-			<? if ( count($_ENV['development']) ) foreach($_ENV['development'] as $key => $val) { ?>
+			<?php if ( count($_ENV['development']) ) foreach($_ENV['development'] as $key => $val) { ?>
 			<dd><?=$key?> => <?=( $key == 'password' ? mask($val) : $val )?></dd>
-			<? } ?>
+			<?php } ?>
 		</dl>
 		<dl>
 			<dt>test</dt>
-			<? if ( count($_ENV['test']) ) foreach($_ENV['test'] as $key => $val) { ?>
+			<?php if ( count($_ENV['test']) ) foreach($_ENV['test'] as $key => $val) { ?>
 			<dd><?=$key?> => <?=( $key == 'password' ? mask($val) : $val )?></dd>
-			<? } ?>
+			<?php } ?>
 		</dl>
 		<dl>
 			<dt>production</dt>
-			<? if ( count($_ENV['production']) ) foreach($_ENV['production'] as $key => $val) { ?>
+			<?php if ( count($_ENV['production']) ) foreach($_ENV['production'] as $key => $val) { ?>
 			<dd><?=$key?> => <?=( $key == 'password' ? mask($val) : $val )?></dd>
-			<? } ?>
+			<?php } ?>
 		</dl>
 	</td>
 </tr>
@@ -95,25 +100,25 @@
 
 <h1>Constants</h1>
 <table cellspacing="0" class="block constants">
-<? foreach(get_user_defined_constants() as $key => $value) { ?>
+<?php foreach(get_user_defined_constants() as $key => $value) { ?>
 <tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
-<? } ?>
+<?php } ?>
 </table>
 
 <h1>Files</h1>
 <table cellspacing="0" class="block constants">
-<? foreach(get_included_files() as $file => $value) { ?>
-<? $total_filesize += filesize($value);?>
+<?php foreach(get_included_files() as $file => $value) { ?>
+<?php $total_filesize += filesize($value); ?>
 <tr>
 	<td class="sub"><?=( $file + 1 )?>.</td>
 	<td>
-		<? if ( $_ENV['view_source'] ) {	?>
+		<?php if ( $_ENV['view_source'] ) { ?>
 		<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$value?>"><?=$value?> (<?=get_filesize($value)?>)</a>
-		<? } else { ?>
+		<?php } else { ?>
 		<?=$value?> (<?=get_filesize($value)?>)
-		<? } ?>
+		<?php } ?>
 	</td>
 </tr>
-<? } ?>
+<?php } ?>
 <tr><td class="sub">Total</td><td><?=( $file + 1 )?> Files (<?=get_filesize($total_filesize)?>)</td></tr>
 </table>

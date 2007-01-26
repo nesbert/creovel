@@ -18,13 +18,19 @@
  *
  * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
  */
+
+/**
+ * View used by creovel to page source.
+ *
+ * @author Nesbert Hidalgo
+ */
 ?>
 <div class="code" id="source_<?=$trace_count?>" style="display:<?=( isset($_GET['view_source']) ? 'block' : 'none' )?>;">
 	<table cellspacing="0" class="source">
 	<tr>
 		<td>
 			<code>
-<?
+<?php
 $handle = @fopen($trace['file'], "r");
 
 if ($handle) {
@@ -50,13 +56,16 @@ if ($handle) {
 		}
 		
 		$buffer = fgets($handle, 4096);
+		
 		if ( $count == $trace['line'] ) {
 			echo "<strong class=\"red\">#{$zeros}{$count}</strong>&nbsp;&nbsp;\n<br />";
 		} else {
 			echo "#{$zeros}{$count}&nbsp;&nbsp;\n<br />";
 		
 		}
+		
 		$count++;
+		
 	}
 	
 	fclose($handle);

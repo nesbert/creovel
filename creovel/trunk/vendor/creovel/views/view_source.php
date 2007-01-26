@@ -18,7 +18,13 @@
  *
  * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
  */
+
+/**
+ * Layout view used by creovel to display application information.
+ *
+ * @author Nesbert Hidalgo
+ */
 ?>
 <h1 class="top">View Source</h1>
 <p class="top"><?=$trace['file'] = $_GET['view_source']?> (<?=get_filesize($_GET['view_source'])?>)</p>
-<? include(dirname(__FILE__).DS.'_source_code.php') ?>
+<?php include dirname(__FILE__).DS.'_source_code.php' ?>

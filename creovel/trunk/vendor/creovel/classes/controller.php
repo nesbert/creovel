@@ -432,12 +432,12 @@ class controller
 	/**
 	 * Is Posted
 	 *
-	 * @author Russ Smith
+	 * @author Russ Smith, Nesbert Hidalgo
 	 * @access public 
 	 */
 	public function is_posted()
 	{
-		return (empty($_POST)) ? false : true;
+		return ( $_SERVER['REQUEST_METHOD'] == 'POST' );
 	}
 
 }

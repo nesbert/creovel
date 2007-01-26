@@ -222,7 +222,6 @@ class model implements Iterator {
 	private function _get_connection_properties()
 	{
 	
-	
 		switch ( $_ENV['mode'] ) {
 		
 			case 'production':
@@ -242,7 +241,7 @@ class model implements Iterator {
 			break;
 		
 		}
-
+		
 	}
 
 	public function _set_data($data) {

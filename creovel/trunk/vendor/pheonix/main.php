@@ -15,6 +15,7 @@ class Pheonix
 	private $interactive = false;
 
 	private $config;
+	private $application_path;
 
 	public function __construct()
 	{
@@ -22,7 +23,9 @@ class Pheonix
 		$this->stdout	= fopen('php://stdout', 'w');
 		$this->stderr	= fopen('php://stderr', 'w');
 
-		if (!$this->load_configuration(PHEONIX_CONFIG)) die("Unable to parse YAML Migration file");
+		if (!$this->load_configuration(PHEONIX_CONFIG)) die("Unable to parse YAML Migration file.\n");
+
+		$this->application_path = "{$this->config['config']['path']}/{$this->config['config']['appname']}";
 	}
 
 	public function main()
@@ -72,15 +75,15 @@ class Pheonix
 	{
 		$this->config = Spyc::YAMLLoad($file);
 		
-		return (is_array($this->config));
+		return (!empty($this->config));
 	}
 
 	public function halt($name, $config)
 	{
 		$connection = $this->ssh_connect($config);
 
-		$stream = ssh2_exec($connection, RM."{$this->config['config']['apps_path']}/current");
-		$stream = ssh2_exec($connection, LN."{$this->config['config']['apps_path']}/halt {$this->config['config']['apps_path']}/current");
+		$stream = ssh2_exec($connection, RM."{$this->application_path}/current");
+		$stream = ssh2_exec($connection, LN."{$this->application_path}/halt {$this->application_path}/current");
 
 		$this->stdout("Application Halted on {$name}");
 	}
@@ -94,10 +97,10 @@ class Pheonix
 		$branch = $this->getInput('What branch do you want to release?');
 		$branch = ($branch == 'trunk') ? 'trunk' : "branches/{$branch}";
 
-		$stream = ssh2_exec($connection, SVN." co {$this->config['config']['svn_base_url']}/{$branch} {$this->config['config']['apps_path']}/releases/{$release_stamp}");
+		$stream = ssh2_exec($connection, SVN." co {$this->config['config']['svnurl']}/{$branch} {$this->application_path}/releases/{$release_stamp}");
 
-		$stream = ssh2_exec($connection, RM."{$this->config['config']['apps_path']}/current");
-		$stream = ssh2_exec($connection, LN."{$this->config['config']['apps_path']}/releases/{$release_stamp} {$this->config['config']['apps_path']}/current");
+		$stream = ssh2_exec($connection, RM."{$this->application_path}/current");
+		$stream = ssh2_exec($connection, LN."{$this->application_path}/releases/{$release_stamp} {$this->application_path}/current");
 
 		$this->stdout("Application Released on {$name}");
 	}
@@ -106,16 +109,16 @@ class Pheonix
 	{
 		$connection = $this->ssh_connect($config);
 
-		$stream = ssh2_exec($connection, LS."-r {$this->config['config']['apps_path']}/releases");
+		$stream = ssh2_exec($connection, LS."-r {$this->application_path}/releases");
 
 		stream_set_blocking($stream, true);
 		$releases = explode("\n", fread($stream, 4096));
 		array_pop($releases);
 		fclose($stream);
 
-		$stream = ssh2_exec($connection, RM."-rf {$this->config['config']['apps_path']}/releases/".$releases[0]);
-		$stream = ssh2_exec($connection, RM."{$this->config['config']['apps_path']}/current");
-		if ($releases[1]) $stream = ssh2_exec($connection, LN."{$this->config['config']['apps_path']}/releases/".$releases[1]." {$this->config['config']['apps_path']}/current");
+		$stream = ssh2_exec($connection, RM."-rf {$this->application_path}/releases/".$releases[0]);
+		$stream = ssh2_exec($connection, RM."{$this->application_path}/current");
+		if ($releases[1]) $stream = ssh2_exec($connection, LN."{$this->application_path}/releases/".$releases[1]." {$this->application_path}/current");
 
 		$this->stdout("Application Reset to the Last Version on {$name}");
 	}

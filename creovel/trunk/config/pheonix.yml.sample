@@ -1,6 +1,10 @@
 config:
-  apps_path: /var/www/html/apps
-  svn_base_url: http://creovel.org/svn/creovel/creovel
+  appname: pheonix
+  path: /var/www/html/apps
+  svnurl: http://creovel.org/svn/creovel/creovel
+
+tasks:
+  restart: apachectl
 
 servers:
   localhost:

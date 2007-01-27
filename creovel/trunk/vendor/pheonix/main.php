@@ -92,13 +92,9 @@ class Pheonix
 	{
 		$connection = $this->ssh_connect($config);
 
-		$release_stamp = strftime("%Y%m%d%H%M", time());
+		$release = $this->getInput('What branch/releases/trunk do you want to release?');
 
-		$branch = $this->getInput('What branch do you want to release?');
-		$branch = ($branch == 'trunk') ? 'trunk' : "branches/{$branch}";
-
-		$stream = ssh2_exec($connection, SVN." co {$this->config['config']['svnurl']}/{$branch} {$this->application_path}/releases/{$release_stamp}");
-
+		$stream = ssh2_exec($connection, SVN." co {$this->config['config']['svnurl']}/{$release} {$this->application_path}/releases/".strftime("%Y%m%d%H%M", time()));
 		$stream = ssh2_exec($connection, RM."{$this->application_path}/current");
 		$stream = ssh2_exec($connection, LN."{$this->application_path}/releases/{$release_stamp} {$this->application_path}/current");
 

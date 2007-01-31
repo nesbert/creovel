@@ -1,7 +1,0 @@
-<?
-
-class status extends model
-{
-}
-
-?>

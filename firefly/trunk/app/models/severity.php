@@ -1,7 +1,0 @@
-<?
-
-class severity extends model
-{
-}
-
-?>

@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+define(CREOVEL_PATH, dirname(dirname(__FILE__))."/vendor/creovel/");
+
+// include core libraries
+require_once(CREOVEL_PATH.'initialize.php');
+
+echo "Starting, creovel ".get_version()." update...\n";
+
+// Remove Old and Check Out Newest Version
+exec("rm -Rfv ".CREOVEL_PATH);
+echo exec("/usr/bin/env svn export http://www.creovel.org/svn/creovel/creovel/trunk/vendor/creovel/ ".CREOVEL_PATH)."\n";
+
+echo "Finished, creovel ".get_version()." successfully updated!\n";
+?>

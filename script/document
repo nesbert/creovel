@@ -1,0 +1,18 @@
+#!/usr/bin/php -q
+<?
+
+require dirname(__FILE__).'/../vendor/dokium/dokium.php';
+
+dokium::$template	= 'default';
+dokium::$output		= dirname(__FILE__).'/../public/docs';
+
+$files = array
+(
+	'classes'	=> dirname(__FILE__).'/../vendor/creovel/classes',
+	'helpers'	=> dirname(__FILE__).'/../vendor/creovel/helpers',
+	'services'	=> dirname(__FILE__).'/../vendor/creovel/services',
+);
+
+dokium::document('creovel', $files);
+
+?>

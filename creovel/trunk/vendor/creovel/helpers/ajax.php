@@ -99,13 +99,17 @@ function form_remote_tag($id_to_update, $url) {
  * @param string $url required
  */
  
-function observe_field($id_of_field, $frequency = 0, $id_to_update, $url) {
+function observe_field($id_of_field, $frequency = 0, $id_to_update, $url, $submit_form = false) {
  
  	if ( !is_numeric($frequency) ) {
 		$frequency = 0;
 	}
-	
- 	return "<script type=\"text/javascript\">new Form.Element.Observer('".$id_of_field."', ".$frequency.", function(element, value) {new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true, evalScripts:true, parameters:value})})</script>\n";
+	if ($submit_form) {
+		$params = 'Form.serialize(element.form)';
+	} else {
+		$params = "element.name+'='+value";
+	}
+ 	return "<script type=\"text/javascript\">new Form.Element.Observer('".$id_of_field."', ".$frequency.", function(element, value) {new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true, evalScripts:true, parameters:".$params."})})</script>\n";
  
 }
 

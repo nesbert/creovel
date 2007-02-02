@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?
+
+require_once dirname(__FILE__).'/../config/environment.php';
+require_once dirname(__FILE__).'/../vendor/pheonix/main.php';
+require_once dirname(__FILE__).'/../vendor/pheonix/spyc.php';
+
+define(PHEONIX_CONFIG, dirname(__FILE__).'/../config/pheonix.yml');
+
+$pheonix = new Pheonix();
+$pheonix->main();
+
+?>

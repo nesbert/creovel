@@ -29,8 +29,8 @@
  */
 class creovel
 {
-	const VERSION = '0.01';
-	const RELEASE_DATE = 'Nov 24 2005 16:55:55';
+	const VERSION = '0.02';
+	const RELEASE_DATE = 'Feb 02 2007 02:00:00';
 	
 	/**
 	 * Run framework.

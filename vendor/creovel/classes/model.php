@@ -1,124 +1,52 @@
 <?
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
 
-/**
- * Model class
- *
- * @copyright	Copyright (c) 2005-2006, creovel.org
- * @package		creovel
- * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
- */
-class model implements Iterator {
+/*
 
+Class: Model
+	Model class
+
+Implments:
+	Iterator
+
+*/
+
+class model implements Iterator
+{
+	/*
 	
-	/**
-	* Database the table resides in 
-	*
-	* @author John Faircloth
-	* @access protected
-	* @var string
+	Property: _db_name
+		Database the table resides in 
+
 	*/
+
 	protected $_db_name;
 	
-	/**
-	* Table name the model is representing 
-	*
-	* @author John Faircloth
-	* @access protected
-	* @var string 
+	/*
+	
+	Property: _table_name
+		Table name the model is representing 
+
 	*/
+
 	protected $_table_name;
-	
-	/**
-	* Table columns
-	*
-	* @author John Faircloth
-	* @access private
-	* @var object
-	*/
-	protected $_fields;
 	 
-	/**
-	* The primary key column (underscore format).
-	* @author John Faircloth
-	* @access private
-	* @var object
-	* print_r($this->vacation);
-	*/
-    protected $_primary_key = 'id';
+	/*
 	
-	/**
-	* Adapter
-	* @author Nesbert Hidalgo
-	* @access public
-	* @var object
+	Property: _primary_key
+		The primary key column (underscore format).
+
 	*/
+
+	protected $_primary_key = 'id';
+
+	protected $_fields;
+
     public $_select_query;
-	
-	/**
-	* Adapter
-	* @author Nesbert Hidalgo
-	* @access private
-	* @var object
-	*/
     public $_action_query;
-	
-	/**
-	* Adapter
-	* @author John Faircloth
-	* @access public
-	* @var array
-	*/
     public $_links = array();
-	
-	/**
-	* Adapter
-	* @author John Faircloth
-	* @access public
-	* @var array
-	*/
     public $_valid = array();
-	
-	/**
-	* Paging object
-	* @author Nesbert Hidalgo
-	* @access public
-	* @var object
-	*/
 	public $page;
-	
-	/**
-	* Errors object
-	* @author Nesbert Hidalgo
-	* @access public
-	* @var object
-	*/
 	public $errors;
-	
-	/**
-	* Errors object
-	* @author Nesbert Hidalgo
-	* @access public
-	* @var object
-	*/
 	public $validation;
 	
 	private $_select;
@@ -129,14 +57,19 @@ class model implements Iterator {
 	private $_limit;
 	private $_offset;
 	private $_query_str;
+
+	// Section: Public
 	
-	/**
-	* Constructor.
-	*
-	* @author John Faircloth
-	* @access public
-	* @params string array $data used to load the model with values
-	 */	 
+	/*
+	
+	Function: __construct
+		Constructor.
+
+	Parameters	
+		data - used to load the model with values
+
+	*/	 
+
 	public function __construct($data = null, $connection_properties = null)
 	{
 		
@@ -146,48 +79,26 @@ class model implements Iterator {
 		$this->_select_query = $this->establish_connection($connection_properties);
 		$this->_action_query = $this->establish_connection($connection_properties);		
 		
-		if ($adapter) {
-			$this->_adpater = $adapter;
-		}
+		if ($adapter) $this->_adpater = $adapter;
 		
 		$this->_set_table();
 		$this->_set_data($data);
-		
 	}
 	
-	/**
-	* Set Table up
-	*
-	* @author John Faircloth
-	* @access private
+	/*
+			
+	Function:	
+		Choose the correct DB adapter to use and sets its properties.
+		Returns an DB Layer object.
+
+	Parameters:	
+		db_properties - required
+
+	Returns:
+		object
+
 	*/
-	private function _set_table()
-	{
-		
-		if (!$this->_table_name) {
-			$model_name =  $this->_class();
-			$this->_table_name = pluralize($model_name);
-		}
-		
-		$this->_db_name = $this->_select_query->get_database();
-		$this->_select_query->set_table($this->_table_name);
-		$this->_fields = $this->_select_query->get_fields_object();
-	}
-	
-	private function _class()
-	{
-		return get_class($this);			
-	}
-	
-	/**
-	* Choose the correct DB adapter to use and sets its properties.
-	* Returns an DB Layer object.
-	*
-	* @author Nesbert Hidalgo
-	* @access public
-	* @param array $db_properties required
-	* @return object
-	*/
+
 	public function establish_connection($connection_properties = false)
 	{
 		if (!is_array($connection_properties)) {
@@ -209,44 +120,18 @@ class model implements Iterator {
 		$db_obj = new $adapter($connection_properties);
 		
 		return $db_obj;
-		
 	}
 	
-	/**
-	 * Get connection properties for DB as defined in the ENV
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 * @return array
-	 */
-	private function _get_connection_properties()
-	{
+	/*
 	
-		switch ( $_ENV['mode'] ) {
-		
-			case 'production':
-				$_ENV['production']['mode'] = 'production';
-				return $_ENV['production'];
-			break;
-		
-			case 'test':
-				$_ENV['test']['mode'] = 'test';
-				return $_ENV['test'];
-			break;
-		
-			case 'development':
-			default:
-				$_ENV['development']['mode'] = 'development';
-				return $_ENV['development'];
-			break;
-		
-		}
-		
-	}
+	Function: _set_data
 
-	public function _set_data($data) {
-	
-		if ($data) {
+	*/
+
+	public function _set_data($data)
+	{
+		if ($data)
+		{
 			if (is_array($data)) {
 				if (isset($data[$this->_primary_key])) {
 					$function = 'set_' . $this->_primary_key;
@@ -266,51 +151,41 @@ class model implements Iterator {
 				$function = 'set_' . $this->_primary_key;
 				$this->$function($data);
 			}
-			
 		}
-		
 	}
 	
-	/**
-	 * Creates an object mapped to the current table's structure
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 */	 
-	private function _get_fields_object()
-	{
-		// reset class properties
-		$this->reset();
-		
-		// send a DESCRIBE query and set result on success
-		$this->_select_query->query('DESCRIBE ' . $this->_table_name);
-		
-		// foreach row in results insert into fields object
-		while ( $row = mysql_fetch_assoc($result) ) {
-		
-			// set fields into an associative array		
-			foreach ( $row as $key => $value ) if ( $key != 'Field' ) $temp_arr[strtolower($key)] = $value;
-			// get default value for field
-			$temp_arr['value'] = ( $row['Default'] !== 'NULL' ? $row['Default'] : null );
-			// set property in fields object
-			$fields->$row['Field'] = (object) $temp_arr;
-			
-		}
-		
-		return $fields;
-		
-	}
-
 	public function get_fields_object()
 	{
 		return $this->_fields;
 	}
 
+	/*
+
+	Function: update_field
+		Updates a single field and saves the object.
+		Bypasses validation.
+
+	Parameters:
+		name - field name
+		value - value
+
+	*/
+
 	public function update_field($name, $value)
 	{
 		$this->update(array( 'id' => $this->key(), $name => $value ));
 	}
+
+	/*
 	
+	Function: validate_model
+		Runs the validation on the model.
+
+	Returns:
+		bool
+
+	*/	
+
 	public function validate_model()
 	{
 		// validate model on every save
@@ -320,14 +195,23 @@ class model implements Iterator {
 		
 		return true;
 	}
-		
+
+	/*
+	
+	Function: save
+		Saves the model to the database.
+		Either calles <insert> or <update> depending on if the record exists.
+
+	Returns:
+		int or false
+
+	*/	
+
 	public function save()
 	{
 		$this->before_save();
 
-		if (!$this->validate_model()) {
-			return false;
-		}
+		if (!$this->validate_model()) return false;
 		
 		if ( $key = $this->key() ) {
 		
@@ -357,13 +241,23 @@ class model implements Iterator {
 		} else {
 			return false;
 		}	
-		
-		
-	
 	}
+
+	/*
 	
-	public function insert($data) {
-		
+	Function: insert
+		Insert the model into the database.
+
+	Parameters:
+		data - array of key => values	
+
+	Returns:
+		int
+	
+	*/
+
+	public function insert($data)
+	{
 		$qry = "INSERT INTO {$this->_table_name} (";
 		
 		foreach ($data as $name => $value) {
@@ -436,11 +330,23 @@ class model implements Iterator {
 		$this->_fields->$key->value =  $this->_action_query->get_insert_id();
 		
 		return $this->key(); 
-		 
 	}
+
+	/*
 	
-	public function update($data) {
-		
+	Function: update
+		Updates the model in the database.
+
+	Parameters:
+		data -  Array of key => values	
+
+	Returns:
+		int
+
+	*/
+
+	public function update($data)
+	{
 		$qry = "UPDATE {$this->_table_name} SET ";
 		
 		foreach ($data as $name => $value) {
@@ -505,7 +411,20 @@ class model implements Iterator {
 		
 		return $key; 
 	}
-	
+
+	/*
+
+	Function: delete
+		Deletes the model from the database.
+
+	Parameters:
+		where - Argument to the SQL query.
+
+	Returns:
+		int
+
+	*/
+
 	public function delete($where = null)
 	{
 		// if no $where	delete current load record
@@ -520,20 +439,42 @@ class model implements Iterator {
 		
 		return $this->_action_query->row_count;
 	}
+
+	/*
 	
-	public function values() {
+	Function: values
+		The values of the current model.
+
+	Returns:
+		array
+	*/
+
+	public function values()
+	{
 		$ret = array();
 		
 		foreach ( $this->_fields as $field => $obj ) {
-		
 			$ret[$field] = $obj->value;
 		}
 		
 		return $ret;
-		
 	}
-	
-	public function find($args = false) {
+
+	/*
+
+	Function: find
+		Find macthing records in the database.
+
+	Parameters:
+		args - Array of options.
+
+	Returns:
+		Iterator
+
+	*/
+
+	public function find($args = false)
+	{
 		$this->reset();
 
 		$this->before_find();	
@@ -579,23 +520,62 @@ class model implements Iterator {
 
 		return $result;
 	}
-	
-	public function find_all($args = null) {
-		
+
+	/*
+
+	Function: find_all
+		Find macthing records in the database.
+
+	Parameters:
+		args - Array of options.
+
+	Returns:
+		Iterator
+
+	*/
+
+	public function find_all($args = null)
+	{
 		unset($args['limit']);
 		unset($args['offset']);
 		$this->find($args);
-	
 	}
+
+	/*
+
+	Function: find_first
+		Find first matching record in the database.
+
+	Parameters:
+		args - Array of options.
+
+	Returns:
+		object
+
+	*/
 	
-	public function find_first($args = null) {
+	public function find_first($args = null)
+	{
 		$args['limit'] = 1;
 		$this->find($args);
 		return $this->next();
 	}
+
+	/*
+
+	Function: find_total
+		Find total number of matching records in the database.
+
+	Parameters:
+		args - Array of options.
+
+	Returns:
+		Iterator
+
+	*/
 	
-	public function find_total($args = null) {
-	
+	public function find_total($args = null
+	{
 		$args['total'] = true;
 		unset($args['limit']);
 		unset($args['offset']);
@@ -605,40 +585,124 @@ class model implements Iterator {
 		$row = $this->_select_query->get_row();
 		$this->reset();
 		return $row['total'];
-		
 	}
-	
-	public function select($select) {
+
+	/*
+
+	Function: select
+		Set the Select argument for the query.
+
+	Parameters:
+		select - Select argument.
+
+	*/
+
+	public function select($select)
+	{
 		$this->_select = $select;
 	}
+
+	/*
+
+	Function: from
+		Set the From argument for the query.
+
+	Parameters:
+		from - From argument.
+
+	*/
 	
-	public function from($from) {
+	public function from($from)
+	{
 		$this->_from = $from;
 	}
+
+	/*
+
+	Function: where
+		Set the Where argument for the query.
+
+	Parameters:
+		where - Where argument.
+
+	*/
 	
 	public function where($where) {
 		$this->_where = $where;
 	}
+
+	/*
+
+	Function: select
+		Set the Select argument for the query.
+
+	Parameters:
+		select - Select argument.
+
+	*/
 	
 	public function order($order) {
 		$this->_order = $order;
 	}
+
+	/*
+
+	Function: group
+		Set the Group argument for the query.
+
+	Parameters:
+		group - Group argument.
+
+	*/
 	
 	public function group($group) {
 		$this->_group = $group;
 	}
+
+	/*
+
+	Function: offset
+		Set the Offset argument for the query.
+
+	Parameters:
+		offset - Query offset
+
+	*/
+
+	public function offset($offset)
+	{
+		$this->_offset = $offset;
+	}
+	
+	/*
+
+	Function: limit
+		Set the Limit argument for the query.
+
+	Parameters:
+		limit - Limit number of records
+		offset - Query offset
+
+	*/
 	
 	public function limit($limit, $offset = null) {
 		$this->_limit = $limit;
 		$this->_offset = $offset;
 	}
 	
-	public function offset($offset)
-	{
-		$this->_offset = $offset;
-	}
+	/*
+
+	Function: query
+
+	Parameters:
+		str - 
+
+	Returns:
+
+	*/
 	
-	public function query($str = null) {
+	public function query($str = null)
+	{
 		if ($str) {
 			$this->_query_str = $str; 
 		} else {
@@ -648,7 +712,21 @@ class model implements Iterator {
 		return $this->_select_query->query($this->_query_str);
 	}
 	
-	public function query_str($no_breaks = false) {
+	/*
+
+	Function: query_str
+		Query string
+
+	Parameters:
+		no_breaks - Turn new lines into breaks
+
+	Retruns:
+		string
+
+	*/
+
+	public function query_str($no_breaks = false)
+	{
 		if (! $this->_query_str) $this->_build_qry();
 		
 		if ($no_breaks) {
@@ -658,50 +736,16 @@ class model implements Iterator {
 		}
 	
 	}
-	
-	
-	private function _build_qry() {
-		
-		$str = '';
-		
-		if ($this->_select) {
-			$str .= "SELECT " . $this->_select . "\n";
-		} else {
-			$str .= "SELECT * \n";
-		}
-		
-		if ($this->_from) {
-			$str .= "FROM " . $this->_from . "\n";
-		} else {
-			$str .= "FROM " . $this->_table_name . "\n";
-		}
-		
-		if ($this->_where) {
-			$str .= "WHERE " . $this->_where . "\n";
-		} else {
-			$str .= "WHERE 1 \n";
-		}
-		
-		if ($this->_group) {
-			$str .= "GROUP BY " . $this->_group . "\n";
-		}
-		
-		if ($this->_order) {
-			$str .= "ORDER BY " . $this->_order . "\n";
-		}
-		
-		if ($this->_offset) {
-			$str .= "LIMIT " . $this->_offset . ', ' . $this->_limit . "\n";
-		} else {
-			if ($this->_limit) {
-				$str .= "LIMIT " . $this->_limit . "\n";
-			}
-		}
-		
-		$this->_query_str = $str;
-	}
-	
-	public function reset() {
+
+	/*
+
+	Function: reset
+		Reset model object.
+
+	*/
+
+	public function reset()
+	{
 		$this->_select = null;
 		$this->_from = null;
 		$this->_where = null;
@@ -711,114 +755,86 @@ class model implements Iterator {
 		$this->_offset = null;
 		$this->_query_str = null;
 		$this->_select_query->reset();
-	
 	}
 	
-	
-	//iterator interface
-	
-	    /**
-   	* Return the array "pointer" to the first element
-   	* PHP's reset() returns false if the array has no elements
-   	*/
- 	function rewind(){
-		
-		$this->_select_query->rewind();
-		$this->next();
-	}
+	/*
 
-   /**
-   * Return the current array element
-   */
-	 function current(){
-		return $this->_create_child();
-	 }
+	Function: key
+		The value of the primary key.
 
-   /**
-   * Return the key of the current array element
-   */
- 	function key(){
+	Returns:
+		mixed
+
+	*/
+
+	public function key()
+	{
 		$function = 'get_' . $this->_primary_key;
-		
+
 		return $this->$function();
 	}
-
-   /**
-   * Move forward by one
-   * PHP's next() returns false if there are no more elements
-   */
-	function next(){
-		
-  		if ( $this->get_pointer() <= ( $this->row_count() - 1 ) ) {
-		
-			$row = $this->_select_query->get_row($this->get_pointer(), $type);
-			$this->load_values_into_fields($row, $type);
-			$this->_select_query->pointer++;
-			$this->_valid = true;
-			return $row;
-			
-		} else {
-			$this->_valid = false;
-			$this->_select_query->pointer--;
-			return false;
-			
-		}
-	}
-
-   /**
-   * Is the current element valid?
-   */
- 	function valid(){
-		return $this->_valid;
-   	}
 	
-	private function _create_child()
-	{
-		return clone $this;
-		/*
-		$item = new $this;
-		$item->load_values_into_fields($this->values());
-		return $item;
-		*/
-	}
-	
+	/*
+
+	Function: get_pointer
+
+	Returns:
+		int
+
+	*/
+
 	public function get_pointer()
 	{
 		return $this->_select_query->pointer ? $this->_select_query->pointer : 0;
 	}
 	
+	/*
+
+	Function: row_count
+		Number of rows the query returned.
+
+	Returns:
+		int
+
+	*/
+
 	public function row_count() {
 		
 		return $this->_select_query->row_count;
 	
 	}
 	
+	/*
+
+	Function: get_affected_rows
+		Number of rows affected by the query.
+
+	Returns:
+		int
+
+	*/
+
 	public function get_affected_rows()
 	{
 		return $this->_select_query->get_affected_rows();
 	}
+
+	/*
 	
-	private function load_values_into_fields($data, $type = self::ROW_ASSOC)
-	{
-	
-		switch ( $type ) {
-		
-			default:
-				foreach ( $data as $field => $value ) $this->_fields->$field->value = $value;
-			break;
-			
-		}
-		
-	}
-	
-	/**
-	* Magic Functions
-	*
-	* @author John Faircloth, Nesbert Hidalgo
-	* @access public
-	* @param string $method name of function being called
-	* @param array $arguments passed to the function
+	Function: __call
+		Magic Functions
+	 	Yeah it doesn't get any bigger than this.
+		We need some examples.
+
+	Parameters:
+		method - name of function being called
+		arguments - passed to the function
+
+	Returns:
+		mixed
+
 	*/
+
 	public function __call($method, $arguments)
 	{
 	
@@ -1022,12 +1038,24 @@ class model implements Iterator {
 			$_ENV['error']->add($e->getMessage(), $e);
 		
 		}
-		
 	}
+
+	/*
 	
+	Function: __set
+		Magic function to set values.
+
+	Parameters:
+		property - field name	
+		value - value
+
+	Returns:
+		mixed
+
+	*/
+
 	public function __set($property, $value)
 	{
-
 		try {
 				
 			if ( isset($this->_fields->$property) ) {
@@ -1047,11 +1075,23 @@ class model implements Iterator {
 			$_ENV['error']->add($e->getMessage(), $e);
 		
 		}		
-
 	}
+
+	/*
 	
-	public function __get($property) {
+	Function: __get
+		Magic function to get values.
+
+	Parameters:
+		property - field name	
+
+	Returns:
+		mixed
+
+	*/
 	
+	public function __get($property)
+	{
 		try {
 				
 			if ( isset($this->_fields->$property) ) {
@@ -1075,46 +1115,390 @@ class model implements Iterator {
 			$_ENV['error']->add($e->getMessage(), $e);
 		
 		}		
-			
+	}
+
+	/*
+	
+	Function: paginate
+		Alias to find and set the $page object. default page limit is 10 records
+
+	Parameters:	
+		args - optional 
+
+	*/
+
+	public function paginate($args = null)
+	{
+		// create temp args
+		$temp = $args;
+		unset($temp['offset']);
+		$temp['total_records'] = $this->find_total($temp);
+		$temp = (object) $temp;
+		
+		// create page object
+		$this->page = new pager($temp);
+		
+		// update agrs with paging data
+		$args['offset'] = $this->page->offset;
+		$args['limit'] = $this->page->limit;
+		
+		// execute query
+		$this->find($args);
 	}
 	
-	public function has_many($name, $options = array()) {
-		
+	/*
+	
+	Function: is_valid
+		Validate model object.
+
+	Returns:
+		bool
+
+	*/
+
+    public function is_valid()
+    {
+        // validate model on every save
+        $this->validate();
+        
+        // if error return false        
+        if ( $this->errors->has_errors() ) {
+            return false;
+        } else {
+            return true;
+        }    
+    }
+
+    /*
+
+	Function:	
+		Check if a table exits in the current database.
+
+	Returns:
+		bool
+
+	*/
+
+    public function table_exits($table_name)
+    {
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->table_exits($table_name);
+    }
+
+    /*
+
+	Function:	
+		Check if a table exits in the current database.
+
+	Returns:
+		bool
+
+	*/
+
+	public function all_tables()
+	{
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+		return $db_obj->all_tables();
+	}
+
+    /*
+
+	Function:	
+		Check if a table exits in the current database.
+
+	Returns:
+		bool
+
+	*/
+
+	public function field_breakdown($table_name)
+	{
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->field_breakdown($table_name);
+	}
+
+    /*
+
+	Function:	
+		Check if a table exits in the current database.
+
+	Returns:
+		bool
+
+	*/
+
+	public function key_breakdown($table_name)
+	{
+        $db_obj = self::establish_connection( self::_get_connection_properties() );
+        return $db_obj->key_breakdown($table_name);
+	}
+
+	/*
+	
+	Function: has_many
+		Creates a link between objects.
+
+	Parameters:
+		name - link_name
+		options - array of options
+
+	*/
+
+	public function has_many($name, $options = array())
+	{
 		$this->_links[$name]['type'] = 'has_many';
 		$this->_links[$name]['options'] = $options;
 		$this->_links[$name]['linked_to'] = false;
 		$this->_links[$name]['object'] = false;
-	
 	}
+
+	/*
 	
-	public function belongs_to($name, $options = array()) {
-		
+	Function: belongs_to
+		Creates a link between objects.
+
+	Parameters:
+		name - link_name
+		options - array of options
+
+	*/
+	
+	public function belongs_to($name, $options = array())
+	{
 		$this->_links[$name]['type'] = 'belongs_to';
 		$this->_links[$name]['options'] = $options;
 		$this->_links[$name]['linked_to'] = false;
 		$this->_links[$name]['object'] = false;
-		
 	}
+
+	/*
 	
-	public function has_many_link($name, $options = array()) {
+	Function: has_many_link
+		Creates a link between objects.
+
+	Parameters:
+		name - link_name
+		options - array of options
+
+	*/
+	
+	public function has_many_link($name, $options = array())
+	{
 		$this->_links[$name]['type'] = 'has_many_link';
 		$this->_links[$name]['options'] = $options;
 		$this->_links[$name]['linked_to'] = false;
 		$this->_links[$name]['object'] = false;
-	
 	}
+
+	/*
 	
-	public function has_one($name, $options = array()) {
+	Function: has_one
+		Creates a link between objects.
+
+	Parameters:
+		name - link_name
+		options - array of options
+
+	*/
 	
+	public function has_one($name, $options = array())
+	{
 		$this->_links[$name]['type'] = 'has_one';
 		$this->_links[$name]['options'] = $options;
 		$this->_links[$name]['linked_to'] = false;
 		$this->_links[$name]['object'] = false;
-	
 	}
 	
-	private function get_link_object($name) {
+
+
+	// Section: Private	
+
+	/*
+	
+	Function: _set_table
+		Set Table up
+
+	*/
+
+	private function _set_table()
+	{
+		if (!$this->_table_name) {
+			$model_name =  $this->_class();
+			$this->_table_name = pluralize($model_name);
+		}
 		
+		$this->_db_name = $this->_select_query->get_database();
+		$this->_select_query->set_table($this->_table_name);
+		$this->_fields = $this->_select_query->get_fields_object();
+	}
+
+	/*
+
+	Function: _class
+
+	*/
+
+	private function _class()
+	{
+		return get_class($this);			
+	}
+	
+	/*
+	
+	Function:
+		Get connection properties for DB as defined in the ENV
+
+	Returns:	
+		array
+
+	*/
+
+	private function _get_connection_properties()
+	{
+		switch ( $_ENV['mode'] )
+		{
+			case 'production':
+				$_ENV['production']['mode'] = 'production';
+				return $_ENV['production'];
+			break;
+		
+			case 'test':
+				$_ENV['test']['mode'] = 'test';
+				return $_ENV['test'];
+			break;
+		
+			case 'development':
+			default:
+				$_ENV['development']['mode'] = 'development';
+				return $_ENV['development'];
+			break;
+		
+		}
+	}
+
+	/*
+	
+	Function:
+		Creates an object mapped to the current table's structure
+
+	Returns:
+		array
+
+	*/	 
+
+	private function _get_fields_object()
+	{
+		// reset class properties
+		$this->reset();
+		
+		// send a DESCRIBE query and set result on success
+		$this->_select_query->query('DESCRIBE ' . $this->_table_name);
+		
+		// foreach row in results insert into fields object
+		while ( $row = mysql_fetch_assoc($result) ) {
+		
+			// set fields into an associative array		
+			foreach ( $row as $key => $value ) if ( $key != 'Field' ) $temp_arr[strtolower($key)] = $value;
+			// get default value for field
+			$temp_arr['value'] = ( $row['Default'] !== 'NULL' ? $row['Default'] : null );
+			// set property in fields object
+			$fields->$row['Field'] = (object) $temp_arr;
+			
+		}
+		
+		return $fields;
+	}
+
+	/*
+
+	Function: _build_qry
+		Builds the query string from the settings provided.
+
+	Returns:
+		string
+
+	*/
+
+	private function _build_qry()
+	{
+		
+		$str = '';
+		
+		if ($this->_select) {
+			$str .= "SELECT " . $this->_select . "\n";
+		} else {
+			$str .= "SELECT * \n";
+		}
+		
+		if ($this->_from) {
+			$str .= "FROM " . $this->_from . "\n";
+		} else {
+			$str .= "FROM " . $this->_table_name . "\n";
+		}
+		
+		if ($this->_where) {
+			$str .= "WHERE " . $this->_where . "\n";
+		} else {
+			$str .= "WHERE 1 \n";
+		}
+		
+		if ($this->_group) {
+			$str .= "GROUP BY " . $this->_group . "\n";
+		}
+		
+		if ($this->_order) {
+			$str .= "ORDER BY " . $this->_order . "\n";
+		}
+		
+		if ($this->_offset) {
+			$str .= "LIMIT " . $this->_offset . ', ' . $this->_limit . "\n";
+		} else {
+			if ($this->_limit) {
+				$str .= "LIMIT " . $this->_limit . "\n";
+			}
+		}
+		
+		$this->_query_str = $str;
+	}
+
+	/*
+
+	Function: _build_qry
+		Builds the query string from the settings provided.
+
+	Returns:
+		string
+
+	*/
+	
+	private function load_values_into_fields($data, $type = self::ROW_ASSOC)
+	{
+	
+		switch ( $type ) {
+		
+			default:
+				foreach ( $data as $field => $value ) $this->_fields->$field->value = $value;
+			break;
+			
+		}
+		
+	}
+
+	/*
+
+	Function: get_link_object
+		Returns the link associated with this name.	
+
+	Parameters:
+		name - Link Name.
+
+	Returns:
+		object
+
+	*/
+	
+	private function get_link_object($name)
+	{
 		if (!$this->is_linked($name)) {
 	
 			if(!$this->create_link($name)) {
@@ -1124,8 +1508,19 @@ class model implements Iterator {
 	
 		return $this->_links[$name]['object'];
 	}
+
+	/*
+
+	Function: is_linked
+		Is the name passed linked to another object.
+
+	Returns:
+		bool
+
+	*/
 	
-	private function is_linked($name) {
+	private function is_linked($name)
+	{
 		if ($this->key()) {
 			if ($this->_links[$name]['linked_to'] == $this->key()) {
 				return true;
@@ -1137,10 +1532,19 @@ class model implements Iterator {
 			return false;
 		}
 	}
-	
-	private function create_link($name) {
 
-		
+	/*
+
+	Function: create_link
+		Establish a link between objects.
+
+	Returns:
+		bool
+
+	*/
+	
+	private function create_link($name)
+	{
 		if ($this->_links[$name]['options']['class_name']) {
 			
 			$model_name = $this->_links[$name]['options']['class_name'];
@@ -1227,18 +1631,19 @@ class model implements Iterator {
 		$this->_links[$name]['linked_to'] = $this->key();
 		
 		return true;
-	
-		
 	}
 	
-	/**
-	* Validate by method name to valitaion object
-	*
-	* @author Nesbert Hidalgo
-	* @access private
-	* @param string $method required
-	* @param array $args optional
+	/*
+
+	Function: _validate_by_method
+		Validate by method name to validation object.
+
+	Parameters:	
+		method - required
+		args - optional
+
 	*/
+
 	private function _validate_by_method($method, $args = null)
 	{
 		// if no value pasted use model's value
@@ -1276,15 +1681,20 @@ class model implements Iterator {
 		}
 	}
 	
-	/**
-	* Creates SQL string for conditons used for find_by... magic funtions
-	*
-	* @author Nesbert Hidalgo
-	* @access private
-	* @param string $method required
-	* @param array $args required
-	* @return string
+	/*
+	
+	Function: _condition_str_from_method
+		Creates SQL string for conditons used for find_by... magic funtions
+
+	Parameters:	
+		method - required
+		args - required
+
+	Returns:
+		string
+
 	*/
+
 	private function _conditions_str_from_method($method, $args)
 	{
 		// remove find_by... from method name
@@ -1340,19 +1750,23 @@ class model implements Iterator {
 		}
 		
 		return $return;
-	
 	}
 	
-	/**
-	* Helps creates SQL conditon string.
-	*
-	* @author Nesbert Hidalgo
-	* @access private
-	* @param string $field required
-	* @param string $value required
-	* @param string $append optional
-	* @return string
+	/*
+	
+	Function: _conditions_str_helper
+		Helps creates SQL conditon string.
+
+	Parameters:	
+		field - required
+		value - required
+		append - optional
+
+	Returns:
+		string
+
 	*/
+
 	private function _conditions_str_helper($field, $value, $append = '')
 	{
 		$return = '';
@@ -1376,38 +1790,38 @@ class model implements Iterator {
 		return $return . $append;
 	}
 	
-	/**
-	 * Alias to find and set the $page object. default page limit is 10 records
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $args optional
-	 */
-	public function paginate($args = null)
+    /*
+
+	Function: _create_child
+
+
+	Returns:
+		object
+
+	*/
+
+	private function _create_child()
 	{
-	
-		// create temp args
-		$temp = $args;
-		unset($temp['offset']);
-		$temp['total_records'] = $this->find_total($temp);
-		$temp = (object) $temp;
-		
-		// create page object
-		$this->page = new pager($temp);
-		
-		// update agrs with paging data
-		$args['offset'] = $this->page->offset;
-		$args['limit'] = $this->page->limit;
-		
-		// execute query
-		$this->find($args);
-		
+		return clone $this;
 	}
-	
-	
+
 	/*
-	 * Callback Functions -> Override If Needed
-	 */
+	
+	Section: Callback Functions
+
+		* after_save
+		* before_save
+		* after_find
+		* before_find
+		* before_create
+		* after_delete
+		* before_delete
+		* validate
+		* validate_on_create
+		* validate_on_update
+
+	*/
+
 	public function after_save() {}
 	public function before_save() {}
 	public function after_find() {}
@@ -1418,55 +1832,43 @@ class model implements Iterator {
 	public function validate() {}
 	public function validate_on_create() {}
 	public function validate_on_update() {}
+
+	// Section: Iterator Interface
 	
-    /**
-     * Validate model object.
-     *
-     * @author Nesbert Hidalgo
-     * @return bool
-     */
-    public function is_valid()
-    {
-        // validate model on every save
-        $this->validate();
-        
-        // if error return false        
-        if ( $this->errors->has_errors() ) {
-            return false;
-        } else {
-            return true;
-        }    
-    }
-
-    /**
-     * Check if a table exits in the current database.
-     *
-     * @author Nesbert Hidalgo
-     * @author string $table_name required
-     * @return bool
-     */
-    public function table_exits($table_name)
-    {
-        $db_obj = self::establish_connection( self::_get_connection_properties() );
-        return $db_obj->table_exits($table_name);
-    }
-
-	public function all_tables()
+	public function rewind()
 	{
-        $db_obj = self::establish_connection( self::_get_connection_properties() );
-		return $db_obj->all_tables();
+		$this->_select_query->rewind();
+		$this->next();
 	}
 
-	public function field_breakdown($table_name)
+	public function current()
 	{
-        $db_obj = self::establish_connection( self::_get_connection_properties() );
-        return $db_obj->field_breakdown($table_name);
+		return $this->_create_child();
 	}
 
-	public function key_breakdown($table_name)
+	public function next()
 	{
-        $db_obj = self::establish_connection( self::_get_connection_properties() );
-        return $db_obj->key_breakdown($table_name);
+
+		if ( $this->get_pointer() <= ( $this->row_count() - 1 ) ) {
+
+			$row = $this->_select_query->get_row($this->get_pointer(), $type);
+			$this->load_values_into_fields($row, $type);
+			$this->_select_query->pointer++;
+			$this->_valid = true;
+			return $row;
+
+		} else {
+
+			$this->_valid = false;
+			$this->_select_query->pointer--;
+			return false;
+
+		}
+	}
+
+	public function valid()
+	{
+		return $this->_valid;
 	}
 }
 

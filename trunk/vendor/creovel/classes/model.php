@@ -454,7 +454,8 @@ class model implements Iterator
 		$ret = array();
 		
 		foreach ( $this->_fields as $field => $obj ) {
-			$ret[$field] = $obj->value;
+			$function = 'get_'.$field;
+			$ret[$field] = $this->$function();
 		}
 		
 		return $ret;
@@ -574,7 +575,7 @@ class model implements Iterator
 
 	*/
 	
-	public function find_total($args = null
+	public function find_total($args = null)
 	{
 		$args['total'] = true;
 		unset($args['limit']);
@@ -844,23 +845,24 @@ class model implements Iterator
 	
 				case preg_match('/^get_(.+)$/', $method, $regs):
 					
-					if ( isset($this->_fields->$regs[1]) ) {
-						
-						if ( is_string($this->_fields->$regs[1]->value) ) {
-	
-							return stripslashes($this->_fields->$regs[1]->value);
-	
+					if (is_string($this->_fields->$regs[1]->value)) {
+							
+							$data = @unserialize(stripslashes($this->_fields->$regs[1]->value));
+
+							if ($data !== false) {
+							
+								return $data;
+							
+							} else {
+							
+								return stripslashes($this->_fields->$regs[1]->value);
+							}
+							
 						} else {
 	
 							return $this->_fields->$regs[1]->value;
 	
 						}
-	
-					} else {
-	
-						throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
-						
-					}
 					
 				break;
 				

@@ -100,7 +100,7 @@ RewriteRule ^(.*)$ www.creovel.org/public/$1 [L]
 		/script
 		/test
 		/vendor
-	/doc.creovel.org
+	/docs.creovel.org
 		/app
 			/controllers
 			/helpers

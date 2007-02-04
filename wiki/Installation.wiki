@@ -42,7 +42,7 @@ Extract Creovel into htdocs directory. Directory structure below:
 	/vendor
 }}}
 
-_This is one example of the many ways of setting up Creovel for a single website._
+_This is one example of the many ways of setting up Creovel for a single website environment._
 
 ==Multiple Website Environment==
 	
@@ -112,7 +112,8 @@ RewriteRule ^(.*)$ www.creovel.org/public/$1 [L]
 		/public
 		/script
 		/test
-		/vendor}}}
+		/vendor
+}}}
 
 _Again, this is one example of the many ways of setting up Creovel for a multiple website environment._
 

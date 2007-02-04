@@ -9,6 +9,8 @@ Requirements:
 
   * PHP 5
   * MySQL 4 (_more database adapters coming..._)
+  * Apache
+  * Linux or FreeBSD or OS X
 
 
 Default Apache Directory that forms the main document tree visible from the web.

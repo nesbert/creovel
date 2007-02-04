@@ -9,8 +9,8 @@ $name = $_SERVER['argv'][2];
 switch ($type)
 {
 	case 'model':
-		$file = fopen(dirname(__FILE__)."/../app/models/{$name}_model.php", 'w+');
-		fwrite($file, "<?\n\nclass {$name}_model extends model\n{\n}\n\n?>");
+		$file = fopen(dirname(__FILE__)."/../app/models/{$name}.php", 'w+');
+		fwrite($file, "<?\n\nclass {$name} extends model\n{\n}\n\n?>");
 		fclose($file);
 		break;
 
@@ -39,6 +39,8 @@ switch ($type)
 			fwrite($view, "<h1>{$view_name} View for {$controller_name}</h1>\n<p>You can find me in views/{$name}/{$view_name}.php</p>");
 			fclose($view);
 		}
+
+		if ($views == '') $views = "\n";
 
 		fwrite($file, "<?\n\nclass {$controller_name}_controller extends application_controller\n{{$views}}\n\n?>");
 		fclose($file);

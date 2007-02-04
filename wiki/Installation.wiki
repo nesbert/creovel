@@ -1,4 +1,6 @@
+#summary A quick guide to get Creovel up and running.
 #labels Featured
+
 =Installation=
 
 Creovel has been developed in a LAMP environment. It has been installed on Linux, FreeBSD, OS X and Windows (use at your own risk).

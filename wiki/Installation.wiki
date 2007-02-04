@@ -54,15 +54,15 @@ RewriteEngine On
 Options +FollowSymlinks
 RewriteBase /
 
+# code subdomain
+RewriteCond %{HTTP_HOST} code.creovel.org
+RewriteCond %{REQUEST_URI} code.creovel.org/public/
+RewriteRule ^(.*)$ code.creovel.org/public/$1 [L]
+
 # docs subdomain
 RewriteCond %{HTTP_HOST} docs.creovel.org
 RewriteCond %{REQUEST_URI} !docs.creovel.org/public/
 RewriteRule ^(.*)$ docs.creovel.org/public/$1 [L]
-
-## code subdomain
-RewriteCond %{HTTP_HOST} code.creovel.org
-RewriteCond %{REQUEST_URI} code.creovel.org/public/
-RewriteRule ^(.*)$ code.creovel.org/public/$1 [L]
 
 # main site
 RewriteCond %{HTTP_HOST} creovel.org
@@ -74,19 +74,6 @@ RewriteRule ^(.*)$ www.creovel.org/public/$1 [L]
 {{{
 .../htdocs (DocumentRoot)
 	.htaccess (the almighty)
-	/www.creovel.org
-		/app
-			/controllers
-			/helpers
-			/models
-			/views
-		/config
-		/db
-		/log
-		/public
-		/script
-		/test
-		/vendor
 	/code.creovel.org
 		/app
 			/controllers
@@ -113,7 +100,19 @@ RewriteRule ^(.*)$ www.creovel.org/public/$1 [L]
 		/script
 		/test
 		/vendor
-}}}
+	/www.creovel.org
+		/app
+			/controllers
+			/helpers
+			/models
+			/views
+		/config
+		/db
+		/log
+		/public
+		/script
+		/test
+		/vendor}}}
 
 _Again, this is one example of the many ways of setting up Creovel for a multiple website environment._
 

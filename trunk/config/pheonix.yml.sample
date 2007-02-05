@@ -3,9 +3,6 @@ config:
   path: /var/www/html/apps
   svnurl: http://creovel.org/svn/creovel/creovel
 
-tasks:
-  restart: apachectl
-
 servers:
   localhost:
     address: 127.0.0.1

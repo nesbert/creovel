@@ -1,5 +1,6 @@
 <?
 
+define(CD, "cd ");
 define(LN, "/bin/ln -s ");
 define(LS, "/bin/ls ");
 define(RM, "/bin/rm ");
@@ -83,7 +84,9 @@ class Pheonix
 		$connection = $this->ssh_connect($config);
 
 		$stream = ssh2_exec($connection, RM."{$this->application_path}/current");
-		$stream = ssh2_exec($connection, LN."{$this->application_path}/halt {$this->application_path}/current");
+
+		$stream = ssh2_exec($connection, CD."{$this->application_path}");
+		$stream = ssh2_exec($connection, LN."halt current");
 
 		$this->stdout("Application Halted on {$name}");
 	}
@@ -94,9 +97,12 @@ class Pheonix
 
 		$release = $this->getInput('What branch/releases/trunk do you want to release?');
 
+		$stream = ssh2_exec($connection, "mkdir {$this->application_path}");
+		$stream = ssh2_exec($connection, "mkdir {$this->application_path}/releases");
+		$stream = ssh2_exec($connection, "mkdir {$this->application_path}/halt");
+		
+		$stream = ssh2_exec($connection, CD."{$this->application_path} && ".LN."releases/".strftime("%Y%m%d%H%M", time())." current");
 		$stream = ssh2_exec($connection, SVN." co {$this->config['config']['svnurl']}/{$release} {$this->application_path}/releases/".strftime("%Y%m%d%H%M", time()));
-		$stream = ssh2_exec($connection, RM."{$this->application_path}/current");
-		$stream = ssh2_exec($connection, LN."{$this->application_path}/releases/{$release_stamp} {$this->application_path}/current");
 
 		$this->stdout("Application Released on {$name}");
 	}
@@ -114,7 +120,10 @@ class Pheonix
 
 		$stream = ssh2_exec($connection, RM."-rf {$this->application_path}/releases/".$releases[0]);
 		$stream = ssh2_exec($connection, RM."{$this->application_path}/current");
-		if ($releases[1]) $stream = ssh2_exec($connection, LN."{$this->application_path}/releases/".$releases[1]." {$this->application_path}/current");
+		if ($releases[1]) {
+			$stream = ssh2_exec($connection, CD."{$this->application_path}");
+			$stream = ssh2_exec($connection, LN."releases/".$releases[1]." current");
+		}
 
 		$this->stdout("Application Reset to the Last Version on {$name}");
 	}

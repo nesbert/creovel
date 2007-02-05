@@ -6,7 +6,7 @@ define(LS, "/bin/ls ");
 define(RM, "/bin/rm ");
 define(SVN, "/usr/bin/svn ");
 
-class Pheonix
+class Phoenix
 {
 	private $stdin;
 	private $stdout;
@@ -24,7 +24,7 @@ class Pheonix
 		$this->stdout	= fopen('php://stdout', 'w');
 		$this->stderr	= fopen('php://stderr', 'w');
 
-		if (!$this->load_configuration(PHEONIX_CONFIG)) die("Unable to parse YAML Migration file.\n");
+		if (!$this->load_configuration(PHOENIX_CONFIG)) die("Unable to parse YAML Migration file.\n");
 
 		$this->application_path = "{$this->config['config']['path']}/{$this->config['config']['appname']}";
 	}
@@ -62,7 +62,7 @@ class Pheonix
 
 				case 'A':
 					$this->stdout('');
-					$this->stdout('Pheonix aborted.');
+					$this->stdout('Phoenix aborted.');
 					$this->stdout('');
 					exit;
 

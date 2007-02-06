@@ -14,6 +14,29 @@ switch ($type)
 		fclose($file);
 		break;
 
+	case 'mailer':
+
+		$file = fopen(dirname(__FILE__)."/../app/models/{$name}_mailer.php", 'w+');
+
+		exec("mkdir -p ".dirname(__FILE__)."/../app/views/{$name}_mailer");
+
+		for ($i = 3; $i < count($_SERVER['argv']); $i++)
+		{
+			$view_name = $_SERVER['argv'][$i];
+
+			$views .= "\n\tpublic function {$view_name}()\n\t{\n\t}\n";
+
+			$view = fopen(dirname(__FILE__)."/../app/views/{$name}_mailer/{$view_name}.php", 'w+');
+			fwrite($view, "<h1>{$view_name} View for {$name}_mailer</h1>\n<p>You can find me in views/{$name}_mailer/{$view_name}.php</p>");
+			fclose($view);
+		}
+
+		if ($views == '') $views = "\n";
+
+		fwrite($file, "<?\n\nclass {$name}_mailer extends mailer\n{{$views}}\n\n?>");
+		fclose($file);
+		break;
+
 	case 'controller':
 		$controller_name = str_replace('/', '_', $name);
 

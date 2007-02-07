@@ -31,6 +31,24 @@ class session extends model
 {
 
 	/**
+	 * Constructor for session model
+	 *
+	 * @author John Faircloth
+	 * @access public
+	 * @param mixed $args 
+
+	 */
+	public function __construct($args = null)
+	{	
+		
+		if ($_ENV['sessions_table_name']) {
+
+			$this->_table_name = $_ENV['sessions_table_name'];
+		}
+		parent::__construct($args);
+	}
+	
+	/**
 	 * Cleans data
 	 *
 	 * @author Nesbert Hidalgo

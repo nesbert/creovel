@@ -1,77 +1,117 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
-/**
- * Returns a pluralized verision of a word.
- */
+/*
+
+Script: text
+
+*/
+
+/*
+
+Function: underscore
+	Returns a pluralized verision of a word.
+
+Parameters:
+	word - string
+	count - number of items
+
+Returns:
+	string
+
+*/	
+
 function pluralize($word, $count = null)
 {
 	if ( $count == 1 ) return $word;
 	return inflector::pluralize($word);
 }
 
-/**
- * Returns a singularized verision of a word.
- */
+/*
+
+Function: underscore
+	Returns a singularized verision of a word.
+
+Parameters:
+	word - string
+
+Returns:
+	string
+
+*/	
+
 function singularize($word)
 {
 	return inflector::singularize($word);
 }
 
-/**
- * Transform text like 'programmers_field' to 'Programmers Field'
- */
+/*
+
+Function: underscore
+	Transform text like 'programmers_field' to 'Programmers Field'
+
+Parameters:
+	word - string
+
+Returns:
+	string
+
+*/	
+
 function humanize($word)
 {
 	return inflector::titleize($word);
 } 
 
 /*
- * Transform text like 'programmers_field' to 'ProgrammersField'
- */	
+
+Function: underscore
+	Transform text like 'programmers_field' to 'ProgrammersField'
+
+Parameters:
+	word - string
+
+Returns:
+	string
+
+*/	
+
 function camelize($word)
 {
 	return inflector::camelize($word);
 }    
 
 /*
- * Transforms text like 'ProgrammersField' to 'programmers_field'
- */	
+
+Function: underscore
+	Transforms text like 'ProgrammersField' to 'programmers_field'
+
+Parameters:
+	word - string
+
+Returns:
+	string
+
+*/	
+
 function underscore($word)
 {
 	return inflector::underscore($word);
 }
 
-/**
- * Helpful for alternating between between two values during a loop.
- *
- * <code>
- *  <tr class="<?=cycle('data_alt1', 'data_alt2')?>">
- *
- *  <tr class="data_alt<?=cycle()?>">
- * </code> 
- *
- * @author Nesbert Hidalgo
- * @return int/string
- */
+/*
+
+Function: cycle
+	Helpful for alternating between between two values during a loop.
+
+	(start code)
+ 		<tr class="<?=cycle('data_alt1', 'data_alt2')?>">
+ 		<tr class="data_alt<?=cycle()?>">
+	(end)
+
+Returns:
+	int/string
+
+*/
  
 function cycle($var1 = null, $var2 = null)
 {
@@ -83,25 +123,36 @@ function cycle($var1 = null, $var2 = null)
 }
 
 /*
- * Replace every " (quote) with its html equevelant
- *
- * @author Nesbert Hidalgo
- * @param string $str required
- * @return string
- */
+
+Function: quote2string
+	Replace every " (quote) with its html equevelant
+
+Paremeters:
+	str - required
+
+Returns:
+	string
+*/
+
 function quote2string($str)
 {
 	return str_replace("\"", "&quot;", $str);
 }
 
 /*
- * Replace every charactor of a string with $mask
- *
- * @author Nesbert Hidalgo
- * @param string $str required
- * @param string $mask optional default set to '*'
- * @return string
- */
+
+Function: mask
+	Replace every charactor of a string with $mask
+
+Parmeters:
+	str - required
+	mask - optional default set to '*'
+
+Returns:
+	string
+
+*/
+
 function mask($str, $mask = '*')
 {
 	for ( $i = 0; $i <= ( strlen($str) - 1 ); $i++ ) $return .= $mask;
@@ -109,17 +160,21 @@ function mask($str, $mask = '*')
 }
 
 /*
- * Truncates a string and adds trailing periods to it. Now handles words
- * better thank you Mel Cruz for the suggestion. By default trucates at 
- * end of words.
- *
- * @author Nesbert Hidalgo
- * @param string $str required
- * @param string $length optional default set to 100 characters
- * @param string $tail optional default set to '...'
- * @param bool $strict optional default false truncate at exact $length
- * @return string
- */
+
+Function: truncate
+	Truncates a string and adds trailing periods to it. Now handles words better thank you Mel Cruz for the suggestion. By default trucates at end of words.
+
+Parameters:
+	str - required
+	length - optional default set to 100 characters
+	tail - optional default set to '...'
+	strict - optional default false truncate at exact $length
+
+Returns:
+	string
+
+*/
+
 function truncate($str, $length = 100, $tail = '...', $strict = false)
 {	
 	if (!$strict) $str = trim($str);

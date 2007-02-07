@@ -1,41 +1,22 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
-/**
- * RSS class to handle news feeds.
- * http://www.rssboard.org/rss-specification
- *
- * @copyright	Copyright (c) 2005-2006, creovel.org
- * @package		creovel
- * @subpackage	classes
- * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
- * @author		Nesbert Hidalgo
- * @version		0.2 (10/19/2006)	
- *				0.1 (10/2/2006)
- * @todo		(Done on 10/16/2006) need a write a base XML class (builder, parser)
- *				add support for RSS 0.91, 0.92 and x2.0x versions
- *				(Done on 10/19/2006) right own RSS parser lastRSS does not handle complex feeds
- *				Use XML classes to build feed
- *				Add caching
- */
+/*
+
+Class: rss
+	RSS class to handle news feeds.
+	http://www.rssboard.org/rss-specification
+
+Todo:
+	* (Done on 10/16/2006) need a write a base XML class (builder, parser) add support for RSS 0.91, 0.92 and x2.0x versions
+	* (Done on 10/19/2006) right own RSS parser lastRSS does not handle complex feeds
+	* Use XML classes to build feed
+	* Add caching
+
+Implements:
+	Iterator
+
+*/
+
 class rss implements Iterator
 {
 
@@ -69,26 +50,35 @@ class rss implements Iterator
 	
 	private $xml;
 	
-	/**
-	 * Description.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param bool $var required
-	 * @return object
-	 */
+	/*
+			
+	Function: initialize
+		Description.
+
+	Parameters:	
+		var - required
+
+	Returns:
+		object
+
+	*/
+
 	public function initialize()
 	{
 		if ( !is_object($this->xml) ) $this->xml = new xml;
 		$this->xml->encoding = $this->encoding;
 	}
 	
-	/**
-	 * Loads RSS feed into class.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 */
+	/*
+	
+	Function: load	
+		Loads RSS feed into class.
+
+	Parameters:
+		url - RSS url.	
+
+	*/
+
 	public function load($url)
 	{
 		$this->initialize();
@@ -109,25 +99,31 @@ class rss implements Iterator
 		}
 	}
 	
-	/**
-	 * Add an item to $items property.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param object $data required
-	 */
+	/*
+	
+	Function: add_item
+		Add an item to $items property.
+
+	Parameters:	
+		data - required
+
+	*/
+
 	public function add_item($data)
 	{
 		$this->items[] = $data;
 	}
 	
-	/**
-	 * Creates the file string.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
-	 */
+	/*
+
+	Function: create_file
+		Creates the file string.
+
+	Returns:
+		string
+
+	*/
+
 	public function create_file()
 	{
 		$required_tags = array('title', 'language', 'link', 'description');
@@ -145,14 +141,19 @@ class rss implements Iterator
 		return $xml;
 	}
 
-	/**
-	 * Create item XML string for one item.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $item required
-	 * @return string
-	 */
+	/*
+			
+	Function:	
+		Create item XML string for one item.
+
+	Parameters:	
+		item - required
+
+	Returns:
+		string
+
+	*/
+
 	public function item_str($item)
 	{
 		$required = array(
@@ -208,13 +209,16 @@ class rss implements Iterator
 		return $str;
 	}
 	
-	/**
-	 * Creates the XML file string.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
+	/*
+	
+	Function:
+		Creates the XML file string.
+
+	Returns:	
+		string
+
 	 */
+
 	public function xmlns_str()
 	{
 		if ( !is_array($this->xmlns) ) die('Error: XML namespace(xmlms) not an array...');
@@ -225,16 +229,21 @@ class rss implements Iterator
 		return $str;
 	}
 	
-	/**
-	 * Creates the XML tag string.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $tag required
-	 * @param mixed $value required
-	 * @param bool $has_ending_tag optinal
-	 * @return string
-	 */
+	/*
+
+	Function:
+		Creates the XML tag string.
+
+	Parameters:	
+		tag - required
+		value - required
+		has_ending_tag - optinal
+
+	Returns:
+		string
+
+	*/
+
 	public function tag($tag, $value, $has_ending_tag = true)
 	{
 		if ( is_array($value) ) {
@@ -254,14 +263,20 @@ class rss implements Iterator
 
 	}
 	
-	/**
-	 * http://us3.php.net/manual/en/function.htmlentities.php#46785
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $string required
-	 * @return string
-	 */
+	/*
+	
+	Function: xmlentities
+		http://us3.php.net/manual/en/function.htmlentities.php#46785
+
+	Parameters:	
+		string - required
+		quote_style - required
+
+	Returns
+		string
+
+	*/
+
 	public function xmlentities($string, $quote_style=ENT_QUOTES)
 	{
 		static $trans;
@@ -276,17 +291,20 @@ class rss implements Iterator
 		return preg_replace("/&(?![A-Za-z]{0,4}\w{2,3};|#[0-9]{2,3};)/","&#38;" , strtr($string, $trans));
 	}
 	
-	/**
-	 * Creates RSS feed.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 */
+	/*
+
+	Function: feed
+		Creates RSS feed.
+	
+	*/
+
 	public function feed()
 	{
 		header('Content-Type: application/xml');
 		die($this->create_file());
 	}
+	
+	// Iterator Implementation
 		
 	public function rewind()
 	{
@@ -316,13 +334,16 @@ class rss implements Iterator
 	{
 		return $this->current() !== false;
 	}
+
+	// Section: Private
 	
-	/**
-	 * Map XML data to RSS 2.0 structure.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 */
+	/*
+
+	Function: map_rss20	
+		Map XML data to RSS 2.0 structure.
+
+	*/
+
 	private function map_rss20()
 	{
 		foreach ( $this->xml->data->children->children[0]->children as $element ) {
@@ -356,4 +377,5 @@ class rss implements Iterator
 		}
 	}
 }
+
 ?>

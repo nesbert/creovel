@@ -1,31 +1,12 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
-/**
- * Paging class. Can be used to page a model or an array
- *
- * @copyright	Copyright (c) 2005-2006, creovel.org
- * @package		creovel
- * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
- */
+/*
+
+Class: pager
+	Can be used to page a model or an array
+
+*/
+
 class pager {
 
 	public $total_records;		// total number of records to page
@@ -41,21 +22,35 @@ class pager {
 	public $limit;				// limit of records per page
 	
 	public $url;				// host url
+
+	// Section: Public
+
+	/*
 	
+	Function: __construct
+
+	Paramerters:
+		data - associative array of data
+
+	*/
+
 	public function __construct($data = null)
 	{
 		$this->set_properties($data);
 	}
 	
-	/**
-	 * Set class properties
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $data required
-	 * @param int $page optional
-	 * @param int $limit optional
-	 */
+	/*
+
+	Function:			
+		Set class properties
+	
+	Parameters:
+		data - required
+		page  - optional
+		limit - optional
+	
+	*/
+
 	public function set_properties($data, $page = null, $limit = null) {
 
 		// set vars by type
@@ -105,30 +100,40 @@ class pager {
 
 	}
 	
-	/**
-	 * Page an array
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $data required
-	 * @param bool $preserve_keys optional
-	 * @param bool $limit optional
-	 * @return mixed
-	 */
+	/*
+	
+	Function: page_array
+		Page an array
+
+	Parameters:	
+		data - required
+		preserve_keys - optional
+		limit - optional
+	
+	Returns:
+		mixed
+
+	*/
+
 	public function page_array($data, $preserve_keys = true, $limit = false)
 	{
 		if ( !$this->total_records ) $this->set_properties($data, null, $limit);
 		return array_slice($data, $this->offset, $this->limit, $preserve_keys);
 	}	
 	
-	/**
-	 * Clean/create extra params links
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param mixed $data required
-	 * @return mixed
-	 */
+	/*
+	
+	Function: params_to_str
+		Clean/create extra params links
+
+	Parameters:	
+		data - required
+
+	Returns:
+		return
+
+	*/
+
 	public function params_to_str($data)
 	{
 		$data = is_array($data) ? array_merge($_GET, $data) : $_GET;
@@ -140,17 +145,22 @@ class pager {
 		return $str;
 	}
 	
-	/**
-	 * Create link to page
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 * @param string $label required
-	 * @param int $page required
-	 * @param array $extra_params optional
-	 * @param array $html_options optional
-	 * @return string
-	 */
+	/*
+			
+	Function: link_to
+		Create link to page
+
+	Parameters:	
+		label - required
+		page - required
+		extra_params - optional
+		html_options - optional
+
+	Returns:
+		string
+
+	*/
+
 	private function link_to($label, $page, $extra_params = null, $html_options = null)
 	{
 		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->params_to_str($extra_params);
@@ -158,74 +168,100 @@ class pager {
 		return link_to($label, null, null, null, $html_options);
 	}
 	
-	/**
-	 * Create link to the mext page
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $label optional
-	 * @param array $extra_params optional
-	 * @param array $html_options optional
-	 * @return string
-	 */
+	/*
+
+	Function: link_to_next
+		Create link to the mext page
+
+	Parameters:	
+		label - optional
+		extra_params - optional
+		html_options - optional
+	
+	Returns:
+		string
+
+	*/
+
 	public function link_to_next($label = 'Next', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current < $this->last ? $this->link_to($label, $this->next, $extra_params, $html_options) : '' );
 	}
 
-	/**
-	 * Create link to the previous page
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $label optional
-	 * @param array $extra_params optional
-	 * @param array $html_options optional
-	 * @return string
-	 */
+	/*
+			
+	Function: link_to_prev
+		Create link to the previous page
+
+	Parameters:	
+		label - optional
+		extra_params - optional
+		html_options - optional
+
+	Returns:
+		string
+
+	*/
+
 	public function link_to_prev($label = 'Prev', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current > $this->first ? $this->link_to($label, $this->prev, $extra_params, $html_options) : '' );
 	}
 
-	/**
-	 * Create link to the first page
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $label optional
-	 * @param array $extra_params optional
-	 * @param array $html_options optional
-	 * @return string
-	 */
+	/*
+
+	Function: link_to_first	
+		Create link to the first page
+
+	Parameters:	
+		label - optional
+		extra_params - optional
+		html_options - optional
+
+	Returns:
+		string
+
+	*/
+
 	public function link_to_first($label = 'First', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current > $this->first ? $this->link_to($label, $this->first, $extra_params, $html_options) : '' );
 	}
 	
-	/**
-	 * Create link to the last page
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $label optional
-	 * @param array $extra_params optional
-	 * @param array $html_options optional
-	 * @return string
-	 */
+	/*
+
+	Function: link_to_last
+		Create link to the last page
+
+	Parameters:	
+		label - optional
+		extra_params - optional
+		html_options - optional
+
+	Returns:
+		string
+
+	*/
+
 	public function link_to_last($label = 'Last', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current < $this->last ? $this->link_to($label, $this->last, $extra_params, $html_options) : '' );
 	}
 
-	/**
-	 * Create paging links eg. << Prev 1 ... 13 14 15 16 17 ... 25 Next >>
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $extra_params optional
-	 * @return string
-	 */
+	/*
+	
+	Function: paging_links
+		Create paging links eg. << Prev 1 ... 13 14 15 16 17 ... 25 Next >>
+
+	Parameters:	
+		extra_params - optional
+		show_label - optional
+
+	Returns:
+		string
+	 
+	*/
+
 	public function paging_links($extra_params = null, $show_label = false)
 	{
 	
@@ -280,15 +316,20 @@ class pager {
 	
 	}
 	
-	/**
-	 * Create page limiting selectbox
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $extra_params optional
-	 * @param array $default_limit optional
-	 * @return string
-	 */
+	/*
+	
+	Function: paging_link
+		Create page limiting selectbox
+
+	Parameters:	
+		extra_params - optional
+		default_limit - optional
+
+	Returns:
+		string
+
+	*/
+
 	public function paging_limit($extra_params = null, $default_limit = 10)
 	{	
 		$extra_params = $this->params_to_str($extra_params);
@@ -318,17 +359,20 @@ class pager {
 		return $str;		
 	}
 	
-	/**
-	 * Create paging label: Page 1 of 10
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
-	 */
+	/*
+	
+	Function: paging_label	
+		Create paging label: Page 1 of 10
+
+	Returns:	
+		string
+
+	*/
+
 	public function paging_label()
 	{
-		return '<span class="page-label">Page '.$this->current.' of '.$this->total_pages.'</span>';
+		return '<span class="page-label">Page '.$this->current.' f '.$this->total_pages.'</span>';
 	}
-
 }
+
 ?>

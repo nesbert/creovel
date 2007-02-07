@@ -131,8 +131,9 @@ function truncate($str, $length = 100, $tail = '...', $strict = false)
 			if ( $length > 1 ) $offset = strpos($str, " ", $length - 1);
 			$str = substr_replace($str, '', ( $offset ? $offset : $length) );
 		}
+		$str .= $tail;
 	}
 		
-	return $str.$tail;
+	return $str;
 }
 ?>

@@ -61,20 +61,6 @@ class validation
 	}
 	
 	/**
-	 * Manually add error
-	 * 
-	 * @author John Faircloth
-	 * @access public
-	 * @param string $field required
-	 * @param mixed $msg required
-	 *  
-	 */
-	 
-	public function add_error($feild, $msg) {
-		$this->errors->add($field, $msg);
-	}
-	
-	/**
 	 * Base function to validate by boolean value.
 	 * 
 	 * @author Nesbert Hidalgo

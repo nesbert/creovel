@@ -297,5 +297,4 @@ function str_replace_array($str, $array)
 {
 	return str_replace(array_keys($array), array_values($array), $str);
 }
-
 ?>

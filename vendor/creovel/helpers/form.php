@@ -1,55 +1,39 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
-/**
- * Form methods go here.
- * @package Form Helpers
- * @todo
- *  - check/fix start_form_tag() hidden fields
- */
- 
-/**
- * Prints out a formatted errors message box for an object. Erros
- * styles below: 
- *
- * <code>
- * #errors {} // container div
- * #errors .top {} 
- * #errors .body {}
- * #errors .bottom {}
- * #errors h1 {} // title
- * #errors p {} // description
- * #errors ul {} // errors list
- * #errors li {} // errors list items
- * #errors a {} // errors list items links
- * .errors_field {} // html element with the error
- * </code>
- *
- * @author Nesebrt Hidalgo
- * @name_or_object string/object optional
- * @param string $title optional default is "{number of errors} errors {have or has} prohibited this {object name} from being saved."
- * @param string $description optional default is "There were problems with th following fields."
- * @todo make accept arrays and objects
- * @return string
- */
+/*
+
+Script: form
+	Form methods go here.
+	
+*/
+
+/*
+
+Function: error_messages_for
+	Prints out a formatted errors message box for an object. Errors styles below: 
+
+	(start code)	
+		 #errors {} // container div
+		 #errors .top {} 
+		 #errors .body {}
+		 #errors .bottom {}
+		 #errors h1 {} // title
+		 #errors p {} // description
+		 #errors ul {} // errors list
+		 #errors li {} // errors list items
+		 #errors a {} // errors list items links
+		 .errors_field {} // html element with the error
+	(end)
+
+Parameters:
+	errors - optional
+	title - optional default is "{number of errors} errors {have or has} prohibited this {object name} from being saved."
+	description - optional default is "There were problems with th following fields."
+
+Returns:
+	string
+
+*/
 
 function error_messages_for($errors = null, $title = null, $description = 'There were problems with the following fields.')
 {
@@ -102,14 +86,20 @@ function error_messages_for($errors = null, $title = null, $description = 'There
 
 }
 
-/**
- * Creates an ancohor tag and wraps the form element with an span tag
- * if it has an error.
- *
- * @author Nesebrt Hidalgo
- * @param string $html_str
- * @return string
- */
+/*
+
+Function: error_check
+Creates an ancohor tag and wraps the form element with an span tag if it has an error.
+
+Parameters:
+	field -
+	html_str -
+
+Returns:
+	string
+
+*/
+
 function error_check($field, $html_str)
 {		
 	
@@ -127,21 +117,39 @@ function error_check($field, $html_str)
 	return $html_str;	
 }
 
+/*
+
+Function: error_wrapper
+
+Parameters:
+	field -
+	html_str -
+
+Returns:
+	string
+
+*/
+
 function error_wrapper($field, $html_str) {
 	return '<a name="error_'.$field.'"></a><span class="errors_field">'.$html_str.'</span>';
 }
 
-/**
- * Creates the start form tag.
- *
- * @author Nesbert Hidalgo
- * @param array $event_options required
- * @param sting/object $name_or_obj required
- * @param mixed $value optional
- * @param string $method optional default set to "post"
- * @param array $html_options optional
- * @return string
- */
+/*
+
+Function: start_form_tag
+	Creates the start form tag.
+
+Parameters:
+	event_options - required
+	name_or_obj - required
+	value - optional
+	method - optional default set to "post"
+	html_options - optional
+
+Returns:
+	string
+
+*/
  
 function start_form_tag($event_options, $name_or_obj = null, $name_value = null, $method = 'post', $html_options= null) {
 
@@ -175,34 +183,46 @@ function start_form_tag($event_options, $name_or_obj = null, $name_value = null,
 	
 }
 
-/**
- * Creates the start form tag.
- *
- * @author Nesbert Hidalgo
- * @param array $options required
- * @return string
- */
+/*
+
+Function: form_tag
+	Creates the start form tag.
+
+Parameters:
+	options - required
+
+Returns:
+	string
+
+*/
  
 function form_tag($options) {
 	return '<form method="'.( $options['method'] ? $options['method'] : 'post' ).'"'.( $options['controller'] ? ' id="form_'.$options['controller'].( $options['action'] ? '_'.$options['action'] : '' ).'"' : '' ).( $options['controller'] ? ' name="form_'.$options['controller'].( $options['action'] ? '_'.$options['action'] : '' ).'"' : '' ).' action="'.url_for($options['controller'], $options['action'], $options['id']).'"'.html_options_str($options).'>'."\n";
 }
 
-/**
- * Creates the end form tag for lazy programmers or anal ones!.
- *
- * @author Nesbert Hidalgo
- */
+/*
+
+Function: end_form_tag
+	Creates the end form tag for lazy programmers or anal ones!.
+
+Returns
+	string
+
+*/
  
 function end_form_tag() {
 	return "</form>\n";
 }
 
-/**
- * Formats user[name] to user_name.
- *
- * @author Nesbert Hidalgo
- * @return string
- */
+/*
+
+Function: name_to_id
+	Formats user[name] to user_name.
+
+Returns:
+	string
+
+*/
  
 function name_to_id($name) {
 	
@@ -210,12 +230,15 @@ function name_to_id($name) {
 
 }
 
-/**
- * Base function used to create the different types of input tags.
- *
- * @author Nesbert Hidalgo
- * @return string
- */
+/*
+
+Function: create_input_tag
+	Base function used to create the different types of input tags.
+
+Returns:
+	string
+
+*/
  
 function create_input_tag($type, $name, $value = null, $html_options = null, $on_value = null, $text = null) {
 
@@ -231,15 +254,20 @@ function create_input_tag($type, $name, $value = null, $html_options = null, $on
 	
 }
 
-/**
- * Creates a text input tag.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $value optional
- * @param array $html_options optional
- * @return string
- */ 
+/*
+
+Function: text_field
+	Creates a text input tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/ 
 
 function text_field($name, $value = '', $html_options = null, $text = null) {
 
@@ -247,15 +275,20 @@ function text_field($name, $value = '', $html_options = null, $text = null) {
 
 }
 
-/**
- * Creates a hidden text input tag.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $value optional
- * @param array $html_options optional
- * @return string
- */ 
+/*
+
+Function: hidden_field
+	Creates a hidden text input tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/ 
 
 function hidden_field($name, $value = '', $html_options = null) {
 
@@ -263,15 +296,20 @@ function hidden_field($name, $value = '', $html_options = null) {
 
 }
 
-/**
- * Creates a password text input tag.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $value optional
- * @param array $html_options optional
- * @return string
- */ 
+/*
+
+Function: password_field	
+	Creates a password text input tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/ 
 
 function password_field($name, $value = '', $html_options = null, $text = null) {
 
@@ -279,16 +317,21 @@ function password_field($name, $value = '', $html_options = null, $text = null) 
 
 }
 
-/**
- * Creates a radio button input tag.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $value optional
- * @param array $html_options optional
- * @param string $on_value optional
- * @return string
- */ 
+/*
+		
+Function: radio_button
+	Creates a radio button input tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+	on_value - optional
+
+Returns:
+	string
+
+*/ 
 
 function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null) {
 
@@ -297,16 +340,21 @@ function radio_button($name, $value = '', $html_options = null, $on_value = null
 
 }
 
-/**
- * Creates a checkbox input tag.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $value optional
- * @param array $html_options optional
- * @param string $on_value optional
- * @return string
- */ 
+/*
+
+Function: check_box
+	Creates a checkbox input tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+	on_value - optional
+
+Returns:
+	string
+
+*/ 
 
 function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null) {
 
@@ -315,15 +363,20 @@ function check_box($name, $value = '', $html_options = null, $on_value = null, $
 
 }
 
-/**
- * Creates a submit tag.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $value optional
- * @param array $html_options optional
- * @return string
- */ 
+/*
+
+Function: submit_tag
+	Creates a submit tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/ 
 
 function submit_tag($name = '', $value = 'Submit', $html_options = null) {
 
@@ -331,15 +384,20 @@ function submit_tag($name = '', $value = 'Submit', $html_options = null) {
 
 }
 
-/**
- * Creates a button tag.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $value optional
- * @param array $html_options optional
- * @return string
- */ 
+/*
+
+Function: button_tag
+	Creates a button tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/ 
 
 function button_tag($name = '', $value = 'Button', $html_options = null) {
 
@@ -347,15 +405,20 @@ function button_tag($name = '', $value = 'Button', $html_options = null) {
 
 }
 
-/**
- * Creates a textarea tag.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $value optional
- * @param array $html_options optional
- * @return string
- */ 
+/*
+
+Function: textarea
+	Creates a textarea tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/ 
 
 function textarea($name, $value = '', $html_options = null) {
 
@@ -363,15 +426,20 @@ function textarea($name, $value = '', $html_options = null) {
 
 }
 
-/**
- * Creates a label tag. Modified to accept html_options [NH] 2/3
- *
- * @author John Faircloth
- * @param string $name required
- * @param string $field required
- * @param boolean $required required
- * @return string
- */ 
+/*
+		
+Function: label	
+	Creates a label tag. Modified to accept html_options [NH] 2/3
+
+Parameters:
+	name - required
+	field - required
+	required - required
+
+Returns:
+	string
+
+*/ 
 
 function label($name, $title = null, $html_options = null)
 {
@@ -384,17 +452,22 @@ function label($name, $title = null, $html_options = null)
 	return error_check($name, '<label for="'.name_to_id($name).'"'.html_options_str($html_options).'>'.$title.'</label>');
 }
 
-/**
- * Creates a select tag (dropdown box). Can't beat this!!!
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param mix $selected optional 
- * @param array $choices optional
- * @param array $html_options optional
- * @param string $none_title optional default set to "None Available"
- * @return string
- */ 
+/*
+
+Function: select
+	Creates a select tag (dropdown box). Can't beat this!!!
+
+Parameters:
+	name - required
+	selected - optional 
+	choices - optional
+	html_options - optional
+	none_title - optional default set to "None Available"
+
+Returns:
+	string
+
+*/ 
 
 function select($name, $selected = '', $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false) {
 
@@ -452,17 +525,22 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 
 }
 
-/**
- * Creates a select tag (dropdown box). Can't beat this!!!
- *
- * @author John Faircloth, Nesbert Hidalgo
- * @param string $name required
- * @param mix $selected optional 
- * @param array $choices optional
- * @param array $html_options optional
- * @param string $none_title optional default set to "None Available"
- * @return string
- */ 
+/*
+
+Function: checkbox_select
+	Creates a select tag (dropdown box). Can't beat this!!!
+
+Parameters:
+	name - required
+	selected - optional 
+	choices - optional
+	html_options - optional
+	none_title - optional default set to "None Available"
+
+Returns:
+	string
+
+*/ 
 
 function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false) {
 	
@@ -513,16 +591,21 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
 }
 
 
-/**
- * Creates dropdown of states.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $selected optional
- * @param array $choices optional
- * @param array $html_options optional
- * @return string
- */
+/*
+
+Function: select_states_tag	
+	Creates dropdown of states.
+
+Parameters:
+	name - required
+	selected - optional
+	choices - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/
  
 function select_states_tag($name, $selected = null, $choices = null, $html_options = null, $select_all = false) {
 
@@ -540,18 +623,22 @@ function select_states_tag($name, $selected = null, $choices = null, $html_optio
 	
 }
 
-/**
- * Creates dropdown of countries. if $state_id is it will automatically populate those
- * values depending on the contry selected.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param string $selected optional
- * @param array $choices optional
- * @param array $html_options optional
- * @param array $state_id optional will update the states depending on the country selected
- * @return string
- */
+/*
+
+Function: select_countries_tag
+	Creates dropdown of countries. if $state_id is it will automatically populate those values depending on the contry selected.
+
+Parameters:
+	name - required
+	selected - optional
+	choices - optional
+	html_options - optional
+	state_id - optional will update the states depending on the country selected
+
+Returns:
+	string
+
+*/
  
 function select_countries_tag($name, $selected = null, $choices = null, $html_options = null, $state_id = null) {
 
@@ -635,15 +722,20 @@ function select_countries_tag($name, $selected = null, $choices = null, $html_op
 	
 }
 
-/**
- * Creates dropdown that redirects the page onchange.
- *
- * @author Nesbert Hidalgo
- * @param string $name required
- * @param array $names_and_urls requires
- * @param array $html_options optional
- * @return string
- */
+/*
+
+Function: select_redirect
+	Creates dropdown that redirects the page onchange.
+
+Parameters:
+	name - required
+	names_and_urls - requires
+	html_options - optional
+
+Returns:
+	string
+
+*/
  
 function select_redirect($name, $names_and_urls, $html_options = null) {
 	
@@ -655,15 +747,20 @@ function select_redirect($name, $names_and_urls, $html_options = null) {
 }
 
 
-/**
- * Create date selectboxes
- * 
- * @author Nesbert
- * @access public
- * @param string $name 
- * @param mixed $date
- * @return string
- */
+/*
+		
+Function: date_select	
+	Create date selectboxes
+
+Parameters:
+	name - name
+	date - date to use
+
+Returns:
+	string
+
+*/
+
 function date_select($name, $date = null)
 {
 	switch ( true ) {
@@ -705,6 +802,20 @@ function date_select($name, $date = null)
 	return $out;
 }
 
+/*
+		
+Function: time_select	
+	Create time selectboxes
+
+Parameters:
+	name - name
+	date - time to use
+
+Returns:
+	string
+
+*/
+
 function time_select($name, $time = null)
 {
 	$time = ($time == null) ? mktime() : $time;
@@ -728,16 +839,79 @@ function time_select($name, $time = null)
 	return $out;
 }
 
+/*
+		
+Function: date_time_select	
+	Create date selectboxes
+
+Parameters:
+	name - name
+	datetime - datetime to use
+
+Returns:
+	string
+
+*/
+
 function date_time_select($name, $datetime = null)
 {
 	return date_select($name, $datetime)." @ ".time_select($name, $datetime);
 }
+
+/*
+		
+Function: get_timestamp_from_post
+	Get the timestamp array from post
+
+Parameters:
+	key - key to use
+
+Returns:
+	string
+
+*/
 
 function get_timestamp_from_post($key)
 {
 	$_POST[$key]['hour'] = ($_POST[$key]['ampm'] == 'pm') ? ($_POST[$key]['hour'] + 12) : $_POST[$key]['hour'];
 	return mktime($_POST[$key]['hour'], $_POST[$key]['minute'], 0, $_POST[$key]['month'], $_POST[$key]['day'], $_POST[$key]['year']);
 }
+
+/*
+		
+Function: date_select	
+	Create date selectboxes
+
+Parameters:
+	name - name
+	date - date to use
+
+Returns:
+	string
+
+*/
+
+function get_timestamp_from_array($array)
+{
+	$array['hour'] = ($array['ampm'] == 'pm') ? ($array['hour'] + 12) : $array['hour'];
+	return mktime($array['hour'], $array['minute'], 0, $array['month'], $array['day'], $array['year']);
+}
+
+/*
+		
+Function: select_time_zone_tag	
+	Create time zone selectboxes
+
+Parameters:
+	name - name
+	selected - item to be selected
+	choices - array of choices
+	html_options - html options
+
+Returns:
+	string
+
+*/
 
 function select_time_zone_tag($name, $selected = null, $choices = null, $html_options = null)
 {

@@ -1,43 +1,28 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
-/**
- * Table session class.
- *
- * @copyright	Copyright (c) 2005-2006, creovel.org
- * @package		creovel
- * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
- * @todo		storing class/object bug
- */
+/*
+
+Class: session
+	Table session class.
+
+Todo:
+	Storing class/object bug
+ 
+*/
+
 class session extends model
 {
 
-	/**
-	 * Constructor for session model
-	 *
-	 * @author John Faircloth
-	 * @access public
-	 * @param mixed $args 
+	/*
+	
+	Function: __construct
+		Constructor for session model
 
-	 */
+	Paramters:	
+		mixed - connection arguments array
+
+	*/
+
 	public function __construct($args = null)
 	{	
 		
@@ -47,26 +32,32 @@ class session extends model
 		}
 		parent::__construct($args);
 	}
+
+	/*
 	
-	/**
-	 * Cleans data
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 * @param mixed $data optional returns controller as string
-	 * @return mixed
-	 */
+	Function: clean_data
+		Cleans data
+
+	Parameters:	
+		data - optional
+
+	Returns:
+		mixed
+
+	*/
+
 	private function clean_data($data)
 	{
 		return addslashes($data);	
 	}
 	
-	/**
-	 * Create sessions table if it doesn't exists
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 */
+	/*
+	
+	Function: table_check	
+		Create sessions table if it doesn't exists
+
+	*/
+
 	private function table_check()
 	{
 		$this->query("CREATE TABLE IF NOT EXISTS {$this->_table_name}
@@ -78,14 +69,19 @@ class session extends model
 						)");
 	}
 	
-	/**
-	 * Get session data
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $id
-	 * @return mixed
-	 */
+	/*
+	
+	Function: get_session_data	
+		Get session data
+	
+	Parameters:
+		id - optional
+
+	Returns:
+		mixed
+
+	*/
+
 	public function get_session_data($id = false)
 	{
 		if ( !$id ) return false;
@@ -101,15 +97,20 @@ class session extends model
 		}
 	}
 	
-	/**
-	 * Set session data
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $id
-	 * @param mixed $val
-	 * @return int
-	 */
+	/*
+	
+	Function: set_session_data	
+		Set session data
+
+	Parameters:	
+		id - session id
+		val - optional
+
+	Returns:
+		int
+
+	*/
+
 	public function set_session_data($id = false, $val = '')
 	{
 		$expires = time() + get_cfg_var("session.gc_maxlifetime");
@@ -118,46 +119,63 @@ class session extends model
 	    return $this->get_affected_rows();
 	}
 
-	/**
-	 * Delete session data
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return bool
-	 */
+	/*
+	
+	Function: destroy_session_data
+		Delete session data
+
+	Parameters:
+		id - session id
+	
+	Returns:	
+		bool
+
+	*/
+
 	public function destroy_session_data($id)
 	{
 		$this->query_records("DELETE FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
 	    return $this->get_affected_rows();
 	}
 	
-	/**
-	 * Delete all expired rows from session table
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return bool
-	 */
+	/*
+
+	Function: clean_sesssion_data
+		Delete all expired rows from session table
+
+	Parameters:
+		maxlifetime - session max life time			
+
+	Returns:
+		bool
+
+	*/
+
 	public function clean_session_data($maxlifetime)
 	{
 		$this->query("DELETE FROM {$this->_table_name} WHERE expires < '".time()."'");
 	    return $this->get_affected_rows();
 	}
 	
-	/**
-	 * Load seesion by id
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $id
-	 * @return object
-	 */
+	/*
+	
+	Function: load_sesesion_by_id
+		Load seesion by id
+
+	Parameters:	
+		id - session id
+
+	Returns:
+		session object
+
+	*/
+
 	public function load_session_by_id($id)
 	{
 		if (!$id) return false;
 		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
 		return $this->next();
 	}
-
 }
+
 ?>

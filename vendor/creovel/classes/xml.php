@@ -1,37 +1,17 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
-/**
- * XML class to rule all.
- *
- * @copyright	Copyright (c) 2005-2006, creovel.org
- * @package		creovel
- * @subpackage	classes
- * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
- * @author		Nesbert Hidalgo
- * @version		0.1 (10/16/2006)
- * @todo		validate CDATA
- *				might not need get_attributes()
- *				mapper -> xml to array -> easier interface/view
- */
+/*
+
+Class: xml
+	XML class to rule all.
+
+Todo:
+	* Validate CDATA
+	* might not need get_attributes()
+	* mapper -> xml to array -> easier interface/view
+
+*/
+
 class xml
 {
 
@@ -40,27 +20,35 @@ class xml
 	public $data			= ''; // Data object of XML structure
 	
 	private $parser			= ''; // PHP xml_parser_create()
+
+	// Section: Public
 	
-	/**
-	 * Initialize class and set data property.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 */
+	/*
+	
+	Function:	
+		Initialize class and set data property.
+	
+	*/
+
 	public function __construct()
 	{
 		$this->data = new element;
 		$this->data->name = 'root';
 	}
 	
-	/**
-	 * Load XML data from file path or load from array.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string/array $xml_file required
-	 * @return object
-	 */
+	/*
+
+	Function: load	
+		Load XML data from file path or load from array.
+
+	Parameters:
+		xml_file - required
+
+	Returns:
+		object
+
+	*/
+
 	public function load($xml_file)
 	{	
 		if ( is_string($xml_file) ) {
@@ -92,13 +80,16 @@ class xml
 		return $this->array_to_xml($this->data->children);
 	}
 	
-	/**
-	 * Output XML file.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
-	 */	
+	/*
+
+	Function: file
+		Output XML file.
+	
+	Returns:
+		string
+
+	*/	
+
 	public function file()
 	{
 		header("Connection: close");
@@ -108,10 +99,11 @@ class xml
 		die($output);
 	}
 	
-	/**
-	 * Convert an array or object to an XML string. Sample array structure:
-	 *
-	 * <code>
+	/*
+	
+	Function array_to_xml
+	Convert an array or object to an XML string. Sample array structure:
+
 		element Object
             (
                 [name] => rss

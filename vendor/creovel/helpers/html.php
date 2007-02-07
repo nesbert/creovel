@@ -1,50 +1,45 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
 /*
- * HTML helpers here.
- */
+
+Script: html
+	Html helpers here.
+
+*/
  
-/**
- * Redirects the page. **Note should only be used on the contrller.
- *
- * @params string $controller required
- * @params string $action required
- * @params int $id optional
- */
+/*
+
+Function: redirecto_to
+	Redirects the page. 
+	*Note should only be used on the contrller.*
+
+Parameters:
+	controller - controller
+	action - action
+	id - id
+
+*/
+
 function redirect_to($controller = '', $action = '', $id = '')
 {
-
 	header('location: ' . url_for($controller, $action, $id));
 	die;
-	
 }
 
-/**
- * Returns a stylesheets include tag.
- *
- * @author Nesbert Hidalgo
- * @param string/array $url required
- * @mparam string $/array optional default set to "screen"
- */
+/*
+
+Function: stylesheet_include_tag	
+	Returns a stylesheets include tag.
+
+Parameters:
+	url - relative stylesheet path
+	media - stylesheet type default set to "screen"
+
+Returns:
+	string
+
+*/
+
 function stylesheet_include_tag($url, $media = 'screen')
 {
 	if ( is_array($url) ) {
@@ -62,26 +57,39 @@ function stylesheet_include_tag($url, $media = 'screen')
 		return sprintf('<link rel="stylesheet" type="text/css" media="'.$media.'" href="%s">', $url);
 		
 	}
-	
 }
 
-/**
- * Returns a javascript script tag.
- *
- * @author Nesbert Hidalgo
- * @param string $script required
- */
+/*
+
+Function: javascript_tag
+	Returns a javascript script tag.
+
+Parameters:
+	script - Javascript code.
+
+Returns:
+	string
+
+*/
+
 function javascript_tag($script)
 {
 	return sprintf('<script language="javascript" type="text/javascript">%s</script>'."\n", $script);
 }
 
-/**
- * Returns a javascript include tag.
- *
- * @author Nesbert Hidalgo
- * @param string/array $url required
- */
+/*
+
+Function: javascript_tag
+	Returns a javascript include script tag.
+
+Parameters:
+	script - Relative path to javascript file.
+
+Returns:
+	string
+
+*/
+
 function javascript_include_tag($url)
 {
 	if ( is_array($url) ) {
@@ -101,16 +109,25 @@ function javascript_include_tag($url)
 	}
 }
 
-/**
- * Creates a url path for lazy programmers. Example:
- *
- *	url_for('user', 'edit', 1234)
- *
- * @author Nesbert Hidalgo
- * @param string $controller required
- * @param string $action required
- * @param mixed $id optional
- */
+/*
+
+Function: url_for
+	Creates a url path for lazy programmers.
+
+	(start code)
+ 		url_for('user', 'edit', 1234)
+	(end)
+
+Parameters:
+	controller - required
+	action - required
+	id - optional
+
+Returns:
+	string
+
+*/
+
 function url_for($controller = '', $action = '', $id = '')
 {
 
@@ -136,42 +153,65 @@ function url_for($controller = '', $action = '', $id = '')
 	
 }
 
-/**
- * Creates a anchor link for lazy programmers. Example:
- *
- *	link_to('Edit', 'agent', 'edit', $this->agent->id, array( 'class' => 'classname', 'name' => 'top'))
- *
- * @author Nesbert Hidalgo
- * @param string $link_title optional defaults to "Goto"
- * @param string $controller required
- * @param string $action required
- * @param mixed $id optional
- * @param array $html_options optional
- */
+/*
+
+Function: link_to
+	Creates a anchor link for lazy programmers. Example:
+
+	(start code)
+		link_to('Edit', 'agent', 'edit', $this->agent->id, array( 'class' => 'classname', 'name' => 'top'))
+	(end)
+
+Parameters:
+	link_title - optional defaults to "Goto"
+	controller - required
+	action - required
+	id - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/
+
 function link_to($link_title = 'Goto', $controller = '', $action = '', $id = '', $html_options = null)
 {
 	return '<a href="'.( $html_options['href'] ? $html_options['href'] : url_for($controller, $action, $id) ).'"'.html_options_str($html_options).'>'.$link_title.'</a>';
 }
 
-/**
- * Creates an email link
- *
- * @author Nesbert Hidalgo
- * @param string $email required
- * @param string $link_title optional
- * @param array $html_options optional
- */
+/*
+
+Function: mail_to
+	Creates an email link
+
+Parameters:
+	email - required
+	link_title - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/
+
 function mail_to($email, $link_title = null, $html_options = null)
 {
 	return '<a href="mailto:'.$email.'"'.html_options_str($html_options).'>'.( $link_title ? $link_title : $email ) .'</a>';
 }
 
-/**
- * Creates a string of html tag attributes
- *
- * @author Nesbert Hidalgo
- * @param string $html_options required
- */
+/*
+
+Function: html_options_str
+	Creates a string of html tag attributes
+
+Parameters:
+	html_options - required
+
+Returns:
+	string
+
+*/
+
 function html_options_str($html_options)
 {
 
@@ -218,15 +258,20 @@ function html_options_str($html_options)
 
 }
 
-/**
- * Creates the floating tabs. Expects an array, key = url/javascript, value = label
- *
- * @author Nesbert Hidalgo
- * @param array $links required
- * @param string $current optional default set to 1
- * @param bool $use_small_tabs optional default set to false
- * @return string
- */
+/*
+
+Function:
+	Creates the floating tabs. Expects an array, key = url/javascript, value = label
+
+Parameters:
+	links - required
+	current - optional default set to 1
+	use_small_tabs - optional default set to false
+
+Returns:
+	string
+
+*/
  
 function tabs($links, $current = 1, $use_small_tabs = false) {
 
@@ -266,7 +311,6 @@ function tabs($links, $current = 1, $use_small_tabs = false) {
 	<?
 	
 	return $tabs;
-	
 }
 
 ?>

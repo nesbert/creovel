@@ -1,34 +1,18 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
 /*
- * Framework functions.
- */
 
-/**
- * AUTOLOAD ROUTINE
- *
- * @author Nesbert Hidalgo
- * @access public
- */
+Script: framework
+
+*/
+
+/*
+
+Function: __autoload
+	Autoload Routine
+
+*/
+
 function __autoload($class)
 {
 
@@ -112,88 +96,115 @@ function __autoload($class)
 	
 }
 
-/**
- * Returns the framework events (CONTORLLER & ACTION).
- *
- * @author Nesbert Hidalgo
- * @access public
- * @param string $event_to_return optional name of event to return
- * @return array
- */ 
+/*
+
+Function: get_events
+	Returns the framework events (CONTORLLER & ACTION).
+
+Parameters:
+	event_to_return - optional name of event to return
+
+Return:
+	array
+
+*/ 
+
 function get_events($event_to_return = null)
 {	
 	return creovel::get_events($event_to_return); 
 }
 
-/**
- * Returns the current CONTORLLER.
- *
- * @author Nesbert Hidalgo
- * @access public
- * @return string
- */
+/*
+
+Function: get_controller
+	Returns the current CONTORLLER.
+
+Returns:
+	string
+
+*/
+
 function get_controller()
 {
 	return creovel::get_events('controller');
 }
 
-/**
- * Returns the current ACTION.
- *
- * @author Nesbert Hidalgo
- * @access public
- * @return string
- */
+/*
+
+Function: get_action
+	Returns the current ACTION.
+
+Returns:
+	string
+
+*/
 
 function get_action()
 {
 	return creovel::get_events('action');
 }
 
-/**
- * Returns the framework params.
- *
- * @author Nesbert Hidalgo
- * @access public
- * @param string $param_to_return optional name of param to return
- * @return array
- */
+/*
+
+Function: get_params
+	Returns the framework params.
+
+Parameters:
+	param_to_return - optional name of param to return
+Returns:
+	array
+
+*/
+
 function get_params($param_to_return = null)
 {
 	return creovel::get_params($param_to_return);
 }
 
 
-/**
- * Returns the framework version.
- *
- * @author Nesbert Hidalgo
- * @access public
- * @return string
- */
+/*
+
+Function:
+	Returns the framework version.
+
+Returns:
+	string
+
+*/
+
 function get_version()
 {
 	return creovel::VERSION;
 }
 
-/**
- * Returns the framework release date.
- *
- * @author Nesbert Hidalgo
- * @access public
- * @return string
- */
+/*
+
+Function: get_release_date
+	Returns the framework release date.
+
+Returns:
+	string
+
+*/
+
 function get_release_date()
 {
 	return creovel::RELEASE_DATE;
 }
 
 /*
- * Sets and unsets $_SESSION['notice'].
- *
- * @author Nesbert Hidalgo
- * @param string $message optional
- */
+
+Function: flash_notice
+	Sets and unsets $_SESSION['notice'].
+
+Parameters:
+	message - optional
+
+Returns:
+	string or bool
+
+*/
+
 function flash_notice($message = null) {
 
 	if ( $message || $_SESSION['notice']['message'] ) {
@@ -224,14 +235,17 @@ function flash_notice($message = null) {
 
 }
 
-/**
- * Stops the application and display an error message
- *
- * @author Nesbert Hidalgo
- * @access public
- * @param string $message
- * @param bool $thow_exception optional
- */
+/*
+
+Function: application_error
+	Stops the application and display an error message
+
+Parameters:
+	message - error message
+	thow_exception - optional
+
+*/
+
 function application_error($message, $thow_exception = false)
 {
 	if ($thow_exception) { 
@@ -240,16 +254,20 @@ function application_error($message, $thow_exception = false)
 	$_ENV['error']->add($message, $e);
 }
 
-/**
- * Gets a directories files in a directory by file type. Returns an
- * associative array with the file_name as key and file_path as value.
- *
- * @author Nesbert Hidalgo
- * @access public
- * @param string $dir_path required
- * @param string $file_type optional default set to 'php'
- * @return object
- */
+/*
+
+Function: get_files_from_dir
+	Gets a directories files in a directory by file type. Returns an associative array with the file_name as key and file_path as value.
+
+Parameters:
+	dir_path - required
+	file_type - optional default set to 'php'
+
+Returns:
+	object
+
+*/
+
 function get_files_from_dir($dir_path, $file_type = 'php')
 {
 	$files = array();
@@ -264,25 +282,31 @@ function get_files_from_dir($dir_path, $file_type = 'php')
 	return $files;
 }
 
-/**
- * Returns an array of the adapters available to the framework.
- *
- * @author Nesbert Hidalgo
- * @access public 
- * @return array
- */	
+/*
+
+Function: get_creovel_adapters
+	Returns an array of the adapters available to the framework.
+
+Returns:
+	array
+
+*/	
+
 function get_creovel_adapters()
 {
 	return get_files_from_dir(CREOVEL_PATH.'adapters');
 }
 
-/**
- * Returns an array of the services available to the framework.
- *
- * @author Nesbert Hidalgo
- * @access public 
- * @return array
- */	
+/*
+
+Function: get_creovel_services
+	Returns an array of the services available to the framework.
+
+Returns:
+	array
+
+*/	
+
 function get_creovel_services()
 {
 	return get_files_from_dir(CREOVEL_PATH.'services');

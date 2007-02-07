@@ -1,44 +1,29 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
-/**
- * AJAX methods go here. The following files should be included: prototype.js,
- * dragdrop.js, controls.js, effects.js. 
- */
+/*
+
+Script: ajax
+	AJAX methods go here. The following files should be included: prototype.js, dragdrop.js, controls.js, effects.js. 
  
-/**
- * Creates an AJAX link tag. An AJAX call will be executed on every click.
- * Example:
- *
- * <code>
- * 	<?=link_to_remote('Go AJAK Go!!!', 'results', url_for('company', 'ajax_search') )?>
- *
- *	<div id="results"></div>
- * </code>
- *
- * @param string $link_title optional defaults to "Goto"
- * @param string $id_to_update required
- * @param string $url required
- * @param array $html_options optional
- */
+*/
+
+/*
+
+Function: link_to_remote
+	Creates an AJAX link tag. An AJAX call will be executed on every click.
+
+	(start code)
+		<?=link_to_remote('Go AJAK Go!!!', 'results', url_for('company', 'ajax_search') )?>
+ 		<div id="results"></div>
+	(end)
+
+Parameters:
+	link_title - optional defaults to "Goto"
+	id_to_update - required
+	url - required
+	html_options - optional
+
+*/
  
 function link_to_remote($link_title = 'Goto', $id_to_update, $url, $html_options = null) {
 
@@ -55,25 +40,28 @@ function link_to_remote($link_title = 'Goto', $id_to_update, $url, $html_options
 	
 }
 
-/**
- * Creates an AJAX form starter tag. This form will submited using AJAX
- * via post. Example:
- *
- * <code>
- * 	<?=form_remote_tag('results', '/company/ajax_search/')?>
- *		First Name: <input type="text" name="agent[name_first]" value=""  /><br />
- *		Last Name: <input type="text" name="agent[name_last]" value=""  /><br />
- *		Email: <input type="text" name="agent[email]" value=""  /><br />
- *		<input type="submit" value="Go AJAX go!!!" />
- *	<?=end_form_tag()?>
- *
- * 	<h1>Search Results</h1>
- *	<div id="results"></div>
- * </code>
- *
- * @param string $id_to_update required
- * @param string $url required
- */
+/*
+
+Function: form_remote_tag
+	Creates an AJAX form starter tag. This form will submited using AJAX via post.
+
+	(start code)
+		<?=form_remote_tag('results', '/company/ajax_search/')?>
+			First Name: <input type="text" name="agent[name_first]" value=""  /><br />
+			Last Name: <input type="text" name="agent[name_last]" value=""  /><br />
+			Email: <input type="text" name="agent[email]" value=""  /><br />
+			<input type="submit" value="Go AJAX go!!!" />
+		<?=end_form_tag()?>
+
+		<h1>Search Results</h1>
+		<div id="results"></div>
+	(end) 
+
+Parameters:
+	id_to_update - required
+	url - required
+
+*/
  
 function form_remote_tag($id_to_update, $url) {
 
@@ -81,23 +69,26 @@ function form_remote_tag($id_to_update, $url) {
 
 }
 
-/**
- * Creates an observer for a form field. Any time the field being observed is 
- * modified it does an ajax call. Example:
- *
- * <code>
- * 	<input type="text" id="search" name"search" value="" />
- *	<?= observe_field('search', 0.5, 'results', '/search/ajax_search/') ?>
- *
- * 	<h1>Search Results</h1>
- *	<div id="results"></div>
- * </code>
- *
- * @param string $id_of_field required
- * @param int $frequency optional default set to 0
- * @param string $id_to_update required
- * @param string $url required
- */
+/*
+
+Function: observe_field
+	Creates an observer for a form field. Any time the field being observed is modified it does an ajax call. Example:
+	
+	(start code)
+		<input type="text" id="search" name"search" value="" />
+		<?= observe_field('search', 0.5, 'results', '/search/ajax_search/') ?>
+
+		<h1>Search Results</h1>
+		<div id="results"></div>
+	(end) 
+
+Parameters:
+	id_of_field - required
+	frequency - optional default set to 0
+	id_to_update - required
+	url - required
+
+*/
  
 function observe_field($id_of_field, $frequency = 0, $id_to_update, $url) {
  
@@ -109,21 +100,22 @@ function observe_field($id_of_field, $frequency = 0, $id_to_update, $url) {
  
 }
 
-/**
- * Creates an AJAX object that does period calls depending on the value of the frequency.
- * The bottom example will call the controller "company" and action "ajax_search" every
- * 5 seconds and update "results" div. 
- *
- * <code>
- * 	<?=periodically_call_remote('results', url_for('company', 'ajax_search'), 5)?>
- *
- *	<div id="results"></div>
- * </code>
- *
- * @param string $id_to_update required
- * @param string $url required
- * @param int $frequency optional default set to 3
- */
+/*
+
+Function: periodically_call_remote
+	Creates an AJAX object that does period calls depending on the value of the frequency. The bottom example will call the controller "company" and action "ajax_search" every 5 seconds and update "results" div. 
+
+	(start code)
+		<?=periodically_call_remote('results', url_for('company', 'ajax_search'), 5)?>
+		<div id="results"></div>
+	(end)
+
+Parameters:
+	id_to_update - required
+	url - required
+	frequency - optional default set to 3
+
+*/
 
 function periodically_call_remote($id_to_update, $url, $frequency = 3) {
 
@@ -131,29 +123,32 @@ function periodically_call_remote($id_to_update, $url, $frequency = 3) {
 	
 }
 
-/**
- * Creates an sortable list using dragdrop.js.
- *
- * <code>
- *	<ul id="shopping-list">
- *		<li id="li_1">Triscuit</li>
- *		<li id="li_2">Milk</li>
- *		<li id="li_3">Cake</li>
- *		<li id="li_4">Biscuit</li>
- *	</ul>
- *
- *	<?=create_sortable_list('shopping-list', 'li')?>
- * </code>
- *
- * Note:
- * To get the sortable list value you can use the function
- * Sortable.serialize. Example:
- *
- *	var list_order = Sortable.serialize('shopping-list');
- *
- * @param string/array $id_of_container required
- * @param int $list_tag optional but is required if not using an array
- */
+/*
+
+Function: create_sortable_list
+	Creates an sortable list using dragdrop.js.
+
+	(start code)	
+		<ul id="shopping-list">
+			<li id="li_1">Triscuit</li>
+			<li id="li_2">Milk</li>
+			<li id="li_3">Cake</li>
+			<li id="li_4">Biscuit</li>
+		</ul>
+		<?= create_sortable_list('shopping-list', 'li') ?>
+	(end)
+
+	Note: To get the sortable list value you can use the function Sortable.serialize.
+
+	(start code) 
+		var list_order = Sortable.serialize('shopping-list');
+	(end)
+
+Parameters:	
+	id_of_container - required
+	list_tag - optional but is required if not using an array
+
+*/
 
 function create_sortable_list($id_of_container, $list_tag = null) {
 
@@ -176,19 +171,20 @@ function create_sortable_list($id_of_container, $list_tag = null) {
 }
 
 
-/**
- * Creates draggable popup.
- *
- * </code>
- *	<?=create_popup('popup_id', 'Popup')?>
- * </code>
- *
- * Note:
- * None
- *	
- * @param string $element_id required
- * @param int $title optional default value is Popup
- */
+/*
+
+Function: create_popup
+	Creates draggable popup.
+
+	(start code)
+		<?= create_popup('popup_id', 'Popup') ?>
+	(end)
+
+Parameters: 
+	element_id - required
+	title - optional default value is Popup
+
+*/
 
 function create_popup($element_id, $title = 'Popup') {
 	?>

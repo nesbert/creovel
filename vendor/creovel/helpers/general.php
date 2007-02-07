@@ -1,33 +1,22 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
 /*
- * General top-level functions.
- */
 
-/**
- * Prints human-readable information about a variable much prettier.
- *
- * @author John Faircloth
- */
+Script: general
+	General top-level functions.
+ 
+*/
+
+/*
+
+Function: print_obj
+	Prints human-readable information about a variable much prettier.
+
+Parameters:
+	obj - The value to print out.
+	kill - Die after printing.
+
+*/
  
 function print_obj($obj, $kill = false)
 {
@@ -40,25 +29,35 @@ function print_obj($obj, $kill = false)
 }
 
 /*
- * Return user definde constats
- *
- * @author Nesbert Hidalgo
- * @return array
- */
- function get_user_defined_constants()
- {
+
+Function: get_user_defined_constants	
+	Return user definde constats
+
+Returns:
+	array
+ 
+*/
+
+function get_user_defined_constants()
+{
  	$return = get_defined_constants(true);
 	return $return['user'];
- }
+}
  
 /*
- * Returns a human readable size or a file or a size
- * http://us2.php.net/manual/hk/function.filesize.php#64387
- *
- * @author Nesbert Hidalgo
- * @param mixed $file_or_size
- * @return string
- */
+
+Function: get_filesize		
+	Returns a human readable size or a file or a size
+	http://us2.php.net/manual/hk/function.filesize.php#64387
+
+Parameters:
+	file_or_size - File path or size
+
+Returns:
+	string
+
+*/
+
 function get_filesize($file_or_size)
 {
 	$iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");	
@@ -72,12 +71,17 @@ function get_filesize($file_or_size)
 }
 
 /*
- * Get the mime type of a file (http://www.duke.edu/websrv/file-extensions.html).
- *
- * @author Nesbert Hidalgo
- * @param string $file_name required
- * @return string
- */ 
+
+Function: get_mime_type
+	Get the mime type of a file (http://www.duke.edu/websrv/file-extensions.html).
+
+Parameters:
+	file_name - File Name
+
+Returns:
+	string
+*/ 
+
 function get_mime_type($filename)
 {
 	echo $filename;
@@ -251,12 +255,18 @@ function get_mime_type($filename)
 }
 
 /*
- * Deep cleans arrays, objects, strings
- *
- * @author Nesbert Hidalgo
- * @param mixed $data
- * @return mixed
- */
+
+Function: strip_slashes
+	Deep cleans arrays, objects, strings
+
+Parameters:
+	data - array, string or object
+
+Returns:
+	array, string or object
+
+*/
+
 function strip_slashes($data) {
 	
 	switch ( true ) {
@@ -286,13 +296,19 @@ function strip_slashes($data) {
 }
 
 /*
- * String replaces a string using array_key with array_val
- *
- * @author Nesbert Hidalgo
- * @param string $str
- * @param array $array associative array
- * @return string
- */
+
+Function str_replace_array
+	String replaces a string using array_key with array_val
+
+Parameters:
+	string - string
+	array - associative array
+
+Returns:
+	string
+
+*/
+
 function str_replace_array($str, $array)
 {
 	return str_replace(array_keys($array), array_values($array), $str);

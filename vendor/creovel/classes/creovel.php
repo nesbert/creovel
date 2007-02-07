@@ -1,47 +1,33 @@
-<?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+<?
 
 /*
- * Framework base class.
- *
- * @copyright	Copyright (c) 2005-2006, creovel.org
- * @package		creovel
- * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
- * @todo		test nested controllers
- */
+
+Class: creovel
+	The main class.
+
+*/
+
 class creovel
 {
 	const VERSION = '0.02';
 	const RELEASE_DATE = 'Feb 02 2007 02:00:00';
 	
-	/**
-	 * Run framework.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public 
-	 * @param array $events optional assoc. array of CONTORLLER, ACTION & ID
-	 * @param array $events optional assoc. array of params
-	 * @param bool $return_as_str optional returns controller as string
-	 * @return object
-	 */
+	// Section: Public
+	
+	/*
+	
+	Function: run
+		Runs the framework.
+
+	Parameters:
+		events - assoc. array of CONTORLLER, ACTION & ID
+		params - assoc. array of params
+		return_as_str - optional returns controller as string
+
+	Returns:
+		<controller> object or string
+	*/
+
 	public function run($events = null, $params = null, $return_as_str = false)
 	{
 		// set-up environment
@@ -77,15 +63,20 @@ class creovel
 		return $controller->_output($return_as_str);
 	}
 	
-	/**
-	 * Returns the framework events (CONTROLLER, ACTION & ID).
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $event_to_return optional name of event to return
-	 * @param string $uri optional url routing path
-	 * @return array
-	 */
+	/*
+
+	Function: get_events	
+		Returns the framework events (CONTROLLER, ACTION & ID).
+
+	Parameters:	
+		event_to_return - name of event to return
+		uri - optional url routing path
+
+	Returns:
+		array
+
+	*/
+
 	public function get_events($event_to_return = null, $uri = null)
 	{
 		// read URI which was given in order to access this page, remove any trailing forward slashes
@@ -145,14 +136,19 @@ class creovel
 		return ( $event_to_return ? $events[$event_to_return] : $events );
 	}
 	
-	/**
-	 * Returns the framework params.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $param_to_return optional name of param to return
-	 * @return array
+	/*
+	
+	Function get_params
+		Returns the framework params.
+
+	Parameters:	
+		param_to_return - name of param to return
+
+	Returns:
+		array
+
 	 */
+
 	public function get_params($param_to_return = null)
 	{
 		// intialize params	
@@ -180,14 +176,22 @@ class creovel
 		return ( $param_to_return ? $params[$param_to_return] : $params );
 	 
 	}
+
+	// Section: Private
+
+	/*
 	
-	/**
-	 * Includes the required files for a controller and the controller helpers.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 * @param string $controller_path required
-	 */
+	Function: include_controller
+		Includes the required files for a controller and the controller helpers.
+
+	Parameters:	
+		controller_path - required
+
+	Returns:
+		null
+
+	*/
+
 	private function include_controller($controller_path)
 	{
 		// include application controller

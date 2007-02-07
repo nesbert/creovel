@@ -1,5 +1,12 @@
 <?
 
+/*
+
+Class: unittest
+	Handles the unit testing of the model classes.
+
+*/
+
 class unittest
 {
 	private $num_tests = 0;
@@ -7,6 +14,21 @@ class unittest
 	private $num_failed_assertions = 0;
 	private $num_passed_assertions = 0;
 	private $messages = array();
+
+	// Section: Public
+	
+	/*
+	
+	Function: run
+		This main function runs all the tests created.
+
+	Parameters:
+		null
+
+	Returns:
+		null
+
+	*/
 
 	public function run()
 	{
@@ -63,12 +85,38 @@ class unittest
 
 	}
 
+	/*
+	
+	Function: assert_true
+		Tests to see if the value passed is true.
+
+	Parameters:
+		val - Value to test
+
+	Returns:
+		null
+
+	*/
+
 	public function assert_true($val)
 	{
 		if (!$this->assert(true, $val)) {
 			$this->messages[] = array( 'type' => 'error', 'message' => "'{$val}' is not TRUE" );
 		}
 	}
+
+	/*
+	
+	Function: assert_false
+		Tests to see if the value passed is false.
+
+	Parameters:
+		val - Value to test
+
+	Returns:
+		null
+
+	*/
 
 	public function assert_false($val)
 	{
@@ -77,12 +125,40 @@ class unittest
 		}
 	}
 
+	/*
+	
+	Function: assert_equal
+		Tests to see if the values passed are equal.
+
+	Parameters:
+		val1 - First Value
+		val2 - Second Value
+
+	Returns:
+		null
+
+	*/
+
 	public function assert_equal($val1, $val2)
 	{
 		if (!$this->assert(true, ($val1 === $val2))) {
 			$this->messages[] = array( 'type' => 'error', 'message' => "'{$val1}' does not equal '{$val2}'" );
 		}
 	}
+
+	/*
+	
+	Function: assert
+		Tests to see if the values passed are equal.
+
+	Parameters:
+		val1 - First Value
+		val2 - Second Value
+
+	Returns:
+		bool
+
+	*/
 
 	public function assert($val1, $val2)
 	{
@@ -96,6 +172,21 @@ class unittest
 			return false;
 		}
 	}
+
+	// Section: Private
+
+	/*
+	
+	Function: class_test_methods
+		Finds all the methods in a class that start with 'test'
+
+	Parameters:
+		null
+
+	Returns:
+		Array of method names.
+
+	*/
 
 	private function class_test_methods()
 	{

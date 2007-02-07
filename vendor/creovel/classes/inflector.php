@@ -1,59 +1,36 @@
-<?php
+<?
+
 /*
- * Inflector class slightly modified for creovel.
- */
 
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+Class: inflector
+	Inflector for pluralize and singularize English nouns.
+	This Inflector is a port of Ruby on Rails Inflector.
+	It can be really helpful for developers that want to create frameworks based on naming conventions rather than configurations.
+	It was ported to PHP for the Akelos Framework, a multilingual Ruby on Rails like framework for PHP that will be launched soon.
 
+Credits:
+	Akelos PHP Application Framework
+	Copyright (c) 2002-2006, Akelos Media, S.L.  http://www.akelos.com/
 
-// +----------------------------------------------------------------------+
-// | Akelos PHP Application Framework                                     |
-// +----------------------------------------------------------------------+
-// | Copyright (c) 2002-2006, Akelos Media, S.L.  http://www.akelos.com/  |
-// | Released under the GNU Lesser General Public License                 |
-// +----------------------------------------------------------------------+
-// | You should have received the following files along with this library |
-// | - COPYRIGHT (Additional copyright notice)                            |
-// | - DISCLAIMER (Disclaimer of warranty)                                |
-// | - README (Important information regarding this library)              |
-// +----------------------------------------------------------------------+
-
-
-/**
-* Inflector for pluralize and singularize English nouns.
-* 
-* This Inflector is a port of Ruby on Rails Inflector.
-* 
-* It can be really helpful for developers that want to
-* create frameworks based on naming conventions rather than
-* configurations.
-* 
-* It was ported to PHP for the Akelos Framework, a
-* multilingual Ruby on Rails like framework for PHP that will
-* be launched soon.
-* 
-* @author Bermi Ferrer Martinez <bermi akelos com>
-* @copyright Copyright (c) 2002-2006, Akelos Media, S.L. http://www.akelos.org
-* @license GNU Lesser General Public License <http://www.gnu.org/copyleft/lesser.html>
-* @since 0.1
-* @version $Revision 0.1 $
 */
+
 class inflector
 {
-    // ------ CLASS METHODS ------ //
+	// Section: Public
 
-    // ---- Public methods ---- //
+    /*
 
-    // {{{ pluralize()
+	Function: pluralize
+		Pluralizes English nouns.
 
-    /**
-    * Pluralizes English nouns.
-    * 
-    * @access public
-    * @static
-    * @param    string    $word    English noun to pluralize
-    * @return string Plural noun
-    */
+	Parameters:	
+		word - English noun to pluralize
+
+	Returns:	
+		Plural noun
+	
+	*/
+
     public function pluralize($word)
     {
         $plural = array(
@@ -108,17 +85,19 @@ class inflector
 
     }
 
-    // }}}
-    // {{{ singularize()
+	/*
 
-    /**
-    * Singularizes English nouns.
-    * 
-    * @access public
-    * @static
-    * @param    string    $word    English noun to singularize
-    * @return string Singular noun.
-    */
+	Function: singularize
+    	Singularizes English nouns.
+
+	Parameters:	
+    	word - English noun to singularize
+		
+	Return:	
+		Singular noun.
+
+	*/
+
     public function singularize($word)
     {
         $singular = array (
@@ -179,70 +158,62 @@ class inflector
         return $word;
     }
 
-    // }}}
-    // {{{ titleize()
+	/*
+	
+	Function: titleize
+    	Converts an underscored or CamelCase word into a English sentence.
+    	The titleize public function converts text like "WelcomePage", "welcome_page" or  "welcome page" to this "Welcome Page".
+    	If second parameter is set to 'first' it will only capitalize the first character of the title.
 
-    /**
-    * Converts an underscored or CamelCase word into a English
-    * sentence.
-    * 
-    * The titleize public function converts text like "WelcomePage",
-    * "welcome_page" or  "welcome page" to this "Welcome
-    * Page".
-    * If second parameter is set to 'first' it will only
-    * capitalize the first character of the title.
-    * 
-    * @access public
-    * @static
-    * @param    string    $word    Word to format as tile
-    * @param    string    $uppercase    If set to 'first' it will only uppercase the
-    * first character. Otherwise it will uppercase all
-    * the words in the title.
-    * @return string Text formatted as title
-    */
+	Parameters:	
+		word - Word to format as tile
+    	uppercase - If set to 'first' it will only uppercase the first character. Otherwise it will uppercase all the words in the title.
+
+	Return:	
+		Text formatted as title
+
+	*/
+
     public function titleize($word, $uppercase = '')
     {
         $uppercase = $uppercase == 'first' ? 'ucfirst' : 'ucwords';
         return $uppercase(self::humanize(self::underscore($word)));
     }
 
-    // }}}
-    // {{{ camelize()
+    /*
 
-    /**
-    * Returns given word as CamelCased
-    * 
-    * Converts a word like "send_email" to "SendEmail". It
-    * will remove non alphanumeric character from the word, so
-    * "who's online" will be converted to "WhoSOnline"
-    * 
-    * @access public
-    * @static
-    * @see variablize
-    * @param    string    $word    Word to convert to camel case
-    * @return string UpperCamelCasedWord
-    */
+	Function: camelize			
+		Returns given word as CamelCased
+    	Converts a word like "send_email" to "SendEmail". It will remove non alphanumeric character from the word, so "who's online" will be converted to "WhoSOnline"
+	
+	Parameters:
+		word - Word to convert to camel case
+
+	Return:
+		UpperCamelCasedWord
+
+	*/
+
     public function camelize($word)
     {
         return str_replace(' ','',ucwords(preg_replace('/[^A-Z^a-z^0-9]+/',' ',$word)));
     }
 
-    // }}}
-    // {{{ underscore()
+    /*
 
-    /**
-    * Converts a word "into_it_s_underscored_version"
-    * 
-    * Convert any "CamelCased" or "ordinary Word" into an
-    * "underscored_word".
-    * 
-    * This can be really useful for creating friendly URLs.
-    * 
-    * @access public
-    * @static
-    * @param    string    $word    Word to underscore
-    * @return string Underscored word
-    */
+	Function: underscore	
+		Converts a word "into_it_s_underscored_version"
+    	Convert any "CamelCased" or "ordinary Word" into an "underscored_word".
+    	This can be really useful for creating friendly URLs.
+
+	Parameters:	
+    	word - Word to underscore
+
+	Returns:	
+		Underscored word
+	 
+	*/
+
     public function underscore($word)
     {
         return  strtolower(preg_replace('/[^A-Z^a-z^0-9]+/','_',
@@ -250,108 +221,103 @@ class inflector
         preg_replace('/([A-Z]+)([A-Z][a-z])/','\1_\2',$word))));
     }
 
-    // }}}
-    // {{{ humanize()
+    /*
 
-    /**
-    * Returns a human-readable string from $word
+	Function:	
+		Returns a human-readable string from $word
+    	Returns a human-readable string from $word, by replacing underscores with a space, and by upper-casing the initial character by default.
+    	If you need to uppercase all the words you just have to pass 'all' as a second parameter.
 
-    * 
-    * Returns a human-readable string from $word, by replacing
-    * underscores with a space, and by upper-casing the initial
-    * character by default.
-    * 
-    * If you need to uppercase all the words you just have to
-    * pass 'all' as a second parameter.
-    * 
-    * @access public
-    * @static
-    * @param    string    $word    String to "humanize"
-    * @param    string    $uppercase    If set to 'all' it will uppercase all the words
-    * instead of just the first one.
-    * @return string Human-readable word
-    */
+	Parameters:	
+    	word - String to "humanize"
+		uppercase - If set to 'all' it will uppercase all the words instead of just the first one.
+	
+	Returns:
+    	Human-readable word
+	 
+	*/
+
     public function humanize($word, $uppercase = '')
     {
         $uppercase = $uppercase == 'all' ? 'ucwords' : 'ucfirst';
         return $uppercase(str_replace('_',' ',preg_replace('/_id$/', '',$word)));
     }
 
-    // }}}
-    // {{{ variablize()
+    /*
 
-    /**
-    * Same as camelize but first char is underscored
-    * 
-    * Converts a word like "send_email" to "sendEmail". It
-    * will remove non alphanumeric character from the word, so
-    * "who's online" will be converted to "whoSOnline"
-    * 
-    * @access public
-    * @static
-    * @see camelize
-    * @param    string    $word    Word to lowerCamelCase
-    * @return string Returns a lowerCamelCasedWord
-    */
+	Function: variablize	
+		Same as camelize but first char is underscored
+    	Converts a word like "send_email" to "sendEmail". It will remove non alphanumeric character from the word, so "who's online" will be converted to "whoSOnline"
+   		See <camelize>
+
+	Parameters:
+		word - Word to lowerCamelCase
+
+	Returns:
+    	Returns a lowerCamelCasedWord
+	 
+	*/
+
     public function variablize($word)
     {
         $word = self::camelize($word);
         return strtolower($word[0]).substr($word,1);
     }
 
-    // }}}
-    // {{{ tableize()
+    /*
 
-    /**
-    * Converts a class name to its table name according to rails
-    * naming conventions.
-    * 
-    * Converts "Person" to "people"
-    * 
-    * @access public
-    * @static
-    * @see classify
-    * @param    string    $class_name    Class name for getting related table_name.
-    * @return string plural_table_name
-    */
+	Function: tabelize	
+		Converts a class name to its table name according to rails naming conventions.
+    	Converts "Person" to "people"
+    	See <classify>
+
+	Parameters:	
+		class_name - Class name for getting related table_name.
+		
+	Returns:	
+		plural_table_name
+
+	*/
+
     public function tableize($class_name)
     {
         return self::pluralize(self::underscore($class_name));
     }
 
-    // }}}
-    // {{{ classify()
+    /*
+			
+	Function:	
+		Converts a table name to its class name according to rails naming conventions.
+    	Converts "people" to "Person"
+		See <tableize>
 
-    /**
-    * Converts a table name to its class name according to rails
-    * naming conventions.
-    * 
-    * Converts "people" to "Person"
-    * 
-    * @access public
-    * @static
-    * @see tableize
-    * @param    string    $table_name    Table name for getting related ClassName.
-    * @return string SingularClassName
-    */
+	Parameters:
+    	table_name - Table name for getting related ClassName.
+		
+	Returns:	
+		SingularClassName
+
+	*/
+
     public function classify($table_name)
     {
         return self::camelize(self::singularize($table_name));
     }
 
-    // }}}
-    // {{{ ordinalize()
+    /*
 
-    /**
-    * Converts number to its ordinal English form.
-    * 
-    * This method converts 13 to 13th, 2 to 2nd ...
-    * 
-    * @access public
-    * @static
-    * @param    integer    $number    Number to get its ordinal value
-    * @return string Ordinal representation of given string.
-    */
+	Function: ordanlize	
+		Converts number to its ordinal English form.
+    	This method converts 13 to 13th, 2 to 2nd ...
+
+	Parameters:	
+		number - Number to get its ordinal value
+
+	Returns:
+		Ordinal representation of given string.
+
+	*/
+
     public function ordinalize($number)
     {
         if (in_array(($number % 100),range(11,13))){
@@ -372,8 +338,6 @@ class inflector
             }
         }
     }
-
-    // }}}
-
 }
+
 ?>

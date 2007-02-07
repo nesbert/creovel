@@ -20,7 +20,7 @@ DocumentRoot /usr/local/apache/htdocs
 
 ==Single Website Environment==
 
-Change to default path to the following:
+Change the default path to the following:
 {{{
 DocumentRoot /usr/local/apache/htdocs/creovel/public
 }}}
@@ -118,4 +118,4 @@ RewriteRule ^(.*)$ www.creovel.org/public/$1 [L]
 _Again, this is one example of the many ways of setting up Creovel for a multiple website environment._
 
 ==Browse and See==
-Once installed browse to your site and you will see a [http://welcome.creovel.org welcome screen]. You are now ready to _build faster_.
+Once installed browse to your site and you will see a [http://www.creovel.org/welcome welcome screen]. You are now ready to _build faster_.

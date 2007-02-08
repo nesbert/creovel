@@ -7,6 +7,9 @@ Script: initialize
 */
  
 // Include base helpers library.
+require_once 'constants/common.php';
+
+// Include base helpers library.
 require_once 'helpers/ajax.php';
 require_once 'helpers/constants.php';
 require_once 'helpers/datetime.php';

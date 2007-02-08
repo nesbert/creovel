@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: rss
@@ -376,6 +375,6 @@ class rss implements Iterator
 			}
 		}
 	}
+	
 }
-
 ?>

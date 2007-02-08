@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: unittest
@@ -198,6 +197,6 @@ class unittest
 
 		return $methods;
 	}
+	
 }
-
 ?>

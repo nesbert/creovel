@@ -1,9 +1,8 @@
-<?
-
+<?php
 /*
 
 Script: session
-	Overrides for saving session data to a database.
+	Table session helpers. Overrides session handler data to a database.
 
 */
 

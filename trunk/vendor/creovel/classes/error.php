@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: error
@@ -56,8 +55,7 @@ class error
 				$this->model_error($args[0], $args[1]);
 			break;
 		
-		}
-	
+		}	
 	}
 	
 	/*
@@ -176,5 +174,4 @@ class error
 	}	
 	
 }
-
 ?>

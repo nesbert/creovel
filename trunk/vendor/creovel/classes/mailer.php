@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: mailer
@@ -503,6 +502,6 @@ class mailer
 			
 		}
 	}
+	
 }
-
 ?>

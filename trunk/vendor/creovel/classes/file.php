@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: file
@@ -146,6 +145,6 @@ class file
 	{
 		return @unlink($path);
 	}
+	
 }
-
 ?>

@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: model
@@ -1870,6 +1869,6 @@ class model implements Iterator
 	{
 		return $this->_valid;
 	}
+	
 }
-
 ?>

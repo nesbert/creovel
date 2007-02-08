@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Script: ajax
@@ -25,19 +24,13 @@ Parameters:
 
 */
  
-function link_to_remote($link_title = 'Goto', $id_to_update, $url, $html_options = null) {
-
-	if ( is_array($html_options) ){
-	
-		foreach ($html_options as $attribute => $value ) {
-			if ( strstr($attribute, 'onclick') ) { continue; }
-			$extra	.= ' '.$attribute.'="'.$value.'"';
-		}
-	
+function link_to_remote($link_title = 'Goto', $id_to_update, $url, $html_options = null)
+{
+	if ( is_array($html_options) ) foreach ($html_options as $attribute => $value ) {
+		if ( strstr($attribute, 'onclick') ) { continue; }
+		$extra	.= ' '.$attribute.'="'.$value.'"';
 	}
-
 	return "<a href=\"#\" onclick=\"new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true}); return false;\">".$link_title."</a>\n";
-	
 }
 
 /*
@@ -63,10 +56,9 @@ Parameters:
 
 */
  
-function form_remote_tag($id_to_update, $url) {
-
+function form_remote_tag($id_to_update, $url)
+{
 	return "<form action=\"".$url."\" method=\"post\" onsubmit=\"new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;\">\n";
-
 }
 
 /*
@@ -90,8 +82,8 @@ Parameters:
 
 */
  
-function observe_field($id_of_field, $frequency = 0, $id_to_update, $url, $form = false) {
- 
+function observe_field($id_of_field, $frequency = 0, $id_to_update, $url, $form = false)
+{
  	if ( !is_numeric($frequency) ) {
 		$frequency = 0;
 	}
@@ -100,9 +92,7 @@ function observe_field($id_of_field, $frequency = 0, $id_to_update, $url, $form 
 	} else {
 		$params = "element.name+'='+value";
 	}
-	
  	return "<script type=\"text/javascript\">new Form.Element.Observer('".$id_of_field."', ".$frequency.", function(element, value) {new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true, evalScripts:true, parameters:".$params."})})</script>\n";
- 
 }
 
 /*
@@ -122,10 +112,9 @@ Parameters:
 
 */
 
-function periodically_call_remote($id_to_update, $url, $frequency = 3) {
-
+function periodically_call_remote($id_to_update, $url, $frequency = 3)
+{
 	return "<script type=\"text/javascript\">new PeriodicalExecuter(function() {new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true, evalScripts:true})}, ".$frequency.")</script>";
-	
 }
 
 /*
@@ -155,11 +144,10 @@ Parameters:
 
 */
 
-function create_sortable_list($id_of_container, $list_tag = null) {
-
+function create_sortable_list($id_of_container, $list_tag = null)
+{
 	$str .= "<script type=\"text/javascript\">\n";
 	$str .= "// <![CDATA[\n";
-	
 	if ( is_array($id_of_container) ) {
 		foreach ( $id_of_container as $id => $tag ) {
 			$str .= "	Sortable.create('".$id."',{tag:'".$tag."'});\n";
@@ -167,14 +155,10 @@ function create_sortable_list($id_of_container, $list_tag = null) {
 	} else {
 		$str .= "	Sortable.create('".$id_of_container."',{tag:'".$list_tag."'});\n";
 	}
-	
 	$str .= "// ]]>\n";
 	$str .= "</script>\n";
-	
 	return $str;
-	
 }
-
 
 /*
 
@@ -191,7 +175,8 @@ Parameters:
 
 */
 
-function create_popup($element_id, $title = 'Popup') {
+function create_popup($element_id, $title = 'Popup')
+{
 	?>
 <div class="popup" id="<?=$element_id?>_container" style="position:absolute; display:none;">
 
@@ -204,7 +189,7 @@ function create_popup($element_id, $title = 'Popup') {
 	<div class="bottom"></div>
 	
 </div>
-	<?	
+	<?php
 }
 
 ?>

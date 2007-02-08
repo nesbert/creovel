@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: pager
@@ -373,6 +372,6 @@ class pager {
 	{
 		return '<span class="page-label">Page '.$this->current.' f '.$this->total_pages.'</span>';
 	}
+	
 }
-
 ?>

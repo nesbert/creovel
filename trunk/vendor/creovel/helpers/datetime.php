@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Script: datetime
@@ -41,5 +40,4 @@ function datetime($datetime = null)
 		break;
 	}
 }
-
 ?>

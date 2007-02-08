@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: session
@@ -176,6 +175,6 @@ class session extends model
 		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
 		return $this->next();
 	}
+	
 }
-
 ?>

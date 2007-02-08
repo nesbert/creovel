@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Script: html
@@ -273,7 +272,8 @@ Returns:
 
 */
  
-function tabs($links, $current = 1, $use_small_tabs = false) {
+function tabs($links, $current = 1, $use_small_tabs = false)
+{
 
 	$tabs_id = 'tab'.rand();
 
@@ -312,5 +312,4 @@ function tabs($links, $current = 1, $use_small_tabs = false) {
 	
 	return $tabs;
 }
-
 ?>

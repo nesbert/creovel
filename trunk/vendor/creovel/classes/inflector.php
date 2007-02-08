@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: inflector
@@ -339,5 +338,4 @@ class inflector
         }
     }
 }
-
 ?>

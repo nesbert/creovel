@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Script: framework
@@ -161,7 +160,6 @@ function get_params($param_to_return = null)
 	return creovel::get_params($param_to_return);
 }
 
-
 /*
 
 Function:
@@ -205,7 +203,8 @@ Returns:
 
 */
 
-function flash_notice($message = null) {
+function flash_notice($message = null)
+{
 
 	if ( $message || $_SESSION['notice']['message'] ) {
 
@@ -311,5 +310,4 @@ function get_creovel_services()
 {
 	return get_files_from_dir(CREOVEL_PATH.'services');
 }
-
 ?>

@@ -75,6 +75,8 @@ class google_maps
 		private, string - GMap object ID
 
 	*/
+	
+	// public properties
 	public $default_lng 		= -122.1419;	// default longitude point for map
 	public $default_lat			= 37.4419;		// default latitude point for map
 	public $width				= '500px';		// default map width

@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: view
@@ -118,6 +117,6 @@ class view
 		}
 		return false;
 	}
+	
 }
-
 ?>

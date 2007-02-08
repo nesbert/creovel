@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Script: general
@@ -20,12 +19,10 @@ Parameters:
  
 function print_obj($obj, $kill = false)
 {
-
 	echo '<pre class="print_obj" style="text-align: left;">'."\n";
 	print_r($obj);
 	echo "\n</pre>\n";
 	if ( $kill ) die;
-
 }
 
 /*
@@ -267,7 +264,8 @@ Returns:
 
 */
 
-function strip_slashes($data) {
+function strip_slashes($data)
+{
 	
 	switch ( true ) {
 		

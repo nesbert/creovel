@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: validation
@@ -209,6 +208,6 @@ class validation
 	{
 		return self::validate_field_by_bool(is_number($val), $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is not a number."), $required);
 	}
+	
 }
-
 ?>

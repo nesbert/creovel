@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Script: validation
@@ -174,5 +173,4 @@ function is_length_between($var, $min, $max)
 	$length = count(str_split($var));
 	return ( $length >= $min ) && ( $length <= $max );
 }
-
 ?>

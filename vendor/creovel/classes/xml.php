@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: xml
@@ -62,19 +61,22 @@ class xml
 		}
 		
 		if ($data) {
-			return $this->data->children = $this->parse($data);
+			return $this->data->children = $this->_parse($data);
 		} else {
 			application_error($error);
 		}	
 	}
 	
-	/**
-	 * Create XML string from the $data currentlly loaded.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
-	 */	
+	/*
+
+	Function: to_str
+		Create XML string from the $data currentlly loaded.
+	
+	Returns:
+		string
+
+	*/	
+
 	public function to_str()
 	{
 		return $this->array_to_xml($this->data->children);
@@ -101,34 +103,38 @@ class xml
 	
 	/*
 	
-	Function array_to_xml
-	Convert an array or object to an XML string. Sample array structure:
+	Function: array_to_xml
+		Convert an array or object to an XML string. Sample array structure:
+		
+	(start code)
+	element Object
+		(
+			[name] => rss
+			[cdata] => 
+			[attributes] => stdClass Object
+				(
+					[version] => 2.0
+					[xmlns:digg] => docs/diggrss/
+				)
 
-		element Object
-            (
-                [name] => rss
-                [cdata] => 
-                [attributes] => stdClass Object
-                    (
-                        [version] => 2.0
-                        [xmlns:digg] => docs/diggrss/
-                    )
+			[children] => Array
+				(
+					[0] => element Object
+						( ... )
+					...
+				)
+		)
+	(end)
+		
+	Parameters:
+		data - required
+		level - optional element level
+		
+	Returns:
+		string
 
-                [children] => Array
-                    (
-                        [0] => element Object
-                            ( ... )
-                        ...
-                    )
-            )
-	 * </code>
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array/object $data required
-	 * @param int $level optional element level
-	 * @return string
-	 */
+	*/
+	
 	public function array_to_xml($data, $level = 1)
 	{
 		$elm = (object) $data;
@@ -137,7 +143,7 @@ class xml
 			$xml .= '<?xml version="' . $this->version . '"' . ( $this->encoding != false ? ' encoding="' . $this->encoding : '' ) . '"?>'."\n";	
 		}
 		
-		$xml .= "<" . $elm->name . $this->attribute_str($elm->attributes);
+		$xml .= "<" . $elm->name . $this->_attribute_str($elm->attributes);
 		
 		if ( $elm->no_end_tag ) {
 			$xml .= " />\n";
@@ -157,17 +163,42 @@ class xml
 		return $xml;	
 	}
 	
-	/**
-	 * XML parser that creates an object structured similar to the file. A modified version of
-	 * efredricksen at gmail dot com's "one true parser".
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $xml XML data
-	 * @return object
-	 * @link http://us2.php.net/manual/en/function.xml-parse-into-struct.php#66487
-	 */	
-	private function parse($xml)
+	/*
+	
+	Function: cdata
+		 Create and validate CDATA.
+		
+	Parameters:
+		cdata - required
+		
+	Returns:
+		string
+
+	*/
+	
+	public function cdata($cdata)
+	{
+		$cdata = trim($cdata);
+		return '<![CDATA[' . $cdata . ']]>';
+	}
+	
+	// Section: Private
+	
+	/*
+	
+	Function: _parse
+		XML parser that creates an object structured similar to the file. A modified version of efredricksen at gmail dot com's "one true parser".
+		http://us2.php.net/manual/en/function.xml-parse-into-struct.php#66487
+		
+	Parameters:
+		xml - required XML data
+		
+	Returns:
+		object
+
+	*/
+	
+	private function _parse($xml)
 	{
 		$this->parser = xml_parser_create();
 		xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0);
@@ -209,15 +240,20 @@ class xml
 		return $elements[0];
 	}
 	
-	/**
-	 * Formats and converts attributes array to an object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $attributes required
-	 * @return object
-	 */	
-	private function get_attributes($attributes)
+	/*
+	
+	Function: _get_attributes
+		Formats and converts attributes array to an object.
+		
+	Parameters:
+		attributes - required
+		
+	Returns:
+		object
+
+	*/
+
+	private function _get_attributes($attributes)
 	{
 		if ( !$attributes ) return;
 		foreach ( $attributes as $key => $val ) {
@@ -226,15 +262,20 @@ class xml
 		return (object) $attributes_temp;
 	}
 	
-	/**
-	 * Create attribute string.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $attributes required
-	 * @return string
-	 */	
-	private function attribute_str($attributes)
+	/*
+	
+	Function: _attribute_str
+		Create attribute string.
+		
+	Parameters:
+		attributes - required
+		
+	Returns:
+		string
+
+	*/
+	
+	private function _attribute_str($attributes)
 	{
 		$str = '';
 		if ( $attributes ) foreach (  $attributes as $id => $val ) {
@@ -243,30 +284,16 @@ class xml
 		return $str;
 	}
 	
-	/**
-	 * Create and validate CDATA.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $cdata required
-	 * @return string
-	 */	
-	private function cdata($cdata)
-	{
-		$cdata = trim($cdata);
-		return '<![CDATA[' . $cdata . ']]>';
-	}
 	
 }
 
-/**
- * Element class used for XML class.
- *
- * @copyright	Copyright (c) 2005-2006, creovel.org
- * @package		creovel
- * @subpackage	classes
- * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
- */
+/*
+
+Class: element
+	Element class used for XML class. Class used to store data.
+
+*/
+
 class element
 {
 

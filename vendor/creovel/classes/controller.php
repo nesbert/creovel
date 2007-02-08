@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Class: controller
@@ -447,6 +446,6 @@ class controller
 	public function initialize() {}
 	public function before_filter() {}
 	public function after_filter() {}
+	
 }
-
 ?>

@@ -1,5 +1,4 @@
-<?
-
+<?php
 /*
 
 Script: form
@@ -130,7 +129,8 @@ Returns:
 
 */
 
-function error_wrapper($field, $html_str) {
+function error_wrapper($field, $html_str)
+{
 	return '<a name="error_'.$field.'"></a><span class="errors_field">'.$html_str.'</span>';
 }
 
@@ -151,7 +151,8 @@ Returns:
 
 */
  
-function start_form_tag($event_options, $name_or_obj = null, $name_value = null, $method = 'post', $html_options= null) {
+function start_form_tag($event_options, $name_or_obj = null, $name_value = null, $method = 'post', $html_options= null)
+{
 
 	if ( $name_or_obj ) {	
 		if ( is_object($name_or_obj) ) {
@@ -196,7 +197,8 @@ Returns:
 
 */
  
-function form_tag($options) {
+function form_tag($options)
+{
 	return '<form method="'.( $options['method'] ? $options['method'] : 'post' ).'"'.( $options['controller'] ? ' id="form_'.$options['controller'].( $options['action'] ? '_'.$options['action'] : '' ).'"' : '' ).( $options['controller'] ? ' name="form_'.$options['controller'].( $options['action'] ? '_'.$options['action'] : '' ).'"' : '' ).' action="'.url_for($options['controller'], $options['action'], $options['id']).'"'.html_options_str($options).'>'."\n";
 }
 
@@ -210,7 +212,8 @@ Returns
 
 */
  
-function end_form_tag() {
+function end_form_tag()
+{
 	return "</form>\n";
 }
 
@@ -224,10 +227,9 @@ Returns:
 
 */
  
-function name_to_id($name) {
-	
+function name_to_id($name)
+{	
 	return str_replace(array('[', ']'), array('_', ''), str_replace('[]', '', $name));
-
 }
 
 /*
@@ -240,10 +242,9 @@ Returns:
 
 */
  
-function create_input_tag($type, $name, $value = null, $html_options = null, $on_value = null, $text = null) {
-
+function create_input_tag($type, $name, $value = null, $html_options = null, $on_value = null, $text = null)
+{
 	$id = name_to_id($name).( $type == 'radio' || $type == 'checkbox' ? '_'.str_replace(' ', '', $value) : '' );
-	
 	if (is_string($text)) {
 		$append_text = $text ? label($id, $text) : null;
 	} else {
@@ -251,7 +252,6 @@ function create_input_tag($type, $name, $value = null, $html_options = null, $on
 		$append_text = $text[1] ? label($id, $text[1]) : null;
 	}
 	return error_check($name, $prepend_text.' <input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.html_options_str($html_options).' /> ' .$append_text."\n");
-	
 }
 
 /*
@@ -269,10 +269,9 @@ Returns:
 
 */ 
 
-function text_field($name, $value = '', $html_options = null, $text = null) {
-
+function text_field($name, $value = '', $html_options = null, $text = null)
+{
 	return create_input_tag('text', $name, $value, $html_options, null, $text);
-
 }
 
 /*
@@ -290,10 +289,9 @@ Returns:
 
 */ 
 
-function hidden_field($name, $value = '', $html_options = null) {
-
+function hidden_field($name, $value = '', $html_options = null)
+{
 	return create_input_tag('hidden', $name, $value, $html_options);
-
 }
 
 /*
@@ -311,10 +309,9 @@ Returns:
 
 */ 
 
-function password_field($name, $value = '', $html_options = null, $text = null) {
-
+function password_field($name, $value = '', $html_options = null, $text = null)
+{
 	return create_input_tag('password', $name, $value, $html_options, $text);
-
 }
 
 /*
@@ -333,11 +330,10 @@ Returns:
 
 */ 
 
-function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null) {
-
+function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null)
+{
 	if ( $value == $on_value ) $html_options['checked'] = 'checked';
 	return create_input_tag('radio', $name, $value, $html_options, $on_value, $text);
-
 }
 
 /*
@@ -356,11 +352,10 @@ Returns:
 
 */ 
 
-function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null) {
-
+function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null)
+{
 	if ( $value == $on_value ) $html_options['checked'] = 'checked';
 	return create_input_tag('checkbox', $name, $value, $html_options, $on_value, $text);
-
 }
 
 /*
@@ -378,10 +373,9 @@ Returns:
 
 */ 
 
-function submit_tag($name = '', $value = 'Submit', $html_options = null) {
-
+function submit_tag($name = '', $value = 'Submit', $html_options = null)
+{
 	return create_input_tag('submit', $name, $value, $html_options);
-
 }
 
 /*
@@ -399,10 +393,9 @@ Returns:
 
 */ 
 
-function button_tag($name = '', $value = 'Button', $html_options = null) {
-
+function button_tag($name = '', $value = 'Button', $html_options = null)
+{
 	return create_input_tag('button', $name, $value, $html_options);
-
 }
 
 /*
@@ -420,10 +413,9 @@ Returns:
 
 */ 
 
-function textarea($name, $value = '', $html_options = null) {
-
+function textarea($name, $value = '', $html_options = null)
+{
 	return error_check($name, '<textarea id="'.name_to_id($name).'" name="'.$name.'"'.html_options_str($html_options).'>'.$value.'</textarea>');
-
 }
 
 /*
@@ -469,7 +461,8 @@ Returns:
 
 */ 
 
-function select($name, $selected = '', $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false) {
+function select($name, $selected = '', $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
+{
 
 	$return = '<select name="'.$name.'" id="'.name_to_id($name).'"'.html_options_str($html_options).">\n\r";
 	
@@ -542,7 +535,8 @@ Returns:
 
 */ 
 
-function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false) {
+function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
+{
 	
 	if ( !is_array($selected) ) $selected = array();
 	
@@ -607,7 +601,8 @@ Returns:
 
 */
  
-function select_states_tag($name, $selected = null, $choices = null, $html_options = null, $select_all = false) {
+function select_states_tag($name, $selected = null, $choices = null, $html_options = null, $select_all = false)
+{
 
 	if (!$select_all) {
 		$choices = ( $choices ? $choices : array('' => 'Please select...') );
@@ -640,7 +635,8 @@ Returns:
 
 */
  
-function select_countries_tag($name, $selected = null, $choices = null, $html_options = null, $state_id = null) {
+function select_countries_tag($name, $selected = null, $choices = null, $html_options = null, $state_id = null)
+{
 
 	$choices = ( $choices ? $choices : array('' => 'Please select...') );
 	
@@ -737,7 +733,8 @@ Returns:
 
 */
  
-function select_redirect($name, $names_and_urls, $html_options = null) {
+function select_redirect($name, $names_and_urls, $html_options = null)
+{
 	
 	$html_options['onchange'] .= 'location.href=this.options[this.selectedIndex].value;';	
 	
@@ -1001,5 +998,4 @@ function select_time_zone_tag($name, $selected = null, $choices = null, $html_op
 	
 	return select($name, $selected, $time_zones, $html_options);
 }
-
 ?>

@@ -1,38 +1,80 @@
 <?php
-/**
- * Copyright (c) 2005-2006, creovel.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions
- * of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
- */
+/*
 
-/**
- * Google Maps Service Version 2
- *
- * @copyright	Copyright (c) 2005-2006, creovel.org
- * @package		creovel
- * @subpackage	services
- * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
- * @author		Nesbert Hidalgo
- * @version		2.3 (10/24/2006)
- *				2 (4/8/2006)
- */
+Services: google_maps
+	Google Maps Service Version 2.
+	
+Notes:
+	Let me know if you change anything with this class [Nes 02/08/2007].
+
+Todo:
+	* Added support/interface for compressing polylines data http://www.google.com/apis/maps/documentation/#Encoded_Polylines
+	* Implement Markers Manager http://www.google.com/apis/maps/documentation/#Marker_Manager
+
+*/
+
 class google_maps
 {
-	// public properties
+	/*
+	
+	Property: default_lng
+		public, float - Default longitude point for map set to _-122.1419_.
+
+	Property: default_lat
+		public, float - Default latitude point for map set to _37.4419_.
+
+	Property: width
+		public, string - Default map width set to _500px_.
+
+	Property: height
+		public, string - Default map height set to _300px_.
+
+	Property: zoom
+		public, int - Default zoom level set to _13_.
+
+	Property: auto_zoom
+		public, bool - Auto zoom and center map depending on markers. Default set to _false_.
+
+	Property: controls
+		public, bool - Show zoom and pan controls. Default set to _true_.
+
+	Property: controls_size
+		public, string - Map controls sizes _large_, _small_, _tiny_.
+
+	Property: scale_control
+		public, bool - Mile/km indicator. Default set to _true_.
+
+	Property: type_control
+		public, string - Map types _false_, _map_, _satellite_, _hybrid_.
+
+	Property: overview_control
+		public, string - A collapsible overview map in the corner of the screen. Default set to _false_.
+
+	Property: markers
+		public, array - Array of markers.
+
+	Property: icons
+		public, array - Array of icons.
+
+	Property: listeners
+		public, array - Array of listeners.
+
+	Property: open_at
+		public, string - Name of marker that will be opened on map load.
+
+	Property: geocoder
+		public, bool - Aet GClientGeocoder object. Ddefault set to _false_.
+
+	Property: markers_object
+		public, bool - Aet this.Markers for javascript class. Default set to _false_.
+
+	Property: key
+		private, string - Google Maps API Key
+
+	Property: id
+		private, string - GMap object ID
+
+	*/
 	public $default_lng 		= -122.1419;	// default longitude point for map
 	public $default_lat			= 37.4419;		// default latitude point for map
 	public $width				= '500px';		// default map width
@@ -55,15 +97,23 @@ class google_maps
 	private $key;								// Google Maps API Key
 	private $id;								// GMap object ID
 	
-	/**
-	 * Class construct. You have the option to pass the Google Maps API key and DOM ID when
-	 * initializing the class.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $key optional
-	 * @param string $id optional
-	 */
+	// Section: Public
+	
+	/*
+	
+	Function: __construct
+		Class construct. You have the option to pass the Google Maps API key and DOM ID
+		when initializing the class.
+	
+	Parameters:
+		key - string optional <set_key>
+		id - string optional <set_id>
+	
+	Return:
+		null
+	
+	*/
+	
 	public function __construct($key = null, $id = null)
 	{
 		// set API key
@@ -76,40 +126,59 @@ class google_maps
 		}
 	}
 	
-	/**
-	 * Set Google Maps API key. Required to use google maps.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $key required
-	 * @link http://www.google.com/apis/maps/signup.html
-	 */
+	/*
+	
+	Function: set_key
+		Set Google Maps API key. Required to use google maps.
+	
+	Parameters:
+		key - string required
+	
+	Return:
+		null
+	
+	See Also:
+		http://www.google.com/apis/maps/signup.html
+	
+	*/
+	
 	public function set_key($key)
 	{
 		$this->key = $key;
 	}
 	
-	/**
-	 * Set DOM ID for map.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $id required
-	 */
+	/*
+	
+	Function: set_id
+		Set DOM ID for map.
+	
+	Parameters:
+		id - string required
+	
+	Return:
+		null
+	
+	*/
+	
 	public function set_id($id)
 	{
 		$this->id = $id;
 	}
 	
-	/**
-	 * Google Maps RUN-TIME. Creates javascript code and map ojects used by this class.
-	 * Outputs to screen where ever called.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $html_options optional
-	 * @return string
-	 */
+	/*
+	
+	Function: display_map
+		Google Maps RUN-TIME. Creates javascript code and map ojects used by this class.
+		Outputs to screen where ever called.
+	
+	Parameters:
+		html_options - array optional
+	
+	Return:
+		string
+	
+	*/
+	
 	public function display_map($html_options = null)
 	{
 		if ( !strstr($this->width, 'px') && !strstr($this->width, '%') ) $this->width .= 'px';
@@ -122,7 +191,7 @@ class google_maps
 if ( GBrowserIsCompatible() ) {
 
 	/* Extending GMap2 Functionality */
-	<?=$this->extend_gmap()?>
+	<?=$this->_extend_gmap()?>
 	
 	// global vairables
 	var <?=$this->id?>;
@@ -170,20 +239,23 @@ if ( GBrowserIsCompatible() ) {
 	<?=$this->unload()?>
 	
 }
-<?=$this->display_warning_if_not_compatible()?>
+<?=$this->_display_warning_if_not_compatible()?>
 //]]>
 </script>
 <div id="<?=$this->id?>"<?=html_options_str($html_options)?>></div>
 		<?
 	}
 	
-	/**
-	 * Create JavaScript include string for API.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
-	 */
+	/*
+	
+	Function: include_api
+		Create JavaScript include string for Google Maps API.
+	
+	Return:
+		string
+	
+	*/
+	
 	public function include_api()
 	{
 		static $return;
@@ -192,92 +264,128 @@ if ( GBrowserIsCompatible() ) {
 		}
 	}
 	
-	/**
-	 * Create GMap2 object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
-	 */
+	/*
+	
+	Function: gmap
+		Create GMap2 object.
+	
+	Parameters:
+		container - string required did id of map
+		options - array optional not being used
+	
+	Return:
+		string
+	
+	*/
+	
 	public function gmap($container = null, $options = null)
 	{
 		$id = $container ? $container : $this->id;
 		return 'this.GMap = new GMap2(document.getElementById("' . $id . '"));'."\n";
 	}
 	
-	/**
-	 * Create GLatLng (geographical coordinates longitude and latitude) object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $latitude required
-	 * @param string $longitude required
-	 * @return string
-	 */
+	/*
+	
+	Function: glatlng
+		Create GLatLng (geographical coordinates longitude and latitude) object.
+	
+	Parameters:
+		latitude - string required
+		longitude - string required
+	
+	Return:
+		string
+	
+	*/
+	
 	public function glatlng($latitude, $longitude)
 	{
 		return 'new GLatLng(' . (float) $latitude . ', ' . (float) $longitude . ')';
 	}
 	
-	/**
-	 * Set center point of map.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $latitude required
-	 * @param string $longitude required
-	 * @param string $zoom optional default set to 4
-	 * @param string $map_type optional 'map', 'satellite', 'hybrid'
-	 * @return string
-	 */
+	/*
+	
+	Function: set_center
+		Set center point of map.
+	
+	Parameters:
+		latitude - string required
+		longitude - string required
+		zoom - int optional default set to 4
+		map_type - string optional 'map', 'satellite', 'hybrid'
+	
+	Return:
+		string
+	
+	*/
+	
 	public function set_center($latitude, $longitude, $zoom = 4, $map_type = null)
 	{
 		return 'this.GMap.setCenter(' . $this->glatlng($latitude, $longitude) . ', ' . (int) $zoom . ( $map_type ? ', ' . $map_type : '' ) . ");\n";
 	}
 	
-	/**
-	 * Pan map to a geographical coordinates longitude and latitude.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $latitude required
-	 * @param string $longitude required
-	 * @return string
-	 */
+	/*
+	
+	Function: pan_to
+		Pan map to a geographical coordinates longitude and latitude.
+	
+	Parameters:
+		latitude - string required
+		longitude - string required
+	
+	Return:
+		string
+	
+	*/
+	
 	public function pan_to($latitude, $longitude)
 	{	
 		return 'this.GMap.panTo(' . $this->glatlng($latitude, $longitude) . ");\n";
 	}
 	
-	/**
-	 * Add a control to map.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $control required
-	 * @param string $position optional
-	 * @link http://www.google.com/apis/maps/documentation/reference.html#GControl
-	 * @return string
-	 */
+	/*
+	
+	Function: add_control
+		Add a control to map.
+	
+	Parameters:
+		control - string required
+		position - string optional
+	
+	Return:
+		string
+	
+	See Also:
+		http://www.google.com/apis/maps/documentation/reference.html#GControl
+		
+	*/
+	
 	public function add_control($control, $position = null)
 	{
 		return 'this.GMap.addControl('. $control .");\n";
 	}
 	
-	/**
-	 * Create a GMarker object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $name required
-	 * @param string/array $latitude required
-	 * @param string $longitude optional
-	 * @param string $icon optional
-	 * @param string $html_or_tabs optional
-	 * @param bool $onclick optional
-	 * @link http://www.google.com/apis/maps/documentation/reference.html#GMarker
-	 * @return string
-	 */	
+	/*
+	
+	Function: create_marker
+		Create a GMarker object.
+	
+	Parameters:
+		name - string required
+		latitude - string/array required
+		longitude - string optional
+		icon - string optional
+		html_or_tabs - string optional
+		onclick - bool optional
+	
+	Return:
+		string
+	
+	See Also:
+		http://www.google.com/apis/maps/documentation/reference.html#GMarker
+		
+	*/
+	
 	public function create_marker($name, $latitude, $longitude = null, $icon = '', $html_or_tabs = '', $onclick = false)
 	{
 		// if $latitude is an array use its values instead.
@@ -325,16 +433,23 @@ if ( GBrowserIsCompatible() ) {
 		return $return;
 	}
 	
-	/**
-	 * Create a GIcon object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $name required
-	 * @param array $data required
-	 * @link http://www.google.com/apis/maps/documentation/reference.html#GIcon
-	 * @return string
-	 */
+	/*
+	
+	Function: create_icon
+		Create a GIcon object.
+	
+	Parameters:
+		name - string required
+		data - array required
+	
+	Return:
+		string
+	
+	See Also:
+		http://www.google.com/apis/maps/documentation/reference.html#GIcon
+		
+	*/
+	
 	public function create_icon($name, $data)
 	{
 		$name = "\t\t".'this.Icons.' . $name;
@@ -353,17 +468,24 @@ if ( GBrowserIsCompatible() ) {
 		return $return."\n";
 	}
 	
-	/**
-	 * Create a GPoint object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $source required
-	 * @param string $event required
-	 * @param string $handler optional
-	 * @link http://www.google.com/apis/maps/documentation/reference.html#GEvent
-	 * @return string
-	 */
+	/*
+	
+	Function: create_listener
+		Create a GEvent listner object.
+	
+	Parameters:
+		source - string required
+		event - string required
+		handler - string optional
+	
+	Return:
+		string
+	
+	See Also:
+		http://www.google.com/apis/maps/documentation/reference.html#GEvent
+		
+	*/
+	
 	public function create_listener($source, $event, $handler = null)
 	{
 		if ( is_array($source) ) {
@@ -374,16 +496,23 @@ if ( GBrowserIsCompatible() ) {
 		return "GEvent.addListener({$source}, '{$event}', {$handler});";
 	}
 	
-	/**
-	 * Create a GPoint object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param int $x required
-	 * @param int $y optional
-	 * @link http://www.google.com/apis/maps/documentation/reference.html#GPoint
-	 * @return string
-	 */
+	/*
+	
+	Function: gpoint
+		Create a GPoint object.
+	
+	Parameters:
+		x - int required
+		y - int optional
+	
+	Return:
+		string
+	
+	See Also:
+		http://www.google.com/apis/maps/documentation/reference.html#GPoint
+		
+	*/
+	
 	public function gpoint($x, $y = null)
 	{
 		if ( strstr($x, ',') ) {
@@ -394,16 +523,23 @@ if ( GBrowserIsCompatible() ) {
 		return "new GPoint(" . (int) $x . ", " . (int) $y .")";
 	}
 	
-	/**
-	 * Create a GSize object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param int $width required
-	 * @param int $height optional
-	 * @link http://www.google.com/apis/maps/documentation/reference.html#GSize
-	 * @return string
-	 */
+	/*
+	
+	Function: gsize
+		Create a GSize object.
+	
+	Parameters:
+		width - int required
+		height - int optional
+	
+	Return:
+		string
+	
+	See Also:
+		http://www.google.com/apis/maps/documentation/reference.html#GSize
+		
+	*/
+	
 	public function gsize($width, $height = null)
 	{
 		if ( strstr($width, ',') ) {
@@ -414,25 +550,34 @@ if ( GBrowserIsCompatible() ) {
 		return "new GSize(" . (int) $width . ", " . (int) $height .")";
 	}
 	
-	/**
-	 * Alias to add_marker().
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $marker required
-	 */
+	/*
+	
+	Function: add
+		Alias to add_marker().
+	
+	Parameters:
+		marker - array required
+	
+	See Also:
+		<add_marker>
+		
+	*/
+	
 	public function add($marker)
 	{
 		$this->add_marker($marker);
 	}
 	
-	/**
-	 * Add a marker to class markers array.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $marker required
-	 */
+	/*
+	
+	Function: add_marker
+		Add a marker to class markers array.
+	
+	Parameters:
+		marker - array required
+		
+	*/
+	
 	public function add_marker($marker)
 	{
 		// auto set default coors if first marker
@@ -443,37 +588,46 @@ if ( GBrowserIsCompatible() ) {
 		$this->markers[] = $marker;
 	}
 	
-	/**
-	 * Add a listener to class listeners array.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $args required
-	 */
+	/*
+	
+	Function: add_listener
+		Add a listener to class listeners array.
+	
+	Parameters:
+		args - array required
+		
+	*/
+	
 	public function add_listener($args)
 	{
 		$this->listeners[] = $args;
 	}
 	
-	/**
-	 * Add an icon to class icons array.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param array $args required
-	 */
+	/*
+	
+	Function: get_controls
+		Add an icon to class icons array.
+	
+	Parameters:
+		args - array required
+		
+	*/
+	
 	public function add_icon($args)
 	{
 		$this->icons[] = $args;
 	}
 	
-	/**
-	 * Get this map's control size ( 'tiny' = GSmallZoomControl, 'small' = GSmallMapControl, 'large' = GLargeMapControl ).
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
-	 */
+	/*
+	
+	Function: get_controls
+		Get this map's control size ( 'tiny' = GSmallZoomControl, 'small' = GSmallMapControl, 'large' = GLargeMapControl ).
+	
+	Returns:
+		string
+		
+	*/
+	
 	private function get_controls()
 	{
 		switch ( $this->controls_size )
@@ -494,13 +648,16 @@ if ( GBrowserIsCompatible() ) {
 		return "new {$control}()";
 	}
 	
-	/**
-	 * Get this map's type constant ( 'map' = G_NORMAL_MAP, 'satellite' = G_SATELLITE_MAP, 'hybrid' = G_HYBRID_MAP ).
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @return string
-	 */
+	/*
+	
+	Function: get_map_type
+		Get this map's type constant ( 'map' = G_NORMAL_MAP, 'satellite' = G_SATELLITE_MAP, 'hybrid' = G_HYBRID_MAP ).
+	
+	Returns:
+		string
+		
+	*/
+	
 	public function get_map_type()
 	{
 		switch ( $this->type_control )
@@ -520,15 +677,20 @@ if ( GBrowserIsCompatible() ) {
 		}
 		return $type;
 	}
+
+	/*
 	
-	/**
-	 * Add javascript to window.onload function.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $js_str optional
-	 * @return string
-	 */	
+	Function: onload
+		Add javascript to window.onload function.
+	
+	Parameters:
+		js_str - string required
+		
+	Returns:
+		string
+		
+	*/
+	
 	public function onload($js_str)
 	{
 		static $code;
@@ -536,14 +698,19 @@ if ( GBrowserIsCompatible() ) {
 		return 'window.onload = new Function("' . $code . '");'."\n";
 	}
 	
-	/**
-	 * Add javascript to window.unload function.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $js_str optional
-	 * @return string
-	 */	
+	/*
+	
+	Function: unload
+		Add javascript to window.unload function.
+	
+	Parameters:
+		js_str - string optional
+		
+	Returns:
+		string
+		
+	*/
+	
 	public function unload($js_str = null)
 	{
 		static $code;
@@ -551,14 +718,19 @@ if ( GBrowserIsCompatible() ) {
 		return 'window.unload = new Function("GUnload();' . $code . '");'."\n";
 	}
 	
-	/**
-	 * Get coordinates from address provided.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $address required
-	 * @return array
-	 */
+	/*
+	
+	Function: geocode_address
+		Get coordinates from address provided.
+	
+	Parameters:
+		address - string required
+		
+	Returns:
+		array
+		
+	*/
+	
 	public function geocode_address($address)
 	{
 		$temp = $this->geocode_http($address);
@@ -567,14 +739,19 @@ if ( GBrowserIsCompatible() ) {
 		return $coordinates;
 	}
 	
-	/**
-	 * Geocode through google using HTTP Request and return a formatted array.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param string $address required
-	 * @return array
-	 */
+	/*
+	
+	Function: geocode_http
+		Geocode through google using HTTP Request and return a formatted array.
+	
+	Parameters:
+		address - string required
+		
+	Returns:
+		array
+		
+	*/
+	
 	public function geocode_http($address)
 	{
 		if ( !$address ) return false;
@@ -613,15 +790,22 @@ if ( GBrowserIsCompatible() ) {
 		return $return;
 	}
 	
-	/**
-	 * Returns Status Code Description from is numeric equivalent.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param int $code required
-	 * @return string
-	 * @link http://www.google.com/apis/maps/documentation/reference.html#GGeoStatusCode
-	 */	
+	/*
+	
+	Function: get_status_description
+		Returns Address Accuracy Description from is numeric equivalent.
+	
+	Parameters:
+		code - integer required
+		
+	Returns:
+		string
+		
+	See Also:
+		http://www.google.com/apis/maps/documentation/reference.html#GGeoStatusCode
+	
+	*/
+	
 	public function get_status_description($code)
 	{
 		switch ( $code )
@@ -653,15 +837,22 @@ if ( GBrowserIsCompatible() ) {
 		}	
 	}
 	
-	/**
-	 * Returns Address Accuracy Description from is numeric equivalent.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
-	 * @param int $code required
-	 * @return string
-	 * @link http://www.google.com/apis/maps/documentation/reference.html#GGeoAddressAccuracy
-	 */	
+	/*
+	
+	Function: get_accuracy_description
+		Returns Address Accuracy Description from is numeric equivalent.
+	
+	Parameters:
+		code - integer required
+		
+	Returns:
+		string
+		
+	See Also:
+		http://www.google.com/apis/maps/documentation/reference.html#GGeoAddressAccuracy
+	
+	*/
+
 	public function get_accuracy_description($code)
 	{
 		switch ( $code )
@@ -704,14 +895,19 @@ if ( GBrowserIsCompatible() ) {
 		}	
 	}
 	
-	/**
-	 * Add additional functionallty to GMap2 object.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 * @return string
-	 */
-	private function extend_gmap()
+	// Section: Private
+	
+	/*
+	
+	Function: _extend_gmap
+		Add additional functionallty to GMap2 object.
+	
+	Returns:
+		string
+	
+	*/
+	
+	private function _extend_gmap()
 	{
 		static $count;
 		switch ( true ) {
@@ -754,14 +950,17 @@ if ( GBrowserIsCompatible() ) {
 		$count++;
 	}
 	
-	/**
-	 * Alert user if browser not compatible with Google Maps.
-	 *
-	 * @author Nesbert Hidalgo
-	 * @access private
-	 * @return string
-	 */	
-	private function display_warning_if_not_compatible()
+	/*
+	
+	Function: _display_warning_if_not_compatible
+		Alert user if browser not compatible with Google Maps.
+	
+	Returns:
+		string
+	
+	*/
+	
+	private function _display_warning_if_not_compatible()
 	{
 		static $return;
 		return $return = ( !$return ? 'if ( !GBrowserIsCompatible() ) alert("Attention: Unable to display map!\nYour current browser is not compatible with Google Maps.\nPlease upgrade to Firefox 1.+ or Internet Explorer 6.+");'."\n" : '' );

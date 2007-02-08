@@ -1,32 +1,10 @@
-== Project Info ==
-
-The goal of the Creovel project is to encourage rapid application development. Based on the Rails approach, a
-variation of the classic MVC design paradigm, a 'model' manages business logic execution, the presentation logic
-resides in the 'view', and the 'controller' handles the processes & responses to actions that may invoke changes
-on the model and view.
-
-Creovel also allows us (the development team) to give back to the open-source community.
-
-Nes (beeballr)
-
-More information can be found at:
-	* creovel.org <- tutorials, projects and more coming soon...
-	* http://code.google.com/p/creovel/
-
-== Release Log ==
-
-0.01 - Nov 24 2005 16:55:55
-	* Initial work to get this bad boy going. Thanks to everyone who put in the time to get this thing going!
-	
-== Legal Stuff ==
-
 Copyright (c) 2005-2007, creovel.org
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
 the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
 and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- 
+
 The above copyright notice and this permission notice shall be included in all copies or substantial portions
 of the Software.
 

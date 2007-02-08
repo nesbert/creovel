@@ -7,7 +7,7 @@ Script: text
 
 /*
 
-Function: underscore
+Function: pluralize
 	Returns a pluralized verision of a word.
 
 Parameters:
@@ -27,7 +27,7 @@ function pluralize($word, $count = null)
 
 /*
 
-Function: underscore
+Function: singularize
 	Returns a singularized verision of a word.
 
 Parameters:
@@ -45,7 +45,7 @@ function singularize($word)
 
 /*
 
-Function: underscore
+Function: humanize
 	Transform text like 'programmers_field' to 'Programmers Field'
 
 Parameters:
@@ -63,7 +63,7 @@ function humanize($word)
 
 /*
 
-Function: underscore
+Function: camelize
 	Transform text like 'programmers_field' to 'ProgrammersField'
 
 Parameters:

@@ -3,7 +3,7 @@ body {
 	color: #555;
 	margin: 0;
 	padding: 0;
-	background: #E8F6F8;
+	background: #E6EDF5;
 }
 
 table td {
@@ -95,9 +95,6 @@ p {
 	background: #6188bc;
 	color: #fff;
 	text-align: left;
-	border-right: 4px solid #3B6BA9;
-	border-top: 1px none;
-	border-bottom: 1px none;
 }
 
 .MGroupContent {
@@ -113,15 +110,11 @@ p {
 	color: #858585;
 	text-decoration: none;
 	text-align: left;
-	border-right: 4px solid #c0d1e6;
 }
 
 .MFile a:hover, .MFile a:active, .MIndex a:hover, .MIndex a:active {
+	color: #6188bc;
 	background-color: #fff;
-	color: #faec8f;
-	border-right: 0 none;
-	border-top: 1px solid #c0d1e6;
-	border-bottom: 1px solid #c0d1e6;
 }
 
 #MSelected {
@@ -130,13 +123,11 @@ p {
 	font-style: italic;
 	font-weight: bold;
 	border: 0 none;
-	border-top: 1px solid #c0d1e6;
-	border-bottom: 1px solid #c0d1e6;
 }
 
 /*content, paragraphs, code, headings*/
 
-.ContentSection, #Index {
+.ContentSection, .IndexSection {
 	padding: 10px 25px 25px;
 	font-size: 14px;
 	min-height: 600px;
@@ -146,8 +137,10 @@ p {
 #MainTopic .CTitle, .IPageTitle {
 	font-size: 30px;
 	margin-bottom: 5px;
-	padding: 70px 10px 0;
+	padding: 70px 10px 0 0;
 }
+
+.IPageTitle { margin-bottom: 25px; }
 
 .CSection .CTitle {
 	color: #777;
@@ -176,12 +169,14 @@ p {
 .CProperty .CTitle,
 .CFunction .CTitle
 {
+	color: #fff;
 	font-size: 14px;
 	font-weight: bold;
 	margin: 15px 0 5px;
 	padding: 5px;
 	border-bottom: 1px solid #eee;
 	border-top: 1px solid #eee;
+	background: #6188bc;
 }
 
 .CCode {
@@ -296,9 +291,10 @@ h4.CHeading, .STitle {
 }
 
 .IHeading, .ISymbolPrefix {
+	width: 50px;
 	font-weight: bold;
 	font-size: 15px;
-	background: #eee;
+	text-align: left;
 }
 
 td.IHeading {
@@ -343,5 +339,9 @@ td.IHeading {
 	top: 0;
 	background: #444;
 	padding: 10px;
+	color: #fff;
+}
+
+.CToolTip * {
 	color: #fff;
 }

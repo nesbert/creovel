@@ -1,7 +1,7 @@
 <?php
 /*
 
-Services: google_maps
+Class: google_maps
 	Google Maps Service Version 2.
 	
 Notes:

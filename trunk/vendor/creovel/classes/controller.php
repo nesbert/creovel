@@ -1,30 +1,54 @@
 <?php
 /*
 
-Class: controller
-	The main class.
+	Class: controller
+	
+	The *controller* class processes and responds to events, typically user actions, and may invoke changes on the model or view.
+	
+	See Also:
+	
+		For a better explanation go to <http://en.wikipedia.org/wiki/Model-view-controller>
 
 */
 
 class controller
 {
 
-	public $render;
-	public $layout;
-	public $params;
-
-	protected $_controller;
-	protected $_action;
-
 	// Section: Public	
 	
 	/*
+		Property: render
+		
+		*String/Bool* Name of view to display. Can be set to false to not show a view.
+	*/
 	
-	Function: _set_events
-		Set the controller's events and layout
-
-	Parameters:
-		events - array of url parameters	
+	public $render;
+	
+	/*
+		Property: layout
+		
+		*String/Bool* Name of layout to display. Can be set to false to not show a layout.
+	*/
+	
+	public $layout;
+	
+	/*
+		Property: params
+		
+		*Array* An associative array of all $_GET, $_POST, and $REQUEST data.
+	*/
+		
+	public $params;
+	
+	/*
+	
+		Function: _set_events
+		
+		Set the controller's events and layout.
+		
+		Parameters:
+		
+			events - array of url parameters.
  
 	*/
 
@@ -41,11 +65,13 @@ class controller
 
 	/*
 	
-	Function: _set _params
+		Function: _set _params
+		
 		Set the controller's params
-
-	Parameters:
-		params - array of url parameters
+		
+		Parameters:
+		
+			params - Array of url parameters.
 
 	*/
 
@@ -55,8 +81,9 @@ class controller
 	}
 
 	/*
-
-	Function: _execute_action	
+	
+		Function: _execute_action
+		
 		Executes the controller's action.
 
 	*/
@@ -89,20 +116,24 @@ class controller
 			// add to errors
 			$_ENV['error']->add($e->getMessage(), $e);
 		
-		}		
+		}
 	}
 	
 	/*
 	
-	Function: _output
-		Output contents to user
-
-	Parameters:	
-		return_as_str - Return as string
-
-	Returns:
-		mixed
-
+		Function: _output
+		
+		Output contents to user. Might not need this function anymore since render() does all the
+		Leaving in for now [Nes].
+		
+		Parameters:	
+		
+			return_as_str - Return as string.
+		
+		Returns:
+		
+			Mixed.
+	
 	*/
 
 	public function _output($return_as_str)
@@ -118,12 +149,18 @@ class controller
 	
 	/*
 	
-	Function: render
-		Render views with options
-
-	Parameters:	
-		options - array of options
-
+		Function: render
+		
+		Render view from options array.
+		
+		Parameters:	
+		
+			options - Array of options.
+			
+		Returns:
+		
+			Output to screen or a string.
+	
 	*/
 
 	public function render($options)
@@ -204,13 +241,15 @@ class controller
 	}
 	
 	/*
-
-	Function: render_to_str
-		Render views with options to a string
-
-	Paramaters:
-		options - array of options
-
+	
+		Function: render_to_str
+		
+		Renders view with options to a string.
+		
+		Paramaters:
+		
+			options - array of options
+	
 	*/
 
 	public function render_to_str($options)
@@ -221,14 +260,16 @@ class controller
 
 	/*
 	
-	Function: build_partial
-		Include a view into the current page
-
-	Parameters:	
-		options - action to render or an array of render $options
-		locals - optional
-		controller - optional controller name
-
+		Function: build_partial
+		
+		Include a view into the current page.
+		
+		Parameters:
+		
+			options - Action to render or an array of render $options.
+			locals - *Optional* An array of variables to pass to the view.
+			controller - *Optional* Controller name. Use if vew is not in the current controller.
+	
 	*/
 
 	public function build_partial($partial, $locals = null, $controller = null)
@@ -245,14 +286,16 @@ class controller
 	
 	/*
 
-	Function: render_partial
-		Alias to build_partial and adds an underscore to the view
-
-	Paramaters:
-		options - partial to render or an array of render $options
-		locals - optional
-		controller - optional controller name
-
+		Function: render_partial
+		
+		Alias to build_partial and adds an underscore to the view name to signify partials.
+		
+		Paramaters:
+		
+			options - Action to render or an array of render $options.
+			locals - *Optional* An array of variables to pass to the view.
+			controller - *Optional* Controller name. Use if vew is not in the current controller.
+	
 	*/
 
 	public function render_partial($partial, $locals = null, $controller = null)
@@ -269,19 +312,23 @@ class controller
 	
 	/*
 	
-	Function: build_controller
-		Allows the ability build a controller within a controller
-
-	Parameters:	
-		controller - controller to build
-		action - action to build
-		id - optional
-		extras - optional
-		to_str optional return controller as string
-
-	Returns:
-		controller object
-
+		Function: build_controller
+		
+		Allows the ability build a controller within a controller.
+		
+		
+		Parameters:	
+		
+			controller - Controller to build.
+			action - Action to view.
+			id - *Optional*
+			extras - *Optional*
+			to_str - *Optional* Return controller as a string.
+		
+		Returns:
+		
+			Controller object.
+	
 	*/
 
 	public function build_controller($controller, $action = '', $id = '', $extras = array(), $to_str = false)
@@ -293,20 +340,23 @@ class controller
 	}
 	
 	/*
-
-
-	Function: build_controller_to_str
-		Alias to build_controller return controller as a string
-
-	Parameters:	
-		controller - controller to build
-		action - action to build
-		id - optional
-		extras - optional
 	
-	Returns:
-		controller object
+		Function: build_controller_to_str
+		
+		Alias to build_controller return controller as a string.
 
+		Parameters:	
+		
+			controller - Controller to build.
+			action - Action to view.
+			id - *Optional*
+			extras - *Optional*
+			to_str - *Optional* Return controller as a string.
+			
+		Returns:
+		
+			Controller view as a string.
+	
 	*/
 
 	public function build_controller_to_str($controller, $action = '', $id = '', $extras = array())
@@ -314,15 +364,17 @@ class controller
 		return $this->build_controller($controller, $action, $id, $extras, true);
 	}
 	
-	/**
-
-	Function: __call
-		Magic functions
-
-	Parameters:
-		method - name of method
-		arguments - arguments passed
-
+	/*
+	
+		Function: __call
+		
+		Magic function calls being used to catch controller errors.
+		
+		Parameters:
+		
+			method - Name of method.
+			arguments - Arguments passed.
+			
 	*/
 
 	public function __call($method, $arguments)
@@ -340,13 +392,15 @@ class controller
 	}
 
 	/*
-
-	Function: run	
-		Excute and render pasted action
-
-	Parameters:	
-		action - action to run
-
+	
+		Function: run
+		
+		Excute and render a certain action.
+		
+		Parameters:	
+		
+			action - *String* Action to run.
+	
 	*/
 
 	public function run($action)
@@ -357,9 +411,10 @@ class controller
 	
 	/*
 	
-	Function: no_view
+		Function: no_view
+		
 		Don't render layout or view. Usefull for ajax calls.
-
+		
 	*/
 
 	public function no_view()
@@ -369,13 +424,15 @@ class controller
 	}
 	
 	/*
-
-	Function: is_posted
-		Is Posted
-
-	Returns:
-		bool
-
+	
+		Function: is_posted
+		
+		Check if current page has posted values.
+		
+		Returns:
+		
+			Bool.
+	
 	*/
 
 	public function is_posted()
@@ -383,22 +440,45 @@ class controller
 		return ( $_SERVER['REQUEST_METHOD'] == 'POST' );
 	}
 
+	
+	// Section: Protected
+	
+	/*
+		Property: _controller;
+		
+		Name of controller to use.
+	*/
+	
+	protected $_controller;
+	
+	/*
+		Property: _action
+		
+		Name of action/method to use.
+	*/
+	
+	protected $_action;
+	
 	// Section: Private
 	
 	/*
 	
-	Function: _get_view_path
-		Get the path of the view file
-
-	Parameters:	
-		view - view name
-		controller - controller name
-
-	Returns:
-		string
-
+		Function: _get_view_path
+		
+		Gets the path of the view file.
+		
+		
+		Parameters:	
+		
+			view - *String* View name.
+			controller - *String* Controller name.
+			
+		Returns:
+		
+			String.
+	
 	*/
-
+	
 	private function _get_view_path($view = null, $controller = null)
 	{
 		// nested controllers check [NH] might need to find a better way to do this
@@ -416,15 +496,18 @@ class controller
 	
 	/*
 	
-	Function: _get_laytou_path
-		Get the path of the layout file
-
-	Parameters:	
-		layout - layout name
-
-	Returns:
-		string
-
+		Function: _get_laytou_path
+		
+		Gets the path of the layout file.
+		
+		Parameters:	
+		
+			layout - *String* Layout name.
+			
+		Returns:
+		
+			String.
+			
 	*/
 
 	private function _get_layout_path($layout = null)
@@ -432,19 +515,36 @@ class controller
 		return VIEWS_PATH.'layouts'.DS.( $layout ? $layout : $this->layout ).'.php';
 	}
 
-
+	// Section: Callbacks
+	
 	/*
-
-	Section: Callbacks	
+	
+		Function: initialize
 		
-		* initialize
-		* before_filter
-		* after_filter
-
+		Called when controller is intialized. *Note:* need to the scoping of this function child overrides all [Nes].
+		
 	*/
-
+	
 	public function initialize() {}
+	
+	/*
+	
+		Function: before_filter
+		
+		Called right before the action is executed.
+		
+	*/
+	
 	public function before_filter() {}
+	
+	/*
+	
+		Function: after_filter
+		
+		Called right after the action is executed.
+		
+	*/
+	
 	public function after_filter() {}
 	
 }

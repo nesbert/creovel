@@ -4,7 +4,7 @@ Section: Requirements
 Creovel has been developed in a LAMP environment. It has been installed on Linux, FreeBSD, OS X and Windows (use at your own risk).
 
   * PHP 5
-  * MySQL 4 (_more database adapters coming..._)
+  * MySQL 4 (more database adapters coming...)
   * Apache
   * Linux or FreeBSD or OS X
 
@@ -39,10 +39,10 @@ Extract Creovel into htdocs directory. Directory structure below
 	/vendor
 (end)
 
-_This is one example of the many ways of setting up Creovel for a single website environment._
+This is one example of the many ways of setting up Creovel for a single website environment.
 
 Section: Multiple Website Environment
-With the use the all mighty _.htaccess_ we can set up a multiple domain environment. You will find the _.htaccess_ file and our directory structure for a three site environment below.
+With the use the all mighty *.htaccess* we can set up a multiple domain environment. You will find the *.htaccess* file and our directory structure for a three site environment below.
 
 *.htaccess*
 (start code)
@@ -111,7 +111,7 @@ With the use the all mighty _.htaccess_ we can set up a multiple domain environm
 		/vendor
 (end)
 
-_Again, this is one example of the many ways of setting up Creovel for a multiple website environment._
+Again, this is one example of the many ways of setting up Creovel for a multiple website environment.
 
 Section: Browse and See
-Once installed browse to your site and you will see a [http://www.creovel.org/welcome welcome screen]. You are now ready to _build faster_.
+Once installed browse to your site and you will see a welcome screen (<http://www.creovel.org/welcome>). You are now ready to build fast (*creovel*).

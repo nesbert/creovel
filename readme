@@ -1,4 +1,4 @@
-== Project Info ==
+== Project Summary ==
 
 The goal of the Creovel project is to encourage rapid application development. Based on the Rails approach, a
 variation of the classic MVC design paradigm, a 'model' manages business logic execution, the presentation logic
@@ -11,16 +11,16 @@ More information can be found at:
 	* creovel.org <- tutorials, projects and more coming soon...
 	* http://code.google.com/p/creovel/
 
-== Dev Team ==
+== Development Team ==
 
 Nesbert Hidalgo <nesbert at creovel.org>
-	Founder, Designer/Programmer, "Wii Lover and Open Fanboy"
+	Founder, Designer/Programmer, "Wii Lover and Mac Fanboy"
 
 John Faircloth <john at creovel.org>
 	Programmer, DB Guru, "Keeper of The Model"
 
 Russ Smith <russ at creovel.org>
-	Hacker, Docs, "Fanboy in Denial"
+	Hacker, Docs Master, "Fanboy in Denial"
 
 == Release Log ==
 

@@ -1,8 +1,9 @@
 <?php
 /*
 
-Class: creovel
-	The main class.
+	Class: creovel
+	
+	The main class where the model, view and controller interact.
 
 */
 
@@ -15,16 +16,20 @@ class creovel
 	
 	/*
 	
-	Function: run
+		Function: run
+		
 		Runs the framework.
-
-	Parameters:
-		events - assoc. array of CONTORLLER, ACTION & ID
-		params - assoc. array of params
-		return_as_str - optional returns controller as string
-
-	Returns:
-		<controller> object or string
+		
+		Parameters:
+		
+			events - Assoc. array of controller, action & id.
+			params - Assoc. array of params.
+			return_as_str - *Optional* Returns controller as string.
+			
+		Returns:
+		
+			<controller> object or string.
+	
 	*/
 
 	public function run($events = null, $params = null, $return_as_str = false)
@@ -40,11 +45,11 @@ class creovel
 		if ( is_array($events['nested_controllers']) ) {
 			$path = '';
 			foreach ( $events['nested_controllers'] as $nested_controller ) {
-				self::include_controller($path.$nested_controller);
+				self::_include_controller($path.$nested_controller);
 				$path .= $nested_controller.DS;
 			}
 		} else {
-			self::include_controller($events['controller']);
+			self::_include_controller($events['controller']);
 		}
 		
 		// create controller object and build the framework
@@ -63,17 +68,20 @@ class creovel
 	}
 	
 	/*
-
-	Function: get_events	
-		Returns the framework events (CONTROLLER, ACTION & ID).
-
-	Parameters:	
-		event_to_return - name of event to return
-		uri - optional url routing path
-
-	Returns:
-		array
-
+	
+		Function: get_events
+		
+		Returns the framework events (controller, action & id).
+		
+		Parameters:
+		
+			event_to_return - Name of event to return.
+			uri - *Optional* url routing path.
+		
+		Returns:
+		
+			Array.
+			
 	*/
 
 	public function get_events($event_to_return = null, $uri = null)
@@ -137,16 +145,19 @@ class creovel
 	
 	/*
 	
-	Function get_params
+		Function get_params
+		
 		Returns the framework params.
-
-	Parameters:	
-		param_to_return - name of param to return
-
-	Returns:
-		array
-
-	 */
+		
+		Parameters:	
+		
+			param_to_return - Name of param to return.
+			
+		Returns:
+		
+			Array.
+			
+	*/
 
 	public function get_params($param_to_return = null)
 	{
@@ -180,18 +191,17 @@ class creovel
 
 	/*
 	
-	Function: include_controller
+		Function: _include_controller
+		
 		Includes the required files for a controller and the controller helpers.
-
-	Parameters:	
-		controller_path - required
-
-	Returns:
-		null
-
+		
+		Parameters:	
+		
+			controller_path - Server path of controller to include.
+		
 	*/
 
-	private function include_controller($controller_path)
+	private function _include_controller($controller_path)
 	{
 		// include application controller
 		$controllers = array_merge(array('application'), explode(DS, $controller_path));

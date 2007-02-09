@@ -1,118 +1,176 @@
 <?php
 /*
 
-Class: google_maps
+	Class: google_maps
+	
 	Google Maps Service Version 2.
 	
-Notes:
-	Let me know if you change anything with this class [Nes 02/08/2007].
-
-Todo:
-	* Added support/interface for compressing polylines data http://www.google.com/apis/maps/documentation/#Encoded_Polylines
-	* Implement Markers Manager http://www.google.com/apis/maps/documentation/#Marker_Manager
+	Notes:
+		Let me know if you change anything with this class [Nes 02/08/2007].
+		
+	Todo:
+		* Add support/interface for compressing polylines data http://www.google.com/apis/maps/documentation/#Encoded_Polylines
+		* Implement Markers Manager http://www.google.com/apis/maps/documentation/#Marker_Manager
 
 */
 
 class google_maps
 {
-	/*
-	
-	Property: default_lng
-		public, float - Default longitude point for map set to _-122.1419_.
-
-	Property: default_lat
-		public, float - Default latitude point for map set to _37.4419_.
-
-	Property: width
-		public, string - Default map width set to _500px_.
-
-	Property: height
-		public, string - Default map height set to _300px_.
-
-	Property: zoom
-		public, int - Default zoom level set to _13_.
-
-	Property: auto_zoom
-		public, bool - Auto zoom and center map depending on markers. Default set to _false_.
-
-	Property: controls
-		public, bool - Show zoom and pan controls. Default set to _true_.
-
-	Property: controls_size
-		public, string - Map controls sizes _large_, _small_, _tiny_.
-
-	Property: scale_control
-		public, bool - Mile/km indicator. Default set to _true_.
-
-	Property: type_control
-		public, string - Map types _false_, _map_, _satellite_, _hybrid_.
-
-	Property: overview_control
-		public, string - A collapsible overview map in the corner of the screen. Default set to _false_.
-
-	Property: markers
-		public, array - Array of markers.
-
-	Property: icons
-		public, array - Array of icons.
-
-	Property: listeners
-		public, array - Array of listeners.
-
-	Property: open_at
-		public, string - Name of marker that will be opened on map load.
-
-	Property: geocoder
-		public, bool - Aet GClientGeocoder object. Ddefault set to _false_.
-
-	Property: markers_object
-		public, bool - Aet this.Markers for javascript class. Default set to _false_.
-
-	Property: key
-		private, string - Google Maps API Key
-
-	Property: id
-		private, string - GMap object ID
-
-	*/
-	
-	// public properties
-	public $default_lng 		= -122.1419;	// default longitude point for map
-	public $default_lat			= 37.4419;		// default latitude point for map
-	public $width				= '500px';		// default map width
-	public $height				= '300px';		// default map height
-	public $zoom				= 13;			// default zoom level
-	public $auto_zoom			= false;		// auto zoom and center map depending on markers
-	public $controls			= true;			// show zoom and pan controls
-	public $controls_size		= 'large';		// map controls size => 'large', 'small', 'tiny'
-	public $scale_control		= true;			// mile/km indicator
-	public $type_control		= 'map';		// map type -> false, 'map', 'satellite', 'hybrid'
-	public $overview_control	= false;		// a collapsible overview map in the corner of the screen;
-	public $markers;							// array of markers
-	public $icons;								// array of icons
-	public $listeners;							// array of listeners
-	public $open_at;							// name of marker that will be opened on map load
-	public $geocoder			= false; 		// set GClientGeocoder object
-	public $markers_object		= false; 		// set this.Markers for javascript class
-	
-	// private properties
-	private $key;								// Google Maps API Key
-	private $id;								// GMap object ID
 	
 	// Section: Public
 	
 	/*
+		Property: default_lng
+		
+		Default longitude point for map set to -122.1419 (float).
+	*/
 	
-	Function: __construct
+	public $default_lng = -122.1419;
+	
+	/*
+		Property: default_lat
+		
+		Default latitude point for map set to 37.4419 (float).
+	*/
+	
+	public $default_lat = 37.4419;
+	
+	/*
+		Property: width
+		
+		Default map width set to 500px (string).
+	*/
+	
+	public $width = '500px';
+	
+	/*
+		Property: height
+		
+		Default map height set to 300px (string).
+	*/
+	
+	public $height = '300px';
+	
+	/*
+		Property: zoom
+		
+		Default zoom level set to 13 (integer).
+	*/
+	
+	public $zoom = 13;
+	
+	/*
+		Property: auto_zoom
+		
+		Auto zoom and center map depending on markers. Default set to false (bool).
+	*/
+	
+	public $auto_zoom = false;
+	
+	/*
+		Property: controls
+		
+		Show zoom and pan controls. Default set to true (bool).
+	*/
+	
+	public $controls = true;
+	
+	/*
+		Property: controls_size
+		
+		Map controls sizes large, small or tiny (string).
+	*/
+	
+	public $controls_size = 'large';
+	
+	/*
+		Property: scale_control
+		
+		Mile/km indicator. Default set to true (bool).
+	*/
+	
+	public $scale_control = true;
+	
+	/*
+		Property: type_control
+		
+		public, string - Map types false, map, satellite or hybrid (string/bool).
+	*/
+	
+	public $type_control = 'map';
+	
+	/*
+		Property: overview_control
+		
+		A collapsible overview map in the corner of the screen. Default set to false (bool).
+	*/
+	
+	public $overview_control = false;
+	
+	/*
+		Property: markers
+		
+		Array of markers (array).
+	*/
+	
+	public $markers;
+	
+	/*
+		Property: icons
+		
+		Array of icons (array).
+	*/
+	
+	public $icons;
+	
+	/*
+		Property: listeners
+		
+		Array of listeners (array).
+	*/
+	
+	public $listeners;
+	
+	/*
+		Property: open_at
+		
+		Name of marker that will be opened on map load (string).
+	*/
+	
+	public $open_at;
+	
+	/*
+		Property: geocoder
+		
+		Set GClientGeocoder object. Default set to false (bool).
+	*/
+	
+	public $geocoder = false;
+	
+	/*
+		Property: markers_object
+		
+		public, bool - Aet this.Markers for javascript class. Default set to false (bool).
+	*/
+	
+	public $markers_object = false;
+	
+	/*
+	
+		Function: __construct
+		
 		Class construct. You have the option to pass the Google Maps API key and DOM ID
 		when initializing the class.
-	
-	Parameters:
-		key - string optional <set_key>
-		id - string optional <set_id>
-	
-	Return:
-		null
+		
+		Parameters:
+		
+			key - Optional string.
+			id - Optional string.
+			
+		See Also:
+		
+			* <set_key>
+			* <set_id>
 	
 	*/
 	
@@ -130,17 +188,17 @@ class google_maps
 	
 	/*
 	
-	Function: set_key
+		Function: set_key
+		
 		Set Google Maps API key. Required to use google maps.
 	
-	Parameters:
-		key - string required
-	
-	Return:
-		null
-	
-	See Also:
-		http://www.google.com/apis/maps/signup.html
+		Parameters:
+		
+			key - Required string.
+			
+		See Also:
+		
+			http://www.google.com/apis/maps/signup.html
 	
 	*/
 	
@@ -151,14 +209,14 @@ class google_maps
 	
 	/*
 	
-	Function: set_id
+		Function: set_id
+		
 		Set DOM ID for map.
 	
-	Parameters:
-		id - string required
-	
-	Return:
-		null
+		
+		Parameters:
+		
+			id - Required string.
 	
 	*/
 	
@@ -169,16 +227,19 @@ class google_maps
 	
 	/*
 	
-	Function: display_map
+		Function: display_map
+		
 		Google Maps RUN-TIME. Creates javascript code and map ojects used by this class.
 		Outputs to screen where ever called.
 	
-	Parameters:
-		html_options - array optional
-	
-	Return:
-		string
-	
+		Parameters:
+		
+			html_options - Optional array.
+			
+		Returns:
+		
+			A string of all the html/javascript needed for map.
+		
 	*/
 	
 	public function display_map($html_options = null)
@@ -197,7 +258,7 @@ if ( GBrowserIsCompatible() ) {
 	
 	// global vairables
 	var <?=$this->id?>;
-	<? if ( $this->geocoder ) echo "var geocoder;\n"; ?>
+	<?php if ( $this->geocoder ) echo "var geocoder;\n"; ?>
 	
 	// google map object
 	function <?=$this->id?>Obj()
@@ -205,27 +266,27 @@ if ( GBrowserIsCompatible() ) {
 		
 		// properties
 		<?=$this->gmap()?>
-		<? if ( $this->geocoder ) echo "geocoder = new GClientGeocoder();\n"; ?>
-		<? if ( $this->auto_zoom ) echo "this.Bounds = new GLatLngBounds();\n"; ?>
+		<?php if ( $this->geocoder ) echo "geocoder = new GClientGeocoder();\n"; ?>
+		<?php if ( $this->auto_zoom ) echo "this.Bounds = new GLatLngBounds();\n"; ?>
 		
 		// controls
 		this.Controls = new Object;
-		<? if ( $this->controls ) echo $this->add_control('( this.Controls.ControlSize = '.$this->get_controls().' )'); ?>
-		<? if ( $this->controls && $this->scale_control ) echo $this->add_control('( this.Controls.GScaleControl = new GScaleControl() )'); ?>
-		<? if ( $this->controls && $this->type_control ) echo $this->add_control('( this.Controls.GMapTypeControl = new GMapTypeControl() )'); ?>
-		<? if ( $this->overview_control ) echo $this->add_control('( this.Controls.GOverviewMapControl = new GOverviewMapControl() )'); ?>
+		<?php if ( $this->controls ) echo $this->add_control('( this.Controls.ControlSize = '.$this->get_controls().' )'); ?>
+		<?php if ( $this->controls && $this->scale_control ) echo $this->add_control('( this.Controls.GScaleControl = new GScaleControl() )'); ?>
+		<?php if ( $this->controls && $this->type_control ) echo $this->add_control('( this.Controls.GMapTypeControl = new GMapTypeControl() )'); ?>
+		<?php if ( $this->overview_control ) echo $this->add_control('( this.Controls.GOverviewMapControl = new GOverviewMapControl() )'); ?>
 		
 		// center map
 		<?=$this->set_center($this->default_lat, $this->default_lng, $this->zoom, $this->get_map_type())?>
 		
-		<?
+		<?php
 			if ( count($this->icons) ) {
 				echo "// icons\n";
 				echo "\t\tthis.Icons = new Object;\n";
 				foreach ( $this->icons as $icon => $vals ) echo $this->create_icon($vals['name'], $vals);
 			}
 		?>
-		<?
+		<?php
 			if ( count($this->markers) || $this->markers_object ) {
 				echo "// markers\n";
 				echo "\t\tthis.Markers = new Object();\n";
@@ -250,11 +311,13 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: include_api
+		Function: include_api
+		
 		Create JavaScript include string for Google Maps API.
 	
-	Return:
-		string
+		Returns:
+		
+			String of the javascript include file of the Google Maps with the API key.
 	
 	*/
 	
@@ -268,15 +331,18 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: gmap
+		Function: gmap
+		
 		Create GMap2 object.
-	
-	Parameters:
-		container - string required did id of map
-		options - array optional not being used
-	
-	Return:
-		string
+		
+		Parameters:
+		
+			container - Required string for the DIV id of map.
+			options - Optional array not being used
+			
+		Return:
+		
+			String of the GMap2 object.
 	
 	*/
 	
@@ -288,15 +354,18 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: glatlng
+		Function: glatlng
+		
 		Create GLatLng (geographical coordinates longitude and latitude) object.
-	
-	Parameters:
-		latitude - string required
-		longitude - string required
-	
-	Return:
-		string
+		
+		Parameters:
+		
+			latitude - Required string/float.
+			longitude - Required string/float.
+		
+		Returns:
+		
+			String of the GLatLng object.
 	
 	*/
 	
@@ -307,17 +376,20 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: set_center
+		Function: set_center
+		
 		Set center point of map.
 	
-	Parameters:
-		latitude - string required
-		longitude - string required
-		zoom - int optional default set to 4
-		map_type - string optional 'map', 'satellite', 'hybrid'
-	
-	Return:
-		string
+		Parameters:
+		
+			latitude - Required string.
+			longitude - Required string.
+			zoom - Optional integer with the default set to 4.
+			map_type - Optional string 'map', 'satellite' or 'hybrid'.
+			
+		Returns:
+		
+			String to center map in javascript.
 	
 	*/
 	
@@ -328,15 +400,18 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: pan_to
+		Function: pan_to
+		
 		Pan map to a geographical coordinates longitude and latitude.
-	
-	Parameters:
-		latitude - string required
-		longitude - string required
-	
-	Return:
-		string
+		
+		Parameters:
+		
+			latitude - Required string/float.
+			longitude - Required string/float.
+			
+		Returns:
+		
+			String to pan map in javascript.
 	
 	*/
 	
@@ -347,18 +422,22 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: add_control
+		Function: add_control
+		
 		Add a control to map.
-	
-	Parameters:
-		control - string required
-		position - string optional
-	
-	Return:
-		string
-	
-	See Also:
-		http://www.google.com/apis/maps/documentation/reference.html#GControl
+		
+		Parameters:
+		
+			control - Required string.
+			position - Optional postion not being used.
+			
+		Returns:
+		
+			String to add controls to the map in javascript.
+		
+		See Also:
+		
+			http://www.google.com/apis/maps/documentation/reference.html#GControl
 		
 	*/
 	
@@ -369,22 +448,27 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: create_marker
+		Function: create_marker
+		
 		Create a GMarker object.
-	
-	Parameters:
-		name - string required
-		latitude - string/array required
-		longitude - string optional
-		icon - string optional
-		html_or_tabs - string optional
-		onclick - bool optional
-	
-	Return:
-		string
-	
-	See Also:
-		http://www.google.com/apis/maps/documentation/reference.html#GMarker
+		
+		
+		Parameters:
+		
+			name - Required string the name/id of marker.
+			latitude - Required string/array of coordinates.
+			longitude - Optional string.
+			icon - Optional string of icon to use for marker.
+			html_or_tabs - Optional string.
+			onclick - Optional bool default set false.
+			
+		Returns:
+		
+			String to add marker to map in javascript.
+		
+		See Also:
+		
+			http://www.google.com/apis/maps/documentation/reference.html#GMarker
 		
 	*/
 	
@@ -437,18 +521,22 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: create_icon
+		Function: create_icon
+		
 		Create a GIcon object.
-	
-	Parameters:
-		name - string required
-		data - array required
-	
-	Return:
-		string
-	
-	See Also:
-		http://www.google.com/apis/maps/documentation/reference.html#GIcon
+		
+		Parameters:
+		
+			name - Required string.
+			data - Required array.
+			
+		Returns:
+		
+			String to create an icon base for the map in javascript.
+		
+		See Also:
+		
+			http://www.google.com/apis/maps/documentation/reference.html#GIcon
 		
 	*/
 	
@@ -472,20 +560,24 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: create_listener
-		Create a GEvent listner object.
-	
-	Parameters:
-		source - string required
-		event - string required
-		handler - string optional
-	
-	Return:
-		string
-	
-	See Also:
-		http://www.google.com/apis/maps/documentation/reference.html#GEvent
+		Function: create_listener
 		
+		Create a GEvent listner object.
+		
+		Parameters:
+		
+			source - Required string.
+			event - Required string.
+			handler - Optional string.
+			
+		Returns:
+		
+			String to add event listeners to the map in javascript.
+			
+		See Also:
+		
+			http://www.google.com/apis/maps/documentation/reference.html#GEvent
+	
 	*/
 	
 	public function create_listener($source, $event, $handler = null)
@@ -500,19 +592,23 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: gpoint
-		Create a GPoint object.
-	
-	Parameters:
-		x - int required
-		y - int optional
-	
-	Return:
-		string
-	
-	See Also:
-		http://www.google.com/apis/maps/documentation/reference.html#GPoint
+		Function: gpoint
 		
+		Create a GPoint object.
+		
+		Parameters:
+		
+			x - Required string/integer.
+			y - Optional integer.
+			
+		Returns:
+		
+			String of GPoint object in javascript.
+		
+		See Also:
+		
+			http://www.google.com/apis/maps/documentation/reference.html#GPoint
+	
 	*/
 	
 	public function gpoint($x, $y = null)
@@ -527,19 +623,23 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: gsize
-		Create a GSize object.
-	
-	Parameters:
-		width - int required
-		height - int optional
-	
-	Return:
-		string
-	
-	See Also:
-		http://www.google.com/apis/maps/documentation/reference.html#GSize
+		Function: gsize
 		
+		Create a GSize object.
+		
+		Parameters:
+		
+			width - Required string/integer
+			height - Optional integer.
+			
+		Returns:
+		
+			String of GSize object in javascript.
+		
+		See Also:
+		
+			http://www.google.com/apis/maps/documentation/reference.html#GSize
+	
 	*/
 	
 	public function gsize($width, $height = null)
@@ -554,15 +654,19 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: add
-		Alias to add_marker().
-	
-	Parameters:
-		marker - array required
-	
-	See Also:
-		<add_marker>
+		Function: add
 		
+		Alias to add_marker().
+		
+		Parameters:
+		
+			marker - Required array.
+			
+		
+		See Also:
+		
+			<add_marker>
+	
 	*/
 	
 	public function add($marker)
@@ -572,12 +676,14 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: add_marker
-		Add a marker to class markers array.
-	
-	Parameters:
-		marker - array required
+		Function: add_marker
 		
+		Add a marker to class markers array.
+		
+		Parameters:
+		
+			marker - Required array.
+	
 	*/
 	
 	public function add_marker($marker)
@@ -592,12 +698,14 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: add_listener
-		Add a listener to class listeners array.
-	
-	Parameters:
-		args - array required
+		Function: add_listener
 		
+		Add a listener to class listeners array.
+		
+		Parameters:
+		
+			args - Required array.
+	
 	*/
 	
 	public function add_listener($args)
@@ -607,12 +715,14 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: get_controls
-		Add an icon to class icons array.
-	
-	Parameters:
-		args - array required
+		Function: add_icon
 		
+		Add an icon to class icons array.
+		
+		Parameters:
+		
+			args - Required array.
+	
 	*/
 	
 	public function add_icon($args)
@@ -622,12 +732,14 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: get_controls
-		Get this map's control size ( 'tiny' = GSmallZoomControl, 'small' = GSmallMapControl, 'large' = GLargeMapControl ).
-	
-	Returns:
-		string
+		Function: get_controls
 		
+		Get this map's control size ( 'tiny' = GSmallZoomControl, 'small' = GSmallMapControl, 'large' = GLargeMapControl ).
+		
+		Returns:
+		
+			String of a control object to add to the map in javascript.
+	
 	*/
 	
 	private function get_controls()
@@ -652,12 +764,14 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: get_map_type
-		Get this map's type constant ( 'map' = G_NORMAL_MAP, 'satellite' = G_SATELLITE_MAP, 'hybrid' = G_HYBRID_MAP ).
-	
-	Returns:
-		string
+		Function: get_map_type
 		
+		Get this map's type constant ( 'map' = G_NORMAL_MAP, 'satellite' = G_SATELLITE_MAP, 'hybrid' = G_HYBRID_MAP ).
+		
+		Returns:
+		
+			String of map type constant in javascript.
+	
 	*/
 	
 	public function get_map_type()
@@ -682,15 +796,18 @@ if ( GBrowserIsCompatible() ) {
 
 	/*
 	
-	Function: onload
+		Function: onload
+		
 		Add javascript to window.onload function.
+		
+		Parameters:
+		
+			js_str - Required string.
+			
+		Returns:
+		
+			String of javascript event.
 	
-	Parameters:
-		js_str - string required
-		
-	Returns:
-		string
-		
 	*/
 	
 	public function onload($js_str)
@@ -702,15 +819,18 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: unload
+		Function: unload
+		
 		Add javascript to window.unload function.
+		
+		Parameters:
+		
+			js_str - Optional string.
+			
+		Returns:
+		
+			String of javascript event.
 	
-	Parameters:
-		js_str - string optional
-		
-	Returns:
-		string
-		
 	*/
 	
 	public function unload($js_str = null)
@@ -722,15 +842,23 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: geocode_address
+		Function: geocode_address
+		
 		Get coordinates from address provided.
 	
-	Parameters:
-		address - string required
+		Parameters:
 		
-	Returns:
-		array
+			address - Required string.
+			
+		Returns:
 		
+			Array of coordinates.
+			
+		See Also:
+		
+			* <geocode_http>
+			* http://www.google.com/apis/maps/documentation/#Geocoding_HTTP_Request
+	
 	*/
 	
 	public function geocode_address($address)
@@ -743,15 +871,22 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: geocode_http
+		Function: geocode_http
+		
 		Geocode through google using HTTP Request and return a formatted array.
+		
+			Parameters:
+			
+			address - Required string.
+		
+		Returns:
+		
+			Array of coordinates.
+		
+		See Also;
+		
+			http://www.google.com/apis/maps/documentation/#Geocoding_HTTP_Request
 	
-	Parameters:
-		address - string required
-		
-	Returns:
-		array
-		
 	*/
 	
 	public function geocode_http($address)
@@ -794,17 +929,21 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: get_status_description
+		Function: get_status_description
+		
 		Returns Address Accuracy Description from is numeric equivalent.
-	
-	Parameters:
-		code - integer required
 		
-	Returns:
-		string
+		Parameters:
 		
-	See Also:
-		http://www.google.com/apis/maps/documentation/reference.html#GGeoStatusCode
+			code - Required integer.
+		
+		Returns:
+		
+			String of error description.
+		
+		See Also:
+		
+			http://www.google.com/apis/maps/documentation/reference.html#GGeoStatusCode
 	
 	*/
 	
@@ -841,17 +980,21 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: get_accuracy_description
+		Function: get_accuracy_description
+		
 		Returns Address Accuracy Description from is numeric equivalent.
-	
-	Parameters:
-		code - integer required
 		
-	Returns:
-		string
+		Parameters:
 		
-	See Also:
-		http://www.google.com/apis/maps/documentation/reference.html#GGeoAddressAccuracy
+			code - Required integer.
+			
+		Returns:
+		
+			String of accuracy description.
+			
+		See Also:
+		
+			http://www.google.com/apis/maps/documentation/reference.html#GGeoAddressAccuracy
 	
 	*/
 
@@ -898,14 +1041,35 @@ if ( GBrowserIsCompatible() ) {
 	}
 	
 	// Section: Private
+	/*
+		Property: key
+		
+		Google Maps API Key (string)
+		
+		See Also:
+			
+			http://www.google.com/apis/maps/signup.html
+	*/
+	
+	private $key;
 	
 	/*
+		Property: id
+		
+		GMap object ID (string).
+	*/
 	
-	Function: _extend_gmap
+	private $id;
+		
+	/*
+	
+		Function: _extend_gmap
+		
 		Add additional functionallty to GMap2 object.
-	
-	Returns:
-		string
+		
+		Returns:
+		
+			String of javascript class functions to extend the GMap2 class.
 	
 	*/
 	
@@ -954,11 +1118,13 @@ if ( GBrowserIsCompatible() ) {
 	
 	/*
 	
-	Function: _display_warning_if_not_compatible
+		Function: _display_warning_if_not_compatible
+		
 		Alert user if browser not compatible with Google Maps.
-	
-	Returns:
-		string
+		
+		Returns:
+		
+			String of javascript code.
 	
 	*/
 	

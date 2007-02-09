@@ -7,7 +7,7 @@
 	
 	See Also:
 	
-		For a better explanation go to <http://en.wikipedia.org/wiki/Model-view-controller>
+		For a better explanation go to <http://en.wikipedia.org/wiki/Model-view-controller>.
 
 */
 
@@ -19,7 +19,7 @@ class controller
 	/*
 		Property: render
 		
-		*String/Bool* Name of view to display. Can be set to false to not show a view.
+		*String/Bool* name of view to display. Can be set to false to not show a view.
 	*/
 	
 	public $render;
@@ -27,7 +27,7 @@ class controller
 	/*
 		Property: layout
 		
-		*String/Bool* Name of layout to display. Can be set to false to not show a layout.
+		*String/Bool* name of layout to display. Can be set to false to not show a layout.
 	*/
 	
 	public $layout;
@@ -35,7 +35,7 @@ class controller
 	/*
 		Property: params
 		
-		*Array* An associative array of all $_GET, $_POST, and $REQUEST data.
+		*Array* of all $_GET, $_POST, and $_REQUEST data.
 	*/
 		
 	public $params;
@@ -48,7 +48,7 @@ class controller
 		
 		Parameters:
 		
-			events - array of url parameters.
+			events - Array of url parameters.
  
 	*/
 
@@ -248,7 +248,7 @@ class controller
 		
 		Paramaters:
 		
-			options - array of options
+			options - Array of options.
 	
 	*/
 
@@ -267,8 +267,8 @@ class controller
 		Parameters:
 		
 			options - Action to render or an array of render $options.
-			locals - *Optional* An array of variables to pass to the view.
-			controller - *Optional* Controller name. Use if vew is not in the current controller.
+			locals - *Optional* array of variables to pass to the view.
+			controller - *Optional* controller name. Use if vew is not in the current controller.
 	
 	*/
 
@@ -293,8 +293,8 @@ class controller
 		Paramaters:
 		
 			options - Action to render or an array of render $options.
-			locals - *Optional* An array of variables to pass to the view.
-			controller - *Optional* Controller name. Use if vew is not in the current controller.
+			locals - *Optional* array of variables to pass to the view.
+			controller - *Optional* controller name. Use if vew is not in the current controller.
 	
 	*/
 
@@ -323,7 +323,7 @@ class controller
 			action - Action to view.
 			id - *Optional*
 			extras - *Optional*
-			to_str - *Optional* Return controller as a string.
+			to_str - *Optional* bool to return controller as a string.
 		
 		Returns:
 		
@@ -444,7 +444,7 @@ class controller
 	// Section: Protected
 	
 	/*
-		Property: _controller;
+		Property: _controller
 		
 		Name of controller to use.
 	*/
@@ -470,8 +470,8 @@ class controller
 		
 		Parameters:	
 		
-			view - *String* View name.
-			controller - *String* Controller name.
+			view - String of the view name.
+			controller - String of the controller name.
 			
 		Returns:
 		
@@ -502,7 +502,7 @@ class controller
 		
 		Parameters:	
 		
-			layout - *String* Layout name.
+			layout - String of the layout name.
 			
 		Returns:
 		

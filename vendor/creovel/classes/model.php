@@ -474,7 +474,7 @@ class model implements Iterator
 
 	public function find($args = false)
 	{
-		$this->reset();
+		if (!isset($args['total'])) $this->reset();
 
 		$this->before_find();	
 	
@@ -512,10 +512,14 @@ class model implements Iterator
 		if (isset($args['offset'])) {
 			$this->offset($args['offset']);	
 		}
+		
+		if (isset($args['total'])) {
+			$result = $this->query_action();
+		} else {
+			$result = $this->query();
 
-		$result = $this->query();
-
-		$this->after_find();
+			$this->after_find();
+		}
 
 		return $result;
 	}
@@ -581,8 +585,8 @@ class model implements Iterator
 		unset($args['select']);
 		$this->find($args);
 		
-		$row = $this->_select_query->get_row();
-		$this->reset();
+		$row = $this->_action_query->get_row();
+		//$this->reset();
 		return $row['total'];
 	}
 
@@ -709,6 +713,29 @@ class model implements Iterator
 		}
 		
 		return $this->_select_query->query($this->_query_str);
+	}
+	
+	/*
+
+	Function: query_action
+
+	Parameters:
+		str - mysql query string
+
+	Returns:
+		mysql result set
+
+	*/
+	
+	public function query_action($str = null)
+	{
+		if ($str) {
+			$this->_query_str = $str; 
+		} else {
+			$this->_build_qry();
+		}
+		
+		return $this->_action_query->query($this->_query_str);
 	}
 	
 	/*

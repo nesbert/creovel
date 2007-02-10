@@ -3,6 +3,4 @@ The goal of the Creovel project is to encourage rapid application development. B
 
 Creovel also allows us (the development team) to give back to the open-source community.
 
-(startcode)
-*Attention:* This documentation current for _creovel 0.02_.
-(end)
+*Attention:* This documentation current for *creovel 0.02*.

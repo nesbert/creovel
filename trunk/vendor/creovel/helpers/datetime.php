@@ -32,7 +32,7 @@ function datetime($datetime = null)
 		break;
 		
 		case ( is_numeric($datetime) ):
-			return date('Y-m-d H:i:s', $datetime['year']);
+			return date('Y-m-d H:i:s', $datetime);
 		break;
 		
 		case ( is_string($datetime) ):

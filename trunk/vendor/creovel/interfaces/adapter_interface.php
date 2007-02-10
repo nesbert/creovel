@@ -48,7 +48,7 @@ interface adapter_interface
 	 * @param string $table name of table
 	 * @return bool
 	 */	
-	public function table_exits($table);	
+	public function table_exists($table);	
 	
 	/**
 	 * Returns an object modelled by the current table strucure.

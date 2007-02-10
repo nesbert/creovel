@@ -109,6 +109,10 @@ class model implements Iterator
 			case 'mysql':
 				$adapter = 'mysql';
 			break;
+
+			case 'sqlite':
+				$adapter = 'sqlite';
+			break;
 			
 			default:
 				die('<strong>Error:</strong> Unknown Database Adapter.');

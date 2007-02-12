@@ -1,27 +1,33 @@
 <?php
 /*
 
-Class: view
+	Class: view
+	
+	The *view* class handles all the presentation logic. The Simple Template System (STS) allows an easy way of
+	seperating/combining business logic and presentation layers.
 
 */
 
 class view
 {
 	// Section: Public
-		
+	
 	/*
-
-	Function: _create_view
-		Creates the page to be displayed and sets it to the page property
-
-	Parameters:	
-		view_path - required
-		layout_path - required
-		options - optional
-
-	Returns:
-		string
-
+	
+		Function: _create_view
+		
+		Creates the page to be displayed and sets it to the page property.
+		
+		Parameters:
+		
+			view_path - Required string of the file path to render.
+			layout_path - Required string of the layout path to render.
+			options - Optional array of desiplay options.
+			
+		Returns:
+		
+			String of HTML used for output.
+	
 	*/
 
 	public function _create_view($view_path, $layout_path, $options = null)
@@ -57,49 +63,29 @@ class view
 			// add to errors
 			$_ENV['error']->add($e->getMessage());
 
-		}		
-	}
-
-	/*
-
-	Function: _get_view		
-		Return the page to be displayed as string
-
-	Returns:
-		string
-
-	*/
-
-	public function _get_view($view_path = null, $layout_path = null, $options = null)
-	{
-		return self::_create_view($view_path, $layout_path, $options);
-	}
-
-	/**
-	* Print page to screen
-	*
-	* @author Nesbert Hidalgo
-	* @access public 
-	 */
-
-	public function _show_view($view_path = null, $layout_path = null, $options = null)
-	{
-		print self::_create_view($view_path, $layout_path, $options);
+		}
 	}
 
 	/*
 	
-	Function: _get_include_contents
-		http://us3.php.net/manual/en/function.include.php
-		Example 16-11. Using output buffering to include a PHP file into a string
-
-	Parameters:	
-		filename - required
-		options - optional
+		Function: _get_include_contents
+		
+		Using output buffering to include a PHP file into a string. Used to combine coding logic (PHP)
+		and views. The main function used by crovel's templating engine (STS).
+		
+		Parameters:	
+		
+			filename - Required string of the file path.
+			options - Optional array of variables to made local to file.
+			
+		Returns:
+		
+			String of HTML/Text from buffer.
+			
+		See Also:
+		
+			http://us3.php.net/manual/en/function.include.php Example 16-11.
 	
-	Returns:
-		string
-
 	*/
 
 	public function _get_include_contents($filename, $options = null)
@@ -117,6 +103,48 @@ class view
 		}
 		return false;
 	}
+
+	/*
 	
+		Function: _get_view
+		
+		Return a page view as string. A wrapper to <_create_view>.
+		
+		Returns:
+		
+			String of HTML used for output.
+			
+		See Also:
+		
+			<_create_view>
+	
+	*/
+
+	public function _get_view($view_path = null, $layout_path = null, $options = null)
+	{
+		return self::_create_view($view_path, $layout_path, $options);
+	}
+
+	/*
+	
+		Function: _show_view
+		
+		Print a page view to screen. A wrapper to <_create_view>.
+		
+		Returns:
+		
+			Prints HTML output to screen.
+			
+		See Also:
+		
+			<_create_view>
+	
+	*/
+
+	public function _show_view($view_path = null, $layout_path = null, $options = null)
+	{
+		print self::_create_view($view_path, $layout_path, $options);
+	}
+
 }
 ?>

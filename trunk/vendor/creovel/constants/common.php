@@ -1,7 +1,8 @@
 <?php
 /*
-
-Script: constants
+	
+	Script: constants
+	
 	Common contants declared here.
 
 */

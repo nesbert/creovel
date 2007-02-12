@@ -363,33 +363,6 @@ class controller
 	{
 		return $this->build_controller($controller, $action, $id, $extras, true);
 	}
-	
-	/*
-	
-		Function: __call
-		
-		Magic function calls being used to catch controller errors.
-		
-		Parameters:
-		
-			method - Name of method.
-			arguments - Arguments passed.
-			
-	*/
-
-	public function __call($method, $arguments)
-	{
-		try {
-			
-			throw new Exception("Call to undefined method '{$method}' not found in <strong>".get_class($this)."</strong>.");
-		
-		} catch ( Exception $e ) {
-		
-			// add to errors
-			$_ENV['error']->add($e->getMessage(), $e);
-		
-		}
-	}
 
 	/*
 	
@@ -440,7 +413,33 @@ class controller
 		return ( $_SERVER['REQUEST_METHOD'] == 'POST' );
 	}
 
+	/*
 	
+		Function: __call
+		
+		Magic function call being used to catch controller errors.
+		
+		Parameters:
+		
+			method - Name of method.
+			arguments - Arguments passed.
+	
+	*/
+
+	public function __call($method, $arguments)
+	{
+		try {
+			
+			throw new Exception("Call to undefined method '{$method}' not found in <strong>".get_class($this)."</strong>.");
+		
+		} catch ( Exception $e ) {
+		
+			// add to errors
+			$_ENV['error']->add($e->getMessage(), $e);
+		
+		}
+	}
+
 	// Section: Protected
 	
 	/*
@@ -485,7 +484,7 @@ class controller
 		if ( $this->_nested_controller_path ) {
 			$view_path =  VIEWS_PATH.$this->_nested_controller_path.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
 			if ( file_exists($view_path) ) {
-				return $view_path;			
+				return $view_path;
 			} else {
 				return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
 			}		
@@ -496,7 +495,7 @@ class controller
 	
 	/*
 	
-		Function: _get_laytou_path
+		Function: _get_layout_path
 		
 		Gets the path of the layout file.
 		

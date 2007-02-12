@@ -2,12 +2,12 @@
 <?
 
 require_once dirname(__FILE__).'/../config/environment.php';
-require_once dirname(__FILE__).'/../vendor/creovel/vendor/pheonix/main.php';
-require_once dirname(__FILE__).'/../vendor/creovel/vendor/pheonix/spyc.php';
+require_once dirname(__FILE__).'/../vendor/creovel/vendor/phoenix/main.php';
+require_once dirname(__FILE__).'/../vendor/creovel/vendor/phoenix/spyc.php';
 
-define(PHEONIX_CONFIG, dirname(__FILE__).'/../config/pheonix.yml');
+define(PHOENIX_CONFIG, dirname(__FILE__).'/../config/phoenix.yml');
 
-$pheonix = new Pheonix();
-$pheonix->main();
+$phoenix = new Phoenix();
+$phoenix->main();
 
 ?>

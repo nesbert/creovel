@@ -94,7 +94,7 @@ class google_maps
 	/*
 		Property: type_control
 		
-		public, string - Map types false, map, satellite or hybrid (string/bool).
+		Map types false, map, satellite or hybrid (string/bool).
 	*/
 	
 	public $type_control = 'map';
@@ -150,7 +150,7 @@ class google_maps
 	/*
 		Property: markers_object
 		
-		public, bool - Aet this.Markers for javascript class. Default set to false (bool).
+		Sets this.Markers for javascript class. Default set to false (bool).
 	*/
 	
 	public $markers_object = false;
@@ -191,7 +191,7 @@ class google_maps
 		Function: set_key
 		
 		Set Google Maps API key. Required to use google maps.
-	
+		
 		Parameters:
 		
 			key - Required string.
@@ -212,7 +212,6 @@ class google_maps
 		Function: set_id
 		
 		Set DOM ID for map.
-	
 		
 		Parameters:
 		
@@ -931,7 +930,7 @@ if ( GBrowserIsCompatible() ) {
 	
 		Function: get_status_description
 		
-		Returns Address Accuracy Description from is numeric equivalent.
+		Returns Address Status/Error Description from is numeric equivalent.
 		
 		Parameters:
 		

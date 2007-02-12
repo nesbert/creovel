@@ -148,7 +148,7 @@ function url_for($controller = '', $action = '', $id = '')
 	
 	}
 
-	return DS.($controller?$controller.DS.($action?$action.DS:'').($action&&$id?$id:''):'');
+	return '/'.($controller?$controller.'/'.($action?$action.'/':'').($action&&$id?$id:''):'');
 	
 }
 

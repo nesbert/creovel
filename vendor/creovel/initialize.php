@@ -1,7 +1,8 @@
 <?php
 /*
 
-Scripts: initialize
+	Scripts: initialize
+	
 	This file includes all core libraries and intializes framework.
 
 */

@@ -102,7 +102,9 @@ class Phoenix
 		$stream = ssh2_exec($connection, "mkdir {$this->application_path}/halt");
 		
 		$stream = ssh2_exec($connection, CD."{$this->application_path} && ".LN."releases/".strftime("%Y%m%d%H%M", time())." current");
-		$stream = ssh2_exec($connection, SVN." co {$this->config['config']['svnurl']}/{$release} {$this->application_path}/releases/".strftime("%Y%m%d%H%M", time()));
+
+		if (isset($this->config['config']['svnusername'])) $auth = " --username={$this->config['config']['svnusername']} --password={$this->config['config']['svnpassword']} ";
+		$stream = ssh2_exec($connection, SVN." export {$auth} {$this->config['config']['svnurl']}/{$release} {$this->application_path}/releases/".strftime("%Y%m%d%H%M", time()));
 
 		$this->stdout("Application Released on {$name}");
 	}

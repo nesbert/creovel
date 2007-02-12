@@ -2,10 +2,16 @@ config:
   appname: pheonix
   path: /var/www/html/apps
   svnurl: http://creovel.org/svn/creovel/creovel
+  # Optional if your server isn't anonymous
+  svnusername: username
+  svnpassword: password
 
 servers:
+  # Servers Name
   localhost:
     address: 127.0.0.1
     user: root
     pass: pass
     port: 22
+    # Optional (Chroot's are Special!)
+    chroot: true

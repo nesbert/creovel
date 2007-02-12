@@ -71,9 +71,9 @@ class view
 		Function: _get_include_contents
 		
 		Using output buffering to include a PHP file into a string. Used to combine coding logic (PHP)
-		and views. The main function used by crovel's templating engine (STS).
+		and views. The main function used by creovel's templating engine (STS).
 		
-		Parameters:	
+		Parameters:
 		
 			filename - Required string of the file path.
 			options - Optional array of variables to made local to file.

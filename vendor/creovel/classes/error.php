@@ -116,6 +116,8 @@ class error
 			} else {
 				die('Looking for something? <a href="creovel.org">creovel.org</a>');
 			}
+		} elseif (isset($_SERVER['argv'][0])) {
+			view::_show_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php');
 		} else {
 			view::_show_view(CREOVEL_PATH.'views'.DS.'application_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 		}

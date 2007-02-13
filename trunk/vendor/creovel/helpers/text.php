@@ -190,4 +190,46 @@ function truncate($str, $length = 100, $tail = '...', $strict = false)
 		
 	return $str;
 }
+
+/*
+
+Function: truncate
+	Reformats a string to fit within a display with a certain
+	number of columns.  Words are moved between the lines as
+	necessary.  Particularly useful for formatting text to
+	be sent via email (prevents nasty wrap-around problems).
+
+Parameters:
+	s - the string to be formatted
+	l - the maximum length of a line
+
+Credit:
+	syneryder@namesuppressed.com
+
+Returns:
+	string
+
+*/
+
+function wordwrap_line($s, $l)
+{
+	$tok = strtok($s, " ");
+
+	while (strlen($tok) != 0)
+	{
+		if (strlen($line) + strlen($tok) < ($l + 2) ) {
+			$line .= " $tok";
+		} else {
+			$formatted .= "$line\n";
+			$line = $tok;
+		}
+		$tok = strtok(" ");
+	}
+
+	$formatted .= $line;
+	$formatted = trim($formatted);
+
+	return $formatted;
+}
+
 ?>

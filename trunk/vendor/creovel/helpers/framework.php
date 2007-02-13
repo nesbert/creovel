@@ -75,7 +75,7 @@ function __autoload($class)
             break;
             
             // create virtual class for models
-            case ( model::table_exits( pluralize($class) ) ):
+            case ( model::table_exists( pluralize($class) ) ):
                 eval('class ' . singularize($class) . ' extends model { private $_is_virtual = true; }');
             break;
             

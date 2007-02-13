@@ -1201,24 +1201,24 @@ class model implements Iterator
 
     /*
 
-	Function:	
-		Check if a table exits in the current database.
+	Function: table_exists
+		Check if a table exists in the current database.
 
 	Returns:
 		bool
 
 	*/
 
-    public function table_exits($table_name)
+    public function table_exists($table_name)
     {
         $db_obj = self::establish_connection( self::_get_connection_properties() );
-        return $db_obj->table_exits($table_name);
+        return $db_obj->table_exists($table_name);
     }
 
     /*
 
-	Function:	
-		Check if a table exits in the current database.
+	Function: all_tables
+		Get all the tables in a database.
 
 	Returns:
 		bool
@@ -1233,8 +1233,8 @@ class model implements Iterator
 
     /*
 
-	Function:	
-		Check if a table exits in the current database.
+	Function: field_breakdown
+		Metadata about the fields in a table.
 
 	Returns:
 		bool
@@ -1249,8 +1249,8 @@ class model implements Iterator
 
     /*
 
-	Function:	
-		Check if a table exits in the current database.
+	Function: key_breakdown
+		Metadata about the fields in a table.
 
 	Returns:
 		bool
@@ -1610,12 +1610,37 @@ class model implements Iterator
 					
 					break;
 				case 'has_many_link':
-				/*	$args['selected'] = $model_obj->get_table_name().'.*';
-					$args['from'] = $model_obj->get_table_name().', ' . $this->links[$name]['link_table'];
-					$args['conditions'] = $this->links[$name]['other_table_id'] . ' = ' . $model_obj->get_table_name(). '.id and '.$this->links[$name]['this_table_id'].' = ' . $this->get_id() .' ' . $args['conditions'];
-					
+
+					if ($this->table_exists("{$name}_{$this->_table_name}")) {
+
+						$this->_links[$name]['link_table_name']	= "{$name}_{$this->_table_name}";
+						$this->_links[$name]['this_table_id']	= singularize($this->_table_name).'_id';
+						$this->_links[$name]['other_table_id']	= singularize($name).'_id';
+
+						if ($args['where']) {
+							$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['this_table_id']} = {$this->id} AND ({$args['where']})";
+						} else {
+							$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['this_table_id']} = {$this->id}";
+						}
+
+					} else {
+
+						$this->_links[$name]['link_table_name']	= "{$this->_table_name}_{$name}";
+						$this->_links[$name]['this_table_id']	= singularize($name).'_id';
+						$this->_links[$name]['other_table_id']	= singularize($this->_table_name).'_id';
+
+						if ($args['where']) {
+							$args['where'] = "{$this->_links[$name]['this_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['other_table_id']} = {$this->id} AND ({$args['where']})";
+						} else {
+							$args['where'] = "{$this->_links[$name]['this_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['other_table_id']} = {$this->id}";
+						}
+
+					}
+
+					$args['from'] = "{$this->_links[$name]['link_table_name']}, {$name}";
+
 					$model_obj->find($args);
-				*/
+				  
 					break;
 				case 'has_one':
 					if ($args['where']) {

@@ -1,14 +1,26 @@
 <?php
 /*
-
-Script: framework
+	
+	Script: framework
+	
+	Contains all creovel specific functions.
 
 */
 
 /*
 
-Function: __autoload
-	Autoload Routine
+	Function: __autoload
+	
+	Autoload routine for controllers, interfaces, adapters, services, vendor, mailer and models.
+	Also creates "Virtual Model" if table exists (useful for basic model functions and prototyping).
+	
+	Paramerters:
+	
+		class = String of the class name not yet defined.
+		
+	See Also:
+	
+		<link to virtual model documentation>
 
 */
 
@@ -62,7 +74,7 @@ function __autoload($class)
 					break;
 				}
 			}
-			
+	
 	}
 
 	try {
@@ -90,21 +102,24 @@ function __autoload($class)
 		
 		// add to errors
 		$_ENV['error']->add($e->getMessage(), $e);
-		
+	
 	}
 	
 }
 
 /*
 
-Function: get_events
+	Function: get_events
+	
 	Returns the framework events (CONTORLLER & ACTION).
 
-Parameters:
-	event_to_return - optional name of event to return
-
-Return:
-	array
+	Parameters:
+	
+		event_to_return - Optional name of event to return.
+		
+	Return:
+	
+		Array of events or string of event.
 
 */ 
 
@@ -115,11 +130,13 @@ function get_events($event_to_return = null)
 
 /*
 
-Function: get_controller
-	Returns the current CONTORLLER.
+	Function: get_controller
+	
+	Returns the current CONTORLLER. Wrapper to <get_events>.
 
-Returns:
-	string
+	Returns:
+	
+	String of the current controller.
 
 */
 
@@ -130,11 +147,13 @@ function get_controller()
 
 /*
 
-Function: get_action
-	Returns the current ACTION.
+	Function: get_action
+	
+	Returns the current ACTION. Wrapper to <get_events>.
 
-Returns:
-	string
+	Returns:
+	
+	String of the current action.
 
 */
 
@@ -145,13 +164,17 @@ function get_action()
 
 /*
 
-Function: get_params
-	Returns the framework params.
+	Function: get_params
+	
+	Returns the framework params (ID, $_GET, $_POST, and $REQUEST).
 
-Parameters:
-	param_to_return - optional name of param to return
-Returns:
-	array
+	Parameters:
+	
+		param_to_return - Optional name of param to return.
+		
+	Return:
+	
+		Array of events or string of event.
 
 */
 
@@ -162,11 +185,13 @@ function get_params($param_to_return = null)
 
 /*
 
-Function:
-	Returns the framework version.
+	Function: get_version
+	
+	Returns the current version of the framework.
 
-Returns:
-	string
+	Returns:
+	
+	String of the version.
 
 */
 
@@ -177,11 +202,13 @@ function get_version()
 
 /*
 
-Function: get_release_date
-	Returns the framework release date.
+	Function: get_release_date
+	
+	Returns the current realse date of the framework.
 
-Returns:
-	string
+	Returns:
+	
+	String of the realse date.
 
 */
 
@@ -192,14 +219,17 @@ function get_release_date()
 
 /*
 
-Function: flash_notice
-	Sets and unsets $_SESSION['notice'].
-
-Parameters:
-	message - optional
-
-Returns:
-	string or bool
+	Function: flash_notice
+	
+	Sets and unsets $_SESSION['notice']. Used by application notices.
+	
+	Parameters:
+	
+	message - Optional string to be displayed.
+	
+	Returns:
+	
+	String or bool.
 
 */
 
@@ -236,12 +266,14 @@ function flash_notice($message = null)
 
 /*
 
-Function: application_error
-	Stops the application and display an error message
-
-Parameters:
-	message - error message
-	thow_exception - optional
+	Function: application_error
+	
+	Stops the application and display an error message.
+	
+	Parameters:
+	
+		message - Error message.
+		thow_exception - Optional bool. If set to true displays additional debugging info on error.
 
 */
 
@@ -255,15 +287,18 @@ function application_error($message, $thow_exception = false)
 
 /*
 
-Function: get_files_from_dir
-	Gets a directories files in a directory by file type. Returns an associative array with the file_name as key and file_path as value.
-
-Parameters:
-	dir_path - required
-	file_type - optional default set to 'php'
-
-Returns:
-	object
+	Function: get_files_from_dir
+	
+	Gets a directories files in a directory by file type. Returns an associative array with the 
+	file_name as key and file_path as value.
+	
+	Parameters:
+		dir_path - required
+		file_type - optional default set to 'php'
+		
+	Returns:
+	
+		Array of files.
 
 */
 
@@ -283,11 +318,13 @@ function get_files_from_dir($dir_path, $file_type = 'php')
 
 /*
 
-Function: get_creovel_adapters
+	Function: get_creovel_adapters
+	
 	Returns an array of the adapters available to the framework.
-
-Returns:
-	array
+	
+	Returns:
+	
+	Array adapters.
 
 */	
 
@@ -298,11 +335,13 @@ function get_creovel_adapters()
 
 /*
 
-Function: get_creovel_services
+	Function: get_creovel_services
+	
 	Returns an array of the services available to the framework.
-
-Returns:
-	array
+	
+	Returns:
+	
+		Array of services.
 
 */	
 

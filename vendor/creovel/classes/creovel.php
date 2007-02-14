@@ -25,7 +25,7 @@ class creovel
 			events - Assoc. array of controller, action & id.
 			params - Assoc. array of params.
 			return_as_str - *Optional* Returns controller as string.
-			
+		
 		Returns:
 		
 			<controller> object or string.
@@ -93,7 +93,7 @@ class creovel
 		if (isset($_ENV['routes'][$uri[0]])) header('Location: '.$_ENV['routes'][$uri[0]]);
 
 		// get event args from uri
-		$args = explode(DS, substr($uri[0], 1));
+		$args = explode('/', substr($uri[0], 1));
 		
 		// check/set nested controllers
 		$path = '';
@@ -113,7 +113,7 @@ class creovel
 					if ( $arg == $events['controller'] ) {
 						$events['action'] = $args[ $key + 1 ];
 						$id = $args[ $key + 2 ];
-						break;					
+						break;
 					}
 				}
 			break;
@@ -156,7 +156,7 @@ class creovel
 		Returns:
 		
 			Array.
-			
+	
 	*/
 
 	public function get_params($param_to_return = null)
@@ -165,26 +165,26 @@ class creovel
 		$params = ( $id = self::get_events('id') ) ? array('id'=>$id) : array();
 			
 		$requests = array($_GET, $_POST);
-	
+		
 		// add each request add keys & values to $params
 		foreach ( $requests as $request ) {
-	
+			
 			if ( count($request) === 0 ) continue;
 			foreach ( $request as $field => $value ) $params[$field] = $value;
-	
+		
 		}
-	
+		
 		// $GLOBALS['HTTP_RAW_POST_DATA'] used for observer ajax calls
 		// Note: HTTP_RAW_POST_DATA must set to on in php.ini
 		if ( $GLOBALS['HTTP_RAW_POST_DATA'] ) {
 			$params['raw_post'] = str_replace('&_=', '', $GLOBALS['HTTP_RAW_POST_DATA']);
 		}
-	
+		
 		// unset blank vaiable set by $GLOBALS['HTTP_RAW_POST_DATA']
 		unset($params['_']);
-	
+		
 		return ( $param_to_return ? $params[$param_to_return] : $params );
-	 
+	
 	}
 
 	// Section: Private
@@ -198,7 +198,7 @@ class creovel
 		Parameters:	
 		
 			controller_path - Server path of controller to include.
-		
+	
 	*/
 
 	private function _include_controller($controller_path)
@@ -207,13 +207,13 @@ class creovel
 		$controllers = array_merge(array('application'), explode(DS, $controller_path));
 		
 		$path = '';
-
+		
 		foreach ( $controllers as $controller ) {
 		
 			$class = $controller . '_controller';
 			$controller_path = CONTROLLERS_PATH . $path . $class . '.php';
 			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
-	
+			
 			try {
 			
 				if ( $class == '_controller' ) {
@@ -226,7 +226,7 @@ class creovel
 					$controller_path = str_replace($class . '.php', '', $controller_path);
 					throw new Exception("Controller '{$class}' not found in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
 				}
-				
+			
 			} catch ( Exception $e ) {
 			
 				// add to errors

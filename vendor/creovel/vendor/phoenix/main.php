@@ -6,15 +6,13 @@ define(LS, "/bin/ls ");
 define(RM, "/bin/rm ");
 define(SVN, "/usr/bin/svn ");
 
-class Phoenix
+class phoenix
 {
 	private $stdin;
 	private $stdout;
 	private $stderr;
 
-	private $lowCtrl = null;
-	private $interactive = false;
-
+	private $tasks;
 	private $config;
 	private $application_path;
 
@@ -24,9 +22,21 @@ class Phoenix
 		$this->stdout	= fopen('php://stdout', 'w');
 		$this->stderr	= fopen('php://stderr', 'w');
 
-		if (!$this->load_configuration(PHOENIX_CONFIG)) die("Unable to parse YAML Migration file.\n");
+		$this->config = new phoenix_configuration();
+		$this->tasks = new phoenix_tasks();
 
-		$this->application_path = "{$this->config['config']['path']}/{$this->config['config']['appname']}";
+		$this->application_path = "{$this->config->path}/{$this->config->appname}";
+		$this->config->application_path = $this->application_path;
+	}
+
+	public static function shell_exec($connection, $command)
+	{
+		$stream = ssh2_exec($connection, $command);
+		stream_set_blocking($stream, true);
+		while ($line = fgets($stream, 4096)) $out .= $line;
+		fclose($stream);
+
+		return $out;
 	}
 
 	public function main()
@@ -47,17 +57,17 @@ class Phoenix
 			{
 				case 'H':
 					$invalidSelection = false;
-					foreach ($this->config['servers'] as $name => $config) $this->halt($name, $config);
+					foreach ($this->config->servers as $name => $config) $this->halt($name, $config);
 					break;
 
 				case 'R':
 					$invalidSelection = false;
-					foreach ($this->config['servers'] as $name => $config) $this->release($name, $config);
+					foreach ($this->config->servers as $name => $config) $this->release($name, $config);
 					break;
 
 				case 'F':
 					$invalidSelection = false;
-					foreach ($this->config['servers'] as $name => $config) $this->fallback($name, $config);
+					foreach ($this->config->servers as $name => $config) $this->fallback($name, $config);
 					break;
 
 				case 'A':
@@ -72,21 +82,19 @@ class Phoenix
 		}
 	}
 
-	public function load_configuration($file)
-	{
-		$this->config = Spyc::YAMLLoad($file);
-		
-		return (!empty($this->config));
-	}
-
 	public function halt($name, $config)
 	{
 		$connection = $this->ssh_connect($config);
 
-		$stream = ssh2_exec($connection, RM."{$this->application_path}/current");
+		// Pre Halt Tasks
+		$this->tasks->pre_halt($connection, $this->config, $config);
 
-		$stream = ssh2_exec($connection, CD."{$this->application_path}");
-		$stream = ssh2_exec($connection, LN."halt current");
+		$this->user_exec($connection, RM."-f {$this->application_path}/current");
+		$this->user_exec($connection, CD."{$this->application_path}");
+		$this->user_exec($connection, LN."halt current");
+
+		// Post Halt Tasks
+		$this->tasks->post_halt($connection, $this->config, $config);
 
 		$this->stdout("Application Halted on {$name}");
 	}
@@ -97,14 +105,22 @@ class Phoenix
 
 		$release = $this->getInput('What branch/releases/trunk do you want to release?');
 
-		$stream = ssh2_exec($connection, "mkdir {$this->application_path}");
-		$stream = ssh2_exec($connection, "mkdir {$this->application_path}/releases");
-		$stream = ssh2_exec($connection, "mkdir {$this->application_path}/halt");
-		
-		$stream = ssh2_exec($connection, CD."{$this->application_path} && ".LN."releases/".strftime("%Y%m%d%H%M", time())." current");
+		$config['timestamp'] = strftime("%Y%m%d%H%M%S", time());
 
-		if (isset($this->config['config']['svnusername'])) $auth = " --username={$this->config['config']['svnusername']} --password={$this->config['config']['svnpassword']} ";
-		$stream = ssh2_exec($connection, SVN." export {$auth} {$this->config['config']['svnurl']}/{$release} {$this->application_path}/releases/".strftime("%Y%m%d%H%M", time()));
+		// Pre Release Tasks
+		$this->tasks->pre_release($connection, $this->config, $config);
+
+		$this->shell_exec($connection, "mkdir -p {$this->application_path}");
+		$this->shell_exec($connection, "mkdir -p {$this->application_path}/releases");
+		$this->shell_exec($connection, "mkdir -p {$this->application_path}/halt");
+
+		if (isset($this->config->svnusername)) $auth = " --username={$this->config->svnusername} --password={$this->config->svnpassword}";
+		$this->shell_exec($connection, SVN." export {$auth} {$this->config->svnurl}/{$release} {$this->application_path}/releases/{$config['timestamp']}");
+		$this->shell_exec($connection, RM."-f {$this->application_path}/current");
+		$this->shell_exec($connection, CD."{$this->application_path} && ".LN."releases/{$config['timestamp']} current");
+
+		// Post Release Tasks
+		$this->tasks->post_release($connection, $this->config, $config);
 
 		$this->stdout("Application Released on {$name}");
 	}
@@ -114,6 +130,9 @@ class Phoenix
 		$connection = $this->ssh_connect($config);
 
 		$stream = ssh2_exec($connection, LS."-r {$this->application_path}/releases");
+
+		// Pre Fallback Tasks
+		$this->tasks->pre_release($connection, $this->config, $config);
 
 		stream_set_blocking($stream, true);
 		$releases = explode("\n", fread($stream, 4096));
@@ -126,6 +145,9 @@ class Phoenix
 			$stream = ssh2_exec($connection, CD."{$this->application_path}");
 			$stream = ssh2_exec($connection, LN."releases/".$releases[1]." current");
 		}
+
+		// Post Fallback Tasks
+		$this->tasks->post_release($connection, $this->config, $config);
 
 		$this->stdout("Application Reset to the Last Version on {$name}");
 	}

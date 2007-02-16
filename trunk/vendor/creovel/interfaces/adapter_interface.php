@@ -117,6 +117,14 @@ interface adapter_interface
 	 * @return int
 	 */	
 	public function get_insert_id();
-	
+
+	/**
+	 * Returns the properly formated transaction command from the action passed.
+	 *
+	 * @access public
+	 * @return string
+	 */	
+	public function transaction_string($action);
 }
+
 ?>

@@ -57,6 +57,8 @@ class model implements Iterator
 	private $_offset;
 	private $_query_str;
 
+	private $child_objects;
+
 	// Section: Public
 	
 	/*
@@ -82,6 +84,8 @@ class model implements Iterator
 		
 		$this->_set_table();
 		$this->_set_data($data);
+
+		$this->child_objects = array();
 	}
 	
 	/*
@@ -237,6 +241,8 @@ class model implements Iterator
 			$ret_val = $this->insert($this->values());
 			
 		}
+
+		foreach ($this->child_objects as $obj) $obj->save();
 		
 		if ( $ret_val ) {
 			$this->after_save();
@@ -865,7 +871,7 @@ class model implements Iterator
 
 	*/
 
-	public function __call($method, $arguments)
+	public function &__call($method, $arguments)
 	{
 	
 		try {
@@ -1055,6 +1061,23 @@ class model implements Iterator
 					return check_box($this->_class(). '[' . $regs[1] . '][]', $value, $html_options, $this->$function(), $text);
 				break;
 				
+				case preg_match('/^new_(.+)$/', $method, $regs):
+					$object = new $regs[1]();
+					$foreign_key = singularize($this->_table_name)."_id";
+					$object->$foreign_key = $this->id;
+					$this->child_objects[] = $object;
+					return $this->child_objects[count($this->child_objects) - 1];
+					break;
+
+				case preg_match('/^add_(.+)$/', $method, $regs):
+					$foreign_key = singularize($this->_table_name)."_id";
+
+					foreach ($arguments as $object)
+					{
+						$object->$foreign_key = $this->id;
+						$this->child_objects[] = $object;
+					}
+				break;
 	
 				default:
 					throw new Exception("Undefined method '{$method}' in <strong>".get_class($this)."</strong> model.");

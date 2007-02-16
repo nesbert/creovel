@@ -213,6 +213,22 @@ class sqlite3 implements adapter_interface
 		
 		return $keys;
 	}
+
+	public function transaction_string($action)
+	{
+		switch ($action)
+		{
+			case 'start':
+				return 'BEGIN TRANSACTION';
+				break;
+			case 'rollback':
+				return 'ROLLBACK TRANSACTION';
+				break;
+			case 'commit':
+				return 'COMMIT TRANSACTION';
+				break;
+		}
+	}
 	
 	private function handle_error($message)
 	{

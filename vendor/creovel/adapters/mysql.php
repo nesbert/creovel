@@ -210,6 +210,22 @@ class mysql implements adapter_interface
 		
 		return $keys;
 	}
+
+	public function transaction_string($action)
+	{
+		switch ($action)
+		{
+			case 'start':
+				return 'START TRANSACTION';
+				break;
+			case 'rollback':
+				return 'ROLLBACK';
+				break;
+			case 'commit':
+				return 'COMMIT';
+				break;
+		}
+	}
 	
 	private function get_mysql_error()
 	{

@@ -78,7 +78,7 @@ class model implements Iterator
 		$this->_select_query = $this->establish_connection($connection_properties);
 		$this->_action_query = $this->establish_connection($connection_properties);		
 		
-		if ($adapter) $this->_adpater = $adapter;
+		if ($adapter) $this->_adapter = $adapter;
 		
 		$this->_set_table();
 		$this->_set_data($data);
@@ -1338,8 +1338,22 @@ class model implements Iterator
 		$this->_links[$name]['linked_to'] = false;
 		$this->_links[$name]['object'] = false;
 	}
-	
 
+
+	public function transaction_start()
+	{
+		$this->query_action($this->_action_query->transaction_string('start'));
+	}
+
+	public function transaction_commit()
+	{
+		$this->query_action($this->_action_query->transaction_string('commit'));
+	}
+
+	public function transaction_rollback()
+	{
+		$this->query_action($this->_action_query->transaction_string('rollback'));
+	}
 
 	// Section: Private	
 

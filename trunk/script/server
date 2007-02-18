@@ -1,0 +1,23 @@
+#!/bin/sh
+
+PORT=$1
+
+cat > config/lighttpd.conf <<EOF
+server.port                		= $PORT
+
+server.modules              	= ( "mod_rewrite", "mod_redirect", "mod_access", "mod_cgi", "mod_accesslog" )
+
+server.document-root        	= "`pwd`/public/"
+accesslog.filename          	= "`pwd`/log/lighttpd.access.log"
+server.errorlog             	= "`pwd`/log/lighttpd.error.log"
+server.pid-file            		= "/tmp/$RANDOM.lighttpd.pid"
+server.error-handler-404		= "/dispatch.php"
+
+static-file.exclude-extensions 	= ( ".php" )
+cgi.assign                 		= ( ".php"  => "/usr/bin/php-cgi" )
+index-file.names            	= ( "index.php", "index.html", "index.htm", "default.htm" )
+
+url.rewrite						= ( "^/$" => "index.html", "^([^.]+)$" => "$1.html" )
+EOF
+
+/usr/bin/env lighttpd -D -f `pwd`/config/lighttpd.conf

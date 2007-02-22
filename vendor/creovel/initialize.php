@@ -53,4 +53,8 @@ if ($_ENV['sessions'])
 	session_start();
 }
 
+// Set environtment for command line interfaces.
+if ( $_SERVER['SCRIPT_NAME'] != '/dispatch.php' ) {
+	$_ENV['command_line'] = true;
+}
 ?>

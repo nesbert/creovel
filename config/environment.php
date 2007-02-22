@@ -48,6 +48,9 @@ $_ENV['routes']['error']['layout'] 			= 'default';
 // set session handler
 $_ENV['sessions'] = false; // false, true, 'table'
 
+// show source in debugger for all files
+$_ENV['view_source'] = false;
+
 // define application urls
 define(BASE_URL, 			'http'.( getenv('HTTPS') == 'on' ? 's' : '' ).'://'.getenv('HTTP_HOST'));
 define(CCS_URL,				BASE_URL.'/stylesheets/');

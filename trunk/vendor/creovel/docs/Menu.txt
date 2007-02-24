@@ -34,6 +34,7 @@ Group: User Documentation  {
 
    File: Overview  (creovel/docs/user_documentation/overview.txt)
    File: Installation  (creovel/docs/user_documentation/install.txt)
+   File: Scripts  (creovel/docs/user_documentation/scripts.txt)
    }  # Group: User Documentation
 
 Group: Classes  {

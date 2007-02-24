@@ -3,13 +3,13 @@ Package: Scripts
 Section: document
 The document script will produce a documentation site just like the one your on now. It relies on Natural Docs being installed in your path.
 
-It takes one option, the documentation to produce. It can be either *app* or *creovel*. If left blank it defaults to creovel.
+It takes one option, the documentation to produce. It can be either *application* or *creovel*. If left blank it defaults to application.
 
 (start code)
-./script/document creovel
+./script/document
 (end)
 
-The docs will be put into doc/creovel or doc/app depending on what you choose.
+The docs will be put into doc/creovel or doc/application depending on what you choose.
 
 Remeber to ignore these files in your repository.
 

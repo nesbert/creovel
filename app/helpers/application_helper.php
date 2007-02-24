@@ -1,5 +1,10 @@
-<?php
+<?
+
 /*
- * Global controller functions here.
- */
+
+Script: application_helper
+	Global controller functions here.
+ 
+*/
+
 ?>

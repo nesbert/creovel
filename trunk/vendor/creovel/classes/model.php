@@ -463,7 +463,8 @@ class model implements Iterator
 		$ret = array();
 		
 		foreach ( $this->_fields as $field => $obj ) {
-			$ret[$field] = $obj->value;
+			$function = 'get_'.$field;
+			$ret[$field] = $this->$function();
 		}
 		
 		return $ret;
@@ -884,7 +885,12 @@ class model implements Iterator
 						
 						if ( is_string($this->_fields->$regs[1]->value) ) {
 	
-							return stripslashes($this->_fields->$regs[1]->value);
+							$data = unserialize($this->_fields->$regs[1]->value);
+							if ($data !== false) {
+								return $data;
+							} else {
+								return stripslashes($this->_fields->$regs[1]->value);
+							}
 	
 						} else {
 	

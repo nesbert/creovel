@@ -144,6 +144,7 @@ class controller
 		$options['layout'] = $this->layout;
 		$options['render'] = $this->render;
 		$options['text'] = $this->render_text;
+		$options['to_str'] = $return_as_str;
 		return $this->render($options);
 	}
 	
@@ -198,7 +199,7 @@ class controller
 			$return_as_str = true;
 			unset($options['to_str']);
 		}
-		
+
 		// set view path
 		$view_path = $this->_get_view_path($view, $controller);
 		
@@ -224,6 +225,7 @@ class controller
 				if ( count($options) ) foreach ( $options as $key => $values ) $$key = $values;
 				
 				if ( $return_as_str ) {
+					$options['layout'] = false;
 					return view::_get_view($view_path, $this->_get_layout_path($layout), $options);
 				} else {
 					// include partial

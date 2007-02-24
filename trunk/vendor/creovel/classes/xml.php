@@ -1,6 +1,6 @@
 <?php
 /*
-
+zz
 Class: xml
 	XML class to rule all.
 

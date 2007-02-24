@@ -6,7 +6,7 @@
 	This file includes all core libraries and intializes framework.
 
 */
- 
+
 // Include base helpers library.
 require_once 'constants/common.php';
 
@@ -35,6 +35,9 @@ require_once 'classes/unittest.php';
 require_once 'classes/validation.php';
 require_once 'classes/view.php';
 require_once 'classes/xml.php';
+
+// Include environment specific file
+require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
 
 // Set error object
 $_ENV['error'] = new error('application');

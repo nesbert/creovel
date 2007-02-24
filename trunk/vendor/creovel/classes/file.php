@@ -1,30 +1,35 @@
 <?php
 /*
 
-Class: file
+	Class: file
+	
 	File managing class.
+	
+	Todo:
+	
+		* Advance file munipulation.
+		* File editing within the class.
 
 */
 
 class file
 {
-	private $filename;
-	private $save_dir;
-	private $temp_dir;
-	private $max_size;
 
 	// Section: Public
 	
 	/*
 	
-	Function: extension
+		Function: extension
+		
 		Returns just the extension of a file.
-
-	Parameters:
-		path - file path
-
-	Returns:
-		string
+		
+		Parameters:
+		
+			path - String of file path.
+		
+		Returns:
+		
+			String of the file extension.
 
 	*/
 
@@ -34,17 +39,20 @@ class file
 	}
 
 	/*
-
-	Function: type
-		Gets the mime type of a file.
-
-	Parameters:	
-		path - file path
-
-	Returns:
-		string	
-
-	*/	
+	
+		Function: type
+		
+			Gets the mime type of a file.
+			
+		Parameters:
+		
+			path - String of file path.
+			
+		Returns:
+		
+			String of the file type.
+	
+	*/
 
 	public function type($path)
 	{
@@ -52,17 +60,20 @@ class file
 	}
 
 	/*
-
-	Function: size
+	
+		Function: size
+		
 		Gets the size of a file.
-
-	Parameters:	
-		path - file path
-
-	Returns:
-		int	
-
-	*/	
+		
+		Parameters:
+		
+			path - String of file path.
+			
+		Returns:
+	
+			Integer
+	
+	*/
 	
 	public function size($path)
 	{
@@ -70,17 +81,20 @@ class file
 	}
 
 	/*
-
-	Function: info
+	
+		Function: info
+		
 		Gets an array of associated information of a file.
-
-	Parameters:	
-		path - file path
-
-	Returns:
-		array	
-
-	*/	
+		
+		Parameters:
+		
+			path - String of file path.
+			
+		Returns:
+		
+			Array
+	
+	*/
 
 	public function info($path)
 	{
@@ -91,17 +105,20 @@ class file
 	}
 
 	/*
-
-	Function: copy
-		Copies a file.
-
-	Parameters:	
-		filename - original file path
-		destination - new file path
-
-	Returns:
-		bool	
-
+	
+		Function: copy
+		
+		Copies a file to a new location.
+		
+		Parameters:
+		
+			filename - String of original file path.
+			destination - String of new file path.
+			
+		Returns:
+		
+			Bool
+	
 	*/	
 
 	public function copy($filename, $destination)
@@ -110,18 +127,21 @@ class file
 	}
 
 	/*
-
-	Function: move
-		Moves a file.
-
-	Parameters:	
-		filename - original file path
-		destination - new file path
-
-	Returns:
-		bool	
-
-	*/	
+	
+		Function: move
+		
+		Moves a file to a new location.
+		
+		Parameters:
+		
+			filename - String of original file path.
+			destination - String of new file path.
+			
+		Returns:
+		
+		Bool
+	
+	*/
 
 	public function move($filename, $destination)
 	{
@@ -129,16 +149,19 @@ class file
 	}
 
 	/*
-
-	Function: delete
-		Deletes a file
-
-	Parameters:	
-		path - file path
+	
+		Function: delete
+		
+		Deletes a file.
+		
+		Parameters:
+		
+			path - String of file path.
 
 	Returns:
-		bool	
-
+	
+		Bool
+	
 	*/	
 
 	public function delete($path)
@@ -146,5 +169,17 @@ class file
 		return @unlink($path);
 	}
 	
+	// Section: Private
+	
+	/*
+		Property: filename
+		
+		String path of the file
+	*/
+	private $filename;
+	private $save_dir;
+	private $temp_dir;
+	private $max_size;
+
 }
 ?>

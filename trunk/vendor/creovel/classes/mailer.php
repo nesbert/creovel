@@ -1,17 +1,23 @@
 <?php
 /*
 
-Class: mailer
-
-Todo:
-	* auto-load attachments 
-	* smtp support
-	* receiving emails
+	Class: mailer
+	
+	A email class to handle sending of emails in TEXT and HTML format.
+	
+	Todos:
+	
+		* auto-load attachments
+		* smtp support
+		* receiving emails
 
 */
 
 class mailer
 {
+	
+	// Section: Public
+	
 	public $delivery_method = 'sendmail';
 	public $bcc;
 	public $cc;
@@ -26,18 +32,6 @@ class mailer
 	public $text;
 	public $html;
 
-	private $_attachments;
-	private $_content;
-	private $_content_type = 'text/plain';
-	private $_content_transfer_encoding = '7bit';
-	private $_mailer_name;
-	private $_message_boundary;
-	private $_mime_boundary;
-	private $_header;
-	
-
-	// Section: Public	
-	
 	/*
 
 	Function: __construct		
@@ -226,6 +220,15 @@ class mailer
 
 	// Section: Private	
 	
+	private $_attachments;
+	private $_content;
+	private $_content_type = 'text/plain';
+	private $_content_transfer_encoding = '7bit';
+	private $_mailer_name;
+	private $_message_boundary;
+	private $_mime_boundary;
+	private $_header;
+
 	/*
 	
 	Function: _cal

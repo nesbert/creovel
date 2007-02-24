@@ -34,9 +34,6 @@ class creovel
 
 	public function run($events = null, $params = null, $return_as_str = false)
 	{
-		// set-up environment
-		require_once( CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php' );
-		
 		// set event and params
 		$events = $events ? $events : self::get_events();
 		$params = $params ? $params : self::get_params();

@@ -219,13 +219,14 @@ function get_release_date()
 
 /*
 
-	Function: flash_notice
+	Function: flash_message
 	
-	Sets and unsets $_SESSION['notice']. Used by application notices.
+	Sets and unsets $_SESSION['flash']. Used by application notices.
 	
 	Parameters:
 	
 	message - Optional string to be displayed.
+	type - Type of notice passed
 	
 	Returns:
 	
@@ -233,25 +234,25 @@ function get_release_date()
 
 */
 
-function flash_notice($message = null)
+function flash_message($message = null, $type = 'notice')
 {
-
-	if ( $message || $_SESSION['notice']['message'] ) {
+	if ( $message || $_SESSION['flash']['message'] ) {
 
 		if ( $message ) {
 		
-			$_SESSION['notice']['message'] = $message;
-			$_SESSION['notice']['checked'] = 'no';
+			$_SESSION['flash']['message'] = $message;
+			$_SESSION['flash']['type'] = $type;
+			$_SESSION['flash']['checked'] = 'no';
 		
-		} elseif ( $_SESSION['notice']['checked'] == 'no' ) {
+		} elseif ( $_SESSION['flash']['checked'] == 'no' ) {
 		
-			$_SESSION['notice']['checked'] = 'yes';	
+			$_SESSION['flash']['checked'] = 'yes';	
 			return true;
 		
 		} else {
 		
-			$message = $_SESSION['notice']['message'];
-			unset($_SESSION['notice']);
+			$message = $_SESSION['flash']['message'];
+			unset($_SESSION['flash']);
 			return $message;
 			
 		}
@@ -261,7 +262,75 @@ function flash_notice($message = null)
 		return false;
 	
 	}
+}
 
+/*
+
+Function: flash_type
+	Returns the $_SESSION['flash']['type']
+
+Returns:
+	string
+
+*/
+
+function flash_type()
+{
+	return $_SESSION['flash']['type'];
+}
+
+/*
+
+Function: flash_warning
+	Alias for flash_message($message, 'warning')
+
+Parameters:
+	message - message for flash
+
+Returns:
+	string or bool
+
+*/
+
+function flash_notice($message = null)
+{
+	return flash_message($message, 'notice');
+}
+
+/*
+
+Function: flash_warning
+	Alias for flash_message($message, 'warning')
+
+Parameters:
+	message - message for flash
+
+Returns:
+	string or bool
+
+*/
+
+function flash_error($message = null)
+{
+	return flash_message($message, 'error');
+}
+
+/*
+
+Function: flash_warning
+	Alias for flash_message($message, 'warning')
+
+Parameters:
+	message - message for flash
+
+Returns:
+	string or bool
+
+*/
+
+function flash_warning($message = null)
+{
+	return flash_message($message, 'warning');
 }
 
 /*

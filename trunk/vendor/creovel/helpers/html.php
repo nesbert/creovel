@@ -45,7 +45,7 @@ function stylesheet_include_tag($url, $media = 'screen')
 	
 		foreach ( $url as $path ) {
 		
-			$str .= '<link rel="stylesheet" type="text/css" media="'.$media.'" href="'.CCS_URL.$path.'.css">'."\n";
+			$str .= '<link rel="stylesheet" type="text/css" media="'.$media.'" href="'.CSS_URL.$path.'.css">'."\n";
 		
 		}
 		

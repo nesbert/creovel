@@ -10,7 +10,7 @@ switch ($type)
 {
 	case 'model':
 		$file = fopen(dirname(__FILE__)."/../app/models/{$name}.php", 'w+');
-		fwrite($file, "<?\n\nclass {$name} extends model\n{\n}\n\n?>");
+		fwrite($file, "<?\n\n/*\n\nClass: {$name}\n\t{$name} Model\n\n*/\n\nclass {$name} extends model\n{\n}\n\n?>");
 		fclose($file);
 		break;
 
@@ -24,6 +24,7 @@ switch ($type)
 		{
 			$view_name = $_SERVER['argv'][$i];
 
+			$views .= "\n\t/*\n\n\tFunction: {$view_name}\n\t\t{$view_name} Email\n\n\t*/\n";
 			$views .= "\n\tpublic function {$view_name}()\n\t{\n\t}\n";
 
 			$view = fopen(dirname(__FILE__)."/../app/views/{$name}_mailer/{$view_name}.php", 'w+');
@@ -33,7 +34,7 @@ switch ($type)
 
 		if ($views == '') $views = "\n";
 
-		fwrite($file, "<?\n\nclass {$name}_mailer extends mailer\n{{$views}}\n\n?>");
+		fwrite($file, "<?\n\n/*\n\nClass: {$controller_name}\n\t{$controller_name} Controller\n\n*/\n\nclass {$name}_mailer extends mailer\n{{$views}}\n\n?>");
 		fclose($file);
 		break;
 
@@ -56,6 +57,7 @@ switch ($type)
 		{
 			$view_name = $_SERVER['argv'][$i];
 
+			$views .= "\n\t/*\n\n\tFunction: {$view_name}\n\t\t{$view_name} Action\n\n\t*/\n";
 			$views .= "\n\tpublic function {$view_name}()\n\t{\n\t}\n";
 
 			$view = fopen(dirname(__FILE__)."/../app/views/{$name}/{$view_name}.php", 'w+');
@@ -65,7 +67,7 @@ switch ($type)
 
 		if ($views == '') $views = "\n";
 
-		fwrite($file, "<?\n\nclass {$controller_name}_controller extends application_controller\n{{$views}}\n\n?>");
+		fwrite($file, "<?\n\n/*\n\nClass: {$controller_name}\n\t{$controller_name} Controller\n\n*/\n\nclass {$controller_name}_controller extends application_controller\n{{$views}}\n\n?>");
 		fclose($file);
 		break;
 }

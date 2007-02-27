@@ -1,30 +1,80 @@
 <?php
 /*
 
-Class: rss
-	RSS class to handle news feeds.
-	http://www.rssboard.org/rss-specification
-
-Todo:
-	* (Done on 10/16/2006) need a write a base XML class (builder, parser) add support for RSS 0.91, 0.92 and x2.0x versions
-	* (Done on 10/19/2006) right own RSS parser lastRSS does not handle complex feeds
-	* Use XML classes to build feed
-	* Add caching
-
-Implements:
-	Iterator
+	Class: rss
+	
+	RSS class to handle news feeds (http://www.rssboard.org/rss-specification).
+	
+	Todo:
+	
+		* (Done on 10/16/2006) need a write a base XML class (builder, parser) add support for RSS 0.91, 0.92 and x2.0x versions
+		* (Done on 10/19/2006) right own RSS parser lastRSS does not handle complex feeds
+		* Use XML classes to build feed
+		* Add caching
+		
+	Implements:
+	
+		Iterator
 
 */
 
 class rss implements Iterator
 {
 
-	public $encoding		= "utf-8";
-	public $version			= '2.0';
-	public $title			= "RSS Syndication Title"; // The name of the channel. It's how people refer to your service. If you have an HTML website that contains the same information as your RSS file, the title of your channel should be the same as the title of your website.
-	public $link			= BASE_URL; // The URL to the HTML website corresponding to the channel.
-	public $description		= "Description of your syndication.";
-	public $language		= "en-us"; // The language the channel is written in. This allows aggregators to group all Italian language sites, for example, on a single page. A list of allowable values for this element, as provided by Netscape, is here. You may also use values defined by the W3C(http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes).
+	// Section: Public
+	
+	/*
+		Property: encoding
+	
+		Content-Type encoding default set to 'utf-8'.
+	*/
+	
+	public $encoding = "utf-8";
+	
+	/*
+		Property: version
+		
+		RSS version default set to '2.0'.
+	*/
+	
+	public $version = '2.0';
+	
+	/*
+		Property: title
+	
+		The name of the channel. It's how people refer to your service. If you 
+		have an HTML website that contains the same information as your RSS file, 
+		the title of your channel should be the same as the title of your website.
+	*/
+	
+	public $title = "RSS Syndication Title";
+	
+	/*
+		Property: link
+		
+		The URL to the HTML website corresponding to the channel.
+	*/
+	
+	public $link = BASE_URL;
+	
+	/*
+		Property: description
+		
+		Description of your syndication.
+	*/
+	
+	public $description = "Description of your syndication.";
+	
+	/*
+		Property: language
+		
+		The language the channel is written in. This allows aggregators to group all
+		Italian language sites, for example, on a single page. A list of allowable
+		values for this element, as provided by Netscape, is here. You may also use
+		values defined by the W3C(http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes).
+	*/
+	
+	public $language = "en-us";
 	
 	/*
 	public $copyright		= ""; // Copyright notice for content in the channel.
@@ -44,22 +94,28 @@ class rss implements Iterator
 	public $skipDays		= ""; // A hint for aggregators telling them which days they can skip.
 	*/
 	
-	public $items_as_array	= false; // Return each item as an Array or Object.
-	public $items			= array(); // an array of items for this syndication.
+	/*
+		Property: items_as_array
+		
+		Return each item as an Array or Object.
+	*/
 	
-	private $xml;
+	public $items_as_array = false;
 	
 	/*
-			
-	Function: initialize
-		Description.
-
-	Parameters:	
-		var - required
-
-	Returns:
-		object
-
+		Property: items_as_array
+		
+		An array of items for this syndication.
+	*/
+	
+	public $items = array();
+	
+	/*
+	
+		Function: initialize
+		
+		Initialize class with XML class.
+		
 	*/
 
 	public function initialize()
@@ -70,12 +126,14 @@ class rss implements Iterator
 	
 	/*
 	
-	Function: load	
+		Function: load
+		
 		Loads RSS feed into class.
-
-	Parameters:
-		url - RSS url.	
-
+		
+		Parameters:
+		
+			url - RSS URL.
+	
 	*/
 
 	public function load($url)
@@ -89,7 +147,7 @@ class rss implements Iterator
 		switch ( $this->version = $this->xml->data->children->attributes->version )
 		{
 			case 2:
-				$this->map_rss20();
+				$this->_map_rss20();
 			break;
 			
 			default:
@@ -100,12 +158,14 @@ class rss implements Iterator
 	
 	/*
 	
-	Function: add_item
+		Function: add_item
+		
 		Add an item to $items property.
-
-	Parameters:	
-		data - required
-
+		
+		Parameters:
+		
+			data - Array of data.
+	
 	*/
 
 	public function add_item($data)
@@ -114,13 +174,15 @@ class rss implements Iterator
 	}
 	
 	/*
-
-	Function: create_file
-		Creates the file string.
-
-	Returns:
-		string
-
+	
+		Function: create_file
+		
+		Creates XML file string from the items loaded.
+		
+		Returns:
+		
+			String
+	
 	*/
 
 	public function create_file()
@@ -141,16 +203,19 @@ class rss implements Iterator
 	}
 
 	/*
-			
-	Function:	
+	
+		Function: item_str
+		
 		Create item XML string for one item.
-
-	Parameters:	
-		item - required
-
-	Returns:
-		string
-
+		
+		Parameters:	
+		
+			item - Array
+			
+		Returns:
+		
+			String
+	
 	*/
 
 	public function item_str($item)
@@ -210,13 +275,15 @@ class rss implements Iterator
 	
 	/*
 	
-	Function:
+		Function: xmlns_str
+		
 		Creates the XML file string.
-
-	Returns:	
-		string
-
-	 */
+		
+		Returns:
+		
+			String
+	
+	*/
 
 	public function xmlns_str()
 	{
@@ -229,18 +296,21 @@ class rss implements Iterator
 	}
 	
 	/*
-
-	Function:
+	
+		Function:
+		
 		Creates the XML tag string.
-
-	Parameters:	
-		tag - required
-		value - required
-		has_ending_tag - optinal
-
-	Returns:
-		string
-
+		
+		Parameters:
+		
+			tag - required
+			value - required
+			has_ending_tag - optinal
+			
+		Returns:
+		
+			String
+	
 	*/
 
 	public function tag($tag, $value, $has_ending_tag = true)
@@ -264,16 +334,19 @@ class rss implements Iterator
 	
 	/*
 	
-	Function: xmlentities
+		Function: xmlentities
+		
 		http://us3.php.net/manual/en/function.htmlentities.php#46785
-
-	Parameters:	
-		string - required
-		quote_style - required
-
-	Returns
-		string
-
+		
+		Parameters:	
+		
+			string - required
+			quote_style - required
+		
+		Returns:
+		
+			String
+	
 	*/
 
 	public function xmlentities($string, $quote_style=ENT_QUOTES)
@@ -291,9 +364,10 @@ class rss implements Iterator
 	}
 	
 	/*
-
-	Function: feed
-		Creates RSS feed.
+	
+		Function: feed
+		
+		Creates RSS feed and changes the header content-type.
 	
 	*/
 
@@ -335,15 +409,22 @@ class rss implements Iterator
 	}
 
 	// Section: Private
+
+	/*
+		Property: xml
+		XML object.
+	*/
+	private $xml;
 	
 	/*
-
-	Function: map_rss20	
+	
+		Function: _map_rss20
+		
 		Map XML data to RSS 2.0 structure.
-
+	
 	*/
 
-	private function map_rss20()
+	private function _map_rss20()
 	{
 		foreach ( $this->xml->data->children->children[0]->children as $element ) {
 			// load items else load properties
@@ -360,14 +441,14 @@ class rss implements Iterator
 						if ( $this->items_as_array ) {
 							$item->$property = (array) $item->$property;
 						}
-					} else {						
+					} else {
 						$item->$property = $elm->cdata;
-					}					
+					}
 				}
 				if ( $this->items_as_array ) {
 					$item = (array) $item;
 				}
-				// load item to class				
+				// load item to class
 				$this->add_item($item);
 			} else {
 				$property = $element->name;
@@ -375,6 +456,6 @@ class rss implements Iterator
 			}
 		}
 	}
-	
+
 }
 ?>

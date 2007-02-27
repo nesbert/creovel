@@ -193,7 +193,7 @@ class error
 				header("HTTP/1.0 404 Not Found");
 				die('$_ENV[\'view_source\'] must be set in your config file. For more information visit <a href="http://www.creovel.org">http://www.creovel.org</a>.');
 			}
-		} elseif ( $_ENV['command_line'] ) {
+		} else if ( $_ENV['command_line'] ) {
 			view::_show_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php');
 		} else {
 			view::_show_view(CREOVEL_PATH.'views'.DS.'application_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');

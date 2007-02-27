@@ -36,16 +36,16 @@ require_once 'classes/validation.php';
 require_once 'classes/view.php';
 require_once 'classes/xml.php';
 
-// Include environment specific file
+// Include environment specific file.
 require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
 
-// Set error object
+// Set error object.
 $_ENV['error'] = new error('application');
 
 // Session logic.
-if ($_ENV['sessions'])
-{
-	if ( $_ENV['sessions'] === 'table' ) {	
+if ($_ENV['sessions']) {
+	
+	if ( $_ENV['sessions'] === 'table' ) {
 		// include/create session db object
 		require_once 'classes/session.php';
 		$_session = new session();
@@ -54,14 +54,14 @@ if ($_ENV['sessions'])
 	}
 
 	// Fix for PHP 5.05
-	// http://us2.php.net/manual/en/function.session-set-save-handler.php#61223 
+	// http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
 	register_shutdown_function('session_write_close');
 
 	session_start();
 }
 
 // Set environtment for command line interfaces.
-if ( $_SERVER['SCRIPT_NAME'] != '/dispatch.php' ) {
+if ( !strstr($_SERVER['SCRIPT_NAME'], 'dispatch.php') ) {
 	$_ENV['command_line'] = true;
 }
 ?>

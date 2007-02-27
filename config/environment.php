@@ -53,7 +53,7 @@ $_ENV['view_source'] = false;
 
 // define application urls
 define(BASE_URL, 			'http'.( getenv('HTTPS') == 'on' ? 's' : '' ).'://'.getenv('HTTP_HOST'));
-define(CCS_URL,				BASE_URL.'/stylesheets/');
+define(CSS_URL,				BASE_URL.'/stylesheets/');
 define(JAVASCRIPT_URL,		BASE_URL.'/javascripts/');
 
 // define application paths

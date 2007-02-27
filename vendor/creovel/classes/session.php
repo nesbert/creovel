@@ -1,11 +1,13 @@
 <?php
 /*
 
-Class: session
+	Class: session
+	
 	Table session class.
 
-Todo:
-	Storing class/object bug
+	Todo:
+	
+		* Storing class/object bug.
  
 */
 
@@ -14,19 +16,20 @@ class session extends model
 
 	/*
 	
-	Function: __construct
+		Function: __construct
+		
 		Constructor for session model
-
-	Paramters:	
-		mixed - connection arguments array
+		
+		Paramters:
+		
+		mixed - Array of connection arguments.
 
 	*/
 
 	public function __construct($args = null)
-	{	
-		
+	{
+	
 		if ($_ENV['sessions_table_name']) {
-
 			$this->_table_name = $_ENV['sessions_table_name'];
 		}
 		parent::__construct($args);
@@ -34,27 +37,31 @@ class session extends model
 
 	/*
 	
-	Function: clean_data
-		Cleans data
-
-	Parameters:	
-		data - optional
-
-	Returns:
-		mixed
-
+		Function: clean_data
+		
+		Cleans data.
+		
+		Parameters:	
+		
+			data - Mixed.
+			
+		Returns:
+		
+			Mixed
+	
 	*/
 
 	private function clean_data($data)
 	{
-		return addslashes($data);	
+		return addslashes($data);
 	}
 	
 	/*
 	
-	Function: table_check	
+		Function: table_check
+		
 		Create sessions table if it doesn't exists
-
+	
 	*/
 
 	private function table_check()
@@ -70,26 +77,29 @@ class session extends model
 	
 	/*
 	
-	Function: get_session_data	
-		Get session data
+		Function: get_session_data
+		
+		Get session data.
+		
+		Parameters:
+		
+			id - Optional session ID.
+		
+		Returns:
+		
+			Mixed.
 	
-	Parameters:
-		id - optional
-
-	Returns:
-		mixed
-
 	*/
 
 	public function get_session_data($id = false)
 	{
 		if ( !$id ) return false;
 		
-		$this->table_check();		
+		$this->table_check();
 		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."' AND expires > '".time()."'");
 		$this->next();
 
-		if ( $this->row_count() == 1 ) {			
+		if ( $this->row_count() == 1 ) {
 			return $this->get_data();
 		} else {
 			return "";
@@ -98,16 +108,19 @@ class session extends model
 	
 	/*
 	
-	Function: set_session_data	
-		Set session data
-
-	Parameters:	
-		id - session id
-		val - optional
-
-	Returns:
-		int
-
+		Function: set_session_data
+		
+		Sets session data.
+		
+		Parameters:	
+		
+			id - Session ID
+			val - Optional session value.
+			
+		Returns:
+		
+			Integer
+	
 	*/
 
 	public function set_session_data($id = false, $val = '')
@@ -120,15 +133,18 @@ class session extends model
 
 	/*
 	
-	Function: destroy_session_data
-		Delete session data
-
-	Parameters:
-		id - session id
+		Function: destroy_session_data
+		
+		Deletes session data.
+		
+		Parameters:
+		
+			id - Session ID.
+			
+		Returns:
+		
+			Boolean
 	
-	Returns:	
-		bool
-
 	*/
 
 	public function destroy_session_data($id)
@@ -138,15 +154,18 @@ class session extends model
 	}
 	
 	/*
-
-	Function: clean_sesssion_data
-		Delete all expired rows from session table
-
-	Parameters:
-		maxlifetime - session max life time			
-
-	Returns:
-		bool
+	
+		Function: clean_sesssion_data
+		
+		Delete all expired rows from session table.
+		
+		Parameters:
+		
+			maxlifetime - Session max life time.
+			
+		Returns:
+		
+			Boolean.
 
 	*/
 
@@ -158,8 +177,9 @@ class session extends model
 	
 	/*
 	
-	Function: load_sesesion_by_id
-		Load seesion by id
+		Function: load_sesesion_by_id
+		
+		Load seesion by id.
 
 	Parameters:	
 		id - session id
@@ -175,6 +195,6 @@ class session extends model
 		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
 		return $this->next();
 	}
-	
+
 }
 ?>

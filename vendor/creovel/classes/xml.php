@@ -1,30 +1,59 @@
 <?php
 /*
-zz
-Class: xml
+
+	Class: xml
+	
 	XML class to rule all.
 
-Todo:
-	* Validate CDATA
-	* might not need get_attributes()
-	* mapper -> xml to array -> easier interface/view
+	Todo:
+	
+		* Validate CDATA
+		* might not need get_attributes()
+		* mapper -> xml to array -> easier interface/view
 
 */
 
 class xml
 {
 
-	public $version			= '1.0'; // XML version
-	public $encoding		= 'ISO-8859-1'; // file encoding
-	public $data			= ''; // Data object of XML structure
-	
-	private $parser			= ''; // PHP xml_parser_create()
-
 	// Section: Public
+
+	/*
+		Property: version
+		
+		XML version
+	*/
+	
+	public $version = '1.0'; // XML version
+	
+	/*
+		Property: encoding
+		
+		File encoding.
+	*/
+	
+	public $encoding		= 'ISO-8859-1';
+	
+	/*
+		Property: data
+		
+		Data object of XML structure.
+	*/
+	
+	public $data = '';
+	
+	/*
+		Property: parser
+		
+		PHP xml_parser_create()
+	*/
+	
+	private $parser = '';
 	
 	/*
 	
-	Function:	
+		Function: __construct
+		
 		Initialize class and set data property.
 	
 	*/
@@ -36,16 +65,19 @@ class xml
 	}
 	
 	/*
-
-	Function: load	
+	
+		Function: load
+		
 		Load XML data from file path or load from array.
-
-	Parameters:
-		xml_file - required
-
-	Returns:
-		object
-
+		
+		Parameters:
+		
+			xml_file - required
+			
+		Returns:
+		
+			Object
+	
 	*/
 
 	public function load($xml_file)
@@ -68,14 +100,16 @@ class xml
 	}
 	
 	/*
-
-	Function: to_str
-		Create XML string from the $data currentlly loaded.
 	
-	Returns:
-		string
-
-	*/	
+		Function: to_str
+		
+		Create XML string from the $data currentlly loaded.
+		
+		Returns:
+		
+			String
+	
+	*/
 
 	public function to_str()
 	{
@@ -83,13 +117,15 @@ class xml
 	}
 	
 	/*
-
-	Function: file
-		Output XML file.
 	
-	Returns:
-		string
-
+		Function: file
+		
+		Output XML file.
+		
+		Returns:
+		
+			String
+	
 	*/	
 
 	public function file()
@@ -103,36 +139,39 @@ class xml
 	
 	/*
 	
-	Function: array_to_xml
+		Function: array_to_xml
+		
 		Convert an array or object to an XML string. Sample array structure:
 		
-	(start code)
-	element Object
-		(
-			[name] => rss
-			[cdata] => 
-			[attributes] => stdClass Object
-				(
-					[version] => 2.0
-					[xmlns:digg] => docs/diggrss/
-				)
+		(start code)
+		element Object
+			(
+				[name] => rss
+				[cdata] => 
+				[attributes] => stdClass Object
+					(
+						[version] => 2.0
+						[xmlns:digg] => docs/diggrss/
+					)
 
-			[children] => Array
-				(
-					[0] => element Object
-						( ... )
-					...
-				)
-		)
-	(end)
+				[children] => Array
+					(
+						[0] => element Object
+							( ... )
+						...
+					)
+			)
+		(end)
 		
-	Parameters:
-		data - required
-		level - optional element level
+		Parameters:
 		
-	Returns:
-		string
-
+			data - required
+			level - optional element level
+		
+		Returns:
+		
+			String
+	
 	*/
 	
 	public function array_to_xml($data, $level = 1)
@@ -165,15 +204,18 @@ class xml
 	
 	/*
 	
-	Function: cdata
+		Function: cdata
+		
 		 Create and validate CDATA.
 		
-	Parameters:
-		cdata - required
+		Parameters:
 		
-	Returns:
-		string
-
+			cdata - required
+			
+		Returns:
+		
+			String
+	
 	*/
 	
 	public function cdata($cdata)
@@ -186,16 +228,20 @@ class xml
 	
 	/*
 	
-	Function: _parse
-		XML parser that creates an object structured similar to the file. A modified version of efredricksen at gmail dot com's "one true parser".
+		Function: _parse
+		
+		XML parser that creates an object structured similar to the file.
+		A modified version of efredricksen at gmail dot com's "one true parser".
 		http://us2.php.net/manual/en/function.xml-parse-into-struct.php#66487
 		
-	Parameters:
-		xml - required XML data
+		Parameters:
 		
-	Returns:
-		object
-
+			xml - required XML data
+		
+		Returns:
+		
+			Object
+	
 	*/
 	
 	private function _parse($xml)
@@ -221,7 +267,7 @@ class xml
 				if ( $tag['attributes'] ) {
 					$elements[$index]->attributes = (object) $tag['attributes'];
 				}
-								
+				
 				if ( $tag['type'] == 'open' ) {  // push
 					$elements[$index]->children = array();
 					$stack[count($stack)] = &$elements;
@@ -242,15 +288,18 @@ class xml
 	
 	/*
 	
-	Function: _get_attributes
+		Function: _get_attributes
+		
 		Formats and converts attributes array to an object.
 		
-	Parameters:
-		attributes - required
+		Parameters:
 		
-	Returns:
-		object
-
+			attributes - required
+			
+		Returns:
+		
+			Object
+	
 	*/
 
 	private function _get_attributes($attributes)
@@ -264,15 +313,18 @@ class xml
 	
 	/*
 	
-	Function: _attribute_str
+		Function: _attribute_str
+		
 		Create attribute string.
 		
-	Parameters:
-		attributes - required
+		Parameters:
 		
-	Returns:
-		string
-
+			attributes - required
+		
+		Returns:
+		
+			String
+	
 	*/
 	
 	private function _attribute_str($attributes)
@@ -289,7 +341,8 @@ class xml
 
 /*
 
-Class: element
+	Class: element
+	
 	Element class used for XML class. Class used to store data.
 
 */

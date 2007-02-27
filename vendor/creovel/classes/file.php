@@ -117,7 +117,7 @@ class file
 			
 		Returns:
 		
-			Bool
+			Boolean
 	
 	*/	
 
@@ -139,7 +139,7 @@ class file
 			
 		Returns:
 		
-		Bool
+		Boolean
 	
 	*/
 
@@ -160,7 +160,7 @@ class file
 
 	Returns:
 	
-		Bool
+		Boolean
 	
 	*/	
 

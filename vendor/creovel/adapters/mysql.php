@@ -152,7 +152,7 @@ class mysql implements adapter_interface
 	
 	public function get_insert_id()
 	{
-		return @mysql_insert_id();	
+		return @mysql_insert_id();
 	}
 
 	public function all_tables()
@@ -243,6 +243,6 @@ class mysql implements adapter_interface
 		}
 		
 	}
-	
+
 }
 ?>

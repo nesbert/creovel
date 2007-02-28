@@ -208,18 +208,20 @@ class error
 
 	/*
 	
-	Function: email_errors
+		Function: email_errors
+		
 		Email application errors to the emails provided.
 
-	Parameters:
-		emails - array of email addresses
-		exception - exception object
+		Parameters:
+		
+			emails - array of email addresses
+			exception - exception object
 	
 	*/
 
 	private function email_errors($emails, $exception)
 	{
-		foreach ($emails as $email) mail($email, 'Application Error', $exception->getMessage());
+		foreach ($emails as $email) mail(trim($email), 'Application Error', $exception->getMessage());
 	}
 }
 

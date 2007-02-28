@@ -37,8 +37,8 @@
 			obj.style.display = '';
 		} else {
 			obj.style.display = 'none';
-		}	
-	}	
+		}
+	}
 	</script>
 	
 </head>

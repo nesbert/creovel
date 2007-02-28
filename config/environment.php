@@ -45,7 +45,8 @@ $_ENV['routes']['error']['controller'] 		= 'index';
 $_ENV['routes']['error']['action'] 			= 'error';
 $_ENV['routes']['error']['layout'] 			= 'default';
 
-$_ENV['email_errors'] = 'youremail@yourdomain.com';
+// email application errors when not in development mode
+$_ENV['email_errors'] = 'youremail@yourdomain.com'; // use commas for multiple email addresses
 
 // set session handler
 $_ENV['sessions'] = false; // false, true, 'table'

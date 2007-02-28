@@ -1,9 +1,7 @@
 <?php
-/**
- * Layout view used by creovel to display application information.
- *
- * @author Nesbert Hidalgo
- */
+/*
+	Layout view used by creovel to display application information.
+*/
 ?>
 <div class="block title">
 	<h1>creovel <?=get_version()?></h1>

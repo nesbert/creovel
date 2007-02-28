@@ -101,6 +101,7 @@ class file
 		$return = pathinfo($path);
 		$return['type'] = self::type($path);
 		$return['size'] = self::size($path);
+		$return['modified'] = date ("Y-m-d H:i:s", filemtime($path));
 		return $return;
 	}
 

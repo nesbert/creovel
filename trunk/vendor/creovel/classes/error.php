@@ -176,6 +176,10 @@ class error
 
 	private function _application_error($message, $exception = null)
 	{
+		if ( is_object($exception) ) $this->traces = $exception->getTrace();
+
+		if ($_ENV['mode'] != 'development' && isset($_ENV['email_errors'])) $this->email_errors(explode(',', $_ENV['email_errors']), $exception);
+
 		// check whether or not to show debugging errors
 		$this->_handle_error();
 		
@@ -183,8 +187,6 @@ class error
 		@ob_end_clean();
 		
 		$this->message = $message;
-		
-		if ( is_object($exception) ) $this->traces = $exception->getTrace();
 		
 		if ( isset($_GET['view_source']) ) {
 			if ( $_ENV['view_source'] && strstr($_GET['view_source'], BASE_PATH) ) {		
@@ -203,5 +205,22 @@ class error
 		
 		die;
 	}
+
+	/*
+	
+	Function: email_errors
+		Email application errors to the emails provided.
+
+	Parameters:
+		emails - array of email addresses
+		exception - exception object
+	
+	*/
+
+	private function email_errors($emails, $exception)
+	{
+		foreach ($emails as $email) mail($email, 'Application Error', $exception->getMessage());
+	}
 }
+
 ?>

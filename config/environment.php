@@ -45,6 +45,8 @@ $_ENV['routes']['error']['controller'] 		= 'index';
 $_ENV['routes']['error']['action'] 			= 'error';
 $_ENV['routes']['error']['layout'] 			= 'default';
 
+$_ENV['email_errors'] = 'youremail@yourdomain.com';
+
 // set session handler
 $_ENV['sessions'] = false; // false, true, 'table'
 

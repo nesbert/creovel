@@ -1039,7 +1039,29 @@ if ( GBrowserIsCompatible() ) {
 		}	
 	}
 	
+	/*
+	
+		Function: open_window
+		
+		Open and information window for a marker.
+		
+		Parameters:
+		
+			name - Strind name of the marker.
+			
+		Returns:
+		
+			String of javascript code to control map.
+	
+	*/
+	
+	public function open_window($name)
+	{
+		return "{$this->id}.GMap.openWindow(map.Markers.{$name});";
+	}
+	
 	// Section: Private
+	
 	/*
 		Property: key
 		

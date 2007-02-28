@@ -1,9 +1,7 @@
 <?php
-/**
- * Layout view used by creovel to display application information.
- *
- * @author Nesbert Hidalgo
- */
+/*
+	Layout view used by creovel to display application error information.
+*/
 ?>
 <h1 class="top">Application Error</h1>
 <p class="top"><?=$this->message?></p>

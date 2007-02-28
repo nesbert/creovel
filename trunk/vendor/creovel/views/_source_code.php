@@ -1,9 +1,7 @@
 <?php
-/**
- * View used by creovel to page source.
- *
- * @author Nesbert Hidalgo
- */
+/*
+	View used by Creovel to page source.
+*/
 ?>
 <div class="code" id="source_<?=$trace_count?>" style="display:<?=( isset($_GET['view_source']) ? 'block' : 'none' )?>;">
 	<table cellspacing="0" class="source">

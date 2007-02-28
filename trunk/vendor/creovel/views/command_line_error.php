@@ -1,10 +1,12 @@
-<?
+<?php
+/*
+	Layout view used by creovel to display application error information for command line interfaces.
+*/
 
 echo "------------------------------------------------------------------------------\n";
 echo "Application Error\n";
 echo "------------------------------------------------------------------------------\n";
 echo wordwrap_line($this->message, 80)."\n\n";
-
 
 if (count($this->traces))
 {
@@ -29,5 +31,4 @@ if (count($this->traces))
 		$trace_count++;
 	}
 }
-
 ?>

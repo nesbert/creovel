@@ -9,8 +9,8 @@
 
 class creovel
 {
-	const VERSION = '0.02';
-	const RELEASE_DATE = 'Feb 02 2007 02:00:00';
+	const VERSION = '0.03';
+	const RELEASE_DATE = 'Feb 27 2007 21:32:55';
 	
 	// Section: Public
 	

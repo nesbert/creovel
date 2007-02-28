@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?
+
+require_once dirname(__FILE__).'/../config/environment.php';
+require_once dirname(__FILE__).'/../vendor/creovel/vendor/migrations/migrate.php';
+require_once dirname(__FILE__).'/../vendor/creovel/vendor/migrations/schema_info.php';
+require_once dirname(__FILE__).'/../vendor/creovel/vendor/migrations/spyc.php';
+
+define(MIGRATIONS_PATH, dirname(__FILE__).'/../db/migrations/');
+
+$migrate = new Migrate();
+$migrate->main();
+
+?>

@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?
+
+define(CREOVEL_PATH, dirname(dirname(__FILE__))."/vendor/creovel/");
+
+echo "Freezing Creovel to the Newest Version ...\n";
+
+// Remove Old and Check Out Newest Version
+exec("rm -Rfv ".CREOVEL_PATH);
+echo exec("/usr/bin/env svn export http://creovel.googlecode.com/svn/trunk/vendor/creovel/ ".CREOVEL_PATH)."\n";
+echo exec("/usr/bin/env svn export http://creovel.googlecode.com/svn/trunk/public/dispatch.php public/dispatch.php --force")."\n";
+echo exec("/usr/bin/env svn export http://creovel.googlecode.com/svn/trunk/config/environment.php config/environment.new.php --force")."\n";
+
+exec('rm -Rfv script/document');
+exec('rm -Rfv script/freeze');
+exec('rm -Rfv script/generate');
+exec('rm -Rfv script/migrate');
+exec('rm -Rfv script/phoenix');
+
+echo exec("/usr/bin/env svn export http://creovel.googlecode.com/svn/trunk/script/document script/document --force")."\n";
+echo exec("/usr/bin/env svn export http://creovel.googlecode.com/svn/trunk/script/freeze script/freese --force")."\n";
+echo exec("/usr/bin/env svn export http://creovel.googlecode.com/svn/trunk/script/generate script/generate --force")."\n";
+echo exec("/usr/bin/env svn export http://creovel.googlecode.com/svn/trunk/script/migrate script/migrate --force")."\n";
+echo exec("/usr/bin/env svn export http://creovel.googlecode.com/svn/trunk/script/phoenix script/phoenix --force")."\n";
+
+echo "Creovel Successfully Updated!\n";
+
+?>

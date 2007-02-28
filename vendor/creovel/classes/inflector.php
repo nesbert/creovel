@@ -34,7 +34,22 @@ class inflector
     {
 		$plural = array
 		(
+			'/(matr)ix$/i' => '\1ices',
+			'/(octop|vir)us$/i' => '\1i',
+			'/([m|l])ouse/i' => '\1ice',
+			'/(tomato)$/i' => '\1es',
+			'/(h)$/i' => '\1es',
+			'/(ay)$/i' => '\1s',
+			'/y$/i' => '\1ies',
+			'/^(ox)/i' => '\1en',
+			'/(ex)$/i' => 'ices',
+			'/(x)$/i' => '\1es',
+			'/(ss)$/i' => '\1es',
+			'/(us)$/i' => '\1es',
+			'/(sis)$/i' => 'ses',
+			'/(f|fe)$/i' => 'ves',
 			'/(n)ews$/i' => '\1ews',
+			'/ium$/i' => '\1ia',
 			'/([ti])a$/i' => '\1um',
 			'/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i' => '\1\2sis',
 			'/(^analy)ses$/i' => '\1sis',
@@ -46,22 +61,21 @@ class inflector
 			'/(s)eries$/i' => '\1eries',
 			'/(m)ovies$/i' => '\1ovie',
 			'/(x|ch|ss|sh)es$/i' => '\1',
-			'/([m|l])ice$/i' => '\1ouse',
 			'/(bus)es$/i' => '\1',
+			'/(lo)$/i' => '\1es',
 			'/(o)es$/i' => '\1',
 			'/(shoe)s$/i' => '\1',
-			'/(cris|ax|test)es$/i' => '\1is',
-			'/(octop|vir)i$/i' => '\1us',
-			'/(alias|status)es$/i' => '\1',
-			'/^(ox)en/i' => '\1',
+			'/(ax)is$/i' => '\1es',
+			'/(us)i$/i' => '\1us',
 			'/(vert|ind)ices$/i' => '\1ex',
-			'/(matr)ices$/i' => '\1ix',
-			'/(quiz)zes$/i' => '\1',
+			'/(alias|status)$/i' => '\1es',
+			'/(iz)$/i' => '\1zes',
+			'/(tis)$/i' => 'tes',
 			'/s$/i' => 's',
 			'/$/' => 's'
 		);
 
-        $uncountable = array('equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep');
+        $uncountable = array( 'data', 'equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep' );
 
 		$irregular = array
 		(
@@ -114,20 +128,29 @@ class inflector
 		(
 			'/(n)ews$/i' => '\1ews',
 			'/([ti])a$/i' => '\1um',
-			'/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i' => '\1\2sis',
+			'/(perspective)a$/i' => '\1um',
+			'/(analy|ba|diagno|parenthe|progno|synop|the)ses$/i' => '\1\2sis',
 			'/(^analy)ses$/i' => '\1sis',
+			'/(archive)s$/i' => '\1',
+			'/(hal)ves$/i' => '\1f',
+			'/(dwar)ves$/i' => '\1f',
+			'/(tive)s$/i' => '\1',
+			'/(l)ves/i' => '\1f',
+			'/ves$/i' => '\1fe',
+			'/(ax)es/i' => '\1is',
 			'/([^f])ves$/i' => '\1fe',
 			'/(hive)s$/i' => '\1',
 			'/(tive)s$/i' => '\1',
 			'/([lr])ves$/i' => '\1f',
+			'/(movie)s$/i' => '\1',
 			'/([^aeiouy]|qu)ies$/i' => '\1y',
 			'/(s)eries$/i' => '\1eries',
 			'/(m)ovies$/i' => '\1ovie',
 			'/(x|ch|ss|sh)es$/i' => '\1',
 			'/([m|l])ice$/i' => '\1ouse',
 			'/(bus)es$/i' => '\1',
-			'/(o)es$/i' => '\1',
 			'/(shoe)s$/i' => '\1',
+			'/(o)es$/i' => '\1',
 			'/(cris|ax|test)es$/i' => '\1is',
 			'/(octop|vir)i$/i' => '\1us',
 			'/(alias|status)es$/i' => '\1',
@@ -138,7 +161,7 @@ class inflector
 			'/s$/i' => '',
         );
 
-        $uncountable = array('equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep');
+        $uncountable = array( 'data', 'equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep' );
 
         $irregular = array(
         'person' => 'people',
@@ -205,9 +228,12 @@ class inflector
 
 	*/
 
-    public function camelize($word)
+    public function camelize($word, $lowercamel = false)
     {
-        return str_replace(' ','',ucwords(preg_replace('/[^A-Z^a-z^0-9]+/',' ',$word)));
+		$word = str_replace(' ','',ucwords(preg_replace('/[^A-Z^a-z^0-9]+/',' ',$word)));
+		if ($lowercamel) $word = strtolower(substr($word, 0, 1)) . substr($word, 1);
+
+		return $word;
     }
 
     /*
@@ -227,9 +253,7 @@ class inflector
 
     public function underscore($word)
     {
-        return  strtolower(preg_replace('/[^A-Z^a-z^0-9]+/','_',
-        preg_replace('/([a-z\d])([A-Z])/','\1_\2',
-        preg_replace('/([A-Z]+)([A-Z][a-z])/','\1_\2',$word))));
+        return strtolower(preg_replace('/[^A-Z^a-z^0-9]+/','_', preg_replace('/([a-z\d])([A-Z])/','\1_\2', preg_replace('/([A-Z]+)([A-Z][a-z])/','\1_\2',$word))));
     }
 
     /*

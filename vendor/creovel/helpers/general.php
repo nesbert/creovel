@@ -81,7 +81,6 @@ Returns:
 
 function get_mime_type($filename)
 {
-	echo $filename;
 	$mime_types = array(
 		'.ai' => 'application/postscript',
 		'.aif' => 'audio/x-aiff',

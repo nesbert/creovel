@@ -840,6 +840,21 @@ class model implements Iterator
 		return $this->_select_query->row_count;
 	
 	}
+
+	/*
+	
+	Function: total
+		Alias to row_count
+	
+	Returns:
+		int
+	
+	*/
+
+	public function total()
+	{
+		return $this->row_count();
+	}
 	
 	/*
 

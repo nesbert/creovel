@@ -178,6 +178,34 @@ function link_to($link_title = 'Goto', $controller = '', $action = '', $id = '',
 	return '<a href="'.( $html_options['href'] ? $html_options['href'] : url_for($controller, $action, $id) ).'"'.html_options_str($html_options).'>'.$link_title.'</a>';
 }
 
+
+/*
+
+Function: link_to_url
+	Creates a anchor link for lazy programmers using a url. Example:
+
+	(start code)
+		link_to_url('Edit', 'http://creovel.org', array( 'class' => 'classname', 'name' => 'top'))
+	(end)
+
+Parameters:
+	link_title - optional defaults to "Goto"
+	controller - required
+	action - required
+	id - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/
+
+function link_to_url($link_title = 'Goto', $url = '#', $html_options = null)
+{
+	$html_options['href'] = $url;
+	return link_to($link_title, null, null, null, $html_options);
+}
+
 /*
 
 Function: mail_to

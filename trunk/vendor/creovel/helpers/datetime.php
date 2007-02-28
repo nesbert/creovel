@@ -40,4 +40,38 @@ function datetime($datetime = null)
 		break;
 	}
 }
+
+/*
+Function: format_time
+	Returns MySQL Timestamp.
+
+Parameters:
+	time - optional
+
+Returns:
+	string
+
+*/
+function format_time($time = null)
+{
+	switch ( true )
+	{
+		case ( !$time ):
+		default:
+			return date('H:i:s A');
+		break;		
+
+		case ( is_array($time) ):
+			return date('H:i:s A', mktime($datetime['hour'], $datetime['minute'], $datetime['second'], $datetime['month'], $datetime['day'], $datetime['year']));
+		break;
+		
+		case ( is_numeric($time) ):
+			return date('H:i:s A', $time);
+		break;
+		
+		case ( is_string($time) ):
+			return date('H:i:s A', strtotime($time));
+		break;
+	}
+}
 ?>

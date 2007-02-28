@@ -77,6 +77,9 @@ class model implements Iterator
 		$this->errors = new error(get_class($this));
 		$this->validation = new validation($this->errors);
 
+		if ($connection_properties['table_name']) {
+			$this->_table_name = $connection_properties['table_name'];
+		}
 		$this->_select_query = $this->establish_connection($connection_properties);
 		$this->_action_query = $this->establish_connection($connection_properties);		
 		
@@ -488,7 +491,7 @@ class model implements Iterator
 		if (!isset($args['total'])) $this->reset();
 
 		$this->before_find();	
-	
+		
 		switch (true) {
 			case isset($args['total']):
 				$this->select('count(*) as total ');

@@ -56,7 +56,7 @@ class error
 				$this->_model_error($args[0], $args[1]);
 			break;
 		
-		}	
+		}
 	}
 	
 	/*
@@ -65,9 +65,9 @@ class error
 		
 		Returns bool value for errors.
 		
-		Returns:	
+		Returns:
 		
-		Bool.
+			Boolean
 
 	*/
 
@@ -82,15 +82,44 @@ class error
 		
 		Accessor for error count.
 
-		Return:
+		Returns:
 		
-		Integer of the total errors.
+			Integer of the total errors.
 	
 	*/
 
 	public function count()
 	{
 		return $this->_error_count;
+	}
+	
+	/*
+	
+		Function: email_errors
+		
+		Email application errors to the emails provided.
+
+		Parameters:
+		
+			exception - Exception object.
+			emails - Array of email addresses.
+	
+	*/
+
+	public function email_errors($exception, $emails = null)
+	{
+		if (!$emails) $emails = explode(',', $_ENV['email_errors']);
+		if ( !$emails || $emails == 'youremail@yourdomain.com' ) return;
+		
+		$this->traces = $exception->getTrace();
+		$this->message = strip_tags($exception->getMessage());
+		
+		$email = new mailer;
+		$email->recipients = $emails;
+		$email->subject = strip_tags($exception->getMessage());
+		$email->text = view::_get_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php');
+		$email->text .= 'URL: '.BASE_URL.$_SERVER['REQUEST_URI'];
+		$email->send();
 	}
 	
 	// Section: Private
@@ -108,38 +137,6 @@ class error
 	*/
 	
 	private $_error_count = 0;
-	
-	/*
-	
-		Function: _handle_error
-		
-		Handle how to display errors to the user. If in dvelopment mode show debugging information else redirect to error page.
-		
-		Returns:
-		
-		Bool or shows error page.
-
-	*/
-
-	private function _handle_error()
-	{
-		if ( $_ENV['mode'] != 'development' ) {
-			switch ( true )
-			{
-				// if routes error set show this error page else show creovel error
-				case ( is_array($_ENV['routes']['error']) ):
-					view::_show_view(VIEWS_PATH.( $_ENV['routes']['error']['controller'] ? $_ENV['routes']['error']['controller'] : ( $_ENV['routes']['default']['controller'] ? $_ENV['routes']['default']['controller'] : 'index' ) ).DS.( $_ENV['routes']['error']['action'] ? $_ENV['routes']['error']['action'] : 'error' ).'.php', VIEWS_PATH.'layouts'.DS.( $_ENV['routes']['error']['layout'] ? $_ENV['routes']['error']['layout'] : ( $_ENV['routes']['default']['layout'] ? $_ENV['routes']['default']['layout'] : 'default' ) ).'.php');
-					die;
-				break;
-				
-				default:
-					return true;
-				break;
-			}
-		} else {
-			return true;
-		}
-	}
 	
 	/*
 	
@@ -177,19 +174,23 @@ class error
 	private function _application_error($message, $exception = null)
 	{
 		if ( is_object($exception) ) $this->traces = $exception->getTrace();
-
-		if ($_ENV['mode'] != 'development' && isset($_ENV['email_errors'])) $this->email_errors(explode(',', $_ENV['email_errors']), $exception);
-
-		// check whether or not to show debugging errors
-		$this->_handle_error();
+		
+		// email errors
+		if ( $_ENV['mode'] != 'development' && isset($_ENV['email_errors']) ) $this->email_errors($exception);
 		
 		// clean output buffer for application errors
 		@ob_end_clean();
 		
 		$this->message = $message;
 		
+		// command line error
+		if ( $_ENV['command_line'] ) {
+			view::_show_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php');
+			die;
+		}
+		// application error
 		if ( isset($_GET['view_source']) ) {
-			if ( $_ENV['view_source'] && strstr($_GET['view_source'], BASE_PATH) ) {		
+			if ( $_ENV['view_source'] && strstr($_GET['view_source'], BASE_PATH) ) {
 				view::_show_view(CREOVEL_PATH.'views'.DS.'view_source.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 			} else {
 				// reset debugger error and dont index page
@@ -197,32 +198,11 @@ class error
 				$this->traces = array();
 				view::_show_view(CREOVEL_PATH.'views'.DS.'application_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 			}
-		} else if ( $_ENV['command_line'] ) {
-			view::_show_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php');
 		} else {
 			view::_show_view(CREOVEL_PATH.'views'.DS.'application_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 		}
-		
 		die;
 	}
 
-	/*
-	
-		Function: email_errors
-		
-		Email application errors to the emails provided.
-
-		Parameters:
-		
-			emails - array of email addresses
-			exception - exception object
-	
-	*/
-
-	private function email_errors($emails, $exception)
-	{
-		foreach ($emails as $email) mail(trim($email), 'Application Error', $exception->getMessage());
-	}
 }
-
 ?>

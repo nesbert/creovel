@@ -57,7 +57,7 @@ class controller
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
 		if (!$this->render) $this->render = $events['action'];
-		if (!$this->layout) $this->layout = $_ENV['routes']['default']['layout'];
+		if (!$this->layout) $this->layout = ( $events['layout'] ? $events['layout'] : $_ENV['routes']['default']['layout'] );
 		if ( count($events['nested_controllers']) ) {
 			$this->_nested_controller_path = str_replace($this->_controller, '', implode(DS, $events['nested_controllers']));
 		}
@@ -113,8 +113,7 @@ class controller
 			
 		} catch ( Exception $e ) {
 		
-			// add to errors
-			$_ENV['error']->add($e->getMessage(), $e);
+			$this->_throw_exception($e);
 		
 		}
 	}
@@ -336,7 +335,7 @@ class controller
 	public function build_controller($controller, $action = '', $id = '', $extras = array(), $to_str = false)
 	{
 		$events = creovel::get_events(null, url_for($controller, $action, $id));
-		$params = array();		
+		$params = array();
 		if ( $id ) $params['id'] = $id;
 		return creovel::run($events, array_merge($params, $extras), $to_str);
 	}
@@ -436,8 +435,7 @@ class controller
 		
 		} catch ( Exception $e ) {
 		
-			// add to errors
-			$_ENV['error']->add($e->getMessage(), $e);
+			$this->_throw_exception($e);
 		
 		}
 	}
@@ -501,21 +499,64 @@ class controller
 		
 		Gets the path of the layout file.
 		
-		Parameters:	
+		Parameters:
 		
 			layout - String of the layout name.
 			
 		Returns:
 		
 			String.
-			
+		
 	*/
-
+	
 	private function _get_layout_path($layout = null)
 	{
 		return VIEWS_PATH.'layouts'.DS.( $layout ? $layout : $this->layout ).'.php';
 	}
-
+	
+	/*
+	
+		Function: _throw_exception
+		
+		Handle error depending on $_ENV[mode]
+		
+		Parameters:
+		
+			$e - Object of error exception.
+	
+	*/
+	
+	private function _throw_exception($e) {
+		if ( $_ENV['mode'] != 'development' ) {
+			$this->_custom_error($e);
+		} else {
+			// add to errors
+			$_ENV['error']->add($e->getMessage(), $e);
+		}
+	}
+	
+	/*
+	
+		Function: _custom_error
+		
+		Show custom error page.
+		
+		Parameters:
+		
+			$e - Exception object.
+	
+	*/
+	
+	private function _custom_error($e = null)
+	{
+		// show custom error page
+		if ( is_array($_ENV['routes']['error']) ) {
+			error::email_errors($e);
+			creovel::run(array_merge(array('layout' => $_ENV['routes']['error']['layout']), creovel::get_events(null, url_for($_ENV['routes']['error']['controller'], $_ENV['routes']['error']['action']))));
+			die;
+		}
+	}
+	
 	// Section: Callbacks
 	
 	/*

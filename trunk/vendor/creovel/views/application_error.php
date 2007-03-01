@@ -21,8 +21,12 @@ foreach ( $this->traces as $trace ) {
 	}
 	?>
 	<li>
+		<?php if ( $_ENV['view_source'] && $_ENV['mode'] == 'development' ) { ?>
 		#<?=( count($this->traces) - $trace_count - $offset)?> <?=$trace['class'] . $trace['type'] . $trace['function'] . str_replace("('')", '()', ("('" . ( is_array($trace['args']) ? implode("', '", $trace['args']) : '')) . "')") ?> in <strong><a href="javascript:void(0);" onclick="_Toggle('source_<?=$trace_count?>');"><?=$trace['file']?></a></strong> on line <strong><?=$trace['line']?></strong>
 		<?php include dirname(__FILE__).DS.'_source_code.php'; ?>
+		<?php } else { ?>
+		#<?=( count($this->traces) - $trace_count - $offset)?> <?=$trace['class'] . $trace['type'] . $trace['function'] . str_replace("('')", '()', ("('" . ( is_array($trace['args']) ? implode("', '", $trace['args']) : '')) . "')") ?> in <strong><?=$trace['file']?></strong> on line <strong><?=$trace['line']?></strong>
+		<?php } ?>
 	</li>
 	<?
 	$trace_count++;

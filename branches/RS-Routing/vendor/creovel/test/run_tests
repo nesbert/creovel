@@ -1,0 +1,16 @@
+#!/usr/bin/php
+<?
+
+require_once dirname(__FILE__).'/../../../config/environment.php';
+
+$classes = array( 'inflector_test' );
+
+foreach ($classes as $class)
+{
+	require_once CREOVEL_PATH."test/{$class}.php";
+
+	$class = new $class();
+	$class->run();
+}
+
+?>

@@ -1,0 +1,90 @@
+Format: 1.35
+
+
+# You can add a title and sub-title to your menu like this:
+# Title: [project name]
+# SubTitle: [subtitle]
+
+# You can add a footer to your documentation like this:
+# Footer: [text]
+# If you want to add a copyright notice, this would be the place to do it.
+
+
+# --------------------------------------------------------------------------
+# 
+# Cut and paste the lines below to change the order in which your files
+# appear on the menu.  Don't worry about adding or removing files, Natural
+# Docs will take care of that.
+# 
+# You can further organize the menu by grouping the entries.  Add a
+# "Group: [name] {" line to start a group, and add a "}" to end it.
+# 
+# You can add text and web links to the menu by adding "Text: [text]" and
+# "Link: [name] ([URL])" lines, respectively.
+# 
+# The formatting and comments are auto-generated, so don't worry about
+# neatness when editing the file.  Natural Docs will clean it up the next
+# time it is run.  When working with groups, just deal with the braces and
+# forget about the indentation and comments.
+# 
+# --------------------------------------------------------------------------
+
+
+Group: User Documentation  {
+
+   File: Overview  (creovel/docs/user_documentation/overview.txt)
+   File: Installation  (creovel/docs/user_documentation/install.txt)
+   File: Scripts  (creovel/docs/user_documentation/scripts.txt)
+   }  # Group: User Documentation
+
+Group: Classes  {
+
+   File: controller  (creovel/classes/controller.php)
+   File: creovel  (creovel/classes/creovel.php)
+   File: error  (creovel/classes/error.php)
+   File: file  (creovel/classes/file.php)
+   File: inflector  (creovel/classes/inflector.php)
+   File: mailer  (creovel/classes/mailer.php)
+   File: model  (creovel/classes/model.php)
+   File: pager  (creovel/classes/pager.php)
+   File: rss  (creovel/classes/rss.php)
+   File: session  (creovel/classes/session.php)
+   File: unittest  (creovel/classes/unittest.php)
+   File: validation  (creovel/classes/validation.php)
+   File: view  (creovel/classes/view.php)
+   File: xml  (creovel/classes/xml.php)
+   }  # Group: Classes
+
+Group: Helpers  {
+
+   File: ajax  (creovel/helpers/ajax.php)
+   File: datetime  (creovel/helpers/datetime.php)
+   File: form  (creovel/helpers/form.php)
+   File: framework  (creovel/helpers/framework.php)
+   File: general  (creovel/helpers/general.php)
+   File: html  (creovel/helpers/html.php)
+   File: session  (creovel/helpers/session.php)
+   File: text  (creovel/helpers/text.php)
+   File: validation  (creovel/helpers/validation.php)
+   }  # Group: Helpers
+
+Group: Services  {
+
+   File: google_maps  (no auto-title, creovel/services/google_maps.php)
+   }  # Group: Services
+
+Group: Misc  {
+
+   File: initialize  (creovel/initialize.php)
+   File: constants  (creovel/constants/common.php)
+   }  # Group: Misc
+
+Group: Index  {
+
+   Index: Everything
+   Class Index: Classes
+   File Index: Files
+   Function Index: Functions
+   Property Index: Properties
+   }  # Group: Index
+

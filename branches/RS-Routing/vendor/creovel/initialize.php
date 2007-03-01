@@ -30,6 +30,7 @@ require_once 'classes/inflector.php';
 require_once 'classes/mailer.php';
 require_once 'classes/model.php';
 require_once 'classes/pager.php';
+require_once 'classes/routing.php';
 require_once 'classes/rss.php';
 require_once 'classes/unittest.php';
 require_once 'classes/validation.php';

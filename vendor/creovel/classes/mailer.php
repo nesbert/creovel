@@ -34,8 +34,9 @@ class mailer
 
 	/*
 
-	Function: __construct		
-		Construct set message boundaries on load
+		Function: __construct
+		
+		Construct set message boundaries.
 	 
 	*/
 

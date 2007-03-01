@@ -35,7 +35,7 @@ class view
 		try {
 			// set content data
 			$content = $options['text'];
-
+			
 			if ( $options['render'] !== false ) {
 				$content .= self::_get_include_contents($view_path, $options);
 			}
@@ -53,9 +53,9 @@ class view
 
 				default:
 					$page = $content;
-					break;
+				break;
 			}
-
+			
 			return $page;
 
 		} catch ( Exception $e ) {

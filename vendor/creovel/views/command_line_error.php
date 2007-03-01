@@ -26,7 +26,7 @@ if (count($this->traces))
 		}
 
 		$value = str_replace("('')", '()', ("('" . ( is_array($trace['args']) ? implode("', '", $trace['args']) : '')) . "')");
-		echo '# '.(count($this->traces) - $trace_count - $offset)."{$trace['class']} {$trace['type']} {$trace['function']} ".$value." in {$trace['file']} on line {$trace['line']}\n";
+		echo '#'.(count($this->traces) - $trace_count - $offset)." {$trace['class']}{$trace['type']}{$trace['function']}".$value." in {$trace['file']} on line {$trace['line']}\n";
 
 		$trace_count++;
 	}

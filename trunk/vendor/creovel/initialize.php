@@ -31,6 +31,7 @@ require_once 'classes/mailer.php';
 require_once 'classes/model.php';
 require_once 'classes/pager.php';
 require_once 'classes/rss.php';
+require_once 'classes/translation.php';
 require_once 'classes/unittest.php';
 require_once 'classes/validation.php';
 require_once 'classes/view.php';

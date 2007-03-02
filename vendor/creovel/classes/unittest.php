@@ -34,7 +34,7 @@ class unittest
 		$start_time = microtime();
 
 		echo "\033[36m-------------------------------------------------\033[0m\n";
-		echo "\033[36mStarting Tests\033[0m\n";
+		echo "\033[36mStarting Tests ".get_class($this)."\033[0m\n";
 		echo "\033[36m-------------------------------------------------\033[0m\n";
 
 		$tests = $_SERVER['argv'];

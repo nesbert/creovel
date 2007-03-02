@@ -3,7 +3,9 @@
 
 require_once dirname(__FILE__).'/../../../config/environment.php';
 
-$classes = array( 'inflector_test' );
+$dir = dir(CREOVEL_PATH.'test');
+while (false !== ($file = $dir->read())) if (preg_match('/.php$/', $file)) $classes[] = str_replace('.php', '', $file);
+sort($classes);
 
 foreach ($classes as $class)
 {

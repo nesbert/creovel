@@ -57,7 +57,7 @@ class controller
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
 		if (!$this->render) $this->render = $events['action'];
-		if (!$this->layout) $this->layout = ( $events['layout'] ? $events['layout'] : $_ENV['routes']['default']['layout'] );
+		if (!$this->layout) $this->layout = ( $events['layout'] ? $events['layout'] : 'default' );
 		if ( count($events['nested_controllers']) ) {
 			$this->_nested_controller_path = str_replace($this->_controller, '', implode(DS, $events['nested_controllers']));
 		}

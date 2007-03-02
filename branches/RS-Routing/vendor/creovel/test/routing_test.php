@@ -55,6 +55,24 @@ class routing_test extends unittest
 		$this->assert_equal('users', $route->params['controller']);
 		$this->assert_equal('view', $route->params['action']);
 		$this->assert_equal('2096', $route->params['id']);
+
+		$route = $this->routing->which_route('index/index');
+		$this->assert_equal(':controller/:action/:id', $route->prototype);
+		$this->assert_equal('index', $route->params['controller']);
+		$this->assert_equal('index', $route->params['action']);
+		$this->assert_equal(null, $route->params['id']);
+
+		$route = $this->routing->which_route('/');
+		$this->assert_equal(':controller/:action/:id', $route->prototype);
+		$this->assert_equal('index', $route->params['controller']);
+		$this->assert_equal('index', $route->params['action']);
+		$this->assert_equal(null, $route->params['id']);
+
+		$route = $this->routing->which_route('admin/index/manage');
+		$this->assert_equal(':controller/:action/:id', $route->prototype);
+		$this->assert_equal('admin/index', $route->params['controller']);
+		$this->assert_equal('manage', $route->params['action']);
+		$this->assert_equal(null, $route->params['id']);
 	}
 
 	public function test_breakdown_prototype()

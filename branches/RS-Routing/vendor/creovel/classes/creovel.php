@@ -5,7 +5,7 @@
 	
 	The main class where the model, view and controller interact.
 
-*/
+ */
 
 class creovel
 {
@@ -37,20 +37,12 @@ class creovel
 		// set event and params
 		$events = $events ? $events : self::get_events();
 		$params = $params ? $params : self::get_params();
-		
-		// include controllers and helpers
-		if ( is_array($events['nested_controllers']) ) {
-			$path = '';
-			foreach ( $events['nested_controllers'] as $nested_controller ) {
-				self::_include_controller($path.$nested_controller);
-				$path .= $nested_controller.DS;
-			}
-		} else {
-			self::_include_controller($events['controller']);
-		}
-		
+
+		$controller = str_replace('/', DS, $events['controller']);
+		self::_include_controller($controller);
+
 		// create controller object and build the framework
-		$controller = $events['controller'] . '_controller';
+		$controller = str_replace(DS, '_', $controller).'_controller';
 		$controller = new $controller();
 		
 		// set controller properties
@@ -83,9 +75,15 @@ class creovel
 
 	public function get_events($event_to_return = null, $uri = null)
 	{
-		// read URI which was given in order to access this page, remove any trailing forward slashes
-		$uri = $uri ? $uri : $_SERVER['REQUEST_URI'];
-		$uri = explode('?', ( $uri{strlen($uri) - 1} == '/' ? substr($uri, 0, strlen($uri) - 1) : $uri ));
+		$route = $_ENV['routing']->which_route((($uri) ? $uri : $_SERVER['REQUEST_URI']));
+
+
+		// print_obj($path);
+		// print_obj($route);
+
+		return (($event_to_return) ? $route->params[$event_to_return] : $route->params );
+
+
 
 		if (isset($_ENV['routes'][$uri[0]])) header('Location: '.$_ENV['routes'][$uri[0]]);
 
@@ -134,8 +132,8 @@ class creovel
 		}
 		
 		// set controller & action
-		$events['controller'] = $events['controller'] ? $events['controller'] : $_ENV['routes']['default']['controller'];
-		$events['action'] = $events['action'] ? $events['action'] : $_ENV['routes']['default']['action'];
+		$events['controller'] = $events['controller'] ? $events['controller'] : 'index';
+		$events['action'] = $events['action'] ? $events['action'] : 'index';
 
 		return ( $event_to_return ? $events[$event_to_return] : $events );
 	}
@@ -202,9 +200,9 @@ class creovel
 	{
 		// include application controller
 		$controllers = array_merge(array('application'), explode(DS, $controller_path));
-		
+
 		$path = '';
-		
+
 		foreach ( $controllers as $controller ) {
 		
 			$class = $controller . '_controller';
@@ -216,7 +214,7 @@ class creovel
 				if ( $class == '_controller' ) {
 					$_ENV['error']->add("Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
 				}
-				
+
 				if ( file_exists($controller_path) ) {
 					require_once($controller_path);
 				} else {

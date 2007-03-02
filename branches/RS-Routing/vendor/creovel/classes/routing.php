@@ -46,7 +46,27 @@ class routing
 
 	public function which_route($uri)
 	{
-		foreach ($this->routes as $route) if ($route->match($uri)) return $route;
+		if ($uri == '/' || $uri == '') {
+
+			$match = $this->routes[(count($this->routes) - 1)];
+
+		} else {
+
+			foreach ($this->routes as $route) 
+			{
+				if ($route->match($uri))
+				{
+					$match = $route;
+					break;
+				}
+			}
+
+		}
+
+		$match->params['controller'] = ($match->params['controller'] == '') ? 'index' : $match->params['controller'];
+		$match->params['action'] = ($match->params['action'] == '') ? 'index' : $match->params['action'];
+
+		return $match;
 	}
 }
 
@@ -82,8 +102,8 @@ class route
 		$this->params = array();
 		$this->set_defaults();
 
-		$uri = (substr($uri, 1) == '/') ? substr_replace($uri, '', 1) : $uri;
-		$uri = (substr($uri, -1) == '/') ? substr_replace($uri, '', -1) : $uri;
+		$uri = preg_replace('/^\//', '', $uri);
+		$uri = preg_replace('/\/$/', '', $uri);
 
 		$pieces = explode('/', $uri);
 
@@ -101,6 +121,19 @@ class route
 					return false;
 				}
 			}
+		}
+
+		$path = '';
+		foreach ($this->params as $arg)
+		{
+			if (file_exists(CONTROLLERS_PATH."{$path}{$arg}_controller.php"))
+			{
+				$this->params['controller'] = "{$path}{$arg}";
+				$rest = explode('/', str_replace("{$path}{$arg}/", '', $uri));
+				$this->params['action'] = $rest[0];
+				$this->params['id'] = $rest[1];
+			}
+			$path .= $arg.DS;
 		}
 
 		return true;

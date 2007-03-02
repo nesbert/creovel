@@ -1,13 +1,6 @@
 <?php
 /*
 
-Script: html
-	Html helpers here.
-
-*/
- 
-/*
-
 Function: redirecto_to
 	Redirects the page. 
 	*Note should only be used on the contrller.*
@@ -18,10 +11,24 @@ Parameters:
 	id - id
 
 */
-
 function redirect_to($controller = '', $action = '', $id = '')
 {
-	header('location: ' . url_for($controller, $action, $id));
+	redirect_to_url(url_for($controller, $action, $id));
+}
+
+/*
+Function: redirect_to_url
+	Desc
+
+Parameters:
+	test - this is a test
+
+Retruns:
+	string - formated full name of agent
+*/
+function redirect_to_url($url)
+{
+	header('location: ' . $url);
 	die;
 }
 
@@ -131,21 +138,7 @@ function url_for($controller = '', $action = '', $id = '')
 {
 
 	if ( is_array($id) ){
-	
-		$params = '?';
-		
-		foreach ($id as $key => $value ) {
-			if (is_array($value)) {
-				$params .= http_build_query(array($key=>$value)) .'&';
-			} else if ($key == '#') {
-				$params	.= '#' . $value .'&';
-			} else {
-				$params	.= ( $key ? $key : '' ).( $key && ($value !== '') ? '='.$value : $value ).'&';
-			}
-		}
-		
-		$id = substr($params, 0, -1);
-	
+		$id = '?'.urlencode_array($id);
 	}
 
 	return '/'.($controller?$controller.'/'.($action?$action.'/':'').($action&&$id?$id:''):'');

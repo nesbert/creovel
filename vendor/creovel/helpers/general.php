@@ -310,4 +310,32 @@ function str_replace_array($str, $array)
 {
 	return str_replace(array_keys($array), array_values($array), $str);
 }
+
+/*
+Function: urlencode_array
+	performs urlencode on an N dimensional array
+
+Parameters:
+	var - the array value
+	var_name - variable name to be used in the query string
+	seperator - what separating character to use in the query string
+
+Retruns:
+	string 
+*/
+function urlencode_array($array)
+{
+	foreach ($array as $key => $value ) {
+		if (is_array($value)) {
+			$params .= http_build_query(array($key=>$value)) .'&';
+		} else if ($key == '#') {
+			$params	.= '#' . $value .'&';
+		} else {
+			$params	.= ( $key ? $key : '' ).( $key && ($value !== '') ? '='.$value : $value ).'&';
+		}
+	}
+		
+	return substr($params, 0, -1);
+}
+
 ?>

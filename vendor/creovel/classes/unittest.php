@@ -37,9 +37,7 @@ class unittest
 		echo "\033[36mStarting Tests ".get_class($this)."\033[0m\n";
 		echo "\033[36m-------------------------------------------------\033[0m\n";
 
-		$tests = $_SERVER['argv'];
-		array_shift($tests);
-		$tests = (count($tests) > 0) ? $tests : $this->class_test_methods();
+		$tests = $this->class_test_methods();
 
 		$total_num_passed = 0;
 		$total_num_failed = 0;

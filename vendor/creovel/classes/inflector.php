@@ -38,6 +38,7 @@ class inflector
 			'/(octop|vir)us$/i' => '\1i',
 			'/([m|l])ouse/i' => '\1ice',
 			'/(tomato)$/i' => '\1es',
+			'/(th)$/i' => '\1s',
 			'/(h)$/i' => '\1es',
 			'/(ay)$/i' => '\1s',
 			'/y$/i' => '\1ies',

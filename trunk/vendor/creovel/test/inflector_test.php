@@ -96,7 +96,9 @@ class inflector_test extends unittest
 
 		"horse"       => "horses",
 		"prize"       => "prizes",
-		"edge"        => "edges"
+		"edge"        => "edges",
+
+		"bandwidth"   => "bandwidths"
 	);
 
 	public $camel_to_underscore = array

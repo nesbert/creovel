@@ -37,26 +37,156 @@ class model implements Iterator
 	*/
 
 	protected $_primary_key = 'id';
+	
+	/*
+	
+	Property: _fields
+		Obj stores the current field value pairs loaded into the model
 
+	*/
+	
 	protected $_fields;
+	
+	/*
+	
+	Property: _select_query
+		Database adapter used for selection queries on the database
 
+	*/
+	
     public $_select_query;
+	
+	/*
+	
+	Property: _action_query
+		Database adapter used for inserts updates deletion and find totals
+
+	*/
     public $_action_query;
+	
+	/*
+	
+	Property: _links
+		Stores the has_* relationshiop configuration
+
+	*/
+	
     public $_links = array();
+	
+	/*
+	
+	Property: _valid
+		TODO
+
+	*/
+	
     public $_valid = array();
+	
+	/*
+	
+	Property: _page
+		Paginate obj used to paginate select quries for this internal model
+
+	*/
+	
 	public $page;
+	
+	/*
+	
+	Property: errors
+		error obj used to store validation errors
+
+	*/
+	
 	public $errors;
+	
+	/*
+	
+	Property: _validation
+		validation obj used to run validation routines on values in model
+
+	*/
+	
 	public $validation;
 	
+	/*
+	
+	Property: _select
+		String that holds the select portion of a query
+
+	*/
+	
 	private $_select;
+	
+	/*
+	
+	Property: _from
+		String that holds the from portion of a query
+
+	*/
+	
 	private $_from;
+	
+	/*
+	
+	Property: _where
+		String that holds the where portion of a query
+
+	*/
+	
 	private $_where;
+	
+	/*
+	
+	Property: _group
+		String that holds the group portion of a query
+
+	*/
+	
 	private $_group;
+	
+	/*
+	
+	Property: _order
+		String that holds the order by portion of a query
+
+	*/
+	
 	private $_order;
+	
+	/*
+	
+	Property: _limit
+		String that holds the limit portion of a query
+
+	*/
+	
 	private $_limit;
+	
+	/*
+	
+	Property: _offset
+		String that holds the offset portion of a query
+
+	*/
+	
 	private $_offset;
+	
+	/*
+	
+	Property: _query_str
+		String that holds the entrire query built form _select, _from, _where, _group, _order, _limit, _offset
+
+	*/
 	private $_query_str;
 
+	/*
+	
+	Property: _child_objects
+		TODO
+
+	*/
+	
 	private $child_objects;
 
 	// Section: Public
@@ -68,7 +198,13 @@ class model implements Iterator
 
 	Parameters	
 		data - used to load the model with values
-
+		connection_properties - overrides current creovel database defaults
+			example array(
+						'adapter' => 'mysql'
+						
+			
+			
+						)
 	*/	 
 
 	public function __construct($data = null, $connection_properties = null)
@@ -79,6 +215,9 @@ class model implements Iterator
 
 		if ($connection_properties['table_name']) {
 			$this->_table_name = $connection_properties['table_name'];
+		}
+		if ($connection_properties['database']) {
+			$this->_db_name = $connection_properties['database'];
 		}
 		$this->_select_query = $this->establish_connection($connection_properties);
 		$this->_action_query = $this->establish_connection($connection_properties);		
@@ -1417,8 +1556,10 @@ class model implements Iterator
 			$model_name =  $this->_class();
 			$this->_table_name = pluralize($model_name);
 		}
-		
-		$this->_db_name = $this->_select_query->get_database();
+		if ($this->_db_name) {
+			$this->_table_name = $this->_db_name.'.'.$this->_table_name;
+		}
+		//$this->_db_name = $this->_select_query->get_database();
 		$this->_select_query->set_table($this->_table_name);
 		$this->_fields = $this->_select_query->get_fields_object();
 	}

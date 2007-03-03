@@ -208,6 +208,107 @@ class validation
 	{
 		return self::validate_field_by_bool(is_number($val), $field, $val, self::format_message($field, $val, $msg, self::FIELD_NAME." is not a number."), $required);
 	}
+
+	/*
+
+	Function: validates_confirmation_of
+		Validates that two fields are equal (like a password field).
+
+	Parameters
+		field - field name
+		val - first value
+		val2 - second value
+		msg - error message
+
+	Returns:
+		bool
+
+	*/
+
+	public function validates_confirmation_of($field, $val, $val2, $msg = null)
+	{
+		$msg = $msg ? $msg : self::FIELD_NAME." doesn't match.";
+
+		if ($val == $val2) {
+			return true;
+		} else {
+			$this->errors->add($field, $msg);
+			return false;
+		}
+	}
+
+	/*
 	
+	Function: validates_uniqueness_of
+		Validates that $val does not already exists in $table_name. If $id is passed will allow over-riding of current record.
+
+	Parameters:
+		field - field to check
+		val - value of field
+		table_name - required
+		msg - optional default is "... already exists, please enter another."
+		required - default is false
+		id - optional
+
+	Returns:
+		bool
+
+	*/
+
+	public function validates_uniqueness_of($field, $val, $table_name, $msg = null, $required = false, $id = null)
+	{
+		$msg = $msg ? $msg : self::FIELD_NAME." already exists, please enter another.";
+
+		if ($required || $val) {
+
+			$conditions = "{$field} = '{$val}'";
+
+			if ($id)
+			{
+				if (is_assoc_array($id)) {
+					foreach ( $id as $key => $val ) $conditions .= " AND $key != '{$val}'";
+				} else {
+					$conditions .= " AND id != '{$id}'";
+				}
+			}
+
+			$obj = new model($table_name);
+			$obj->find(array('conditions' => $conditions));
+
+			if ($obj->row_count()) {
+				$this->errors->add($field, $msg);
+				return false;
+			} else {
+				true;
+			}
+
+		} else {
+
+			return true;
+
+		}
+	}
+
+	/*
+	
+	Function: validates_agreement
+		Validates the user agreed to something.
+
+	Parameters:
+		field - field name
+		value - field value
+		msg - error message
+
+	Returns:
+		bool
+
+	*/
+
+	public function validates_agreement($field, $value, $msg = null)
+	{
+		$msg = $msg ? $msg : "Your must agree to the ".self::FIELD_NAME;
+		return $this->validate_field_by_bool(!is_null($value), $field, $value, $msg, true);
+	}
 }
+
 ?>

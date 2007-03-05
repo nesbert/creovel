@@ -55,7 +55,7 @@ $_ENV['sessions'] = false; // false, true, 'table'
 $_ENV['view_source'] = false;
 
 // define application urls
-define(BASE_URL, 			'http'.( getenv('HTTPS') == 'on' ? 's' : '' ).'://'.getenv('HTTP_HOST'));
+define(BASE_URL, 			'http'.( $_SERVER['HTTPS'] == "on" ? 's' : '' ).'://'.$_SERVER['HTTP_HOST']);
 define(CSS_URL,				BASE_URL.'/stylesheets/');
 define(JAVASCRIPT_URL,		BASE_URL.'/javascripts/');
 

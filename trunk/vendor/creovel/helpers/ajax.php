@@ -28,7 +28,7 @@ function link_to_remote($link_title = 'Goto', $id_to_update, $url, $html_options
 {
 	if ( is_array($html_options) ) foreach ($html_options as $attribute => $value ) {
 		if ( strstr($attribute, 'onclick') ) { continue; }
-		$extra	.= ' '.$attribute.'="'.$value.'"';
+		$extra .= ' '.$attribute.'="'.$value.'"';
 	}
 	return "<a href=\"#\" onclick=\"new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true}); return false;\">".$link_title."</a>\n";
 }
@@ -53,12 +53,13 @@ Function: form_remote_tag
 Parameters:
 	id_to_update - required
 	url - required
+	html_options - optional
 
 */
  
-function form_remote_tag($id_to_update, $url)
+function form_remote_tag($id_to_update, $url, $html_options = null)
 {
-	return "<form action=\"".$url."\" method=\"post\" onsubmit=\"new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;\">\n";
+	return "<form action=\"".$url."\" method=\"post\" onsubmit=\"new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;\"".html_options_str($html_options).">\n";
 }
 
 /*

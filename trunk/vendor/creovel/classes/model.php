@@ -1161,6 +1161,7 @@ class model implements Iterator
 					return password_field($this->_class(). '[' . $regs[1] . ']', $this->$function(), $html_options);
 				break;
 				
+				case preg_match('/^text_area_for_(.+)$/', $method, $regs):
 				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
 					$html_options = $arguments[0];
 					$function = 'get_' . $regs[1];

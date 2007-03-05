@@ -1,55 +1,115 @@
 <?php
 /*
 
-Class: pager
-	Can be used to page a model or an array
+	Class: pager
+	
+	Paging class for model and arrays.
 
 */
 
-class pager {
-
-	public $total_records;		// total number of records to page
-	public $total_pages;		// total number of pages
-	
-	public $current;			// current page number
-	public $next;				// next page number
-	public $prev;				// previous page number
-	public $first;				// first page number
-	public $last;				// last page number
-
-	public $offset;				// pointer offest
-	public $limit;				// limit of records per page
-	
-	public $url;				// host url
-
+class pager
+{
 	// Section: Public
-
+	
+	/*
+		Property: total_records
+		Total number of records to paged.
+	*/
+	
+	public $total_records;
+	
+	/*
+		Property: total_pages
+		Total number of pages.
+	*/
+	
+	public $total_pages;
+	
+	/*
+		Property: current
+		Current page number.
+	*/
+	
+	public $current;
+	
+	/*
+		Property: next
+		Next page number.
+	*/
+	
+	public $next;
+	
+	/*
+		Property: prev
+		Previous page number.
+	*/
+	
+	public $prev;
+	
+	/*
+		Property: first
+		First page number.
+	*/
+	
+	public $first;
+	
+	/*
+		Property: last
+		last page number.
+	*/
+	
+	public $last;
+	
+	/*
+		Property: offset
+		Pointer offest.
+	*/
+	
+	public $offset;
+	
+	/*
+		Property: limit
+		Limit of records per page.
+	*/
+	
+	public $limit;
+	
+	/*
+		Property: url
+		Host URL.
+	*/
+	
+	public $url;
+	
 	/*
 	
-	Function: __construct
-
-	Paramerters:
-		data - associative array of data
-
+		Function: __construct
+		
+		Paramerters:
+		
+			data - Associative array of data.
+	
 	*/
-
+	
 	public function __construct($data = null)
 	{
 		$this->set_properties($data);
 	}
 	
 	/*
-
-	Function:			
-		Set class properties
 	
-	Parameters:
-		data - required
-		page  - optional
-		limit - optional
+		Function: set_properties
+		
+		Set class properties.
+		
+		Parameters:
+		
+			data - Required Model Object or Array.
+			page  - Optional page number.
+			limit - Optional records per page.
 	
 	*/
-
+	
 	public function set_properties($data, $page = null, $limit = null) {
 
 		// set vars by type
@@ -101,17 +161,20 @@ class pager {
 	
 	/*
 	
-	Function: page_array
-		Page an array
-
-	Parameters:	
-		data - required
-		preserve_keys - optional
-		limit - optional
+		Function: page_array
+		
+		Page an array.
+		
+		Parameters:	
+		
+			data - Required array.
+			preserve_keys - Optional boolean preserve keys.
+			limit - Optional records per page.
+		
+		Returns:
+		
+			Mixed.
 	
-	Returns:
-		mixed
-
 	*/
 
 	public function page_array($data, $preserve_keys = true, $limit = false)
@@ -122,15 +185,18 @@ class pager {
 	
 	/*
 	
-	Function: params_to_str
-		Clean/create extra params links
-
-	Parameters:	
-		data - required
-
-	Returns:
-		return
-
+		Function: params_to_str
+		
+		Clean/create extra params links.
+		
+		Parameters:
+		
+			data - Required associative array of data.
+		
+		Returns:
+		
+			URL string.
+	
 	*/
 
 	public function params_to_str($data)
@@ -145,21 +211,24 @@ class pager {
 	}
 	
 	/*
-			
-	Function: link_to
-		Create link to page
-
-	Parameters:	
-		label - required
-		page - required
-		extra_params - optional
-		html_options - optional
-
-	Returns:
-		string
-
+	
+		Function: link_to
+		
+		Create link to page.
+		
+		Parameters:	
+		
+			label - Required link lable.
+			page - Required page number.
+			extra_params - Optional assoc array of parameters to bepast via URL.
+			html_options - Optional assoc. array of HTML options.
+		
+		Returns:
+		
+			HTML string.
+	
 	*/
-
+	
 	private function link_to($label, $page, $extra_params = null, $html_options = null)
 	{
 		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->params_to_str($extra_params);
@@ -168,58 +237,67 @@ class pager {
 	}
 	
 	/*
-
-	Function: link_to_next
-		Create link to the mext page
-
-	Parameters:	
-		label - optional
-		extra_params - optional
-		html_options - optional
 	
-	Returns:
-		string
-
+		Function: link_to_next
+		
+		Create link to the mext page
+		
+		Parameters:
+		
+			label - Required link lable.
+			extra_params - Optional assoc array of parameters to bepast via URL.
+			html_options - Optional assoc. array of HTML options.
+		
+		Returns:
+		
+			HTML string.
+	
 	*/
-
+	
 	public function link_to_next($label = 'Next', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current < $this->last ? $this->link_to($label, $this->next, $extra_params, $html_options) : '' );
 	}
 
 	/*
-			
-	Function: link_to_prev
+	
+		Function: link_to_prev
+		
 		Create link to the previous page
-
-	Parameters:	
-		label - optional
-		extra_params - optional
-		html_options - optional
-
-	Returns:
-		string
-
+		
+		Parameters:	
+		
+			label - Required link lable.
+			extra_params - Optional assoc array of parameters to bepast via URL.
+			html_options - Optional assoc. array of HTML options.
+		
+		Returns:
+		
+			HTML string.
+	
 	*/
-
+	
 	public function link_to_prev($label = 'Prev', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current > $this->first ? $this->link_to($label, $this->prev, $extra_params, $html_options) : '' );
 	}
 
 	/*
-
-	Function: link_to_first	
+	
+		Function: link_to_first	
+		
 		Create link to the first page
-
-	Parameters:	
-		label - optional
-		extra_params - optional
-		html_options - optional
-
-	Returns:
-		string
-
+		
+		Parameters:	
+		
+			label - Required link lable.
+			extra_params - Optional assoc array of parameters to bepast via URL.
+			html_options - Optional assoc. array of HTML options.
+		
+		Returns:
+		
+			HTML string.
+	
 	*/
 
 	public function link_to_first($label = 'First', $extra_params = null, $html_options = null)
@@ -228,20 +306,23 @@ class pager {
 	}
 	
 	/*
-
-	Function: link_to_last
+	
+		Function: link_to_last
+		
 		Create link to the last page
-
-	Parameters:	
-		label - optional
-		extra_params - optional
-		html_options - optional
-
-	Returns:
-		string
-
+		
+		Parameters:	
+		
+			label - Required link lable.
+			extra_params - Optional assoc array of parameters to bepast via URL.
+			html_options - Optional assoc. array of HTML options.
+			
+		Returns:
+		
+			HTML string.
+	
 	*/
-
+	
 	public function link_to_last($label = 'Last', $extra_params = null, $html_options = null)
 	{
 		return ( $this->current < $this->last ? $this->link_to($label, $this->last, $extra_params, $html_options) : '' );
@@ -249,16 +330,19 @@ class pager {
 
 	/*
 	
-	Function: paging_links
+		Function: paging_links
+		
 		Create paging links eg. << Prev 1 ... 13 14 15 16 17 ... 25 Next >>
-
-	Parameters:	
-		extra_params - optional
-		show_label - optional
-
-	Returns:
-		string
-	 
+		
+		Parameters:	
+		
+			extra_params - Optional assoc. array of parameters.
+			show_label - Optional boolean.
+		
+		Returns:
+		
+			HTML string.
+	
 	*/
 
 	public function paging_links($extra_params = null, $show_label = false)
@@ -317,18 +401,21 @@ class pager {
 	
 	/*
 	
-	Function: paging_link
-		Create page limiting selectbox
-
-	Parameters:	
-		extra_params - optional
-		default_limit - optional
-
-	Returns:
-		string
-
+		Function: paging_link
+		
+		Create page limiting select box.
+		
+		Parameters:	
+		
+			extra_params - Optional assoc. array of parameters.
+			default_limit - Optional default limit set to 10.
+			
+		Returns:
+		
+			HTML string.
+	
 	*/
-
+	
 	public function paging_limit($extra_params = null, $default_limit = 10)
 	{	
 		$extra_params = $this->params_to_str($extra_params);
@@ -355,22 +442,61 @@ class pager {
 		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=100'.$extra_params.'"'.( $this->limit == 100 ? ' selected="selected"' : '' ).'>100</option>'."\n";
 		$str .= "</select>\n";
 		
-		return $str;		
+		return $str;
 	}
 	
 	/*
 	
-	Function: paging_label	
+		Function: paging_label
+		
 		Create paging label: Page 1 of 10
-
-	Returns:	
-		string
-
+		(startcode)
+		<span class="page-label">Page 1 of 10</span>
+		(end)
+		
+		Returns:
+		
+			HTML string.
+	
 	*/
-
+	
 	public function paging_label()
 	{
-		return '<span class="page-label">Page '.$this->current.' f '.$this->total_pages.'</span>';
+		return '<span class="page-label">Page '.$this->current.' of '.$this->total_pages.'</span>';
+	}
+	
+	/*
+	
+		Function: total_records
+		
+		Total records paged.
+		
+		Returns:
+		
+			Integer.
+	
+	*/
+	
+	public function total_records()
+	{
+		return (int) $this->total_records;
+	}
+	
+	/*
+	
+		Function: total_pages
+		
+		Total number of pages.
+		
+		Returns:
+		
+			Integer.
+	
+	*/
+	
+	public function total_pages()
+	{
+		return (int) $this->total_pages;
 	}
 	
 }

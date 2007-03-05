@@ -370,11 +370,32 @@ class rss implements Iterator
 		Creates RSS feed and changes the header content-type.
 	
 	*/
-
+	
 	public function feed()
 	{
 		header('Content-Type: application/xml');
 		die($this->create_file());
+	}
+	
+	/*
+	
+		Function: pubDate
+		
+		Formats publish date from a date srting.
+		
+		Parameters:
+		
+			date - Date/Time string.
+			
+		Returns:
+		
+			Publish date.
+	
+	*/
+	
+	public function pubDate($date)
+	{
+		return gmdate('D, d M Y H:i:s', strtotime($date)).' GMT';
 	}
 	
 	// Iterator Implementation

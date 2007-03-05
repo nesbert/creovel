@@ -251,7 +251,7 @@ function create_input_tag($type, $name, $value = null, $html_options = null, $on
 		$prepend_text = $text[0] ? label($id, $text[0]) : null;
 		$append_text = $text[1] ? label($id, $text[1]) : null;
 	}
-	return error_check($name, $prepend_text.' <input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.html_options_str($html_options).' /> ' .$append_text."\n");
+	return error_check($name, $prepend_text.'<input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.html_options_str($html_options).' /> ' .$append_text."\n");
 }
 
 /*
@@ -416,6 +416,26 @@ Returns:
 function textarea($name, $value = '', $html_options = null)
 {
 	return error_check($name, '<textarea id="'.name_to_id($name).'" name="'.$name.'"'.html_options_str($html_options).'>'.$value.'</textarea>');
+}
+
+/*
+
+Function: text_area
+	Creates a textarea tag.
+
+Parameters:
+	name - required
+	value - optional
+	html_options - optional
+
+Returns:
+	string
+
+*/ 
+
+function text_area($name, $value = '', $html_options = null)
+{
+	return textarea($name, $value, $html_options);
 }
 
 /*

@@ -408,7 +408,7 @@ class mailer
 
 	private function _get_html()
 	{
-		return $this->_get_view();
+		return $this->html ? $this->html : $this->_get_view();
 	}
 	
 	/*

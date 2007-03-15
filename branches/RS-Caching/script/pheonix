@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?
+
+require_once dirname(__FILE__).'/../config/environment.php';
+require_once dirname(__FILE__).'/../vendor/creovel/vendor/phoenix/main.php';
+require_once dirname(__FILE__).'/../config/phoenix.php';
+
+$phoenix = new phoenix();
+$phoenix->main();
+
+?>

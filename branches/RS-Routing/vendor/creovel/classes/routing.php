@@ -98,7 +98,7 @@ class route
 	public function match($uri, $controllers_path = null)
 	{
 		if ($uri == '') return false;
-		if ($controllers_path == null) CONTROLLERS_PATH;
+		if ($controllers_path == null) $controllers_path = CONTROLLERS_PATH;
 
 		$this->params = array();
 		$this->set_defaults();
@@ -112,14 +112,15 @@ class route
 		{
 			if (!isset($this->defaults[$pieces[$i]]))
 			{
-				if (!isset($this->segments[$i])) return true;
+				if (isset($this->segments[$i])) //return true;
+				{
+					$result = $this->segments[$i]->match($pieces[$i]);
 
-				$result = $this->segments[$i]->match($pieces[$i]);
-
-				if ($result != false) {
-					if ($this->segments[$i]->name != $this->segments[$i]->value) $this->params[$this->segments[$i]->name] = $result;
-				} else {
-					return false;
+					if ($result != false) {
+						if ($this->segments[$i]->name != $this->segments[$i]->value) $this->params[$this->segments[$i]->name] = $result;
+					} else {
+						return false;
+					}
 				}
 			}
 		}
@@ -127,6 +128,7 @@ class route
 		$path = '';
 		foreach ($this->params as $arg)
 		{
+			$path .= $arg.DIRECTORY_SEPARATOR;
 			if (file_exists($controllers_path.DIRECTORY_SEPARATOR."{$path}{$arg}_controller.php"))
 			{
 				$this->params['controller'] = "{$path}{$arg}";
@@ -134,7 +136,6 @@ class route
 				$this->params['action'] = $rest[0];
 				$this->params['id'] = $rest[1];
 			}
-			$path .= $arg.DS;
 		}
 
 		return true;

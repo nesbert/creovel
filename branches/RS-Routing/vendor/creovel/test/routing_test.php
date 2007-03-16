@@ -4,7 +4,6 @@ class routing_test extends unittest
 {
 	public function setup()
 	{
-		
 		mkdir(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp');
 		mkdir(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp'.DIRECTORY_SEPARATOR.'admin');
 		touch(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp'.DIRECTORY_SEPARATOR.'admin_controller.php');

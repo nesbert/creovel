@@ -35,16 +35,6 @@ $_ENV['production']['database']		= '';
 $_ENV['production']['username']		= '';
 $_ENV['production']['password']		= '';
 
-// set default routing: controller, action, layout
-$_ENV['routes']['default']['controller']	= 'index';
-$_ENV['routes']['default']['action'] 		= 'index';
-$_ENV['routes']['default']['layout']		= 'default';
-
-// set error routing: controller, action, layout
-$_ENV['routes']['error']['controller'] 		= 'index';
-$_ENV['routes']['error']['action'] 			= 'error';
-$_ENV['routes']['error']['layout'] 			= 'default';
-
 // email application errors when not in development mode
 $_ENV['email_errors'] = 'youremail@yourdomain.com'; // use commas for multiple email addresses
 

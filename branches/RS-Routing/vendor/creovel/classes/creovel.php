@@ -42,20 +42,21 @@ class creovel
 		unset($params['_']);
 
 		// set event and params
-		$events = $events ? $events : $route->params;
-		$params = $params ? $params : $route->params;
+		$events = $events ? $events : creovel::get_events(); //$route->params;
+		$params = $params ? $params : creovel::get_params(); //$route->params;
 
-		$controller = str_replace('/', DS, $events['controller']);
+		$controller = str_replace('/', DIRECTORY_SEPARATOR, $events['controller']);
 		self::_include_controller($controller);
 
 		// create controller object and build the framework
+		$controller = (preg_match('/\//', $controller) > 0) ? substr(strrchr($controller, DIRECTORY_SEPARATOR), 1) : $controller;
 		$controller = str_replace(DS, '_', $controller).'_controller';
 		$controller = new $controller();
 		
 		// set controller properties
 		$controller->_set_events($events);
 		$controller->_set_params($params);
-		
+
 		// execute action
 		$controller->_execute_action();
 		

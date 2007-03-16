@@ -1,0 +1,108 @@
+Package: Standards
+
+Section: Commenting
+Here is a sample of how we document all code.
+
+(start code)
+<?php
+
+/*
+	Class: user
+
+	User class to manage users for the site.
+
+	Extends:
+
+		model
+
+	See Also:
+
+		<model>
+
+	Notes:
+
+		If coding was really this simple.
+
+	Todo:
+
+		* Write real code.
+		* Comment my code.
+*/
+
+class user extends model
+{
+	// Section: Public
+
+	/*
+		Property: level
+
+		String - Level of the user.
+	*/
+
+	public $level;
+
+	/*
+		Function: authenticate
+
+		Authenticates the user information against 
+		the *user information in the database*.
+
+		(start code
+
+		$user = new user();
+		$result = $user->authenticate($email, $password);
+
+		(end
+
+		See Also:
+
+			<process_application>
+
+		Parameters:
+
+			email - Users email.
+			password - Users password.
+
+		Returns:
+
+			boolean
+	*/
+
+	public function authenticate($email, $password)
+	{
+		return true;
+	}
+
+	// Section: Private
+
+	/*
+		Property: state
+
+		int - State of the users approval.
+	*/
+
+	public $state
+
+	/*
+		Function: process_application
+
+		Complete the _Application Process_ for the user.
+		Used code from <http://www.php.net/codelinkhere>.
+
+		Parameters:
+
+			parameters - Array of optional arguments.
+
+		Returns:
+
+			boolean - Whether or not the application processed correctly.
+	*/
+
+	private function process_application($parameters = null)
+	{
+		return bool;
+	}
+}
+
+?>
+(end)

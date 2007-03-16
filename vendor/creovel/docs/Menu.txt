@@ -35,6 +35,7 @@ Group: User Documentation  {
    File: Overview  (creovel/docs/user_documentation/overview.txt)
    File: Installation  (creovel/docs/user_documentation/install.txt)
    File: Scripts  (creovel/docs/user_documentation/scripts.txt)
+   File: Standards  (no auto-title, creovel/docs/user_documentation/standards.txt)
    }  # Group: User Documentation
 
 Group: Classes  {
@@ -49,6 +50,7 @@ Group: Classes  {
    File: pager  (creovel/classes/pager.php)
    File: rss  (creovel/classes/rss.php)
    File: session  (creovel/classes/session.php)
+   File: translation  (creovel/classes/translation.php)
    File: unittest  (creovel/classes/unittest.php)
    File: validation  (creovel/classes/validation.php)
    File: view  (creovel/classes/view.php)
@@ -62,7 +64,7 @@ Group: Helpers  {
    File: form  (creovel/helpers/form.php)
    File: framework  (creovel/helpers/framework.php)
    File: general  (creovel/helpers/general.php)
-   File: html  (creovel/helpers/html.php)
+   File: html.php  (creovel/helpers/html.php)
    File: session  (creovel/helpers/session.php)
    File: text  (creovel/helpers/text.php)
    File: validation  (creovel/helpers/validation.php)

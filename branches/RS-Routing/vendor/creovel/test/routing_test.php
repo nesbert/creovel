@@ -2,6 +2,23 @@
 
 class routing_test extends unittest
 {
+	public function setup()
+	{
+		
+		mkdir(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp');
+		mkdir(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp'.DIRECTORY_SEPARATOR.'admin');
+		touch(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp'.DIRECTORY_SEPARATOR.'admin_controller.php');
+		touch(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp'.DIRECTORY_SEPARATOR.'admin'.DIRECTORY_SEPARATOR.'index_controller.php');
+	}
+
+	public function teardown()
+	{
+		unlink(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp'.DIRECTORY_SEPARATOR.'admin'.DIRECTORY_SEPARATOR.'index_controller.php');
+		unlink(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp'.DIRECTORY_SEPARATOR.'admin_controller.php');
+		rmdir(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp'.DIRECTORY_SEPARATOR.'admin');
+		rmdir(CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp');
+	}
+
 	public function test_add_route()
 	{
 		$this->routing = new routing();
@@ -49,7 +66,7 @@ class routing_test extends unittest
 		$this->assert_equal('2007', $route->params['year']);
 		$this->assert_equal(null, $route->params['month']);
 		$this->assert_equal(null, $route->params['day']);
-		
+
 		$route = $this->routing->which_route('users/view/2096');
 		$this->assert_equal(':controller/:action/:id', $route->prototype);
 		$this->assert_equal('users', $route->params['controller']);
@@ -68,7 +85,7 @@ class routing_test extends unittest
 		$this->assert_equal('index', $route->params['action']);
 		$this->assert_equal(null, $route->params['id']);
 
-		$route = $this->routing->which_route('admin/index/manage');
+		$route = $this->routing->which_route('admin/index/manage', CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp');
 		$this->assert_equal(':controller/:action/:id', $route->prototype);
 		$this->assert_equal('admin/index', $route->params['controller']);
 		$this->assert_equal('manage', $route->params['action']);

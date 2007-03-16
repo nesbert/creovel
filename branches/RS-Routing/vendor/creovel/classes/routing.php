@@ -44,7 +44,7 @@ class routing
 
 	*/
 
-	public function which_route($uri)
+	public function which_route($uri, $controllers_path = null)
 	{
 		if ($uri == '/' || $uri == '') {
 
@@ -54,7 +54,7 @@ class routing
 
 			foreach ($this->routes as $route) 
 			{
-				if ($route->match($uri))
+				if ($route->match($uri, $controllers_path))
 				{
 					$match = $route;
 					break;
@@ -85,6 +85,7 @@ class route
 		$this->defaults = $params['defaults'];
 		$this->params = array();
 		$this->segments = array();
+		$this->controllers_path = CONTROLLERS_PATH;
 
 		$this->set_defaults();
 		$this->breakdown();
@@ -95,9 +96,10 @@ class route
 		if (is_array($this->defaults)) foreach ($this->defaults as $k => $v) $this->params[$k] = $v;
 	}
 
-	public function match($uri)
+	public function match($uri, $controllers_path = null)
 	{
 		if ($uri == '') return false;
+		if ($controllers_path == null) CONTROLLERS_PATH;
 
 		$this->params = array();
 		$this->set_defaults();
@@ -126,7 +128,7 @@ class route
 		$path = '';
 		foreach ($this->params as $arg)
 		{
-			if (file_exists(CONTROLLERS_PATH."{$path}{$arg}_controller.php"))
+			if (file_exists($controllers_path."/{$path}{$arg}_controller.php"))
 			{
 				$this->params['controller'] = "{$path}{$arg}";
 				$rest = explode('/', str_replace("{$path}{$arg}/", '', $uri));

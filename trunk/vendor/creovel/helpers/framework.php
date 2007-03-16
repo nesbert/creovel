@@ -266,11 +266,13 @@ function flash_message($message = null, $type = 'notice')
 
 /*
 
-Function: flash_type
-	Returns the $_SESSION['flash']['type']
-
-Returns:
-	string
+	Function: flash_type
+	
+	Returns the $_SESSION['flash']['type'].
+	
+	Returns:
+	
+		String.
 
 */
 
@@ -281,14 +283,17 @@ function flash_type()
 
 /*
 
-Function: flash_warning
-	Alias for flash_message($message, 'warning')
-
-Parameters:
-	message - message for flash
-
-Returns:
-	string or bool
+	Function: flash_warning
+	
+	Alias for flash_message($message, 'notice').
+	
+	Parameters:
+	
+		message - Message for flash
+	
+	Returns:
+	
+		String or boolean.
 
 */
 
@@ -299,14 +304,18 @@ function flash_notice($message = null)
 
 /*
 
-Function: flash_warning
-	Alias for flash_message($message, 'warning')
 
-Parameters:
-	message - message for flash
-
-Returns:
-	string or bool
+	Function: flash_error
+	
+	Alias for flash_message($message, 'error').
+	
+	Parameters:
+	
+		message - Message for flash
+	
+	Returns:
+	
+		String or boolean.
 
 */
 
@@ -317,20 +326,45 @@ function flash_error($message = null)
 
 /*
 
-Function: flash_warning
-	Alias for flash_message($message, 'warning')
 
-Parameters:
-	message - message for flash
-
-Returns:
-	string or bool
+	Function: flash_warning
+	
+	Alias for flash_message($message, 'warning').
+	
+	Parameters:
+	
+		message - Message for flash
+	
+	Returns:
+	
+		String or boolean.
 
 */
 
 function flash_warning($message = null)
 {
 	return flash_message($message, 'warning');
+}
+
+/*
+
+	Function: flash_warning
+	
+	Alias for flash_success($message, 'success')
+	
+	Parameters:
+	
+	message - Message for flash.
+	
+	Returns:
+	
+		String or boolean.
+
+*/
+
+function flash_success($message = null)
+{
+	return flash_message($message, 'success');
 }
 
 /*

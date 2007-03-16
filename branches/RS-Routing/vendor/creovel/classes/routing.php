@@ -85,7 +85,6 @@ class route
 		$this->defaults = $params['defaults'];
 		$this->params = array();
 		$this->segments = array();
-		$this->controllers_path = CONTROLLERS_PATH;
 
 		$this->set_defaults();
 		$this->breakdown();
@@ -128,7 +127,7 @@ class route
 		$path = '';
 		foreach ($this->params as $arg)
 		{
-			if (file_exists($controllers_path."/{$path}{$arg}_controller.php"))
+			if (file_exists($controllers_path.DIRECTORY_SEPARATOR."{$path}{$arg}_controller.php"))
 			{
 				$this->params['controller'] = "{$path}{$arg}";
 				$rest = explode('/', str_replace("{$path}{$arg}/", '', $uri));

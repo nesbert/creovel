@@ -128,14 +128,17 @@ class route
 		$path = '';
 		foreach ($this->params as $arg)
 		{
-			$path .= $arg.DIRECTORY_SEPARATOR;
 			if (file_exists($controllers_path.DIRECTORY_SEPARATOR."{$path}{$arg}_controller.php"))
 			{
 				$this->params['controller'] = "{$path}{$arg}";
-				$rest = explode('/', str_replace("{$path}{$arg}/", '', $uri));
-				$this->params['action'] = $rest[0];
-				$this->params['id'] = $rest[1];
+				$short_uri = str_replace("{$path}{$arg}/", '', $uri);
+				if (preg_match('/\//', $short_uri) > 0) {
+					$rest = explode('/', $short_uri);
+					$this->params['action'] = $rest[0];
+					$this->params['id'] = $rest[1];
+				}
 			}
+			$path .= $arg.DIRECTORY_SEPARATOR;
 		}
 
 		return true;

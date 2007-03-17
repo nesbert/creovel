@@ -23,6 +23,18 @@ class index_controller extends application_controller
 	{
 		$this->say_hello();
 	}
+
+	/*
+	
+		Function: error
+		
+		Sample Error Action
+	
+	*/
+
+	public function error()
+	{
+	}
 	
 	// Section: Private
 	

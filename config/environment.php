@@ -12,7 +12,7 @@
 */
 
 // set application mode
-$_ENV['mode'] = 'development'; // development, test, production
+$_ENV['mode'] = 'production'; // development, test, production
 
 // set development database properties
 $_ENV['development']['adapter']		= 'mysql';
@@ -35,21 +35,11 @@ $_ENV['production']['database']		= '';
 $_ENV['production']['username']		= '';
 $_ENV['production']['password']		= '';
 
-// set default routing: controller, action, layout
-$_ENV['routes']['default']['controller']	= 'index';
-$_ENV['routes']['default']['action'] 		= 'index';
-$_ENV['routes']['default']['layout']		= 'default';
-
-// set error routing: controller, action, layout
-$_ENV['routes']['error']['controller'] 		= 'index';
-$_ENV['routes']['error']['action'] 			= 'error';
-$_ENV['routes']['error']['layout'] 			= 'default';
-
 // email application errors when not in development mode
 $_ENV['email_errors'] = 'youremail@yourdomain.com'; // use commas for multiple email addresses
 
 // set session handler
-$_ENV['sessions'] = false; // false, true, 'table'
+$_ENV['sessions'] = true; // false, true, 'table'
 
 // show source in debugger for all files
 $_ENV['view_source'] = false;

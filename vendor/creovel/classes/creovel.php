@@ -5,13 +5,13 @@
 	
 	The main class where the model, view and controller interact.
 
-*/
+ */
 
 class creovel
 {
 	const VERSION = '0.03';
 	const RELEASE_DATE = 'Feb 27 2007 21:32:55';
-	
+
 	// Section: Public
 	
 	/*
@@ -34,29 +34,29 @@ class creovel
 
 	public function run($events = null, $params = null, $return_as_str = false)
 	{
+		$route = $_ENV['routing']->which_route($_SERVER['REQUEST_URI']);
+
+		// $GLOBALS['HTTP_RAW_POST_DATA'] used for observer ajax calls
+		// Note: HTTP_RAW_POST_DATA must set to on in php.ini
+		$route->params['raw_post'] = str_replace('&_=', '', $GLOBALS['HTTP_RAW_POST_DATA']);
+		unset($params['_']);
+
 		// set event and params
-		$events = $events ? $events : self::get_events();
-		$params = $params ? $params : self::get_params();
-		
-		// include controllers and helpers
-		if ( is_array($events['nested_controllers']) ) {
-			$path = '';
-			foreach ( $events['nested_controllers'] as $nested_controller ) {
-				self::_include_controller($path.$nested_controller);
-				$path .= $nested_controller.DS;
-			}
-		} else {
-			self::_include_controller($events['controller']);
-		}
-		
+		$events = $events ? $events : creovel::get_events();
+		$params = $params ? $params : creovel::get_params();
+
+		$controller = str_replace('/', DIRECTORY_SEPARATOR, $events['controller']);
+		self::_include_controller($controller);
+
 		// create controller object and build the framework
-		$controller = $events['controller'] . '_controller';
+		$controller = (preg_match('/\//', $controller) > 0) ? substr(strrchr($controller, DIRECTORY_SEPARATOR), 1) : $controller;
+		$controller = str_replace(DS, '_', $controller).'_controller';
 		$controller = new $controller();
 		
 		// set controller properties
 		$controller->_set_events($events);
 		$controller->_set_params($params);
-		
+
 		// execute action
 		$controller->_execute_action();
 		
@@ -83,61 +83,8 @@ class creovel
 
 	public function get_events($event_to_return = null, $uri = null)
 	{
-		// read URI which was given in order to access this page, remove any trailing forward slashes
-		$uri = $uri ? $uri : $_SERVER['REQUEST_URI'];
-		$uri = explode('?', ( $uri{strlen($uri) - 1} == '/' ? substr($uri, 0, strlen($uri) - 1) : $uri ));
-
-		if (isset($_ENV['routes'][$uri[0]])) header('Location: '.$_ENV['routes'][$uri[0]]);
-
-		// get event args from uri
-		$args = explode('/', substr($uri[0], 1));
-		
-		// check/set nested controllers
-		$path = '';
-		if ( count($args) ) foreach ( $args as $arg ) {
-			if ( file_exists(CONTROLLERS_PATH.$path.$arg.'_controller.php') ) {
-				$events['nested_controllers'][] = $arg;
-			}
-			$path .= $arg.DS;
-		}
-		
-		// set events for framework with array indexes
-		switch ( true ) {
-		
-			case ( count($events['nested_controllers']) > 1 ):
-				$events['controller'] =  $events['nested_controllers'][ count($events['nested_controllers']) - 1 ];
-				foreach ( $args as $key => $arg ) {
-					if ( $arg == $events['controller'] ) {
-						$events['action'] = $args[ $key + 1 ];
-						$id = $args[ $key + 2 ];
-						break;
-					}
-				}
-			break;
-			
-			case ( count($args) > 2 ):
-				$events['controller'] =  $args[ count($args) - 3 ];
-				$events['action'] = $args[ count($args) - 2 ];
-				$id = $args[ count($args) - 1 ];
-			break;
-			
-			default:
-				$events['controller'] =  $args[0];
-				$events['action'] = $args[1];
-			break;
-			
-		}
-		
-		// return id only
-		if ( $event_to_return == 'id' ) {
-			return $id;
-		}
-		
-		// set controller & action
-		$events['controller'] = $events['controller'] ? $events['controller'] : $_ENV['routes']['default']['controller'];
-		$events['action'] = $events['action'] ? $events['action'] : $_ENV['routes']['default']['action'];
-
-		return ( $event_to_return ? $events[$event_to_return] : $events );
+		$route = $_ENV['routing']->which_route((($uri) ? $uri : $_SERVER['REQUEST_URI']));
+		return (($event_to_return) ? $route->params[$event_to_return] : $route->params );
 	}
 	
 	/*
@@ -156,32 +103,10 @@ class creovel
 	
 	*/
 
-	public function get_params($param_to_return = null)
+	public function get_params($param_to_return = null, $uri = null)
 	{
-		// intialize params	
-		$params = ( $id = self::get_events('id') ) ? array('id'=>$id) : array();
-			
-		$requests = array($_GET, $_POST);
-		
-		// add each request add keys & values to $params
-		foreach ( $requests as $request ) {
-			
-			if ( count($request) === 0 ) continue;
-			foreach ( $request as $field => $value ) $params[$field] = $value;
-		
-		}
-		
-		// $GLOBALS['HTTP_RAW_POST_DATA'] used for observer ajax calls
-		// Note: HTTP_RAW_POST_DATA must set to on in php.ini
-		if ( $GLOBALS['HTTP_RAW_POST_DATA'] ) {
-			$params['raw_post'] = str_replace('&_=', '', $GLOBALS['HTTP_RAW_POST_DATA']);
-		}
-		
-		// unset blank vaiable set by $GLOBALS['HTTP_RAW_POST_DATA']
-		unset($params['_']);
-		
-		return ( $param_to_return ? $params[$param_to_return] : $params );
-	
+		$route = $_ENV['routing']->which_route((($uri) ? $uri : $_SERVER['REQUEST_URI']));
+		return array_merge($_GET, $_POST, $route->params);
 	}
 
 	// Section: Private
@@ -202,9 +127,9 @@ class creovel
 	{
 		// include application controller
 		$controllers = array_merge(array('application'), explode(DS, $controller_path));
-		
+
 		$path = '';
-		
+
 		foreach ( $controllers as $controller ) {
 		
 			$class = $controller . '_controller';
@@ -216,7 +141,7 @@ class creovel
 				if ( $class == '_controller' ) {
 					$_ENV['error']->add("Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
 				}
-				
+
 				if ( file_exists($controller_path) ) {
 					require_once($controller_path);
 				} else {

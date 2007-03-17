@@ -57,7 +57,7 @@ class controller
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
 		if (!$this->render) $this->render = $events['action'];
-		if (!$this->layout) $this->layout = ( $events['layout'] ? $events['layout'] : $_ENV['routes']['default']['layout'] );
+		if (!$this->layout) $this->layout = ( $events['layout'] ? $events['layout'] : 'default' );
 		if ( count($events['nested_controllers']) ) {
 			$this->_nested_controller_path = str_replace($this->_controller, '', implode(DS, $events['nested_controllers']));
 		}
@@ -549,12 +549,12 @@ class controller
 	
 	private function _custom_error($e = null)
 	{
-		// show custom error page
-		if ( is_array($_ENV['routes']['error']) ) {
+		if ($route = $_ENV['routing']->error_route())
+		{
 			error::email_errors($e);
-			creovel::run(array_merge(array('layout' => $_ENV['routes']['error']['layout']), creovel::get_events(null, url_for($_ENV['routes']['error']['controller'], $_ENV['routes']['error']['action']))));
-			die;
+			creovel::run(creovel::get_events(null, $route->prototype), array( 'error' => $e ));
 		}
+		die();
 	}
 	
 	// Section: Callbacks

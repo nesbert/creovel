@@ -41,14 +41,11 @@
 <tr>
 	<td class="sub">Routes</td>
 	<td>
-		<?php if ( count($_ENV['routes']) ) foreach($_ENV['routes'] as $route => $value) { ?>
+		<? if (count($_ENV['routing'])) foreach($_ENV['routing']->routes as $route) { ?>
 		<dl>
-			<dt><?=$route?></dt>
-			<?php if ( count($value) ) foreach($value as $key => $val) { ?>
-			<dd><?=$key?> => <?=$val?></dd>
-			<?php } ?>
+			<dt><?= $route->prototype ?> <? if ($route->name) { ?>(<?= $route->name ?>)<? } ?></dt>
 		</dl>
-		<?php } ?>	
+		<? } ?>	
 	</td>
 </tr>
 <tr>

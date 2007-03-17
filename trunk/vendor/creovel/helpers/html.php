@@ -134,15 +134,40 @@ Returns:
 
 */
 
-function url_for($controller = '', $action = '', $id = '')
+function url_for()
 {
+	$args = func_get_args();
 
-	if ( is_array($id) ){
-		$id = '?'.urlencode_array($id);
+	if (is_array($args[0])) {
+
+		// Set Contoller
+		$controller = ($args[0]['controller']) ? $args[0]['controller'] : get_controller();
+		unset($args[0]['controller']);
+
+		// Set Action
+		$action = ($args[0]['action']) ? $args[0]['action'] : get_action();
+		unset($args[0]['action']);
+
+		// Set ID
+		$id = ($args[0]['id']) ? $args[0]['id'] : null;
+		unset($args[0]['id']);
+
+		// Set Misc
+		$misc = '?'.urlencode_array($args[0]);
+
+		return "/{$controller}/{$action}/{$id}{$misc}";
+
+	} else {
+
+		$controller = $args[0];
+		$action = $args[1];
+		$id = $args[2];
+
+		if (is_array($id)) $id = '?'.urlencode_array($id);
+
+		return '/'.($controller ? $controller.'/'.($action ? $action.'/' : '').($action && $id ? $id : '') : '');
+
 	}
-
-	return '/'.($controller?$controller.'/'.($action?$action.'/':'').($action&&$id?$id:''):'');
-	
 }
 
 /*

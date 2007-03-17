@@ -30,6 +30,7 @@ require_once 'classes/inflector.php';
 require_once 'classes/mailer.php';
 require_once 'classes/model.php';
 require_once 'classes/pager.php';
+require_once 'classes/routing.php';
 require_once 'classes/rss.php';
 require_once 'classes/translation.php';
 require_once 'classes/unittest.php';
@@ -39,6 +40,9 @@ require_once 'classes/xml.php';
 
 // Include environment specific file.
 require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
+
+// Include Routes
+require_once CONFIG_PATH.'routing.php';
 
 // Set error object.
 $_ENV['error'] = new error('application');

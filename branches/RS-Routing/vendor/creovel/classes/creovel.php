@@ -42,8 +42,8 @@ class creovel
 		unset($params['_']);
 
 		// set event and params
-		$events = $events ? $events : creovel::get_events(); //$route->params;
-		$params = $params ? $params : creovel::get_params(); //$route->params;
+		$events = $events ? $events : creovel::get_events();
+		$params = $params ? $params : creovel::get_params();
 
 		$controller = str_replace('/', DIRECTORY_SEPARATOR, $events['controller']);
 		self::_include_controller($controller);

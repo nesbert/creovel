@@ -31,6 +31,16 @@ class routing
 		array_push($this->routes, $route);
 	}
 
+	public function error_route()
+	{
+		return $this->route_by_name('error');
+	}
+
+	public function route_by_name($name)
+	{
+		foreach ($this->routes as $route) if ($route->name == $name) return $route;
+	}
+
 	/*
 
 	Function: which_route
@@ -72,6 +82,7 @@ class routing
 
 class route
 {
+	public $name;
 	public $prototype;
 	public $constraints;
 	public $defaults;
@@ -80,6 +91,7 @@ class route
 
 	public function __construct($params = array())
 	{
+		$this->name = $params['name'];
 		$this->prototype = $params['prototype'];
 		$this->constraints = $params['constraints'];
 		$this->defaults = $params['defaults'];

@@ -549,12 +549,12 @@ class controller
 	
 	private function _custom_error($e = null)
 	{
-		// show custom error page
-		if ( is_array($_ENV['routes']['error']) ) {
+		if ($route = $_ENV['routing']->error_route())
+		{
 			error::email_errors($e);
-			creovel::run(array_merge(array('layout' => $_ENV['routes']['error']['layout']), creovel::get_events(null, url_for($_ENV['routes']['error']['controller'], $_ENV['routes']['error']['action']))));
-			die;
+			creovel::run(creovel::get_events(null, $route->prototype), array( 'error' => $e ));
 		}
+		die();
 	}
 	
 	// Section: Callbacks

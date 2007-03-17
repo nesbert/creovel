@@ -12,7 +12,7 @@
 */
 
 // set application mode
-$_ENV['mode'] = 'development'; // development, test, production
+$_ENV['mode'] = 'production'; // development, test, production
 
 // set development database properties
 $_ENV['development']['adapter']		= 'mysql';
@@ -39,7 +39,7 @@ $_ENV['production']['password']		= '';
 $_ENV['email_errors'] = 'youremail@yourdomain.com'; // use commas for multiple email addresses
 
 // set session handler
-$_ENV['sessions'] = false; // false, true, 'table'
+$_ENV['sessions'] = true; // false, true, 'table'
 
 // show source in debugger for all files
 $_ENV['view_source'] = false;

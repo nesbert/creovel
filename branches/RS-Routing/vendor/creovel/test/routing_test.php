@@ -85,6 +85,7 @@ class routing_test extends unittest
 		$this->assert_equal(null, $route->params['id']);
 
 		$route = $this->routing->which_route('admin/index/manage', CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp');
+		print_r($route->params);
 		$this->assert_equal(':controller/:action/:id', $route->prototype);
 		$this->assert_equal('admin/index', $route->params['controller']);
 		$this->assert_equal('manage', $route->params['action']);

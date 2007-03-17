@@ -1,15 +1,20 @@
 <?php
 
 /*
-
-Class: routing
+	Class: routing
+	
 	Routing class
-
 */
 
 class routing
 {
 	public $routes;
+
+	/*
+		Function: __construct
+
+		Initializes the routes array.
+	*/
 
 	public function __construct()
 	{
@@ -17,13 +22,13 @@ class routing
 	}
 
 	/*
+		Function: add_route
 
-	Function: add_route
 		Append a route to the routes array
 
-	Parameters:
-		route - route object	
-	
+		Parameters:
+
+			route - route object	
 	*/
 
 	public function add_route(route $route)
@@ -31,10 +36,30 @@ class routing
 		array_push($this->routes, $route);
 	}
 
+	/*
+		Function: error_route
+
+		Returns the route with the name of error.
+
+		See Also:
+
+			<route_by_name>
+	*/
+
 	public function error_route()
 	{
 		return $this->route_by_name('error');
 	}
+
+	/*
+		Function: error_route
+
+		Returns the route with the name of error.
+
+		Parameteters:
+
+			name - Name of the route to find.
+	*/
 
 	public function route_by_name($name)
 	{
@@ -42,16 +67,17 @@ class routing
 	}
 
 	/*
+		Function: which_route
 
-	Function: which_route
 		Finds the route that fits best.
 
-	Parameters:
-		uri	- server uri
+		Parameters:
 
-	Returns:
-		route object
+			uri	- server uri
 
+		Returns:
+
+			route object
 	*/
 
 	public function which_route($uri, $controllers_path = null)

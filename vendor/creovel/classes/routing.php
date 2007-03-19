@@ -28,7 +28,7 @@ class routing
 
 		Parameters:
 
-			route - route object	
+			route - route object
 	*/
 
 	public function add_route(route $route)
@@ -140,6 +140,10 @@ class route
 
 		$this->params = array();
 		$this->set_defaults();
+		
+		// clean URI from $_GET
+		$uri = explode('?', $uri);
+		$uri = $uri[0];
 
 		$uri = preg_replace('/^\//', '', $uri);
 		$uri = preg_replace('/\/$/', '', $uri);

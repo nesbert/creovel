@@ -38,12 +38,6 @@ require_once 'classes/validation.php';
 require_once 'classes/view.php';
 require_once 'classes/xml.php';
 
-// Include environment specific file.
-require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
-
-// Include Routes
-require_once CONFIG_PATH.'routing.php';
-
 // Set error object.
 $_ENV['error'] = new error('application');
 
@@ -69,4 +63,12 @@ if ($_ENV['sessions']) {
 if ( !strstr($_SERVER['SCRIPT_NAME'], 'dispatch.php') ) {
 	$_ENV['command_line'] = true;
 }
+
+// Include environment specific file.
+require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
+
+// Set and include routes.
+$_ENV['routing'] = new routing;
+require_once CONFIG_PATH.'routing.php';
+
 ?>

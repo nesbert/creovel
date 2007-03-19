@@ -28,9 +28,9 @@ $_ENV['test']['password']			= '';
 
 // Set production database properties.
 $_ENV['production']['adapter']		= 'mysql';
-$_ENV['production']['database']	= 'creovel_production';
-$_ENV['production']['host']		= 'localhost';
-$_ENV['production']['username']	= 'root';
-$_ENV['production']['password']	= '';
+$_ENV['production']['database']		= 'creovel_production';
+$_ENV['production']['host']			= 'localhost';
+$_ENV['production']['username']		= 'root';
+$_ENV['production']['password']		= '';
 
 ?>

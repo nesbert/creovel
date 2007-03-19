@@ -29,11 +29,18 @@ class routing_test extends unittest
 	public function test_routing_match()
 	{
 		$this->routing = new routing();
+		$this->routing->add_route(new route(array( 'prototype' => 'users/:user_name/:action', 'defaults' => array( 'controller' => 'users' ))));
 		$this->routing->add_route(new route(array( 'prototype' => 'projects/:project_id/:controller/:action/:id' )));
 		$this->routing->add_route(new route(array( 'prototype' => 'date/:year/:month/:day', 'defaults' => array( 'controller' => 'blog', 'action' => 'by_date', 'month' => null, 'day' => null ), 'constraints' => array( 'year' => '/\d{4}/', 'month' => '/\d{1,2}/', 'day' => '/\d{1,2}/' ) )));
 		$this->routing->add_route(new route(array( 'prototype' => ':controller/:action/:id' )));
 
-		$this->assert_equal(3, count($this->routing->routes));
+		$this->assert_equal(4, count($this->routing->routes));
+
+		$route = $this->routing->which_route('users/beeballr/edit');
+		$this->assert_equal('users/:user_name/:action', $route->prototype);
+		$this->assert_equal('beeballr', $route->params['user_name']);
+		$this->assert_equal('users', $route->params['controller']);
+		$this->assert_equal('edit', $route->params['action']);
 
 		$route = $this->routing->which_route('projects/24/tickets/view/2096');
 		$this->assert_equal('projects/:project_id/:controller/:action/:id', $route->prototype);
@@ -66,12 +73,6 @@ class routing_test extends unittest
 		$this->assert_equal(null, $route->params['month']);
 		$this->assert_equal(null, $route->params['day']);
 
-		$route = $this->routing->which_route('users/view/2096');
-		$this->assert_equal(':controller/:action/:id', $route->prototype);
-		$this->assert_equal('users', $route->params['controller']);
-		$this->assert_equal('view', $route->params['action']);
-		$this->assert_equal('2096', $route->params['id']);
-
 		$route = $this->routing->which_route('index/index');
 		$this->assert_equal(':controller/:action/:id', $route->prototype);
 		$this->assert_equal('index', $route->params['controller']);
@@ -85,7 +86,6 @@ class routing_test extends unittest
 		$this->assert_equal(null, $route->params['id']);
 
 		$route = $this->routing->which_route('admin/index/manage', CREOVEL_PATH.'test'.DIRECTORY_SEPARATOR.'temp');
-		print_r($route->params);
 		$this->assert_equal(':controller/:action/:id', $route->prototype);
 		$this->assert_equal('admin/index', $route->params['controller']);
 		$this->assert_equal('manage', $route->params['action']);

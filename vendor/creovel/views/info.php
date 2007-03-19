@@ -14,7 +14,11 @@
 	<td>
 		<em>
 		<?php if ( $adapters = get_creovel_adapters() ) foreach ( $adapters as $name => $file) { ?>
-		<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$file?>"><?=$name?></a>
+			<?php if ( $_ENV['view_source'] ) { ?>
+			<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$file?>"><?=$name?></a>
+			<?php } else { ?>
+			<?=$name?>
+			<?php } ?>
 		<?php } else { ?>
 		Not Available
 		<?php } ?>
@@ -26,7 +30,11 @@
 	<td>
 		<em>
 		<?php if ( $services = get_creovel_services() ) foreach ( $services as $name => $file) { ?>
-		<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$file?>"><?=$name?></a>
+			<?php if ( $_ENV['view_source'] ) { ?>
+			<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$file?>"><?=$name?></a>
+			<?php } else { ?>
+			<?=$name?>
+			<?php } ?>
 		<?php } else { ?>
 		Not Available
 		<?php } ?>

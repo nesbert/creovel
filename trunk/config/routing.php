@@ -15,4 +15,6 @@
 $_ENV['routing']->add_route(new route(array( 'name' => 'default', 'prototype' => ':controller/:action/:id' )));
 $_ENV['routing']->add_route(new route(array( 'name' => 'error', 'prototype' => 'index/error' )));
 
+
+//print_obj($_ENV['routing'], 1);
 ?>

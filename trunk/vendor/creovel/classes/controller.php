@@ -549,7 +549,7 @@ class controller
 	
 	private function _custom_error($e = null)
 	{
-		if ($route = $_ENV['routing']->error_route())
+		if ($route = $_ENV['routing']->error)
 		{
 			error::email_errors($e);
 			creovel::run(creovel::get_events(null, $route->prototype), array( 'error' => $e ));

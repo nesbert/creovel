@@ -1,2 +1,2 @@
-<h1>An Error Ocurred</h1>
-<?= $this->params['error']->getMessage() ?>
+<h1>An Error Occurred</h1>
+Sorry, an error occurred while processing your lat request.

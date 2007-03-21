@@ -1,21 +1,20 @@
 <?php
-/*
 
+/*
 	Class: creovel
 	
 	The main class where the model, view and controller interact.
-
- */
+*/
 
 class creovel
 {
+
 	const VERSION = '0.03';
 	const RELEASE_DATE = 'Feb 27 2007 21:32:55';
 
 	// Section: Public
 	
 	/*
-	
 		Function: run
 		
 		Runs the framework.
@@ -29,27 +28,21 @@ class creovel
 		Returns:
 		
 			<controller> object or string.
-	
 	*/
 
 	public function run($events = null, $params = null, $return_as_str = false)
 	{
-		$route = $_ENV['routing']->which_route($_SERVER['REQUEST_URI']);
-
-		// $GLOBALS['HTTP_RAW_POST_DATA'] used for observer ajax calls
-		// Note: HTTP_RAW_POST_DATA must set to on in php.ini
-		$route->params['raw_post'] = str_replace('&_=', '', $GLOBALS['HTTP_RAW_POST_DATA']);
-		unset($params['_']);
-
 		// set event and params
 		$events = $events ? $events : creovel::get_events();
 		$params = $params ? $params : creovel::get_params();
-
-		$controller = str_replace('/', DIRECTORY_SEPARATOR, $events['controller']);
+		
+		#print_obj(array($events, $params), 1);
+		
+		$controller = str_replace('/', DS, $events['controller']);
 		self::_include_controller($controller);
 
 		// create controller object and build the framework
-		$controller = (preg_match('/\//', $controller) > 0) ? substr(strrchr($controller, DIRECTORY_SEPARATOR), 1) : $controller;
+		$controller = (preg_match('/\//', $controller) > 0) ? substr(strrchr($controller, DS), 1) : $controller;
 		$controller = str_replace(DS, '_', $controller).'_controller';
 		$controller = new $controller();
 		
@@ -65,7 +58,6 @@ class creovel
 	}
 	
 	/*
-	
 		Function: get_events
 		
 		Returns the framework events (controller, action & id).
@@ -77,18 +69,16 @@ class creovel
 		
 		Returns:
 		
-			Array.
-			
+			Events array.
 	*/
 
 	public function get_events($event_to_return = null, $uri = null)
 	{
-		$route = $_ENV['routing']->which_route((($uri) ? $uri : $_SERVER['REQUEST_URI']));
-		return (($event_to_return) ? $route->params[$event_to_return] : $route->params );
+		$events = $_ENV['routing']->events($uri);
+		return (($event_to_return) ? $events[$event_to_return] : $events );
 	}
 	
 	/*
-	
 		Function get_params
 		
 		Returns the framework params.
@@ -99,20 +89,33 @@ class creovel
 			
 		Returns:
 		
-			Array.
-	
+			Params array.
 	*/
 
 	public function get_params($param_to_return = null, $uri = null)
 	{
-		$route = $_ENV['routing']->which_route((($uri) ? $uri : $_SERVER['REQUEST_URI']));
-		return array_merge($_GET, $_POST, $route->params);
+		$params = $_ENV['routing']->params($uri);
+		
+		// clean controller (eg. admin/users)
+		if ( count( $c = explode('/', $params['controller'] ) ) > 1 ) {
+			$params['controller'] = $c[ count($c) - 1 ];
+			array_pop($c);
+			$params['nested_controller'] = implode('/', $c);
+		}
+		
+		$params = array_merge($params, $_GET, $_POST);
+		// $GLOBALS['HTTP_RAW_POST_DATA'] used for observer ajax calls
+		// Note: HTTP_RAW_POST_DATA must set to on in php.ini
+		if ( isset($GLOBALS['HTTP_RAW_POST_DATA']) ) {
+			$params =  array_merge( $params, array( 'raw_post' => str_replace('&_=', '', $GLOBALS['HTTP_RAW_POST_DATA']) ) );
+		}
+		unset($params['_']);
+		return $params;
 	}
 
 	// Section: Private
 
 	/*
-	
 		Function: _include_controller
 		
 		Includes the required files for a controller and the controller helpers.
@@ -120,7 +123,6 @@ class creovel
 		Parameters:	
 		
 			controller_path - Server path of controller to include.
-	
 	*/
 
 	private function _include_controller($controller_path)

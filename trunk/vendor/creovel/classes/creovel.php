@@ -129,9 +129,9 @@ class creovel
 	{
 		// include application controller
 		$controllers = array_merge(array('application'), explode(DS, $controller_path));
-
+		
 		$path = '';
-
+		
 		foreach ( $controllers as $controller ) {
 		
 			$class = $controller . '_controller';
@@ -139,13 +139,13 @@ class creovel
 			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
 			
 			try {
-			
+				
 				if ( $class == '_controller' ) {
 					$_ENV['error']->add("Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
 				}
-
+				
 				if ( file_exists($controller_path) ) {
-					require_once($controller_path);
+					require_once $controller_path;
 				} else {
 					$controller_path = str_replace($class . '.php', '', $controller_path);
 					throw new Exception("Controller '{$class}' not found in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
@@ -159,7 +159,7 @@ class creovel
 			}
 			
 			// include helper
-			if ( file_exists($helper_path) ) require_once($helper_path);
+			if ( file_exists($helper_path) ) require_once $helper_path;
 			
 			// append to path if a nested controller
 			$path .= str_replace('application'.DS, '', $controller.DS);

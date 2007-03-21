@@ -13,7 +13,7 @@
 */
 
 // Set application mode.
-$_ENV['mode'] = 'development'; // development, test, production
+$_ENV['mode'] = 'production'; // development, test, production
 
 // Email application errors when not in development mode (set to enable).
 $_ENV['email_errors'] = 'youremail@yourdomain.com'; // use commas for multiple email addresses

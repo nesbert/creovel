@@ -7,6 +7,9 @@
 
 */
 
+// Include database connection settings.
+require_once CONFIG_PATH . 'database.php';
+
 // Include base helpers library.
 require_once 'constants/common.php';
 
@@ -67,8 +70,14 @@ if ( !strstr($_SERVER['SCRIPT_NAME'], 'dispatch.php') ) {
 // Include environment specific file.
 require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
 
-// Set and include routes.
+// Set routing object.
 $_ENV['routing'] = new routing;
-require_once CONFIG_PATH.'routing.php';
+
+// Set default routes
+mapper::connect();
+mapper::connect('index/error', array( 'name' => 'error' ));
+
+// Include custom routes.
+require_once CONFIG_PATH . 'routes.php';
 
 ?>

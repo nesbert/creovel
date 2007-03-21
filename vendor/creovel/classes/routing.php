@@ -1,26 +1,25 @@
 <?php
 
-/*
-	Class: routing
-	
-	Routing class
-*/
-
 class routing
 {
-	public $routes;
-
-	/*
-		Function: __construct
-
-		Initializes the routes array.
-	*/
-
-	public function __construct()
+	
+	public static $routes;
+	public static $uri = '';
+	
+	function __construct()
 	{
-		$this->routes = array();
+		$this->set_uri();
 	}
 
+	public function set_uri($uri = null)
+	{
+		if ( !$uri ) {
+			$uri = explode('?', $_SERVER['REQUEST_URI']);
+			$uri = $uri[0];
+		}
+		$this->uri = $uri;
+	}
+	
 	/*
 		Function: add_route
 
@@ -28,200 +27,285 @@ class routing
 
 		Parameters:
 
-			route - route object
+			route_path - Route path string.
 	*/
 
-	public function add_route(route $route)
+	public function add_route($route_path, $segments, $events, $name = null)
 	{
-		array_push($this->routes, $route);
-	}
-
-	/*
-		Function: error_route
-
-		Returns the route with the name of error.
-
-		See Also:
-
-			<route_by_name>
-	*/
-
-	public function error_route()
-	{
-		return $this->route_by_name('error');
-	}
-
-	/*
-		Function: error_route
-
-		Returns the route with the name of error.
-
-		Parameteters:
-
-			name - Name of the route to find.
-	*/
-
-	public function route_by_name($name)
-	{
-		foreach ($this->routes as $route) if ($route->name == $name) return $route;
-	}
-
-	/*
-		Function: which_route
-
-		Finds the route that fits best.
-
-		Parameters:
-
-			uri	- server uri
-
-		Returns:
-
-			route object
-	*/
-
-	public function which_route($uri, $controllers_path = null)
-	{
-		if ($uri == '/' || $uri == '') {
-
-			$match = $this->routes[(count($this->routes) - 1)];
-
+		if ( $name == 'default' || ( !count($this->routes) && !$name ) ) {
+			$label = 'default';
+		} else if ( !$name ) {
+			$label = $route_path;
 		} else {
-
-			foreach ($this->routes as $route) 
-			{
-				if ($route->match($uri, $controllers_path))
-				{
-					$match = $route;
-					break;
-				}
+			$label = $name;
+		}
+		
+		// clean segments and get params
+		$params = $segments;
+		unset($params[$events['controller']->value]);
+		unset($params['controller']);
+		unset($params['action']);
+		
+		$obj = (object) array( 'route_path' => $route_path, 'events' => $events, 'params' => $params, 'parts' => $segments );
+		
+		// default last in routes array
+		if ( $label == 'default' ) {
+			$this->routes[$label] = $obj;
+		} else {
+			$this->routes = array_merge(array( $label =>  $obj ), $this->routes);
+		}
+	}
+	
+	public function events($uri)
+	{
+		return $this->which_route($uri);
+	}
+	
+	public function params($uri)
+	{
+		return $this->which_route($uri, true);
+	}
+	
+	public function which_route($uri = null, $return_params = false)
+	{
+		$uri = $uri ? $uri : $this->uri;
+		#print_obj($this, 1);
+		// return default route
+		if ( $uri == '/' ) {
+			if ($return_params) {
+				return $this->filter_params($this->routes['default']->params);
+			} else {
+				return $this->filter_events($this->routes['default']->events);
 			}
-
 		}
 
-		$match->params['controller'] = ($match->params['controller'] == '') ? 'index' : $match->params['controller'];
-		$match->params['action'] = ($match->params['action'] == '') ? 'index' : $match->params['action'];
-
-		return $match;
+		// set uri
+		$uri = $this->trim_regex($uri);
+		
+		$pieces = explode('/', $uri);
+		
+		foreach ( $this->routes as $name => $route ) {
+			// skip default route
+			if ( $name == 'default' ) continue;
+			// build pattern form parts
+			$pattern = $this->parts_regex($route->parts, count($pieces));
+			// if match return events
+			#print_obj("{$name} -> preg_match($pattern, $uri)");
+			if ( preg_match($pattern, $uri) ) {
+				#print_obj("{$name} -> preg_match($pattern, $uri)");
+				if ($return_params) {
+					return $this->filter_params($route->params);
+				} else {
+					return $this->filter_events($route->events);
+				}
+			}
+		}
+		
+		if ($return_params) {
+			return $this->filter_params($this->routes['default']->params);
+		} else {
+			return $this->filter_events($this->routes['default']->events);
+		}
 	}
+	
+	public function filter_events($events)
+	{
+		return array( 'controller' => $events['controller']->value, 'action' => $events['action']->value );
+	}
+	
+	public function filter_params($params)
+	{
+		$return = array();
+		#print_obj($params, 1);
+		foreach ($params as $param ) {
+			if ($param->type == 'static') continue;
+			if ($param->value) $return[$param->name] = $param->value;
+		}
+		return $return;
+	}
+	
+	public function parts_regex($parts, $limit)
+	{
+		$regex = '/^';
+		$count = 0;
+		foreach ( $parts as $segment ) {
+			$count++;
+			
+			switch ( true ) {
+				
+				case ( $segment->type == 'static' ):
+					$regex .= $segment->value;
+				break;
+				
+				case ( $segment->value && !$segment->constraint ):
+					$regex .= '\w*';
+				break;
+				
+				default:
+					$regex .= $this->trim_regex($segment->constraint);
+				break;
+			}
+			
+			if ( $count == $limit ) break;
+			
+			if ( count($parts) != $count ) {
+				$regex .= '\/';
+			}
+		}
+		$regex .= '/';
+		
+		//echo $regex;
+		return $regex;
+	}
+	
+	function trim_regex($pattern)
+	{
+		$pattern = preg_replace('/^\//', '', $pattern);
+		$pattern = preg_replace('/\/$/', '', $pattern);
+		return $pattern;
+	}
+
 }
 
-class route
+class mapper
 {
-	public $name;
-	public $prototype;
-	public $constraints;
-	public $defaults;
-	public $params;
-	public $segments;
 
-	public function __construct($params = array())
+	public function connect($route_path = ':controller/:action/:id', $options = null)
 	{
-		$this->name = $params['name'];
-		$this->prototype = $params['prototype'];
-		$this->constraints = $params['constraints'];
-		$this->defaults = $params['defaults'];
-		$this->params = array();
-		$this->segments = array();
-
-		$this->set_defaults();
-		$this->breakdown();
-	}
-
-	public function set_defaults()
-	{
-		if (is_array($this->defaults)) foreach ($this->defaults as $k => $v) $this->params[$k] = $v;
-	}
-
-	public function match($uri, $controllers_path = null)
-	{
-		if ($uri == '') return false;
-		if ($controllers_path == null) $controllers_path = CONTROLLERS_PATH;
-
-		$this->params = array();
-		$this->set_defaults();
+		if ( count($options) ) foreach ( $options as $k => $v ) {
+			$temp[self::clean_label($k)] = $v;
+			$options = $temp;
+		}
+		// set default options
+		$options['controller'] = isset($options['controller']) ? $options['controller'] : 'index';
+		$options['action'] = isset($options['action']) ? $options['action'] : 'index';
+		$options['name'] = ( $route_path == ':controller/:action/:id' ? 'default' : $options['name'] );
 		
-		// clean URI from $_GET
-		$uri = explode('?', $uri);
-		$uri = $uri[0];
-
-		$uri = preg_replace('/^\//', '', $uri);
-		$uri = preg_replace('/\/$/', '', $uri);
-
-		$pieces = explode('/', $uri);
-
-		for ($i = 0; $i < count($pieces); $i++)
-		{
-			if (!isset($this->defaults[$pieces[$i]]))
-			{
-				if (isset($this->segments[$i])) //return true;
-				{
-					$result = $this->segments[$i]->match($pieces[$i]);
-
-					if ($result != false) {
-						if ($this->segments[$i]->name != $this->segments[$i]->value) $this->params[$this->segments[$i]->name] = $result;
-					} else {
-						return false;
-					}
-				}
+		// create path segments
+		$path_segments = self::clean_explode('/', $route_path);
+		//print_obj($path_segments);
+		
+		// create uri segments
+		$uri_segments = self::clean_explode('/', $_ENV['routing']->uri);
+		//print_obj($uri_segments);
+		
+		// create segments array
+		$segments = array();
+		
+		// group from path and uri segements and create segment objects
+		foreach ( $uri_segments as $k => $v ) {
+			if ( isset($path_segments[$k]) ) {
+				$segment = self::create_segment($path_segments[$k], $v);
+				$segments[$segment->name] = $segment;
 			}
 		}
-
-		$path = '';
-		foreach ($this->params as $arg)
-		{
-			if (file_exists($controllers_path.DIRECTORY_SEPARATOR."{$path}{$arg}_controller.php"))
-			{
-				$this->params['controller'] = $path.$arg;
-				$short_uri = str_replace("{$path}{$arg}/", '', $uri);
-				$rest = explode('/', $short_uri);
-				$this->params['action'] = $rest[0];
-				$this->params['id'] = $rest[1];
+		
+		// check $segments has each $path_segment
+		foreach ( $path_segments as $k => $v ) {
+			$label = self::clean_label($v);
+			if ( !array_key_exists($label, $segments) ) {
+				$segment = self::create_segment($v, $options[$label]);
+				$segments[$segment->name] = $segment;
 			}
-			$path .= $arg.DIRECTORY_SEPARATOR;
 		}
-
-		return true;
+		
+		// set events
+		$events = array();
+		if ( array_key_exists('controller', $segments) ) {
+			$events['controller'] = $segments['controller'];
+		} else {
+			$events['controller'] = new segment('controller', 'static', $options['controller']);
+		}
+		if ( array_key_exists('action', $segments) ) {
+			$events['action'] = $segments['action'];
+		} else {
+			$events['action'] = new segment('action', 'static', $options['action']);
+		}
+		
+		// check for requirements
+		if ( isset($options[requirements]) ) foreach ( $options[requirements] as $label => $constraint ) {
+			$segments[self::clean_label($label)]->constraint = $constraint;
+		}
+		
+		// set custom options
+		foreach ( $options as $k => $v ) {
+			switch ( $k )
+			{
+				case 'controller':
+				case 'action':
+				case 'name':
+				case 'requirements':
+				break;
+				
+				default:
+					$segments[self::clean_label($k)] = self::create_segment(self::clean_label($kl), $v);
+				break;
+			}
+		}
+		
+		//echo $route_path;
+		//print_obj($events);
+		//print_obj($segments);
+		
+		$_ENV['routing']->add_route($route_path, $segments, $events, $options['name']);
 	}
-
-	public function breakdown()
+	
+	public function clean_explode($seperator, $string)
 	{
-		if (!isset($this->prototype) || $this->prototype == '') return false;
-
-		foreach (explode('/', $this->prototype) as $piece)
-		{
-			$segment = new segment();
-			$segment->name = str_replace(':', '', $piece);
-			$segment->value = (!strstr($piece, ':')) ? $piece : null;
-			$segment->constraint = $this->constraints[str_replace(':', '', $piece)];
-
-			array_push($this->segments, $segment);
-		}
+		$temp = explode($seperator, $string);
+		if ( !$temp[0] ) array_shift($temp);
+		if ( !$temp[count($temp) - 1] ) array_pop($temp);
+		return $temp;
 	}
+	
+	public function clean_label($label)
+	{
+		 return ( $label{0} == ':' ? substr($label, 1) : $label );
+	}
+	
+	private function create_segment($name, $value)
+	{
+		switch ( true )
+		{
+			// dynamic segement
+			case ( $name{0} == ':' ):
+				$name = substr($name, 1);
+				$segment = new segment($name, 'dynamic', $value);
+			break;
+			
+			// static segement
+			default:
+				$segment = new segment($name, 'static', $name);
+			break;
+		}
+		return $segment;
+	}
+
 }
 
 class segment
 {
+	
 	public $name;
+	public $type;
 	public $value;
 	public $constraint;
-
-	public function __construct($params = array())
+	
+	public function __construct($name, $type, $value, $constraint = null)
 	{
-		$this->name = $params['name'];
-		$this->value = $params['value'];
-		$this->constraint = $params['constraint'];
+		$this->name = $name;
+		$this->type = $type;
+		$this->value = $value;
+		$this->constraint = $constraint;
 	}
-
-	public function match($value)
+	
+	public function is_match($value)
 	{
-		$this->constraint = (!is_null($this->constraint)) ? $this->constraint : '/\w*/';
-
-		if (!is_null($this->value)) return ($this->value == $value);
-		if ((bool)preg_match($this->constraint, $value)) return $value;
-
+		if ( $this->value == $value ) return true;
+		if ( !$this->constraint ) return false;
+		if ( (bool) preg_match($this->constraint, $value) ) return true;
 		return false;
 	}
-}
 
+}
 ?>

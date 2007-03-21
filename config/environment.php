@@ -24,9 +24,6 @@ $_ENV['sessions'] = true; // false, true, 'table'
 // show source in debugger for all files
 $_ENV['view_source'] = false;
 
-// Include database connection settings.
-require_once 'database.php';
-
 // Include application paths.
 require_once 'paths.php';
 

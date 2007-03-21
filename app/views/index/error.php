@@ -1,2 +1,3 @@
-<h1>An Error Occurred</h1>
-Sorry, an error occurred while processing your lat request.
+<h1>Custom Error</h1>
+<p>Sorry, an error occurred while processing your last request.</p>
+<p><?=$this->params['error']->getMessage()?></p>

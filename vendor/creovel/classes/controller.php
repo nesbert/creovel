@@ -487,7 +487,7 @@ class controller
 				return $view_path;
 			} else {
 				return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
-			}		
+			}
 		} else {
 			return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
 		}
@@ -549,12 +549,10 @@ class controller
 	
 	private function _custom_error($e = null)
 	{
-		if ($route = $_ENV['routing']->error)
-		{
-			error::email_errors($e);
-			creovel::run(creovel::get_events(null, $route->prototype), array( 'error' => $e ));
-		}
-		die();
+		error::email_errors($e);
+		$this->params['error'] = $e;
+		creovel::run($_ENV['routing']->route_error(), $this->params);
+		die;
 	}
 	
 	// Section: Callbacks

@@ -178,6 +178,12 @@ class error
 		// email errors
 		if ( $_ENV['mode'] != 'development' && isset($_ENV['email_errors']) ) $this->email_errors($exception);
 		
+		// custom error
+		if ( $_ENV['mode'] != 'development' ) {
+			creovel::run($_ENV['routing']->route_error(), array( 'error' => $exception ));
+			die;
+		}
+		
 		// clean output buffer for application errors
 		@ob_end_clean();
 		

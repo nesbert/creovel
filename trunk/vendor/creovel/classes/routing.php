@@ -1,16 +1,66 @@
 <?php
 
+/*
+	Class: routing
+	
+	Routing class to allow for customer URLs.
+*/
+
 class routing
 {
 	
-	public static $routes;
-	public static $uri = '';
+	// Section: Public
+
+	/*
+		Property: uri
+		
+		Uniform Resource Identifier.
+	*/
+	
+	public $uri = '';
+	
+	/*
+		Property: current
+		
+		Route object of matching URI and route.
+	*/
+	
+	public $current;
+	
+	/*
+		Property: routes
+		
+		Array of all routes created.
+	*/
+	
+	public $routes;
+	
+	/*
+		Function: set_uri
+		
+		Set $uri for class and clean it from params.
+		
+		Parameters:
+		
+			uri - URI string.
+	*/
+	
 	
 	function __construct()
 	{
 		$this->set_uri();
 	}
-
+	
+	/*
+		Function: set_uri
+		
+		Set $uri for class and clean it from params.
+		
+		Parameters:
+		
+			uri - URI string.
+	*/
+	
 	public function set_uri($uri = null)
 	{
 		if ( !$uri ) {
@@ -22,75 +72,80 @@ class routing
 	
 	/*
 		Function: add_route
-
+		
 		Append a route to the routes array
-
+		
 		Parameters:
-
-			route_path - Route path string.
+		
+			name - Route name.
+			route - Route object.
 	*/
-
-	public function add_route($route_path, $segments, $events, $name = null)
+	
+	public function add_route($name, $route)
 	{
-		if ( $name == 'default' || ( !count($this->routes) && !$name ) ) {
-			$label = 'default';
-		} else if ( !$name ) {
-			$label = $route_path;
-		} else {
-			$label = $name;
-		}
-		
-		// clean segments and get params
-		$params = array();
-		foreach ( $segments as $part ) {
-			if ( $part->type == 'static' ) continue;
-			$params[$part->name] = $part;
-		}
-
-		unset($params[$events['controller']->name]);
-		unset($params['controller']);
-		unset($params['action']);
-		
-		$obj = (object) array( 'route_path' => $route_path, 'events' => $events, 'params' => $params, 'parts' => $segments );
+		// set route name
+		//if ( !count($this->routes) && !$name ) $name = 'default';
 		
 		// default last in routes array
-		if ( $label == 'default' ) {
-			$this->routes[$label] = $obj;
+		if ( $name == 'default' ) {
+			$this->routes[$name] = $route;
 		} else {
-			$this->routes = array_merge(array( $label =>  $obj ), $this->routes);
+			$this->routes = array_merge(array( $name =>  $route ), $this->routes);
 		}
 	}
+	
+	/*
+		Function: events
+		
+		Get events from route.
+		
+		Parameters:
+		
+			uri - URI.
+			
+		Returns:
+		
+			An array of events.
+	*/
 	
 	public function events($uri)
 	{
 		return $this->which_route($uri);
 	}
 	
+	/*
+		Function: params
+		
+		Get params from route.
+		
+		Parameters:
+		
+			uri - URI.
+			
+		Returns:
+		
+			An array of params.
+	*/
+	
 	public function params($uri)
 	{
 		return $this->which_route($uri, true);
 	}
 	
-	public function filter_events($events)
-	{
-		return array( 'controller' => $events['controller']->value, 'action' => $events['action']->value );
-	}
-	
-	public function filter_params($params)
-	{
-		$return = array();
-		foreach ($params as $param ) {
-			if ($param->value) $return[$param->name] = $param->value;
-		}
-		return $return;
-	}
-	
 	public function which_route($uri = null, $return_params = false)
 	{
 		$uri = $uri ? $uri : $this->uri;
-		#print_obj($this, 1);
+
 		// return default route
-		if ( $uri == '/' ) return $this->route_default($return_params);
+		if ( $uri == '/' ) {
+			// set current
+			$this->current = $this->routes['default'];
+			if ($return_params) {
+				return $this->default_params();
+			} else {
+				return $this->default_events();
+			}
+		}
 		
 		// set uri
 		$uri = $this->trim_regex($uri);
@@ -103,18 +158,26 @@ class routing
 			// build pattern form parts
 			$pattern = $this->parts_regex($route->parts, count($pieces));
 			// if match return events
-			#print_obj("{$name} -> preg_match($pattern, $uri)");
 			if ( preg_match($pattern, $uri) ) {
-				#print_obj("{$name} -> preg_match($pattern, $uri)");
+				// set current
+				$this->current = $route;
 				if ($return_params) {
-					return $this->filter_params($route->params);
+					return $route->params;
 				} else {
-					return $this->filter_events($route->events);
+					return $route->events;
 				}
 			}
 		}
 		
-		return $this->route_default($return_params);
+		// set current
+		$this->current = $this->routes['default'];
+		
+		if ($return_params) {
+			return $this->default_params();
+		} else {
+			return $this->default_events();
+		}
+		
 	}
 	
 	public function parts_regex($parts, $limit)
@@ -158,20 +221,59 @@ class routing
 		return $pattern;
 	}
 	
-	public function route_default($return_params = false)
+	public function default_events()
 	{
-		if ($return_params) {
-			return $this->filter_params($this->routes['default']->params);
-		} else {
-			return $this->filter_events($this->routes['default']->events);
-		}
+		return $this->routes['default']->events;
 	}
 	
-	public function route_error()
+	public function default_params()
 	{
-		return $this->filter_events($this->routes['error']->events);
+		return $this->routes['default']->params;
+	}
+	
+	public function error_events()
+	{
+		return $this->routes['error']->events;
 	}
 
+}
+
+class route
+{
+	public $path;
+	public $events;
+	public $params;
+	public $parts;
+	
+	public function __construct($path, $events, $params, $parts)
+	{
+		$this->path = $path;
+		$this->events = $this->filter_events($events);
+		$this->params = $this->filter_params($params);
+		$this->parts = $parts;
+	}
+	
+	public function filter_events($events)
+	{
+		$return = array();
+		foreach ( $events as $label => $event ) {
+			if ( $label == 'nested_controllers' ) {
+				$return[$label] = $event;
+				continue;
+			}
+			$return[$label] = $event->value;
+		}
+		return $return;
+	}
+	
+	public function filter_params($params)
+	{
+		$return = array();
+		foreach ( $params as $param ) {
+			if ($param->value) $return[$param->name] = $param->value;
+		}
+		return $return;
+	}	
 }
 
 class mapper
@@ -185,7 +287,7 @@ class mapper
 			}
 			$options = $temp;
 		}
-		
+
 		// set default options
 		$options['controller'] = isset($options['controller']) ? $options['controller'] : 'index';
 		$options['action'] = isset($options['action']) ? $options['action'] : 'index';
@@ -259,8 +361,57 @@ class mapper
 			$segments[self::clean_label($label)]->constraint = $constraint;
 		}
 		
+		// set params, clean segments and get params
+		$params = array();
+		foreach ( $segments as $part ) {
+			if ( $part->type == 'static' ) continue;
+			$params[$part->name] = $part;
+		}
+		
+		// if default route check/set nested controllers
+		if ( $options['name'] == 'default' ) {
+			$path = '';
+			if ( count($uri_segments) >= 2 ) {
+				foreach ( $uri_segments as $arg ) {
+					if ( file_exists(CONTROLLERS_PATH.$path.$arg.'_controller.php') ) {
+						$events['nested_controllers'][] = $arg;
+					}
+					$path .= $arg.DS;
+				}
+				
+				if ( $events['nested_controllers'] >= 2 ) {
+					
+					$events['controller'] = new segment('controller', 'static', $events['nested_controllers'][ count($events['nested_controllers']) - 1 ]);
+				
+					foreach ( $uri_segments as $key => $arg ) {
+						if ( $arg == $events['controller']->value ) {
+							$events['action'] = new segment('action', 'dynamic', $uri_segments[ $key + 1 ]);
+							$params['id'] = new segment('id', 'dynamic', $uri_segments[ $key + 2 ]);
+						}
+					
+					}
+					
+					// pop currentcontroller
+					array_pop($events['nested_controllers']);
+					
+					// clear segments not vaild for nested controllers
+					$segments = array();
+				}
+				
+			}
+			
+		}
+		
+		// clean params
+		unset($params[$events['controller']->name]);
+		unset($params['controller']);
+		unset($params['action']);
+		
+		// create route object
+		$route = new route($route_path, $events, $params, $segments);
+		
 		// add to routing class
-		$_ENV['routing']->add_route($route_path, $segments, $events, $options['name']);
+		$_ENV['routing']->add_route($options['name'], $route);
 	}
 	
 	public function clean_explode($seperator, $string)
@@ -293,7 +444,7 @@ class mapper
 		}
 		return $segment;
 	}
-
+	
 }
 
 class segment
@@ -311,14 +462,7 @@ class segment
 		$this->value = $value;
 		$this->constraint = $constraint;
 	}
-	
-	public function is_match($value)
-	{
-		if ( $this->value == $value ) return true;
-		if ( !$this->constraint ) return false;
-		if ( (bool) preg_match($this->constraint, $value) ) return true;
-		return false;
-	}
 
 }
+
 ?>

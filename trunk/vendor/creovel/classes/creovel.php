@@ -36,20 +36,22 @@ class creovel
 		$events = $events ? $events : creovel::get_events();
 		$params = $params ? $params : creovel::get_params();
 		
-		#print_obj(array($events, $params), 1);
+		// create nested controller path
+		if ( is_array($events['nested_controllers']) ) {
+			$nested_controller = implode(DS, array_merge($events['nested_controllers'], array($events['controller'])));
+		}
 		
-		$controller = str_replace('/', DS, $events['controller']);
-		self::_include_controller($controller);
-
+		// include controller
+		self::_include_controller( $nested_controller ? $nested_controller : $events['controller'] );
+		
 		// create controller object and build the framework
-		$controller = (preg_match('/\//', $controller) > 0) ? substr(strrchr($controller, DS), 1) : $controller;
-		$controller = str_replace(DS, '_', $controller).'_controller';
+		$controller = $events['controller'].'_controller';
 		$controller = new $controller();
 		
 		// set controller properties
 		$controller->_set_events($events);
 		$controller->_set_params($params);
-
+		
 		// execute action
 		$controller->_execute_action();
 		

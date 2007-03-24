@@ -263,6 +263,9 @@ class route
 			}
 			$return[$label] = $event->value;
 		}
+		if ( $return['nested_controllers'] ) {
+			$return['nested_controller_path'] = implode(DS, $return['nested_controllers']);
+		}
 		return $return;
 	}
 	

@@ -54,9 +54,7 @@ class controller
 		$this->_action = $events['action'];
 		if (!$this->render) $this->render = $events['action'];
 		if (!$this->layout) $this->layout = ( $events['layout'] ? $events['layout'] : 'default' );
-		if ( count($events['nested_controllers']) ) {
-			$this->_nested_controller_path = str_replace($this->_controller, '', implode(DS, $events['nested_controllers']));
-		}
+		if ( $events['nested_controller_path'] ) $this->_nested_controller_path = $events['nested_controller_path'];
 	}
 
 	/*
@@ -99,7 +97,7 @@ class controller
 				$this->after_filter();
 				
 			} else {
-				throw new Exception("Call to undefined action '{$method}' not found in <strong>".get_class($this)."</strong>.");
+				throw new Exception("Call to undefined action '{$this->_action}' not found in <strong>".get_class($this)."</strong>.");
 			}
 			
 		} catch ( Exception $e ) {

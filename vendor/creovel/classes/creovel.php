@@ -36,13 +36,8 @@ class creovel
 		$events = $events ? $events : creovel::get_events();
 		$params = $params ? $params : creovel::get_params();
 		
-		// create nested controller path
-		if ( is_array($events['nested_controllers']) ) {
-			$nested_controller = implode(DS, array_merge($events['nested_controllers'], array($events['controller'])));
-		}
-		
 		// include controller
-		self::_include_controller( $nested_controller ? $nested_controller : $events['controller'] );
+		self::_include_controller( ( $events['nested_controller_path'] ? $events['nested_controller_path'].DS : '' ) . $events['controller'] );
 		
 		// create controller object and build the framework
 		$controller = $events['controller'].'_controller';

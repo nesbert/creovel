@@ -1,6 +1,5 @@
 <?php
 /*
-
 	Class: controller
 	
 	The *controller* class processes and responds to events, typically user actions, and may invoke changes on the model or view.
@@ -8,13 +7,12 @@
 	See Also:
 	
 		For a better explanation go to <http://en.wikipedia.org/wiki/Model-view-controller>.
-
 */
 
 class controller
 {
 
-	// Section: Public	
+	// Section: Public
 	
 	/*
 		Property: render
@@ -37,11 +35,10 @@ class controller
 		
 		*Array* of all $_GET, $_POST, and $_REQUEST data.
 	*/
-		
+	
 	public $params;
 	
 	/*
-	
 		Function: _set_events
 		
 		Set the controller's events and layout.
@@ -49,7 +46,6 @@ class controller
 		Parameters:
 		
 			events - Array of url parameters.
- 
 	*/
 
 	public function _set_events($events)
@@ -64,7 +60,6 @@ class controller
 	}
 
 	/*
-	
 		Function: _set _params
 		
 		Set the controller's params
@@ -72,7 +67,6 @@ class controller
 		Parameters:
 		
 			params - Array of url parameters.
-
 	*/
 
 	public function _set_params($params)
@@ -81,18 +75,15 @@ class controller
 	}
 
 	/*
-	
 		Function: _execute_action
 		
 		Executes the controller's action.
-
 	*/
 
 	public function _execute_action()
 	{
 		// initialize callback
 		$this->initialize();
-		
 		try {
 			
 			if ( method_exists($this, $this->_action) ) {
@@ -108,7 +99,7 @@ class controller
 				$this->after_filter();
 				
 			} else {
-				throw new Exception("Action '{$this->_action}' not found in <strong>{$this->_controller}_controller</strong>");
+				throw new Exception("Call to undefined action '{$method}' not found in <strong>".get_class($this)."</strong>.");
 			}
 			
 		} catch ( Exception $e ) {
@@ -119,7 +110,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: _output
 		
 		Output contents to user. Might not need this function anymore since render() does all the
@@ -132,9 +122,8 @@ class controller
 		Returns:
 		
 			Mixed.
-	
 	*/
-
+	
 	public function _output($return_as_str)
 	{
 		// set options for view
@@ -148,7 +137,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: render
 		
 		Render view from options array.
@@ -156,11 +144,10 @@ class controller
 		Parameters:	
 		
 			options - Array of options.
-			
+		
 		Returns:
 		
 			Output to screen or a string.
-	
 	*/
 
 	public function render($options)
@@ -242,7 +229,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: render_to_str
 		
 		Renders view with options to a string.
@@ -260,7 +246,6 @@ class controller
 	}
 
 	/*
-	
 		Function: build_partial
 		
 		Include a view into the current page.
@@ -270,7 +255,6 @@ class controller
 			options - Action to render or an array of render $options.
 			locals - *Optional* array of variables to pass to the view.
 			controller - *Optional* controller name. Use if vew is not in the current controller.
-	
 	*/
 
 	public function build_partial($partial, $locals = null, $controller = null)
@@ -286,7 +270,6 @@ class controller
 	}
 	
 	/*
-
 		Function: render_partial
 		
 		Alias to build_partial and adds an underscore to the view name to signify partials.
@@ -312,7 +295,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: build_controller
 		
 		Allows the ability build a controller within a controller.
@@ -329,7 +311,6 @@ class controller
 		Returns:
 		
 			Controller object.
-	
 	*/
 
 	public function build_controller($controller, $action = '', $id = '', $extras = array(), $to_str = false)
@@ -341,7 +322,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: build_controller_to_str
 		
 		Alias to build_controller return controller as a string.
@@ -353,11 +333,10 @@ class controller
 			id - *Optional*
 			extras - *Optional*
 			to_str - *Optional* Return controller as a string.
-			
+		
 		Returns:
 		
 			Controller view as a string.
-	
 	*/
 
 	public function build_controller_to_str($controller, $action = '', $id = '', $extras = array())
@@ -366,15 +345,13 @@ class controller
 	}
 
 	/*
-	
 		Function: run
 		
 		Excute and render a certain action.
 		
-		Parameters:	
+		Parameters:
 		
 			action - *String* Action to run.
-	
 	*/
 
 	public function run($action)
@@ -384,11 +361,9 @@ class controller
 	}
 	
 	/*
-	
 		Function: no_view
 		
 		Don't render layout or view. Usefull for ajax calls.
-		
 	*/
 
 	public function no_view()
@@ -398,7 +373,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: is_posted
 		
 		Check if current page has posted values.
@@ -406,7 +380,6 @@ class controller
 		Returns:
 		
 			Bool.
-	
 	*/
 
 	public function is_posted()
@@ -415,7 +388,6 @@ class controller
 	}
 
 	/*
-	
 		Function: __call
 		
 		Magic function call being used to catch controller errors.
@@ -424,14 +396,13 @@ class controller
 		
 			method - Name of method.
 			arguments - Arguments passed.
-	
 	*/
 
 	public function __call($method, $arguments)
 	{
 		try {
 			
-			throw new Exception("Call to undefined method '{$method}' not found in <strong>".get_class($this)."</strong>.");
+			throw new Exception("Call to undefined action '{$method}' not found in <strong>".get_class($this)."</strong>.");
 		
 		} catch ( Exception $e ) {
 		
@@ -461,7 +432,6 @@ class controller
 	// Section: Private
 	
 	/*
-	
 		Function: _get_view_path
 		
 		Gets the path of the view file.
@@ -475,7 +445,6 @@ class controller
 		Returns:
 		
 			String.
-	
 	*/
 	
 	private function _get_view_path($view = null, $controller = null)
@@ -494,7 +463,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: _get_layout_path
 		
 		Gets the path of the layout file.
@@ -506,7 +474,6 @@ class controller
 		Returns:
 		
 			String.
-		
 	*/
 	
 	private function _get_layout_path($layout = null)
@@ -515,7 +482,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: _throw_exception
 		
 		Handle error depending on $_ENV[mode]
@@ -523,10 +489,10 @@ class controller
 		Parameters:
 		
 			$e - Object of error exception.
-	
 	*/
 	
-	private function _throw_exception($e) {
+	private function _throw_exception($e)
+	{
 		if ( $_ENV['mode'] != 'development' ) {
 			$this->_custom_error($e);
 		} else {
@@ -536,7 +502,6 @@ class controller
 	}
 	
 	/*
-	
 		Function: _custom_error
 		
 		Show custom error page.
@@ -544,45 +509,38 @@ class controller
 		Parameters:
 		
 			$e - Exception object.
-	
 	*/
 	
 	private function _custom_error($e = null)
 	{
 		error::email_errors($e);
 		$this->params['error'] = $e;
-		creovel::run($_ENV['routing']->route_error(), $this->params);
+		creovel::run($_ENV['routing']->error_events(), $this->params);
 		die;
 	}
 	
 	// Section: Callbacks
 	
 	/*
-	
 		Function: initialize
 		
 		Called when controller is intialized. *Note:* need to the scoping of this function child overrides all [Nes].
-		
 	*/
 	
 	public function initialize() {}
 	
 	/*
-	
 		Function: before_filter
 		
 		Called right before the action is executed.
-		
 	*/
 	
 	public function before_filter() {}
 	
 	/*
-	
 		Function: after_filter
 		
 		Called right after the action is executed.
-		
 	*/
 	
 	public function after_filter() {}

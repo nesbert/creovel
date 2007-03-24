@@ -75,7 +75,7 @@ $_ENV['routing'] = new routing;
 
 // Set default routes
 mapper::connect();
-mapper::connect('index/error', array( 'name' => 'error', 'controller' => 'index', 'action' => 'error' ));
+mapper::connect( 'index/error', array( 'name' => 'error', 'controller' => 'index', 'action' => 'error' ));
 
 // Include custom routes.
 require_once CONFIG_PATH . 'routes.php';

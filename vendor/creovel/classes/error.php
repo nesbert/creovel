@@ -180,7 +180,7 @@ class error
 		
 		// custom error
 		if ( $_ENV['mode'] != 'development' ) {
-			creovel::run($_ENV['routing']->route_error(), array( 'error' => $exception ));
+			creovel::run($_ENV['routing']->error_events(), array( 'error' => $exception ));
 			die;
 		}
 		

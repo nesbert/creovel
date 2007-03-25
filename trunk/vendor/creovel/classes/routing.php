@@ -371,8 +371,8 @@ class mapper
 			$params[$part->name] = $part;
 		}
 		
-		// if default route check/set nested controllers
-		if ( $options['name'] == 'default' ) {
+		// if default route_path check/set nested controllers
+		if ( $route_path == ':controller/:action/:id' ) {
 			$path = '';
 			if ( count($uri_segments) >= 2 ) {
 				foreach ( $uri_segments as $arg ) {

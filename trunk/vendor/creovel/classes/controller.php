@@ -449,7 +449,7 @@ class controller
 	{
 		// nested controllers check [NH] might need to find a better way to do this
 		if ( $this->_nested_controller_path ) {
-			$view_path =  VIEWS_PATH.$this->_nested_controller_path.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
+			$view_path =  VIEWS_PATH.$this->_nested_controller_path.DS.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
 			if ( file_exists($view_path) ) {
 				return $view_path;
 			} else {

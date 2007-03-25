@@ -403,6 +403,9 @@ class mapper
 				
 			}
 			
+			// set default action
+			if ( !$events['action']->value ) $events['action']->value = $options['action'];
+		
 		}
 		
 		// clean params

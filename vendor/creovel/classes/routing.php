@@ -150,13 +150,11 @@ class routing
 		// set uri
 		$uri = $this->trim_regex($uri);
 		
-		$pieces = explode('/', $uri);
-		
 		foreach ( $this->routes as $name => $route ) {
 			// skip default route
 			if ( $name == 'default' ) continue;
 			// build pattern form parts
-			$pattern = $this->parts_regex($route->parts, count($pieces));
+			$pattern = $this->parts_regex($route->parts);
 			// if match return events
 			if ( preg_match($pattern, $uri) ) {
 				// set current
@@ -180,41 +178,36 @@ class routing
 		
 	}
 	
-	public function parts_regex($parts, $limit)
+	public function parts_regex($parts)
 	{
 		$regex = '/^';
-		$count = 0;
-		foreach ( $parts as $segment ) {
-			$count++;
-			
-			switch ( true ) {
-				
+
+		foreach ($parts as $segment)
+		{
+			switch (true)
+			{
 				case ( $segment->type == 'static' ):
-					$regex .= $segment->value;
+					$part = $segment->value;
 				break;
 				
 				case ( $segment->value && !$segment->constraint ):
-					$regex .= '\w*';
+					$part = '\w*';
 				break;
-				
+
 				default:
-					$regex .= $this->trim_regex($segment->constraint);
+					$part = $this->trim_regex($segment->constraint);
 				break;
 			}
 			
-			if ( $count == $limit ) break;
-			
-			if ( count($parts) != $count ) {
-				$regex .= '\/';
-			}
+			$regex .= "{$part}(\/)?";
 		}
+
 		$regex .= '/';
-		
-		//echo $regex;
+
 		return $regex;
 	}
 	
-	function trim_regex($pattern)
+	public function trim_regex($pattern)
 	{
 		$pattern = preg_replace('/^\//', '', $pattern);
 		$pattern = preg_replace('/\/$/', '', $pattern);

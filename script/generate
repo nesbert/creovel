@@ -10,7 +10,7 @@ switch ($type)
 {
 	case 'model':
 		$file = fopen(dirname(__FILE__)."/../app/models/{$name}.php", 'w+');
-		fwrite($file, "<?\n\n/*\n\nClass: {$name}\n\t{$name} Model\n\n*/\n\nclass {$name} extends model\n{\n}\n\n?>");
+		fwrite($file, "<?php\n\n/*\n\tClass: {$name}\n\t\n\t".humanize($name)." Model.\n*/\n\nclass {$name} extends model\n{\n\n\t// Section: Public\n\t\n\tpublic function __construct(".'$args'." = null)\n\t{\n\t\tparent::__construct(".'$args'.");\n\t}\n\n}\n\n?>");
 		fclose($file);
 		break;
 

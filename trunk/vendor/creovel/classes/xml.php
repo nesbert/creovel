@@ -84,7 +84,7 @@ class xml
 	{	
 		if ( is_string($xml_file) ) {
 			// load xml file
-			$data = file_get_contents($xml_file);
+			$data = @file_get_contents($xml_file);
 			$error = "Unable to load XML data. File not found <strong>{$xml_file}</strong>";
 		} else {
 			// create xml from array and load xml file

@@ -139,6 +139,7 @@ class rss implements Iterator
 		switch ( $this->version = $this->xml->data->children->attributes->version )
 		{
 			case 2:
+			case 0.91:
 				$this->_map_rss20();
 			break;
 			

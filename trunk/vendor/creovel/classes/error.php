@@ -190,7 +190,7 @@ class error
 		$this->message = $message;
 		
 		// command line error
-		if ( $_ENV['command_line'] ) {
+		if ( isset($_ENV['command_line']) ) {
 			view::_show_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php');
 			die;
 		}

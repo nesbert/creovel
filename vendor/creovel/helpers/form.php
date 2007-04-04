@@ -835,8 +835,25 @@ Returns:
 
 function time_select($name, $time = null)
 {
-	$time = ($time == null) ? mktime() : $time;
-
+	switch ( true ) {
+	
+		case ( !$time  || ($time == '0000-00-00 00:00:00') ):
+			$time = time();
+		break;
+		
+		case ( is_array($time) ):
+			$time = mktime($time['hour'], $time['minute'], $time['second'], $time['month'], $time['day'], $time['year']);
+		break;
+		
+		case ( is_numeric($time) ):
+		break;
+		
+		case ( is_string($time) ):
+			$time = strtotime($time);
+		break;	
+		
+	}
+	
 	$i = 1;
 	$hours = array();
 	while ($i <= 12) { $hours[$i] = $i; $i++; }	
@@ -849,9 +866,9 @@ function time_select($name, $time = null)
 	$ampm['PM'] = 'PM';
 
 	$out = "";
-	$out .= select("{$name}[hour]", date('g', time()), $hours);
-	$out .= select("{$name}[minute]", date('i', time()), $minutes);
-	$out .= select("{$name}[ampm]", date('A', time()), $ampm);
+	$out .= select("{$name}[hour]", date('g', $time), $hours);
+	$out .= select("{$name}[minute]", date('i', $time), $minutes);
+	$out .= select("{$name}[ampm]", date('A', $time), $ampm);
 
 	return $out;
 }

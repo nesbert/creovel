@@ -37,7 +37,7 @@ class creovel
 		$params = $params ? $params : creovel::get_params();
 		
 		// include controller
-		self::_include_controller( ( $events['nested_controller_path'] ? $events['nested_controller_path'].DS : '' ) . $events['controller'] );
+		self::_include_controller( ( isset($events['nested_controller_path']) && $events['nested_controller_path'] ? $events['nested_controller_path'].DS : '' ) . $events['controller'] );
 		
 		// create controller object and build the framework
 		$controller = $events['controller'].'_controller';
@@ -94,7 +94,7 @@ class creovel
 		$params = $_ENV['routing']->params($uri);
 		
 		// clean controller (eg. admin/users)
-		if ( count( $c = explode('/', $params['controller'] ) ) > 1 ) {
+		if ( isset($params['controller']) && ( count( $c = explode('/', $params['controller'] ) ) > 1 ) ) {
 			$params['controller'] = $c[ count($c) - 1 ];
 			array_pop($c);
 			$params['nested_controller'] = implode('/', $c);

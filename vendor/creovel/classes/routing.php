@@ -256,7 +256,7 @@ class route
 			}
 			$return[$label] = $event->value;
 		}
-		if ( $return['nested_controllers'] ) {
+		if ( isset($return['nested_controllers']) ) {
 			$return['nested_controller_path'] = implode(DS, $return['nested_controllers']);
 		}
 		return $return;
@@ -312,7 +312,7 @@ class mapper
 		foreach ( $path_segments as $k => $v ) {
 			$label = self::clean_label($v);
 			if ( !array_key_exists($label, $segments) ) {
-				$segment = self::create_segment($v, $options[$label]);
+				$segment = self::create_segment($v, $options["{$label}"]);
 				$segments[$segment->name] = $segment;
 			}
 		}
@@ -353,7 +353,7 @@ class mapper
 		}
 		
 		// check for requirements
-		if ( isset($options[requirements]) ) foreach ( $options['requirements'] as $label => $constraint ) {
+		if ( isset($options['requirements']) ) foreach ( $options['requirements'] as $label => $constraint ) {
 			$segments[self::clean_label($label)]->constraint = $constraint;
 		}
 		

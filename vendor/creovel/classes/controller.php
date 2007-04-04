@@ -15,6 +15,22 @@ class controller
 	// Section: Public
 	
 	/*
+		Property: _controller
+		
+		Name of controller to use.
+	*/
+	
+	public $_controller;
+	
+	/*
+		Property: _action
+		
+		Name of action/method to use.
+	*/
+	
+	public $_action;
+	
+	/*
 		Property: render
 		
 		*String/Bool* name of view to display. Can be set to false to not show a view.
@@ -53,8 +69,8 @@ class controller
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
 		if (!$this->render) $this->render = $events['action'];
-		if (!$this->layout) $this->layout = ( $events['layout'] ? $events['layout'] : 'default' );
-		if ( $events['nested_controller_path'] ) $this->_nested_controller_path = $events['nested_controller_path'];
+		if (!$this->layout) $this->layout = ( isset($events['layout']) ? $events['layout'] : 'default' );
+		if ( isset($events['nested_controller_path']) ) $this->_nested_controller_path = $events['nested_controller_path'];
 	}
 
 	/*
@@ -428,24 +444,6 @@ class controller
 		
 		}
 	}
-
-	// Section: Protected
-	
-	/*
-		Property: _controller
-		
-		Name of controller to use.
-	*/
-	
-	protected $_controller;
-	
-	/*
-		Property: _action
-		
-		Name of action/method to use.
-	*/
-	
-	protected $_action;
 	
 	// Section: Private
 	

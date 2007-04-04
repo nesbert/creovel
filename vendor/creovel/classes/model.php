@@ -220,9 +220,9 @@ class model implements Iterator
 			$this->_db_name = $connection_properties['database'];
 		}
 		$this->_select_query = $this->establish_connection($connection_properties);
-		$this->_action_query = $this->establish_connection($connection_properties);		
+		$this->_action_query = $this->establish_connection($connection_properties);
 		
-		if ($adapter) $this->_adapter = $adapter;
+		if ( isset($connection_properties['adapter']) ) $this->_adapter = $connection_properties['adapter'];
 		
 		$this->_set_table();
 		$this->_set_data($data);
@@ -1573,7 +1573,7 @@ class model implements Iterator
 
 	private function _class()
 	{
-		return get_class($this);			
+		return get_class($this);
 	}
 	
 	/*

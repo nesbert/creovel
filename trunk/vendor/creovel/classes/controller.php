@@ -384,7 +384,27 @@ class controller
 	{
 		return ( $_SERVER['REQUEST_METHOD'] == 'POST' );
 	}
+	
+	/*
+		Function: application_error
+		
+		Stop the application at the controller level during an error.
+	*/
 
+	public function application_error($msg = null)
+	{
+		try {
+			
+			$msg = $msg ? $msg : "An error occurred while executing the action '".$this->_action."' in the <strong>".get_class($this)."</strong>.";
+			throw new Exception($msg);
+		
+		} catch ( Exception $e ) {
+		
+			$this->_throw_exception($e);
+		
+		}
+	}
+	
 	/*
 		Function: __call
 		

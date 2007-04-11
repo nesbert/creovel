@@ -400,7 +400,7 @@ class model implements Iterator
 		Insert the model into the database.
 
 	Parameters:
-		data - array of key => values	
+		data - array of key => values
 
 	Returns:
 		int
@@ -413,7 +413,7 @@ class model implements Iterator
 		
 		foreach ($data as $name => $value) {
 			
-			if ($name == $this->_primary_key) {				
+			if ($name == $this->_primary_key) {
 				continue;
 			}
 
@@ -461,9 +461,9 @@ class model implements Iterator
 				if ( $this->_fields->$name->type == 'datetime' ) {
 					$qry .= "'".datetime($obj->value)."', ";
 				} else {				
-					$qry .= "'" . addslashes(serialize($obj->value)) . "', ";					
+					$qry .= "'" . addslashes(serialize($obj->value)) . "', ";
 				}
-							
+			
 			} else {
 				
 				$qry .= "'" . $obj->default . "', ";
@@ -540,9 +540,9 @@ class model implements Iterator
 				if ( $this->_fields->$name->type == 'datetime' ) {
 					$qry .= $name . " = " . "'".datetime($obj->value)."', ";
 				} else {				
-					$qry .= $name . " = " . "'" . addslashes(serialize($obj->value)) . "', ";					
+					$qry .= $name . " = " . "'" . addslashes(serialize($obj->value)) . "', ";
 				}
-							
+				
 			}else {
 				
 				$qry .= $name . " = " . "'" . $obj->default . "', ";

@@ -128,6 +128,7 @@ Parameters:
 	controller - required
 	action - required
 	id - optional
+	https - optional
 
 Returns:
 	string
@@ -152,22 +153,28 @@ function url_for()
 		$id = ($args[0]['id']) ? $args[0]['id'] : null;
 		unset($args[0]['id']);
 
+		// Secure Mode
+		$https = ($args[0]['https']) ? $args[0]['https'] : null;
+		unset($args[0]['https']);
+
 		// Set Misc
 		$misc = '?'.urlencode_array($args[0]);
 
-		return "/{$controller}/{$action}/{$id}{$misc}";
+		$return = "/{$controller}/{$action}/{$id}{$misc}";
 
 	} else {
 
 		$controller = $args[0];
 		$action = $args[1];
 		$id = $args[2];
+		$https = $args[3];
 
 		if (is_array($id)) $id = '?'.urlencode_array($id);
 
-		return '/'.($controller ? $controller.'/'.($action ? $action.'/' : '').($action && $id ? $id : '') : '');
+		$return = '/'.($controller ? $controller.'/'.($action ? $action.'/' : '').($action && $id ? $id : '') : '');
 
 	}
+	return ( $https ? str_replace('http://', 'https://', BASE_URL) : '' ).$return;
 }
 
 /*
@@ -193,7 +200,7 @@ Returns:
 
 function link_to($link_title = 'Goto', $controller = '', $action = '', $id = '', $html_options = null)
 {
-	return '<a href="'.( $html_options['href'] ? $html_options['href'] : url_for($controller, $action, $id) ).'"'.html_options_str($html_options).'>'.$link_title.'</a>';
+	return '<a href="'.( $html_options['href'] ? $html_options['href'] : url_for($controller, $action, $id, $html_options['https']) ).'"'.html_options_str($html_options).'>'.$link_title.'</a>';
 }
 
 
@@ -223,6 +230,37 @@ function link_to_url($link_title = 'Goto', $url = '#', $html_options = null)
 	$html_options['href'] = $url;
 	return link_to($link_title, null, null, null, $html_options);
 }
+
+/*
+	Function: link_to_google_maps
+	
+	Creates a anchor link for lazy programmers using a url. Example:
+
+	(start code)
+		link_to_google_maps('Edit', 'http://creovel.org', array( 'class' => 'classname', 'name' => 'top'))
+	(end)
+	
+	Parameters:
+	
+		link_title - optional defaults to "Goto"
+		controller - required
+		action - required
+		id - optional
+		html_options - optional
+	
+	Returns:
+	
+		HTML string.
+*/
+
+function link_to_google_maps($link_title = 'Google Maps&trade;', $address, $html_options = null)
+{
+	$url = urlencode(strip_tags(str_replace(array(',', '.', '<br>', '<br />', '<br/>'), array('', '', ' ', ' ', ' '), $address)));
+	$url .= ( $html_options['title'] ? '+('.urlencode($html_options['title']).')' : '' );
+	$html_options['href'] = 'http://maps.google.com/maps?q='.$url;
+	return link_to($link_title, null, null, null, $html_options);
+}
+
 
 /*
 

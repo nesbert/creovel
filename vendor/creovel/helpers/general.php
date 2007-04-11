@@ -1,20 +1,19 @@
 <?php
 /*
-
-Script: general
+	Script: general
+	
 	General top-level functions.
- 
 */
 
 /*
-
-Function: print_obj
+	Function: print_obj
+	
 	Prints human-readable information about a variable much prettier.
-
-Parameters:
-	obj - The value to print out.
-	kill - Die after printing.
-
+	
+	Parameters:
+	
+		obj - The value to print out.
+		kill - Die after printing.
 */
  
 function print_obj($obj, $kill = false)
@@ -26,13 +25,13 @@ function print_obj($obj, $kill = false)
 }
 
 /*
-
-Function: get_user_defined_constants	
+	Function: get_user_defined_constants
+	
 	Return user definde constats
-
-Returns:
-	array
- 
+	
+	Returns:
+	
+		Array.
 */
 
 function get_user_defined_constants()
@@ -42,17 +41,18 @@ function get_user_defined_constants()
 }
  
 /*
-
-Function: get_filesize		
+	Function: get_filesize
+	
 	Returns a human readable size or a file or a size
 	http://us2.php.net/manual/hk/function.filesize.php#64387
-
-Parameters:
-	file_or_size - File path or size
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		file_or_size - File path or size
+	
+	Returns:
+	
+		String.
 */
 
 function get_filesize($file_or_size)
@@ -68,15 +68,17 @@ function get_filesize($file_or_size)
 }
 
 /*
-
-Function: get_mime_type
+	Function: get_mime_type
+	
 	Get the mime type of a file (http://www.duke.edu/websrv/file-extensions.html).
-
-Parameters:
-	file_name - File Name
-
-Returns:
-	string
+	
+	Parameters:
+	
+		file_name - File Name
+	
+	Returns:
+	
+		String.
 */ 
 
 function get_mime_type($filename)
@@ -251,16 +253,17 @@ function get_mime_type($filename)
 }
 
 /*
-
-Function: strip_slashes
-	Deep cleans arrays, objects, strings
-
-Parameters:
-	data - array, string or object
-
-Returns:
-	array, string or object
-
+	Function: strip_slashes
+	
+	Deep cleans arrays, objects, and strings.
+	
+	Parameters:
+	
+		data - array, string or object
+		
+	Returns:
+	
+		Array, String or Object.
 */
 
 function strip_slashes($data)
@@ -270,7 +273,7 @@ function strip_slashes($data)
 		
 		// clean data array
 		case ( is_array($data) ):
-			$clean_values = array();				
+			$clean_values = array();
 			foreach ($data as $name => $value) $clean_values[$name] = is_array($value) ? array_map('strip_slashes', $value) : stripslashes(trim($value));
 		break;
 		
@@ -293,17 +296,18 @@ function strip_slashes($data)
 }
 
 /*
-
-Function str_replace_array
+	Function str_replace_array
+	
 	String replaces a string using array_key with array_val
-
-Parameters:
-	string - string
-	array - associative array
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		string - string
+		array - associative array
+	
+	Returns:
+	
+		String.
 */
 
 function str_replace_array($str, $array)
@@ -312,17 +316,21 @@ function str_replace_array($str, $array)
 }
 
 /*
-Function: urlencode_array
-	performs urlencode on an N dimensional array
-
-Parameters:
-	var - the array value
-	var_name - variable name to be used in the query string
-	seperator - what separating character to use in the query string
-
-Retruns:
-	string 
+	Function: urlencode_array
+	
+	Performs urlencode on an N dimensional array
+	
+	Parameters:
+	
+		var - the array value
+		var_name - variable name to be used in the query string
+		seperator - what separating character to use in the query string
+	
+	Retruns:
+	
+		String.
 */
+
 function urlencode_array($array)
 {
 	foreach ($array as $key => $value ) {
@@ -336,6 +344,100 @@ function urlencode_array($array)
 	}
 		
 	return substr($params, 0, -1);
+}
+
+/*
+	Function: countries_array
+	
+	Returns an array of countries. Only US and Canada for now.
+	
+	Retruns:
+	
+		Array. 
+*/
+
+function countries_array()
+{
+	if ( isset($_ENV['countries']) ) {
+		return $_ENV['countries'];
+	} else {
+		
+		return $_ENV['countries'] = array( 'US' =>
+													array( 'name' => 'United States', 'states' => array(
+																										'AK' => 'Alaska',
+																										'AL' => 'Alabama',
+																										'AR' => 'Arkansas',
+																										'AZ' => 'Arizona',
+																										'CA' => 'California',
+																										'CO' => 'Colorado',
+																										'CT' => 'Connecticut',
+																										'DE' => 'Delaware',
+																										'FL' => 'Florida',
+																										'GA' => 'Georgia',
+																										'HI' => 'Hawaii',
+																										'IA' => 'Iowa',
+																										'ID' => 'Idaho',
+																										'IL' => 'Illinois',
+																										'IN' => 'Indiana',
+																										'KS' => 'Kansas',
+																										'KY' => 'Kentucky',
+																										'LA' => 'Louisiana',
+																										'MA' => 'Massachusetts',
+																										'MD' => 'Maryland',
+																										'ME' => 'Maine',
+																										'MI' => 'Michigan',
+																										'MN' => 'Minnesota',
+																										'MO' => 'Missouri',
+																										'MS' => 'Mississippi',
+																										'MT' => 'Montana',
+																										'NC' => 'North Carolina',
+																										'ND' => 'North Dakota',
+																										'NE' => 'Nebraska',
+																										'NH' => 'New Hampshire',
+																										'NJ' => 'New Jersey',
+																										'NM' => 'New Mexico',
+																										'NV' => 'Nevada',
+																										'NY' => 'New York',
+																										'OH' => 'Ohio',
+																										'OK' => 'Oklahoma',
+																										'OR' => 'Oregon',
+																										'PA' => 'Pennsylvania',
+																										'PR' => 'Puerto Rico',
+																										'RI' => 'Rhode Island',
+																										'SC' => 'South Carolina',
+																										'SD' => 'South Dakota',
+																										'TN' => 'Tennessee',
+																										'TX' => 'Texas',
+																										'UT' => 'Utah',
+																										'VA' => 'Virginia',
+																										'VI' => 'Virgin Islands',
+																										'VT' => 'Vermont',
+																										'WA' => 'Washington',
+																										'WI' => 'Wisconsin',
+																										'WV' => 'West Virginia',
+																										'WY' => 'Wyoming',
+																									)
+													),
+													'CA' => array(	'name' => 'Canada', 'states' => array(
+																										'AB' => 'Alberta',
+																 										'MB' => 'Manitoba',
+																										'AB' => 'Alberta',
+																										'BC' => 'British Columbia',
+																										'MB' => 'Manitoba',
+																										'NB' => 'New Brunswick',
+																										'NL' => 'Newfoundland and Labrador',
+																										'NS' => 'Nova Scotia',
+																										'NT' => 'Northwest Territories',
+																										'NU' => 'Nunavut',
+																										'ON' => 'Ontario',
+																										'PE' => 'Prince Edward Island',
+																										'QC' => 'Quebec',
+																										'SK' => 'Saskatchewan',
+																										'YT' => 'Yukon Territory',
+																									)
+													)
+								);
+	}
 }
 
 ?>

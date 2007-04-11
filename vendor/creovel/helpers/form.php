@@ -607,32 +607,50 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
 
 /*
 
-Function: select_states_tag	
+	Function: select_states_tag	
+	
 	Creates dropdown of states.
 
-Parameters:
-	name - required
-	selected - optional
-	choices - optional
-	html_options - optional
-
-Returns:
-	string
-
+	Parameters:
+	
+		name - required
+		selected - optional
+		choices - optional
+		html_options - optional
+	
+	Returns:
+	
+		String.
 */
  
 function select_states_tag($name, $selected = null, $choices = null, $html_options = null, $select_all = false)
 {
-
-	if (!$select_all) {
-		$choices = ( $choices ? $choices : array('' => 'Please select...') );
-	} else {
-		$choices = ( $choices ? $choices : array('all' => 'All States..') );
+	
+	if ( isset($choices['abbr']) ) {
+		$abbr = true;
+		unset($choices['abbr']);
+	}
+		
+	if ( isset($choices['select_all']) ) {
+		$select_all = true;
+		unset($choices['select_all']);
 	}
 	
-	//$state = new state_country_model();
+	if (!$select_all) {
+		$choices = ( isset($choices) ? $choices : array( '' => 'Please select...' ) );
+	} else {
+		$choices = ( isset($choices) ? $choices : array( 'all' => 'All States..' ) );
+	}
 	
-	$state_arr = $_ENV['countries']['US']['states'];
+	// intialize array
+	countries_array();
+	
+	if ($abbr) {
+		$state_arr = array_combine(array_keys($_ENV['countries']['US']['states']), array_keys($_ENV['countries']['US']['states']));
+	} else {
+		$state_arr = $_ENV['countries']['US']['states'];
+	}
+	
 	$state_arr = array_merge($choices, $state_arr);
 	return select($name, $selected, $state_arr, $html_options);
 	

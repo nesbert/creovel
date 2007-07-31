@@ -4,7 +4,7 @@
 
 	<?=stylesheet_include_tag(array('default'))?>
 	
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>creovel - A PHP Framework</title>
 
 	<?=javascript_include_tag(array('prototype'))?>

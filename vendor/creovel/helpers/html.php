@@ -11,12 +11,14 @@ Parameters:
 	id - id
 
 */
+
 function redirect_to($controller = '', $action = '', $id = '')
 {
 	redirect_to_url(url_for($controller, $action, $id));
 }
 
 /*
+
 Function: redirect_to_url
 	Desc
 
@@ -25,7 +27,9 @@ Parameters:
 
 Retruns:
 	string - formated full name of agent
+
 */
+
 function redirect_to_url($url)
 {
 	header('location: ' . $url);
@@ -52,7 +56,7 @@ function stylesheet_include_tag($url, $media = 'screen')
 	
 		foreach ( $url as $path ) {
 		
-			$str .= '<link rel="stylesheet" type="text/css" media="'.$media.'" href="'.CSS_URL.$path.'.css">'."\n";
+			$str .= '<link rel="stylesheet" type="text/css" media="'.$media.'" href="'.CSS_URL.$path.'.css" />'."\n";
 		
 		}
 		
@@ -60,7 +64,7 @@ function stylesheet_include_tag($url, $media = 'screen')
 	
 	} else {
 	
-		return sprintf('<link rel="stylesheet" type="text/css" media="'.$media.'" href="%s">', $url);
+		return sprintf('<link rel="stylesheet" type="text/css" media="'.$media.'" href="%s" />', $url);
 		
 	}
 }
@@ -80,7 +84,7 @@ Returns:
 
 function javascript_tag($script)
 {
-	return sprintf('<script language="javascript" type="text/javascript">%s</script>'."\n", $script);
+	return sprintf('<script type="text/javascript">%s</script>'."\n", $script);
 }
 
 /*
@@ -102,7 +106,7 @@ function javascript_include_tag($url)
 	
 		foreach ( $url as $path ) {
 		
-			$str .= '<script language="javascript" type="text/javascript" src="'.JAVASCRIPT_URL.$path.'.js"></script>'."\n";
+			$str .= '<script type="text/javascript" src="'.JAVASCRIPT_URL.$path.'.js"></script>'."\n";
 		
 		}
 		
@@ -110,7 +114,7 @@ function javascript_include_tag($url)
 	
 	} else {
 	
-		return sprintf('<script language="javascript" type="text/javascript" src="%s"></script>', $url);
+		return sprintf('<script type="text/javascript" src="%s"></script>', $url);
 		
 	}
 }

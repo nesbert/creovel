@@ -320,7 +320,7 @@ class mailer
 			// add text verison to message
 			$this->_content .= "--{$this->_message_boundary}\n";
 			$this->_content .= "Content-Type: text/plain; charset={$this->charset}\n";
-			$this->_content .= "Content-Transfer-Encoding: {$this->content_transfer_encoding}\n";
+			$this->_content .= "Content-Transfer-Encoding: {$this->_content_transfer_encoding}\n";
 			$this->_content .= "Content-Disposition: inline\n\n";
 			$this->_content .= $this->_get_text();
 			$this->_content .= "\n\n";
@@ -328,7 +328,7 @@ class mailer
 			// add html verison to message
 			$this->_content .= "--{$this->_message_boundary}\n";
 			$this->_content .= "Content-Type: text/html; charset={$this->charset}\n";
-			$this->_content .= "Content-Transfer-Encoding: {$this->content_transfer_encoding}\n";
+			$this->_content .= "Content-Transfer-Encoding: {$this->_content_transfer_encoding}\n";
 			$this->_content .= "Content-Disposition: inline\n\n";
 			$this->_content .= $this->_get_html();
 		}

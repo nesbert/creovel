@@ -1396,7 +1396,7 @@ class model implements Iterator
 
 	*/
 
-    public function table_exists($table_name)
+    public function table_exists($table_name, $no_error = false)
     {
         $db_obj = self::establish_connection( self::_get_connection_properties() );
         return $db_obj->table_exists($table_name);

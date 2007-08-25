@@ -13,6 +13,15 @@ class model implements Iterator
 {
 	/*
 	
+	Property: _adapter
+		Database adapter (MySQL, SQLite, etc) 
+
+	*/
+	
+	protected $_adapter;
+	
+	/*
+	
 	Property: _db_name
 		Database the table resides in 
 
@@ -84,7 +93,7 @@ class model implements Iterator
 	
 	/*
 	
-	Property: _page
+	Property: page
 		Paginate obj used to paginate select quries for this internal model
 
 	*/
@@ -102,7 +111,7 @@ class model implements Iterator
 	
 	/*
 	
-	Property: _validation
+	Property: validation
 		validation obj used to run validation routines on values in model
 
 	*/
@@ -198,35 +207,31 @@ class model implements Iterator
 
 	Parameters	
 		data - used to load the model with values
-		connection_properties - overrides current creovel database defaults
+		connection_properties - overrides current creovel database default properties
 			example array(
-						'adapter' => 'mysql'
-						
-			
-			
-						)
+						'adapter'	=> 'mysql',
+						'database'	=> 'database_name',
+						'host'		=> 'localhost',
+						'username'	=> 'db_username',
+						'password'	=> 'db_password'
+						);
 	*/	 
 
 	public function __construct($data = null, $connection_properties = null)
 	{
 		
+		if ($connection_properties['adapter']) $this->_adapter = $connection_properties['adapter'];
+		if ($connection_properties['database']) $this->_db_name = $connection_properties['database'];
+		if ($connection_properties['table_name']) $this->_table_name = $connection_properties['table_name'];
+		
 		$this->errors = new error(get_class($this));
 		$this->validation = new validation($this->errors);
 
-		if ($connection_properties['table_name']) {
-			$this->_table_name = $connection_properties['table_name'];
-		}
-		if ($connection_properties['database']) {
-			$this->_db_name = $connection_properties['database'];
-		}
 		$this->_select_query = $this->establish_connection($connection_properties);
 		$this->_action_query = $this->establish_connection($connection_properties);
 		
-		if ( isset($connection_properties['adapter']) ) $this->_adapter = $connection_properties['adapter'];
-		
 		$this->_set_table();
 		$this->_set_data($data);
-
 		$this->child_objects = array();
 	}
 	

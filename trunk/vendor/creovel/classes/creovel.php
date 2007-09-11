@@ -72,7 +72,7 @@ class creovel
 	public function get_events($event_to_return = null, $uri = null)
 	{
 		$events = $_ENV['routing']->events($uri);
-		return (($event_to_return) ? $events[$event_to_return] : $events );
+		return $event_to_return ? $events[$event_to_return] : $events;
 	}
 	
 	/*
@@ -107,7 +107,7 @@ class creovel
 			$params =  array_merge( $params, array( 'raw_post' => str_replace('&_=', '', $GLOBALS['HTTP_RAW_POST_DATA']) ) );
 		}
 		unset($params['_']);
-		return $params;
+		return $param_to_return ? $params[$param_to_return] : $params;
 	}
 
 	// Section: Private

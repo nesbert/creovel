@@ -1917,27 +1917,36 @@ class model implements Iterator
 			case 'validates_uniqueness_of':
 			
 				if ($args[3]) {
-					$where_ext = $args[3];	
+					$where_ext = $args[3];
 				} else {
-					$where_ext = '1';	
+					$where_ext = '1';
 				}
 				// check if a column with that value exists in the current table and is not the currentlly loaded row
 				$this->_action_query->query("SELECT * FROM {$this->_table_name} WHERE {$args[0]} = '{$args[1]}' AND {$this->_primary_key} != '{$this->id}' and (".$where_ext.")");
-
 
 				// if record found add error
 				if ( $this->_action_query->row_count ) {
 					$this->errors->add($args[0], ( $args[2] ? $args[2] : humanize($args[0]).' is not unique.' ));
 				} else {
-					return true;				
+					return true;
 				}
 			break;
 			
 			default:
 				if ( method_exists($this->validation, $method) ) {
-					return call_user_func_array(array($this->validation, $method), $args);
+					// set params order for validation
+					$params = array(
+						$args[0], 			// field
+						$this->$args[0],	// value
+						$args[1]			// message
+					);
+					unset($args[0]); // remove field name
+					unset($args[1]); // remove field value
+					$params = array_merge($params, $args);
+					
+					return call_user_func_array(array($this->validation, $method), $params);
 				} else {
-					$_ENV['error']->add("Undefined validation '{$method->_action}' in <strong>{get_class()}</strong>");
+					$_ENV['error']->add("Undefined validation method '{$method}' in <strong>".get_class($this)."</strong> model." );
 				}
 			break;
 			

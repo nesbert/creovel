@@ -42,7 +42,7 @@ require_once 'classes/view.php';
 require_once 'classes/xml.php';
 
 // Set error object.
-$_ENV['error'] = new error('application');
+$_ENV['error'] = new error('_application');
 
 // Session logic.
 if ($_ENV['sessions']) {

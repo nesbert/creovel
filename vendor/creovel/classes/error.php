@@ -20,7 +20,7 @@ class error
 		
 		Parameters:
 		
-			type - Applicaiton or model error.
+			type - Applicaiton (_application) or model error.
 	*/
 
 	public function __construct($type)
@@ -43,12 +43,16 @@ class error
 
 	public function add()
 	{
-		$this->_error_count++;
 		$args = func_get_args();
+		
+		// new error add to count
+		if (!isset($_ENV['model_error'][$args[0]])) {
+				$this->_error_count++;
+		}
 		
 		switch ( $this->_type ) {
 		
-			case 'application':
+			case '_application':
 				$this->_application_error($args[0], $args[1]);
 			break;
 		

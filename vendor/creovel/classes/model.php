@@ -220,10 +220,6 @@ class model implements Iterator
 	public function __construct($data = null, $connection_properties = null)
 	{
 		
-		if ($connection_properties['adapter']) $this->_adapter = $connection_properties['adapter'];
-		if ($connection_properties['database']) $this->_db_name = $connection_properties['database'];
-		if ($connection_properties['table_name']) $this->_table_name = $connection_properties['table_name'];
-		
 		$this->errors = new error(get_class($this));
 		$this->validation = new validation($this->errors);
 
@@ -249,11 +245,15 @@ class model implements Iterator
 
 	*/
 
-	public function establish_connection($connection_properties = false)
+	public function establish_connection($connection_properties)
 	{
 		if (!is_array($connection_properties)) {
 			$connection_properties = $this->_get_connection_properties();
 		}
+		
+		if ($connection_properties['adapter']) $this->_adapter = $connection_properties['adapter'];
+		if ($connection_properties['database']) $this->_db_name = $connection_properties['database'];
+		if ($connection_properties['table_name']) $this->_table_name = $connection_properties['table_name'];
 		
 		switch ( strtolower($connection_properties['adapter']) ) {
 		
@@ -1909,24 +1909,31 @@ class model implements Iterator
 
 	private function _validate_by_method($method, $args = null)
 	{
-		// if no value pasted use model's value
-		if ( !$args[1] ) $args[1] = $this->$args[0];
+		// set params order for validation
+		$params = array(
+			$args[0], 			// field
+			$this->$args[0],	// value
+			$args[1]			// message
+		);
+		unset($args[0]); // remove field name
+		unset($args[1]); // remove field value
+		$params = array_merge($params, $args);
 		
 		switch ( $method ) {
 		
 			case 'validates_uniqueness_of':
 			
-				if ($args[3]) {
-					$where_ext = $args[3];
+				if ($params[3]) {
+					$where_ext = $params[3];
 				} else {
 					$where_ext = '1';
 				}
 				// check if a column with that value exists in the current table and is not the currentlly loaded row
-				$this->_action_query->query("SELECT * FROM {$this->_table_name} WHERE {$args[0]} = '{$args[1]}' AND {$this->_primary_key} != '{$this->id}' and (".$where_ext.")");
+				$this->_action_query->query("SELECT * FROM {$this->_table_name} WHERE {$params[0]} = '{$params[1]}' AND {$this->_primary_key} != '{$this->id}' and (".$where_ext.")");
 
 				// if record found add error
 				if ( $this->_action_query->row_count ) {
-					$this->errors->add($args[0], ( $args[2] ? $args[2] : humanize($args[0]).' is not unique.' ));
+					$this->errors->add($params[0], ( $params[2] ? $params[2] : humanize($params[0]).' is not unique.' ));
 				} else {
 					return true;
 				}
@@ -1934,16 +1941,6 @@ class model implements Iterator
 			
 			default:
 				if ( method_exists($this->validation, $method) ) {
-					// set params order for validation
-					$params = array(
-						$args[0], 			// field
-						$this->$args[0],	// value
-						$args[1]			// message
-					);
-					unset($args[0]); // remove field name
-					unset($args[1]); // remove field value
-					$params = array_merge($params, $args);
-					
 					return call_user_func_array(array($this->validation, $method), $params);
 				} else {
 					$_ENV['error']->add("Undefined validation method '{$method}' in <strong>".get_class($this)."</strong> model." );

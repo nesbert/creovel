@@ -11,7 +11,7 @@ class validation
 	const VALUE = '@@value@@';
 	
 	// Section: Public
-
+	
 	/*
 		Function: __construct
 		
@@ -19,7 +19,7 @@ class validation
 		
 			errors - Array of errors.
 	*/
-
+	
 	public function __construct(&$errors = null)
 	{
 		if ($errors) {
@@ -49,7 +49,7 @@ class validation
 		
 		Manually add error.
 		
-		Parameters:	
+		Parameters:
 		
 			field - required
 			message - required
@@ -75,12 +75,12 @@ class validation
 			option2 - optional parameter
 			option3 etc...
 	*/
-
+	
 	/*
 		Function: validates_acceptance_of
 		
 		Validates the user agreed to something.
-
+		
 		Parameters:
 		
 			field - field name
@@ -200,7 +200,8 @@ class validation
 			value - required
 			message - optional default is "... is not a number."
 			required - optional default is false
-			
+			only_integer - optional default is false
+		
 		Returns:
 		
 			Boolean.

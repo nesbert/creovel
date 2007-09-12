@@ -163,7 +163,7 @@ class validation
 			Boolean.
 	*/
 	
-	public function validates_format_of($field, $value, $message = null, $required = false, $pattern = false)
+	public function validates_format_of($field, $value, $message = null, $required = false, $pattern)
 	{
 		return self::validate_field_by_bool(preg_match($pattern, $value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is invalid."), $required);
 	}
@@ -222,6 +222,17 @@ class validation
 			field - required
 			value - required
 			options/message - options array or default error message
+				$sample_options = array(
+					'range'			=> '5..23',			// The length must be in range from 5 to 23. Key can also be 'in' or 'within'
+					'is'			=> 6,				// Value must be integer character long
+					'minimum'		=> 3,				// Value may not be less than the integer characters long
+					'maximum'		=> 10,				// Value may not be more than the integer characters long
+					'message'		=> 'Must be...',	// Default error message.
+					'required'		=> false,			// Boolean value for is field required
+					'too_long'		=> 'Too long...',	// Synonym for message when maximum is used
+					'too_short'		=> 'Too short...',	// Synonym for message when miniimum is used
+					'wrong_length'	=> 'Wrong ...',		// Synonym for message when range is used
+				);
 			required - optional default is false
 			minimum - optional default is 0
 			maximum - optional default is 50
@@ -250,7 +261,8 @@ class validation
 			case (isset($options['is'])):
 				$options['minimum'] = $options['is'];
 				$options['maximum'] = $options['is'];
-				$message = $options['wrong_length'] ? str_replace('%d', $options['is'], $options['wrong_length']) : self::FIELD_NAME . ' must be ' . $options['is'] . ' characters.';
+				$d = $options['is'];
+				$message = $options['wrong_length'] ? $options['wrong_length'] : self::FIELD_NAME . " must be {$d} characters.";
 			break;
 			
 			case (isset($options['range'])):
@@ -262,20 +274,45 @@ class validation
 			
 			case (isset($options['minimum']) && !isset($options['maximum'])):
 				$options['maximum'] = strlen($value);
-				$message = $options['too_short'] ? str_replace('%d', $options['minimum'], $options['too_short']) : self::FIELD_NAME . ' must have a minimum of ' . $options['minimum'] . ' characters.';
+				$d = $options['minimum'];
+				$message = $options['too_short'] ? $options['too_short'] : self::FIELD_NAME . " must have a minimum of {$d} characters.";
 			break;
 			
 			case (!isset($options['minimum']) && isset($options['maximum'])):
 				$options['minimum'] = 0;
-				$message = $options['too_long'] ? str_replace('%d', $options['maximum'], $options['too_long']) : self::FIELD_NAME . ' must have a maximum of ' . $options['maximum'] . ' characters.';
+				$d = $options['maximum'];
+				$message = $options['too_long'] ? $options['too_long'] : self::FIELD_NAME . " must have a maximum of {$d} characters.";
 			break;
 		
 		}
 		
-		$options['message'] = $options['message'] ? $options['message'] : $message;
+		// set message and replace %d with minimum, maximum or exact length
+		$options['message'] = str_replace('%d', $d, ( $options['message'] ? $options['message'] : $message ));
 		//print_obj($options, 1);
 		
 		return self::validate_field_by_bool(is_between(strlen($value), $options['minimum'], $options['maximum']), $field, $value, self::format_message($field, $value, $options['message'], self::FIELD_NAME." is not a number."), $options['required']);
+	}
+
+	/*
+		Function validates_url_format_of
+		
+		Validates that $value is a valid url address.
+		
+		Parameters:	
+		
+			field - required
+			value - required
+			message - optional default is "... is an invalid web address."
+			required - optional default is false
+			
+		Returns:
+		
+			Boolean.
+	*/
+	
+	public function validates_url_format_of($field, $value, $message = null, $required = false)
+	{
+		return self::validate_field_by_bool(is_url($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid web address."), $required);
 	}
 	
 	// Section: Private

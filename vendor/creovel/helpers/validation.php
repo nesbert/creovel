@@ -1,26 +1,68 @@
 <?php
 /*
-
-Script: validation
-
+	Script: validation
 */
 
 /*
+	Function: is_hostname
+	
+	Check if $var is a valid host name. Hostnames must use a-z,0-9, and '-'. A hostname
+	cannot have any spaces nor can it start with a '-'.
 
-Function: is_email
-	Finds whether a variable is a valid email address
+	Parameters:
+	
+		var - value to validate
+	
+	Returns:
+	
+		Boolean.
+*/
 
-Parameters:
-	var - value to validate
+function is_hostname($var)
+{
+	return eregi('^[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$', $var) && $var{0} != '-' ? true : false;
+}
 
-Returns:
-	bool
+/*
+	Function: is_email
+	
+	Finds whether a variable is a valid email address.
+
+	Parameters:
+	
+		var - value to validate
+	
+	Returns:
+	
+		Boolean.
 
 */
 
 function is_email($var)
 {
-	return eregi('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$', $var) ? true : false;
+	$var = @explode('@', $var);
+	return eregi('^[_a-z0-9-]+(\.[_a-z0-9-]+)*$', $var[0]) && is_hostname($var[1]) ? true : false;
+}
+
+/*
+	Function: is_email
+	
+	Finds whether a variable is a valid email address.
+
+	Parameters:
+	
+		var - value to validate
+	
+	Returns:
+	
+		Boolean.
+
+*/
+
+function is_url($var)
+{
+	$var = @parse_url($var);
+	return eregi('^(http|https|ftp)$', $var[scheme]) && is_hostname($var[host]) ? true : false;
 }
 
 /*
@@ -170,7 +212,8 @@ Returns:
 
 function is_length_between($var, $min, $max)
 {
-	$length = count(str_split($var));
+	$length = strlen($var);
 	return ( $length >= $min ) && ( $length <= $max );
 }
+
 ?>

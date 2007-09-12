@@ -251,10 +251,6 @@ class model implements Iterator
 			$connection_properties = $this->_get_connection_properties();
 		}
 		
-		if ($connection_properties['adapter']) $this->_adapter = $connection_properties['adapter'];
-		if ($connection_properties['database']) $this->_db_name = $connection_properties['database'];
-		if ($connection_properties['table_name']) $this->_table_name = $connection_properties['table_name'];
-		
 		switch ( strtolower($connection_properties['adapter']) ) {
 		
 			case 'mysql':
@@ -270,10 +266,12 @@ class model implements Iterator
 			break;
 			
 		}
+
+		$this->_adapter = $adapter;
+		$this->_db_name = $this->_db_name ? $this->_db_name : $connection_properties['database'];
+		$this->_table_name = $this->_table_name ? $this->_table_name : $connection_properties['table_name'];
 		
-		$db_obj = new $adapter($connection_properties);
-		
-		return $db_obj;
+		return new $adapter($connection_properties);
 	}
 	
 	/*
@@ -1062,7 +1060,7 @@ class model implements Iterator
 	
 					} else {
 	
-						throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
+						throw new Exception("Property <em>{$regs[1]}</em> not found in <strong>".get_class($this)."</strong> model.");
 						
 					}
 					
@@ -1074,7 +1072,7 @@ class model implements Iterator
 	
 						if ( count($arguments) != 1) {
 	
-							throw new Exception("Too many parameters for method '{$method}' in <strong>".get_class($this)."</strong> model. One expected, ".count($arguments)." given.");
+							throw new Exception("Too many parameters for method <em>{$method}</em> in <strong>".get_class($this)."</strong> model. One expected, ".count($arguments)." given.");
 	
 						} else {
 	
@@ -1111,7 +1109,7 @@ class model implements Iterator
 	
 					} else {
 					
-						throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
+						throw new Exception("Property <em>{$regs[1]}</em> not found in <strong>".get_class($this)."</strong> model.");
 		
 					}
 				
@@ -1136,7 +1134,7 @@ class model implements Iterator
 					break;
 					
 				case ( preg_match('/^validates_(.+)$/', $method, $regs) ):
-					$this->_validate_by_method($method, $arguments);
+					return $this->_validate_by_method($method, $arguments);
 				break;
 				
 				/* Paging Links */
@@ -1145,7 +1143,7 @@ class model implements Iterator
 					if ( method_exists($this->page, $method) ) {
 						return call_user_func_array(array($this->page, $method), $arguments);								
 					} else {
-						throw new Exception("Undefined method '{$method}' in <strong>".get_class($this)."</strong> model.");
+						throw new Exception("Undefined method <em>{$method}</em> in <strong>".get_class($this)."</strong> model.");
 					}
 				break;
 				
@@ -1249,7 +1247,7 @@ class model implements Iterator
 				break;
 	
 				default:
-					throw new Exception("Undefined method '{$method}' in <strong>".get_class($this)."</strong> model.");
+					throw new Exception("Undefined method <em>{$method}</em> in <strong>".get_class($this)."</strong> model.");
 				break;
 					
 			}
@@ -1287,7 +1285,7 @@ class model implements Iterator
 			
 			} else {
 			
-				throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
+				throw new Exception("Property <em>{$property}</em> not found in <strong>".get_class($this)."</strong> model.");
 	
 			}
 			
@@ -1327,7 +1325,7 @@ class model implements Iterator
 			
 			} else {
 			
-				throw new Exception("Property '{$property}' not found in <strong>".get_class($this)."</strong> model.");
+				throw new Exception("Property <em>{$property}</em> not found in <strong>".get_class($this)."</strong> model.");
 				
 			}
 			
@@ -1909,43 +1907,64 @@ class model implements Iterator
 
 	private function _validate_by_method($method, $args = null)
 	{
+		// set up array to handle multi fields
+		if (is_array($args[0])) {
+			$fields = $args[0];
+		} else {
+			$fields[] = $args[0];
+		}
+		
 		// set params order for validation
 		$params = array(
-			$args[0], 			// field
-			$this->$args[0],	// value
-			$args[1]			// message
+			'field', 		// field
+			'value',		// value
+			$args[1]		// message
 		);
-		unset($args[0]); // remove field name
-		unset($args[1]); // remove field value
+		unset($args[0]);	// remove field name
+		unset($args[1]);	// remove field value
+		
+		// append optional args to params
 		$params = array_merge($params, $args);
-		
-		switch ( $method ) {
-		
-			case 'validates_uniqueness_of':
-			
-				if ($params[3]) {
-					$where_ext = $params[3];
-				} else {
-					$where_ext = '1';
-				}
-				// check if a column with that value exists in the current table and is not the currentlly loaded row
-				$this->_action_query->query("SELECT * FROM {$this->_table_name} WHERE {$params[0]} = '{$params[1]}' AND {$this->_primary_key} != '{$this->id}' and (".$where_ext.")");
 
-				// if record found add error
-				if ( $this->_action_query->row_count ) {
-					$this->errors->add($params[0], ( $params[2] ? $params[2] : humanize($params[0]).' is not unique.' ));
-				} else {
-					return true;
-				}
-			break;
+		foreach ( $fields as $field ) {
+		
+			// set field and value
+			$params[0] = $field;
+			$params[1] = $this->$field;
 			
-			default:
-				if ( method_exists($this->validation, $method) ) {
-					return call_user_func_array(array($this->validation, $method), $params);
-				} else {
-					$_ENV['error']->add("Undefined validation method '{$method}' in <strong>".get_class($this)."</strong> model." );
-				}
-			break;
+			switch ( $method ) {
+			
+				case 'validates_uniqueness_of':
+				
+					if ($params[3]) {
+						$where_ext = $params[3];
+					} else {
+						$where_ext = '1';
+					}
+					// check if a column with that value exists in the current table and is not the currentlly loaded row
+					$this->_action_query->query("SELECT * FROM {$this->_table_name} WHERE {$params[0]} = '{$params[1]}' AND {$this->_primary_key} != '{$this->id}' and (".$where_ext.")");
+	
+					// if record found add error
+					if ( $this->_action_query->row_count ) {
+						$this->errors->add($params[0], ( $params[2] ? $params[2] : humanize($params[0]).' is not unique.' ));
+					} else {
+						return true;
+					}
+				break;
+				
+				default:
+					if ( method_exists($this->validation, $method) ) {
+						if (count($fields) > 1) {
+							call_user_func_array(array($this->validation, $method), $params);
+						} else {
+							return call_user_func_array(array($this->validation, $method), $params);
+						}
+					} else {
+						$_ENV['error']->add("Undefined validation method <em>{$method}</em> in <strong>".get_class($this)."</strong> model." );
+					}
+				break;
+				
+			}
 			
 		}
 	}

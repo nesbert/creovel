@@ -117,21 +117,21 @@ function error_check($field, $html_str)
 }
 
 /*
-
-Function: error_wrapper
-
-Parameters:
-	field -
-	html_str -
-
-Returns:
-	string
-
+	Function: error_wrapper
+	
+	Parameters:
+	
+		field -
+		html_str -
+		
+	Returns:
+	
+		String.
 */
 
 function error_wrapper($field, $html_str)
 {
-	return '<a name="error_'.$field.'"></a><span class="errors_field">'.$html_str.'</span>';
+	return '<a name="error_'.$field.'"></a><span class="fieldWithErrors">'.$html_str.'</span>';
 }
 
 /*
@@ -636,41 +636,37 @@ function select_states_tag($name, $selected = null, $choices = null, $html_optio
 		unset($choices['select_all']);
 	}
 	
-	if (!$select_all) {
+	if ($select_all) {
+		$choices = ( isset($choices) ? $choices : array( 'all' => 'All States...' ) );
+	} else {
 		$choices = ( isset($choices) ? $choices : array( '' => 'Please select...' ) );
-	} else {
-		$choices = ( isset($choices) ? $choices : array( 'all' => 'All States..' ) );
 	}
 	
-	// intialize array
-	countries_array();
+	// intialize states array
+	$state_arr = states();
 	
-	if ($abbr) {
-		$state_arr = array_combine(array_keys($_ENV['countries']['US']['states']), array_keys($_ENV['countries']['US']['states']));
-	} else {
-		$state_arr = $_ENV['countries']['US']['states'];
-	}
+	if ( $abbr ) $state_arr = array_combine(array_keys($state_arr), array_keys($state_arr));
 	
 	$state_arr = array_merge($choices, $state_arr);
 	return select($name, $selected, $state_arr, $html_options);
-	
 }
 
 /*
-
-Function: select_countries_tag
+	Function: select_countries_tag
+	
 	Creates dropdown of countries. if $state_id is it will automatically populate those values depending on the contry selected.
-
-Parameters:
-	name - required
-	selected - optional
-	choices - optional
-	html_options - optional
-	state_id - optional will update the states depending on the country selected
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		selected - optional
+		choices - optional
+		html_options - optional
+		state_id - optional will update the states depending on the country selected
+		
+	Returns:
+	
+		String.
 */
  
 function select_countries_tag($name, $selected = null, $choices = null, $html_options = null, $state_id = null)
@@ -678,78 +674,73 @@ function select_countries_tag($name, $selected = null, $choices = null, $html_op
 
 	$choices = ( $choices ? $choices : array('' => 'Please select...') );
 	
-	$country = new state_country_model();
-	$country_arr = array_merge($choices, $country->get_countries());
-
-	$html_options['onchange'] .= 'set_'.$state_id.'();';	
+	$country_arr = countries($choices, $html_options['us_first'], $html_options['show_abbr']);
 	
-	$return = select($name, $selected, $country_arr, $html_options);
+	// unset country function vars
+	unset($html_options['us_first']);
+	unset($html_options['show_abbr']);
+
+	if ($state_id) {
+		$state_id = name_to_id($state_id);
+		$html_options['onchange'] = trim($html_options['onchange']) . ' set_'.$state_id.'();';
+	}
+	
+	$return = select($name, $selected, array_merge($choices, $country_arr), $html_options);
 	
 	// automatic state dropdown update
 	if ( $state_id ) {
 	
-		$state = new state_country_model();
-		$state->load_states_by_country_code();
-		
-		while ( $state->get_next() ) {
-			$usaVals[] = $state->get_description();
-			$usaIDs[] = $state->get_state();
-		}
-
-		$state->load_states_by_country_code('Canada');
-	
-		while ( $state->get_next() ) {
-			$canadaVals[] = $state->get_description();
-			$canadaIDs[] = $state->get_state();
-		}
-		
+		$us_states = states('US');
+		$ca_states = states('CA');
 		?>
-		<script language="javascript" type="text/javascript">
-		<!--
-		function set_<?=$state_id?>() {
-			
-			var usaVals = new Array("<?=implode('", "', $usaVals)?>");
-			var usaIDs = new Array("<?=implode('", "', $usaIDs)?>");
-			var canadaVals = new Array("<?=implode('", "', $canadaVals)?>");
-			var canadaIDs = new Array("<?=implode('", "', $canadaIDs)?>");
-			var countryDrop = document.getElementById("<?=name_to_id($name)?>");
-			var selectedCountry = countryDrop.options[countryDrop.selectedIndex].value;
-			
-			switch ( selectedCountry ) {
-				case "United States":
-				case "USA":
-					update_<?=$state_id?>(usaVals, usaIDs);
-				break;
-				case "Canada":
-					update_<?=$state_id?>(canadaVals, canadaIDs);
-				break;
-				default:
-					update_<?=$state_id?>();
-				break;
-			}
+<script language="javascript" type="text/javascript">
+<!--
+function set_<?=$state_id?>() {
+	
+	var usaVals = new Array("<?=implode('", "', $us_states)?>");
+	var usaIDs = new Array("<?=implode('", "', array_keys($us_states))?>");
+	var canadaVals = new Array("<?=implode('", "', $ca_states)?>");
+	var canadaIDs = new Array("<?=implode('", "', array_keys($ca_states))?>");
+	var countryDrop = document.getElementById("<?=name_to_id($name)?>");
+	var selectedCountry = countryDrop.options[countryDrop.selectedIndex].value;
+	
+	switch ( selectedCountry ) {
+		case "United States":
+		case "USA":
+		case "US":
+			update_<?=$state_id?>(usaVals, usaIDs);
+		break;
+		case "Canada":
+		case "CA":
+			update_<?=$state_id?>(canadaVals, canadaIDs);
+		break;
+		default:
+			update_<?=$state_id?>();
+		break;
+	}
+}
+
+function update_<?=$state_id?>(stateVals, stateIDs) {
+	
+	var stateDrop = document.getElementById("<?=$state_id?>");
+	stateDrop.options.length = 0;
+	stateDrop.options[stateDrop.options.length] = new Option("Please select...", "");
+	
+	if ( stateVals ) {
+		for(var i=0; i<stateVals.length; i++) {
+			stateDrop.options[stateDrop.options.length] = new Option(stateVals[i], stateIDs[i]);
+			stateDrop.options[0].selected = true;
 		}
-		
-		function update_<?=$state_id?>(stateVals, stateIDs) {
-			
-			var stateDrop = document.getElementById("<?=$state_id?>");
-			stateDrop.options.length = 0;
-			stateDrop.options[stateDrop.options.length] = new Option("Please select...", "");
-			
-			if ( stateVals ) {
-				for(var i=0; i<stateVals.length; i++) {
-					stateDrop.options[stateDrop.options.length] = new Option(stateVals[i], stateIDs[i]);
-					stateDrop.options[0].selected = true;
-				}
-			} else {
-				stateDrop.options.length = 0;
-				stateDrop.options[stateDrop.options.length] = new Option("None Available", "");
-				stateDrop.options.selected = true;
-			}
-			
-		};
-		-->
-		</script>
-		<?
+	} else {
+		stateDrop.options.length = 0;
+		stateDrop.options[stateDrop.options.length] = new Option("None Available", "");
+		stateDrop.options.selected = true;
+	}
+	
+};
+-->
+</script>
+<?
 	}
 	
 	return $return;

@@ -408,7 +408,20 @@ class mailer
 
 	private function _get_html()
 	{
-		return $this->html ? $this->html : $this->_get_view();
+		if ($this->html) {
+			return $this->html;
+		}
+		
+		$html = $this->_get_view();
+		// insert html into layout (template) for html verison of the message
+		if ( $this->layout !== false ) {
+			
+			$template_path = VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
+			$html = str_replace('@@page_contents@@', $html, $this->_get_include_contents($template_path));
+				
+		}
+		
+		return $html;	
 	}
 	
 	/*

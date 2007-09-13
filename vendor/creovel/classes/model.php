@@ -120,6 +120,15 @@ class model implements Iterator
 	
 	/*
 	
+	Property: _id_to_insert
+		Holds a value to use when you want to manually set the id when inserting 
+
+	*/
+	
+	public $_id_to_insert = null;
+	
+	/*
+	
 	Property: _select
 		String that holds the select portion of a query
 
@@ -416,7 +425,8 @@ class model implements Iterator
 		
 		foreach ($data as $name => $value) {
 			
-			if ($name == $this->_primary_key) {
+			if ($name == $this->_primary_key && !$this->_id_to_insert) {
+				
 				continue;
 			}
 
@@ -429,6 +439,9 @@ class model implements Iterator
 		foreach ($data as $name => $value) {
 
 			if ($name == $this->_primary_key) {
+				if ($this->_id_to_insert) {
+					$qry .= "'" . addslashes($this->_id_to_insert)  . "', ";
+				}
 				continue;
 			}
 			$this->_fields->$name->value = $value;
@@ -481,10 +494,17 @@ class model implements Iterator
 		$this->_action_query->query($qry);
 		
 		$key = $this->_primary_key;
-		$this->_fields->$key->value =  $this->_action_query->get_insert_id();
+		if ($this->_id_to_insert) {
+			$this->_fields->$key->value =  $this->_id_to_insert;
+			$this->_id_to_insert = null;
+		} else {
+			$this->_fields->$key->value =  $this->_action_query->get_insert_id();
+		}
 		
+
 		return $this->key(); 
 	}
+
 
 	/*
 	
@@ -603,18 +623,21 @@ class model implements Iterator
 		array
 	*/
 
-	public function values()
+	public function values($load = null)
 	{
-		$ret = array();
-		
-		foreach ( $this->_fields as $field => $obj ) {
-			$function = 'get_'.$field;
-			$ret[$field] = $this->$function();
+		if (is_array($load)) {
+			$this->load_values_into_fields($load);		
+		} else {
+			$ret = array();
+			
+			foreach ( $this->_fields as $field => $obj ) {
+				$function = 'get_'.$field;
+				$ret[$field] = $this->$function();
+			}
+			
+			return $ret;
 		}
-		
-		return $ret;
 	}
-
 	/*
 
 	Function: find
@@ -1060,7 +1083,7 @@ class model implements Iterator
 	
 					} else {
 	
-						throw new Exception("Property <em>{$regs[1]}</em> not found in <strong>".get_class($this)."</strong> model.");
+											throw new Exception("Method '{$method}' not found in <strong>".get_class($this)."</strong> model.");
 						
 					}
 					
@@ -1109,7 +1132,7 @@ class model implements Iterator
 	
 					} else {
 					
-						throw new Exception("Property <em>{$regs[1]}</em> not found in <strong>".get_class($this)."</strong> model.");
+						throw new Exception("Method '{$method}' not found in <strong>".get_class($this)."</strong> model.");
 		
 					}
 				
@@ -1544,7 +1567,11 @@ class model implements Iterator
 	{
 		$this->query_action($this->_action_query->transaction_string('rollback'));
 	}
-
+	
+	public function use_val_for_insert_id($id) {
+		$this->_id_to_insert = $id;
+	}
+	
 	// Section: Private	
 
 	/*
@@ -2159,5 +2186,9 @@ class model implements Iterator
 		return $this->_valid;
 	}
 	
+	public function table_name()
+	{
+		return $this->_table_name;
+	}
 }
 ?>

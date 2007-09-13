@@ -26,6 +26,7 @@ class mailer
 	public $reply_to;
 	public $headers;
 	public $recipients;
+	public $to;  // aliase of recipients
 	public $sent_on;
 	public $subject;
 	public $body;
@@ -133,7 +134,7 @@ class mailer
 	*/	
 	public function encoded()
 	{
-		$return = "To: ".$this->_get_email_address($this->recipients)."\n";
+		$return = "To: ".$this->_get_email_address($this->_get_recipients())."\n";
 		$return .= "Subject: ".$this->_get_subject()."\n";
 		return $return.$this->_get_headers().$this->_get_content();
 	}
@@ -157,7 +158,7 @@ class mailer
 			break;
 		
 			case ( $this->delivery_method == 'sendmail' ):
-				if ( mail($this->_get_email_address($this->recipients), $this->_get_subject(), $this->_get_content(), $this->_get_headers()) ) {
+				if ( mail($this->_get_email_address($this->_get_recipients()), $this->_get_subject(), $this->_get_content(), $this->_get_headers()) ) {
 					return true;
 				} else {		
 					return false;
@@ -295,6 +296,32 @@ class mailer
 		
 		return $this->_header;
 	}
+	
+	/*
+	
+	Function:
+		Return the recipients/to fields
+	
+	Returns:	
+		string
+
+	*/
+
+	private function _get_recipients()
+	{
+		$ret = array();
+		
+		if ($this->to) {
+			$ret[] = $this->to;
+		}
+		
+		if ($this->recipients) {
+			$ret[] = $this->recipients;
+		}
+		
+		return implode(',', $ret);
+	}
+
 	
 	/*
 	

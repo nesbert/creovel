@@ -1083,7 +1083,7 @@ class model implements Iterator
 	
 					} else {
 	
-											throw new Exception("Method '{$method}' not found in <strong>".get_class($this)."</strong> model.");
+						throw new Exception("Method '{$method}' not found in <strong>".get_class($this)."</strong> model.");
 						
 					}
 					

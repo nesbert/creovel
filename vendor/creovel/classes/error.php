@@ -46,9 +46,9 @@ class error
 		$args = func_get_args();
 		
 		// new error add to count
-		if (!isset($_ENV['model_error'][$args[0]])) {
-				$this->_error_count++;
-		}
+		if (!isset($_ENV['model_error'][$this->_type][$args[0]])) {
+			$this->_error_count++;
+		}		
 		
 		switch ( $this->_type ) {
 		
@@ -159,7 +159,7 @@ class error
 	{
 		$this->$field = $message;
 		// add to globals
-		$_ENV['model_error'][$field] = $message;
+		$_ENV['model_error'][$this->_type][$field] = $message;
 	}
 	
 	/*

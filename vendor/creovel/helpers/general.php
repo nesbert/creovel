@@ -25,6 +25,37 @@ function print_obj($obj, $kill = false)
 }
 
 /*
+	Function: escape_javascript
+	
+	Cleans up javascript.
+	
+	Parameters:
+	
+		javascript - string
+		
+	Returns:
+	
+		String.
+*/
+
+function escape_javascript($javascript)
+{
+	# return preg_replace('/\r\n|\n|\r/', "\\n",
+	#       preg_replace_callback('/["\']/', create_function('$m', 'return "\\{$m}";'),
+	#       (!is_null($javascript) ? $javascript : '')));
+	
+	$escape = array(
+		"\r\n"	=> '\n',
+		"\r"	=> '\n',
+		"\n"	=> '\n',
+		'"'		=> '\"',
+		"'"		=> "\\'"
+	);
+	
+	return str_replace(array_keys($escape), array_values($escape), $javascript);
+}
+
+/*
 	Function: get_user_defined_constants
 	
 	Return user definde constats

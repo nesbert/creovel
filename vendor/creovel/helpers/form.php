@@ -1,10 +1,10 @@
 <?php
 /*
-
-Script: form
-	Form methods go here.
+	Script: form
 	
+	Form helpers go here.	
 */
+
 
 /*
 
@@ -38,23 +38,29 @@ function error_messages_for($errors = null, $title = null, $description = 'There
 {
 	// if no errors check global variable
 	if ( !$errors ) $errors = $_ENV['model_error'];
-
-	switch ( true ) {
 	
-		case ( is_object($errors) ):
-			if ( $errors_count = $errors->errors->count() ) { 
-				$model = get_class($errors);
-				$errors = $errors->errors;
-			} else {
-				return;
-			}
-		break;
-		
-		case ( is_array($errors) ):
-			$errors_count =	count($errors);
-		break;
-		
+	if ( is_object($errors) ) {
+		if ( $errors_count = $errors->errors->count() ) { 
+			$model = get_class($errors);
+			$errors = $errors->errors;
+		} else {
+			return;
+		}
 	}
+	
+	$errors_count =	0;
+	$li_str = '';
+	
+	foreach ( $errors as $field => $message ) {
+		if ( $message == 'no_message') continue;
+		if (is_array($message)) foreach ( $message as $k => $v) {
+			$li_str .= create_html_element('li', null, create_html_element('a', array('href' => "#error_{$field}_{$k}"), $v)) . "\n";
+			$errors_count++;
+		} else {
+			$li_str .= create_html_element('li', null, create_html_element('a', array('href' => "#error_{$field}"), $message)) . "\n";
+			$errors_count++;
+		}
+	}	
 	
 	if ( $errors_count ) {
 	
@@ -62,25 +68,23 @@ function error_messages_for($errors = null, $title = null, $description = 'There
 		$title = str_replace(array('@@errors_count@@','@@title@@'), array($errors_count, $title), $title);
 		
 	?>
-	<div class="errors">
+<div class="errors">
+
+<div class="top"></div>
 	
-		<div class="top"></div>
-	
-		<div class="body">
-			<?=( $title ? '<h1 class="error_title">'.$title.'</h1>' : '' )?>
-			<?=( $description ? '<p>'.$description.'</p>' : '' )?>
-			<ul>
-				<? foreach ( $errors as $field => $message ) { ?>
-					<? if ( $message == 'no_message') continue; ?>
-				<li><a href="#error_<?=$field?>"><?=$message?></a></strong></li>
-				<? } ?>
-			</ul>
-		</div>
-		
-		<div class="bottom"></div>
-	
-	</div>		
-	<?
+<div class="body">
+<?=( $title ? '<h1 class="error_title">'.$title.'</h1>' : '' )?>
+<?=( $description ? '<p>'.$description.'</p>' : '' )?>
+
+<ul>
+<?=$li_str?>
+</ul>
+
+</div>
+
+<div class="bottom"></div>
+
+</div><?php
 	}
 
 }
@@ -131,7 +135,7 @@ function error_check($field, $html_str)
 
 function error_wrapper($field, $html_str)
 {
-	return '<a name="error_'.$field.'"></a><span class="fieldWithErrors">'.$html_str.'</span>';
+	return '<a name="error_' . name_to_id($field) . '"></a><span class="fieldWithErrors">' . str_replace("\n", '', $html_str) . "</span>\n";
 }
 
 /*
@@ -218,13 +222,13 @@ function end_form_tag()
 }
 
 /*
-
-Function: name_to_id
+	Function: name_to_id
+	
 	Formats user[name] to user_name.
-
-Returns:
-	string
-
+	
+	Returns:
+	
+		String.
 */
  
 function name_to_id($name)
@@ -233,40 +237,42 @@ function name_to_id($name)
 }
 
 /*
-
-Function: create_input_tag
+	Function: create_input_tag
+	
 	Base function used to create the different types of input tags.
-
-Returns:
-	string
-
+	
+	Returns:
+	
+		String.
 */
  
-function create_input_tag($type, $name, $value = null, $html_options = null, $on_value = null, $text = null)
+function create_input_tag($type, $name, $value = null, $html_options = null, $tag_value = null, $text = null)
 {
-	$id = name_to_id($name).( $type == 'radio' || $type == 'checkbox' ? '_'.str_replace(' ', '', $value) : '' );
-	if (is_string($text)) {
-		$append_text = $text ? label($id, $text) : null;
-	} else {
-		$prepend_text = $text[0] ? label($id, $text[0]) : null;
-		$append_text = $text[1] ? label($id, $text[1]) : null;
+	if (isset($type)) $html_options['type'] = $type;
+	if (!isset($html_options['id'])) $html_options['id'] = name_to_id($name).( $type == 'radio' | $type == 'checkbox' ? '_'.str_replace(' ', '', $tag_value) : '' );
+	if (isset($name)) $html_options['name'] = $name;
+	$html_options['value'] = $value;
+	if ($type == 'radio' || $type == 'checkbox') {
+		$html_options['value'] = $tag_value;
+		if ( $value == $tag_value ) $html_options['checked'] = 'checked';
 	}
-	return error_check($name, $prepend_text.'<input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.html_options_str($html_options).' /> ' .$append_text."\n");
+	return create_html_element('input', $html_options) . ( $text ? ' ' . $text : '' ) . "\n";
 }
 
 /*
-
-Function: text_field
+	Function: text_field
+	
 	Creates a text input tag.
-
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+		
+	Returns:
+	
+		String.
 */ 
 
 function text_field($name, $value = '', $html_options = null, $text = null)
@@ -275,18 +281,19 @@ function text_field($name, $value = '', $html_options = null, $text = null)
 }
 
 /*
-
-Function: hidden_field
+	Function: hidden_field
+	
 	Creates a hidden text input tag.
-
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+		
+	Returns:
+	
+		String.
 */ 
 
 function hidden_field($name, $value = '', $html_options = null)
@@ -295,18 +302,19 @@ function hidden_field($name, $value = '', $html_options = null)
 }
 
 /*
-
-Function: password_field	
+	Function: password_field
+	
 	Creates a password text input tag.
-
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+	
+	Returns:
+	
+		String.
 */ 
 
 function password_field($name, $value = '', $html_options = null, $text = null)
@@ -315,122 +323,128 @@ function password_field($name, $value = '', $html_options = null, $text = null)
 }
 
 /*
-		
-Function: radio_button
+	Function: radio_button
+	
 	Creates a radio button input tag.
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+		on_value - optional
+	
+	Returns:
+	
+		String.
+*/
 
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-	on_value - optional
-
-Returns:
-	string
-
-*/ 
-
-function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null)
+function radio_button($name, $value = '', $html_options = null, $tag_value = null, $text = null)
 {
-	if ( $value == $on_value ) $html_options['checked'] = 'checked';
-	return create_input_tag('radio', $name, $value, $html_options, $on_value, $text);
+	return create_input_tag('radio', $name, $value, $html_options, $tag_value, $text);
 }
 
 /*
-
-Function: check_box
+	Function: check_box
+	
 	Creates a checkbox input tag.
-
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-	on_value - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+		on_value - optional
+	
+	Returns:
+	
+		String.
 */ 
 
-function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null)
+function check_box($name, $value = '', $html_options = null, $tag_value = null, $text = null)
 {
-	if ( $value == $on_value ) $html_options['checked'] = 'checked';
-	return create_input_tag('checkbox', $name, $value, $html_options, $on_value, $text);
+	return create_input_tag('checkbox', $name, $value, $html_options, $tag_value, $text);
 }
 
 /*
-
-Function: submit_tag
+	Function: submit_tag
+	
 	Creates a submit tag.
-
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+	
+	Returns:
+	
+		String.
 */ 
 
-function submit_tag($name = '', $value = 'Submit', $html_options = null)
+function submit_tag($value = 'Submit', $html_options = null)
 {
-	return create_input_tag('submit', $name, $value, $html_options);
+	return create_input_tag('submit', $html_options['name'], $value, $html_options);
 }
 
 /*
-
-Function: button_tag
+	Function: button_tag
+	
 	Creates a button tag.
-
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+	
+	Returns:
+	
+		String.
 */ 
 
-function button_tag($name = '', $value = 'Button', $html_options = null)
+function button_tag($value = 'Button', $html_options = null)
 {
-	return create_input_tag('button', $name, $value, $html_options);
+	return create_input_tag('button', $html_options['name'], $value, $html_options);
 }
 
 /*
-
-Function: textarea
+	Function: textarea
+	
 	Creates a textarea tag.
-
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+		
+	Returns:
+	
+		String.
 */ 
 
 function textarea($name, $value = '', $html_options = null)
 {
-	return error_check($name, '<textarea id="'.name_to_id($name).'" name="'.$name.'"'.html_options_str($html_options).'>'.$value.'</textarea>');
+	$html_options['id'] = name_to_id($name);
+	$html_options['name'] = $name;
+	return create_html_element('textarea', $html_options, $value);
 }
 
 /*
-
-Function: text_area
+	Function: text_area
+	
 	Creates a textarea tag.
-
-Parameters:
-	name - required
-	value - optional
-	html_options - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		value - optional
+		html_options - optional
+	
+	Returns:
+	
+		String.
 */ 
 
 function text_area($name, $value = '', $html_options = null)
@@ -439,18 +453,19 @@ function text_area($name, $value = '', $html_options = null)
 }
 
 /*
+	Function: label	
+	
+	Creates a label tag.
+	
+	Parameters:
+	
+		name - required
+		title - optional
+		required - optional
 		
-Function: label	
-	Creates a label tag. Modified to accept html_options [NH] 2/3
-
-Parameters:
-	name - required
-	field - required
-	required - required
-
-Returns:
-	string
-
+	Returns:
+	
+		String.
 */ 
 
 function label($name, $title = null, $html_options = null)
@@ -460,8 +475,8 @@ function label($name, $title = null, $html_options = null)
 		$title = str_replace(']', '', end($args));
 		$title = humanize($title);
 	}
-	
-	return error_check($name, '<label for="'.name_to_id($name).'"'.html_options_str($html_options).'>'.$title.'</label>');
+	$html_options['for'] = name_to_id($name);
+	return create_html_element('label', $html_options, $title) . "\n";
 }
 
 /*
@@ -534,76 +549,9 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 
 	$return .= "</select>\n\r";
 
-	return error_check($name, $return);
-
-}
-
-/*
-
-Function: checkbox_select
-	Creates a select tag (dropdown box). Can't beat this!!!
-
-Parameters:
-	name - required
-	selected - optional 
-	choices - optional
-	html_options - optional
-	none_title - optional default set to "None Available"
-
-Returns:
-	string
-
-*/ 
-
-function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
-{
-	
-	if ( !is_array($selected) ) $selected = array();
-	
-	if ( $html_options['label_options'] ) {
-		$label_options = $html_options['label_options'];
-		unset($html_options['label_options']);
-	}
-	
-	$box_html_options = array();
-
-	if ( is_array($html_options) && count($html_options) > 0 ) {
-	
-		foreach ( $html_options as $key=>$value ) {
-			if (strtolower(substr(trim($key), 0, 2)) == 'on') {
-				$box_html_options[$key] = $value;
-			}
-		}
-		
-		foreach ( $box_html_options as $key=>$value ) {
-			unset($html_options[$key]);
-		}
-		
-	}
-
-	$return = "<div ". html_options_str($html_options) .">\n";
-	
-	if ( count($choices) ) {
-	
-		$class_temp = $label_options['class'];
-	
-		foreach( $choices as $value => $desc ) {
-			$label_options['class'] = $class_temp . ( strstr($desc, 'class="sub"') ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');
-			$label_options['for'] = name_to_id($name) . '_' . $value;
-			$return .= "<label ".html_options_str($label_options).">\n";
-			$return .= create_input_tag('checkbox', $name, $value, $box_html_options, in_array($value, $selected), $desc)."\n";
-			$return .= "<br /></label>\n";		
-		}
-		
-	} else {
-		$return .= '<span class="'.underscore($none_title).'">'.$none_title.'</span>';
-	}
-	
-	$return .= "</div>\n";
-	
 	return $return;
-}
 
+}
 
 /*
 
@@ -748,28 +696,25 @@ function update_<?=$state_id?>(stateVals, stateIDs) {
 }
 
 /*
-
-Function: select_redirect
+	Function: select_redirect
+	
 	Creates dropdown that redirects the page onchange.
-
-Parameters:
-	name - required
-	names_and_urls - requires
-	html_options - optional
-
-Returns:
-	string
-
+	
+	Parameters:
+	
+		name - required
+		names_and_urls - required
+		html_options - optional
+		
+	Returns:
+	
+		String.
 */
  
 function select_redirect($name, $names_and_urls, $html_options = null)
 {
-	
 	$html_options['onchange'] .= 'location.href=this.options[this.selectedIndex].value;';	
-	
-	$return = select($name, null, $names_and_urls, $html_options);
-	return $return;
-	
+	return select($name, null, $names_and_urls, $html_options);
 }
 
 
@@ -1044,4 +989,71 @@ function select_time_zone_tag($name, $selected = null, $choices = null, $html_op
 	
 	return select($name, $selected, $time_zones, $html_options);
 }
+
+/*
+
+Function: checkbox_select
+	Creates a select tag (dropdown box). Can't beat this!!!
+
+Parameters:
+	name - required
+	selected - optional 
+	choices - optional
+	html_options - optional
+	none_title - optional default set to "None Available"
+
+Returns:
+	string
+
+*/ 
+
+function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
+{
+	
+	if ( !is_array($selected) ) $selected = array();
+	
+	if ( $html_options['label_options'] ) {
+		$label_options = $html_options['label_options'];
+		unset($html_options['label_options']);
+	}
+	
+	$box_html_options = array();
+
+	if ( is_array($html_options) && count($html_options) > 0 ) {
+	
+		foreach ( $html_options as $key=>$value ) {
+			if (strtolower(substr(trim($key), 0, 2)) == 'on') {
+				$box_html_options[$key] = $value;
+			}
+		}
+		
+		foreach ( $box_html_options as $key=>$value ) {
+			unset($html_options[$key]);
+		}
+		
+	}
+
+	$return = "<div ". html_options_str($html_options) .">\n";
+	
+	if ( count($choices) ) {
+	
+		$class_temp = $label_options['class'];
+	
+		foreach( $choices as $value => $desc ) {
+			$label_options['class'] = $class_temp . ( strstr($desc, 'class="sub"') ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');
+			$label_options['for'] = name_to_id($name) . '_' . $value;
+			$return .= "<label ".html_options_str($label_options).">\n";
+			$return .= create_input_tag('checkbox', $name, $value, $box_html_options, in_array($value, $selected), $desc)."\n";
+			$return .= "<br /></label>\n";		
+		}
+		
+	} else {
+		$return .= '<span class="'.underscore($none_title).'">'.$none_title.'</span>';
+	}
+	
+	$return .= "</div>\n";
+	
+	return $return;
+}
+
 ?>

@@ -1143,6 +1143,11 @@ class model implements Iterator
 					//$args['limit'] = 1;
 					$this->find($args);
 					break;
+				
+				case preg_match('/^find_all_by_(.+)$/', $method, $regs):
+					$args['where'] = $this->_conditions_str_from_method($method, $arguments);
+					$this->find_all($args);
+					break;
 	
 				case preg_match('/^find_first_by_(.+)$/', $method, $regs):
 					$args['where'] = $this->_conditions_str_from_method($method, $arguments);
@@ -2038,7 +2043,7 @@ class model implements Iterator
 	private function _conditions_str_from_method($method, $args)
 	{
 		// remove find_by... from method name
-		$method = str_replace(array('find_by_','find_first_by_', 'find_total_by_'), '', $method);
+		$method = str_replace(array('find_by_','find_first_by_', 'find_total_by_', 'find_all_by_'), '', $method);
 		$args_index = 0;
 		$return = '';
 		

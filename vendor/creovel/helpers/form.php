@@ -51,7 +51,7 @@ function error_messages_for($errors = null, $title = null, $description = 'There
 	$errors_count =	0;
 	$li_str = '';
 	
-	foreach ( $errors as $field => $message ) {
+	if (count($errors)) foreach ( $errors as $field => $message ) {
 		if ( $message == 'no_message') continue;
 		if (is_array($message)) foreach ( $message as $k => $v) {
 			$li_str .= create_html_element('li', null, create_html_element('a', array('href' => "#error_{$field}_{$k}"), $v)) . "\n";

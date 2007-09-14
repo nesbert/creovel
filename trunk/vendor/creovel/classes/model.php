@@ -1161,6 +1161,7 @@ class model implements Iterator
 				break;
 				
 				/* Paging Links */
+				
 				case ( preg_match('/^link_to_(.+)$/', $method, $regs) ):
 				case ( preg_match('/^paging_(.+)$/', $method, $regs) ):
 					if ( method_exists($this->page, $method) ) {
@@ -1170,77 +1171,86 @@ class model implements Iterator
 					}
 				break;
 				
+				/* Form Helpers */
+				
 				case preg_match('/^text_field_for_(.+)$/', $method, $regs):
-					$html_options = $arguments[0];
-					$get_function = 'get_' . $regs[1];
-					$error_function = 'error_for_' . $regs[1];
-					
-					$html_str = text_field($this->_class(). '[' . $regs[1] . ']', $this->$get_function(), $html_options);
-					
-					return $html_str;
-				
-				break;
-				
-				case preg_match('/^password_field_for_(.+)$/', $method, $regs):
-					$html_options = $arguments[0];
-					$function = 'get_' . $regs[1];
-					return password_field($this->_class(). '[' . $regs[1] . ']', $this->$function(), $html_options);
-				break;
-				
+				case preg_match('/^password_field_for_(.+)$/', $method, $regs):				
+				case preg_match('/^hidden_field_for_(.+)$/', $method, $regs):
 				case preg_match('/^text_area_for_(.+)$/', $method, $regs):
 				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
-					$html_options = $arguments[0];
+					// set vars
+					$name = $this->_class(). '[' . $regs[1] . ']';
 					$function = 'get_' . $regs[1];
+					$html_options = $arguments[0];
 					
-					return textarea($this->_class(). '[' . $regs[1] . ']', $this->$function(), $html_options);
-				break;
-				
-				case preg_match('/^hidden_field_for_(.+)$/', $method, $regs):
-					$html_options = $arguments[0];
-					$function = 'get_' . $regs[1];
-					return hidden_field($this->_class(). '[' . $regs[1] . ']', $this->$function(), $html_options);
-				break;
-				
-				
-				case preg_match('/^select_for_(.+)$/', $method, $regs):
-					$options = $arguments[0];
-					$html_options = $arguments[1];
-					$function = 'get_' . $regs[1];
-					return select($this->_class(). '[' . $regs[1] . ']', $this->$function(), $options, $html_options);
+					// get HTML
+					switch ( true ) {
+					
+						case preg_match('/^text_field_for_(.+)$/', $method, $regs):
+							$html = text_field($name, $this->$function(), $html_options);
+						break;
+						
+						case preg_match('/^password_field_for_(.+)$/', $method, $regs):
+							$html = password_field($name, $this->$function(), $html_options);
+						break;
+						
+						case preg_match('/^hidden_field_for_(.+)$/', $method, $regs):
+							$html = hidden_field($name, $this->$function(), $html_options);
+						break;
+						
+						case preg_match('/^check_box_for_(.+)$/', $method, $regs):
+							$tag_value = $arguments[0];
+							$text = $arguments[1];
+							$html = check_box($name, $this->$function(), $html_options, $tag_value, $text);
+						break;
+						
+						case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
+							$tag_value = $arguments[0];
+							$text = $arguments[1];
+							$html = radio_button($name, $this->$function(), $html_options, $tag_value, $text);
+						break;
+						
+						case preg_match('/^text_area_for_(.+)$/', $method, $regs):
+						case preg_match('/^textarea_for_(.+)$/', $method, $regs):
+							$html = textarea($name, $this->$function(), $html_options);
+						break;
+						
+						case preg_match('/^select_for_(.+)$/', $method, $regs):
+						
+							$options = $arguments[0];
+							$html_options = $arguments[1];
+							
+							switch (true)
+							{							
+								default:
+									$html = select($name, $this->$function(), $options, $html_options);
+								break;
+							}
+							
+						break;
+															
+					}
+					
+					// check for errors and return HTML
+					return $this->errors->$regs[1] ? error_wrapper($name, $html) : $html;
 				break;
 				
 				case preg_match('/^label_for_(.+)$/', $method, $regs):
-					$title = $arguments[0];
-					$html_options = $arguments[1];
-					return label($this->_class(). '[' . $regs[1] . ']', $title, $html_options);
+					if ( isset($this->_fields->$regs[1]) ) {
+						$title = $arguments[0];
+						$html_options = $arguments[1];
+						$html_options['class'] = trim($html_options['class'] . ' labelWithErrors');
+						return label($this->_class(). '[' . $regs[1] . ']', $title, $html_options);
+					} else {
+						throw new Exception("Can not create label_for_{$regs[1]}. Property <em>{$regs[1]}</em> not found in <strong>".get_class($this)."</strong> model.");
+					}
 				break;
 			
 				case preg_match('/^error_for_(.+)$/', $method, $regs):
-					if ($this->errors->$regs[1]) {
-						return true;
-					} else {
-						return false;
-					}
+				case preg_match('/^(.+)_has_error$/', $method, $regs):
+					return $this->errors->$regs[1] ? true : false;
 				break;
 	
-				case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
-					$value = $arguments[0];
-					$text = $arguments[1] ? $arguments[1] : humanize($value);
-					$html_options = $arguments[2];
-					$function = 'get_' . $regs[1];
-					
-					return radio_button($this->_class(). '[' . $regs[1] . ']', $value, $html_options, $this->$function(), $text);
-				break;
-				
-				case preg_match('/^check_box_for_(.+)$/', $method, $regs):
-					$value = $arguments[0];
-					$text = $arguments[1] ? $arguments[1] : humanize($value);
-					$html_options = $arguments[2];
-					$function = 'get_' . $regs[1];
-					
-					return check_box($this->_class(). '[' . $regs[1] . ']', $value, $html_options, $this->$function(), $text);
-				break;
-				
 				case preg_match('/^multi_check_box_for_(.+)$/', $method, $regs):
 					$value = $arguments[0];
 					   

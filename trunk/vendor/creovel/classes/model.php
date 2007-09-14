@@ -1177,66 +1177,78 @@ class model implements Iterator
 				case preg_match('/^password_field_for_(.+)$/', $method, $regs):				
 				case preg_match('/^hidden_field_for_(.+)$/', $method, $regs):
 				case preg_match('/^text_area_for_(.+)$/', $method, $regs):
+				case preg_match('/^check_box_for_(.+)$/', $method, $regs):
+				case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
 				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
-					// set vars
-					$name = $this->_class(). '[' . $regs[1] . ']';
-					$function = 'get_' . $regs[1];
-					$html_options = $arguments[0];
-					
-					// get HTML
-					switch ( true ) {
-					
-						case preg_match('/^text_field_for_(.+)$/', $method, $regs):
-							$html = text_field($name, $this->$function(), $html_options);
-						break;
+				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
+				case preg_match('/^select_for_(.+)$/', $method, $regs):
+				
+					if ( $this->field_exists($regs[1]) ) {
+
+						// set vars
+						$name = $this->_class(). '[' . $regs[1] . ']';
+						$function = 'get_' . $regs[1];
+						$html_options = $arguments[0];
 						
-						case preg_match('/^password_field_for_(.+)$/', $method, $regs):
-							$html = password_field($name, $this->$function(), $html_options);
-						break;
+						// get HTML
+						switch ( true ) {
 						
-						case preg_match('/^hidden_field_for_(.+)$/', $method, $regs):
-							$html = hidden_field($name, $this->$function(), $html_options);
-						break;
-						
-						case preg_match('/^check_box_for_(.+)$/', $method, $regs):
-							$tag_value = $arguments[0];
-							$text = $arguments[1];
-							$html = check_box($name, $this->$function(), $html_options, $tag_value, $text);
-						break;
-						
-						case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
-							$tag_value = $arguments[0];
-							$text = $arguments[1];
-							$html = radio_button($name, $this->$function(), $html_options, $tag_value, $text);
-						break;
-						
-						case preg_match('/^text_area_for_(.+)$/', $method, $regs):
-						case preg_match('/^textarea_for_(.+)$/', $method, $regs):
-							$html = textarea($name, $this->$function(), $html_options);
-						break;
-						
-						case preg_match('/^select_for_(.+)$/', $method, $regs):
-						
-							$options = $arguments[0];
-							$html_options = $arguments[1];
+							case preg_match('/^text_field_for_(.+)$/', $method, $regs):
+								$html = text_field($name, $this->$function(), $html_options);
+							break;
 							
-							switch (true)
-							{							
-								default:
-									$html = select($name, $this->$function(), $options, $html_options);
-								break;
-							}
+							case preg_match('/^password_field_for_(.+)$/', $method, $regs):
+								$html = password_field($name, $this->$function(), $html_options);
+							break;
 							
-						break;
-															
+							case preg_match('/^hidden_field_for_(.+)$/', $method, $regs):
+								$html = hidden_field($name, $this->$function(), $html_options);
+							break;
+							
+							case preg_match('/^check_box_for_(.+)$/', $method, $regs):
+								$tag_value = $arguments[0];
+								$text = $arguments[1];
+								$html = check_box($name, $this->$function(), $html_options, $tag_value, $text);
+							break;
+							
+							case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
+								$tag_value = $arguments[0];
+								$text = $arguments[1];
+								$html = radio_button($name, $this->$function(), $html_options, $tag_value, $text);
+							break;
+							
+							case preg_match('/^text_area_for_(.+)$/', $method, $regs):
+							case preg_match('/^textarea_for_(.+)$/', $method, $regs):
+								$html = textarea($name, $this->$function(), $html_options);
+							break;
+							
+							case preg_match('/^select_for_(.+)$/', $method, $regs):
+							
+								$options = $arguments[0];
+								$html_options = $arguments[1];
+								
+								switch (true)
+								{							
+									default:
+										$html = select($name, $this->$function(), $options, $html_options);
+									break;
+								}
+								
+							break;
+																
+						}
+						
+						// check for errors and return HTML
+						return $this->errors->$regs[1] ? error_wrapper($name, $html) : $html;
+						
+					} else {
+						throw new Exception("Undefined method <em>{$method}</em> in <strong>".get_class($this)."</strong> model.");
 					}
 					
-					// check for errors and return HTML
-					return $this->errors->$regs[1] ? error_wrapper($name, $html) : $html;
 				break;
 				
 				case preg_match('/^label_for_(.+)$/', $method, $regs):
-					if ( isset($this->_fields->$regs[1]) ) {
+					if ( $this->field_exists($regs[1]) ) {
 						$title = $arguments[0];
 						$html_options = $arguments[1];
 						$html_options['class'] = trim($html_options['class'] . ' labelWithErrors');
@@ -1400,29 +1412,32 @@ class model implements Iterator
 	}
 	
 	/*
-	
-	Function: is_valid
+		Function: is_valid
+		
 		Validate model object.
-
-	Returns:
-		bool
-
+		
+		Returns:
+		
+			Boolean.
 	*/
 
     public function is_valid()
     {
-        // validate model on every save
-        $this->validate();
-        
-        // if error return false        
-        if ( $this->errors->has_errors() ) {
-            return false;
-        } else {
-            return true;
-        }    
+        return $this->validate_model();
     }
-
+    
     /*
+    	Function: field_exists
+    	
+    	Checks if $var is a valid table field.
+    */
+    
+    public function field_exists($var)
+    {
+    	return isset($this->_fields->$var);
+    }
+    
+    /*  
 
 	Function: table_exists
 		Check if a table exists in the current database.

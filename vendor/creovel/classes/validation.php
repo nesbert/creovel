@@ -55,7 +55,7 @@ class validation
 			message - required
 	*/
 	 
-	public function add_error($feild, $message)
+	public function add_error($field, $message)
 	{
 		$this->errors->add($field, $message);
 	}

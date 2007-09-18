@@ -31,7 +31,7 @@ function datetime($datetime = null)
 			return date('Y-m-d H:i:s', mktime($datetime['hour'], $datetime['minute'], $datetime['second'], $datetime['month'], $datetime['day'], $datetime['year']));
 		break;
 		
-		case ( is_numeric($datetime) ):
+		case ( is_int($datetime) ):
 			return date('Y-m-d H:i:s', $datetime);
 		break;
 		

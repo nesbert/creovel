@@ -1187,6 +1187,8 @@ class model implements Iterator
 				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
 				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
 				case preg_match('/^select_for_(.+)$/', $method, $regs):
+				case preg_match('/^select_countries_tag_for_(.+)$/', $method, $regs):
+				case preg_match('/^select_states_tag_for_(.+)$/', $method, $regs):
 				
 					if ( $this->field_exists($regs[1]) ) {
 
@@ -1228,17 +1230,21 @@ class model implements Iterator
 							break;
 							
 							case preg_match('/^select_for_(.+)$/', $method, $regs):
-							
-								$options = $arguments[0];
+								$options = $arguments[0] ? $arguments[0] : $this->_fields->$regs[1]->options;
 								$html_options = $arguments[1];
-								
-								switch (true)
-								{							
-									default:
-										$html = select($name, $this->$function(), $options, $html_options);
-									break;
-								}
-								
+								$html = select($name, $this->$function(), $options, $html_options);
+							break;
+																
+							case preg_match('/^select_countries_tag_for_(.+)$/', $method, $regs):
+								$options = $arguments[0] ? $arguments[0] : $this->_fields->$regs[1]->options;
+								$html_options = $arguments[1];
+								$html = select_countries_tag($name, $this->$function(), $options, $html_options, $arguments[2]);
+							break;
+																
+							case preg_match('/^select_states_tag_for_(.+)$/', $method, $regs):
+								$options = $arguments[0] ? $arguments[0] : $this->_fields->$regs[1]->options;
+								$html_options = $arguments[1];
+								$html = select_states_tag($name, $this->$function(), $options, $html_options, $arguments[2]);
 							break;
 																
 						}
@@ -1250,6 +1256,14 @@ class model implements Iterator
 						throw new Exception("Undefined method <em>{$method}</em> in <strong>".get_class($this)."</strong> model.");
 					}
 					
+				break;
+				
+				case preg_match('/^options_for_(.+)$/', $method, $regs):
+					if ( $this->field_exists($regs[1]) ) {
+						$this->_fields->$regs[1]->options = $arguments[0];
+					} else {
+						throw new Exception("Can set options for {$regs[1]}. Property <em>{$regs[1]}</em> not found in <strong>".get_class($this)."</strong> model.");
+					}
 				break;
 				
 				case preg_match('/^label_for_(.+)$/', $method, $regs):

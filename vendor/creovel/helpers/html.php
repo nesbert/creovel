@@ -114,6 +114,7 @@ function html_options_str($html_options)
 			'alink',
 			'align',
 			'archive',
+			'autocomplete',
 			'axis',
 			'background',
 			'bgcolor',

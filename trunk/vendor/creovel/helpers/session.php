@@ -49,5 +49,11 @@ session_set_save_handler(
 	'creovel_session_destroy',
 	'creovel_session_gc'
 	);
+	
+// Fix for PHP 5.05
+// http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
+register_shutdown_function('session_write_close');
+
+session_start();
 
 ?>

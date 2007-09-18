@@ -69,7 +69,9 @@ class session extends model
 		$this->query("CREATE TABLE IF NOT EXISTS {$this->_table_name}
 						(
 						id VARCHAR (255) NOT NULL,
-						expires INT (10) NOT NULL default '0',
+						started_at datetime default NULL,
+						updated_at datetime default NULL,
+						expires_at datetime default NULL,
 						data TEXT NOT NULL,
 						PRIMARY KEY (id)
 						)");
@@ -96,7 +98,7 @@ class session extends model
 		if ( !$id ) return false;
 		
 		$this->table_check();
-		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."' AND expires > '".time()."'");
+		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."' AND expires_at > '".datetime()."'");
 		$this->next();
 
 		if ( $this->row_count() == 1 ) {
@@ -125,9 +127,18 @@ class session extends model
 
 	public function set_session_data($id = false, $val = '')
 	{
-		$expires = time() + get_cfg_var("session.gc_maxlifetime");
 		if ( !$id ) return false;
-		$this->query("REPLACE INTO {$this->_table_name} (id, expires, data) VALUES ('".$this->clean_data($id)."', '".$expires."', '".$this->clean_data($val)."')");
+		$expires = time() + get_cfg_var("session.gc_maxlifetime");
+
+		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
+		$this->next();
+
+		if ( $this->row_count() ) {
+			$this->query("UPDATE {$this->_table_name} SET expires_at = '".datetime($expires)."', updated_at = '".datetime()."', data = '".$this->clean_data($val)."' WHERE id = '".$this->clean_data($id)."'");
+		} else {		
+			$this->query("INSERT INTO {$this->_table_name} (id, started_at, updated_at, expires_at, data) VALUES ('".$this->clean_data($id)."', '".datetime()."', '', '".datetime($expires)."', '".$this->clean_data($val)."')");
+		}
+		
 	    return $this->get_affected_rows();
 	}
 
@@ -149,7 +160,7 @@ class session extends model
 
 	public function destroy_session_data($id)
 	{
-		$this->query_records("DELETE FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
+		$this->query("DELETE FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
 	    return $this->get_affected_rows();
 	}
 	
@@ -171,7 +182,7 @@ class session extends model
 
 	public function clean_session_data($maxlifetime)
 	{
-		$this->query("DELETE FROM {$this->_table_name} WHERE expires < '".time()."'");
+		$this->query("DELETE FROM {$this->_table_name} WHERE expires_at < '".datetime()."'");
 	    return $this->get_affected_rows();
 	}
 	

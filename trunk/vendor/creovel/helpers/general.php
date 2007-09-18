@@ -734,7 +734,7 @@ function countries($us_first = false, $show_abbr = false)
 			' ' => '-----------------'
 		);
 	}
-		
+
 	foreach (countries_array() as $k => $v) $countries[$k] = ( $show_abbr ? $k . ' - ' : '' ) . $v['name'];
 	return $countries;
 }

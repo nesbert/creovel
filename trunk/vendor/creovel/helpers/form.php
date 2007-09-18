@@ -5,10 +5,90 @@
 	Form helpers go here.	
 */
 
+/*
+	Function: name_to_id
+	
+	Formats user[name] to user_name.
+	
+	Returns:
+	
+		String.
+*/
+ 
+function name_to_id($name)
+{	
+	return str_replace(array('[', ']'), array('_', ''), str_replace('[]', '', $name));
+}
+
 
 /*
+	Function: add_form_error
+	
+	Add error to form errors.
+	
+	Parameters:
+	
+		field_name - Field name.
+		message - Error message.
+*/
 
-Function: error_messages_for
+function add_form_error($field_name, $message = null)
+{	
+	$_ENV['creovel']['form_errors'][name_to_id($field_name)] = $message ? $message : humanize($field_name) . ' is invalid.';
+}
+
+/*
+	Function: field_has_error
+	
+	checkif a field is has an error.
+	
+	Parameters:
+	
+		field_name - Field name.
+		
+	Returns:
+	
+		Boolean.
+*/
+
+function field_has_error($field_name)
+{	
+	return isset($_ENV['creovel']['form_errors'][name_to_id($field_name)]);
+}
+
+/*
+	Function: form_has_errors
+	
+	Check if form has errors.
+	
+	Returns:
+	
+		Boolean.
+*/
+
+function form_has_errors()
+{	
+	return form_errors_count() ? true : false;
+}
+
+/*
+	Function: form_has_errors
+	
+	Check if form has errors.
+	
+	Returns:
+	
+		Integer.
+*/
+
+function form_errors_count()
+{	
+	return count($_ENV['creovel']['form_errors']);
+}
+
+/*
+	Function: error_messages_for
+	
 	Prints out a formatted errors message box for an object. Errors styles below: 
 
 	(start code)	
@@ -23,43 +103,34 @@ Function: error_messages_for
 		 #errors a {} // errors list items links
 		 .errors_field {} // html element with the error
 	(end)
-
-Parameters:
-	errors - optional
-	title - optional default is "{number of errors} errors {have or has} prohibited this {object name} from being saved."
-	description - optional default is "There were problems with th following fields."
-
-Returns:
-	string
-
+	
+	Parameters:
+		
+		errors - optional
+		title - optional default is "{number of errors} errors {have or has} prohibited this {object name} from being saved."
+		description - optional default is "There were problems with th following fields."
+	
+	Returns:
+	
+		String.
 */
 
 function error_messages_for($errors = null, $title = null, $description = 'There were problems with the following fields.')
 {
 	// if no errors check global variable
-	if ( !$errors ) $errors = $_ENV['model_error'];
+	if ( !$errors ) $errors = $_ENV['creovel']['form_errors'];
 	
 	if ( is_object($errors) ) {
-		if ( $errors_count = $errors->errors->count() ) { 
-			$model = get_class($errors);
-			$errors = $errors->errors;
-		} else {
-			return;
-		}
+		$model = get_class($errors);
+		$errors = $errors->errors;
 	}
 	
-	$errors_count =	0;
+	$errors_count =	count($errors);
 	$li_str = '';
 	
-	if (count($errors)) foreach ( $errors as $field => $message ) {
+	if ($errors_count) foreach ( $errors as $field => $message ) {
 		if ( $message == 'no_message') continue;
-		if (is_array($message)) foreach ( $message as $k => $v) {
-			$li_str .= create_html_element('li', null, create_html_element('a', array('href' => "#error_{$field}_{$k}"), $v)) . "\n";
-			$errors_count++;
-		} else {
-			$li_str .= create_html_element('li', null, create_html_element('a', array('href' => "#error_{$field}"), $message)) . "\n";
-			$errors_count++;
-		}
+		$li_str .= create_html_element('li', null, create_html_element('a', array('href' => "#error_{$field}"), $message)) . "\n";
 	}	
 	
 	if ( $errors_count ) {
@@ -90,52 +161,21 @@ function error_messages_for($errors = null, $title = null, $description = 'There
 }
 
 /*
-
-Function: error_check
-Creates an ancohor tag and wraps the form element with an span tag if it has an error.
-
-Parameters:
-	field -
-	html_str -
-
-Returns:
-	string
-
-*/
-
-function error_check($field, $html_str)
-{		
-	
-	$args = explode('[', $field);
-	$field = str_replace(']', '', end($args));
-	
-	if ( is_array($_ENV['model_error']) && array_key_exists($field, $_ENV['model_error'])) {
-		
-		// need to figure out a better way of doing this [NH] 11/9/20005
-		//if ( strstr($html_str, '['.$field.']') || ( strstr($html_str, '"'.$field.'"') && !strstr($html_str, 'value="'.$field.'"') ) ) {
-			$html_str = error_wrapper($field, $html_str); 
-		//}
-		
-	}	
-	return $html_str;	
-}
-
-/*
 	Function: error_wrapper
 	
 	Parameters:
 	
-		field -
-		html_str -
+		field - Field name.
+		html_str - HTML string.
 		
 	Returns:
 	
 		String.
 */
 
-function error_wrapper($field, $html_str)
+function error_wrapper($field_name, $html_str)
 {
-	return '<a name="error_' . name_to_id($field) . '"></a><span class="fieldWithErrors">' . str_replace("\n", '', $html_str) . "</span>\n";
+	return '<a name="error_' . name_to_id($field_name) . '"></a><span class="fieldWithErrors">' . str_replace("\n", '', $html_str) . "</span>\n";
 }
 
 /*
@@ -219,21 +259,6 @@ Returns
 function end_form_tag()
 {
 	return "</form>\n";
-}
-
-/*
-	Function: name_to_id
-	
-	Formats user[name] to user_name.
-	
-	Returns:
-	
-		String.
-*/
- 
-function name_to_id($name)
-{	
-	return str_replace(array('[', ']'), array('_', ''), str_replace('[]', '', $name));
 }
 
 /*
@@ -622,7 +647,7 @@ function select_countries_tag($name, $selected = null, $choices = null, $html_op
 
 	$choices = ( $choices ? $choices : array('' => 'Please select...') );
 	
-	$country_arr = countries($choices, $html_options['us_first'], $html_options['show_abbr']);
+	$country_arr = countries($html_options['us_first'], $html_options['show_abbr']);
 	
 	// unset country function vars
 	unset($html_options['us_first']);

@@ -46,7 +46,7 @@ class error
 		$args = func_get_args();
 		
 		// new error add to count
-		if (!isset($_ENV['model_error'][$this->_type][$args[0]])) {
+		if (!isset($_ENV['creovel']['form_errors'][$this->_type . '_' . $args[0]])) {
 			$this->_error_count++;
 		}		
 		
@@ -159,7 +159,7 @@ class error
 	{
 		$this->$field = $message;
 		// add to globals
-		$_ENV['model_error'][$this->_type][$field] = $message;
+		add_form_error($this->_type . '_' . $field, $message);
 	}
 	
 	/*

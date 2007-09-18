@@ -98,7 +98,7 @@ class model implements Iterator
 
 	*/
 	
-	public $page;
+	public $_paging;
 	
 	/*
 	
@@ -1010,18 +1010,94 @@ class model implements Iterator
 	}
 
 	/*
-	
-	Function: total
-		Alias to row_count
-	
-	Returns:
-		int
-	
+		Function: total
+		
+		Alias to row_count if _paging being used returns the total number of
+		records not number of rows loaded.
+		
+		Returns:
+		
+			Integer.
 	*/
 
 	public function total()
 	{
-		return $this->row_count();
+		return  is_object($this->_paging) ? $this->_paging->total_records() : $this->row_count();
+	}
+
+	/*
+		Function: previous_page
+		
+		Get the previous page number when using the paging object.
+				
+		Returns:
+		
+			Integer.
+	*/
+
+	public function current_page()
+	{
+		return (int) ( is_object($this->_paging) ? $this->_paging->current : 0 );
+	}
+	
+	/*
+		Function: next_page
+		
+		Get the next page number when using the paging object.
+				
+		Returns:
+		
+			Integer.
+	*/
+
+	public function next_page()
+	{
+		return (int) ( is_object($this->_paging) ? $this->_paging->next : 0 );
+	}
+	
+	/*
+		Function: previous_page
+		
+		Get the previous page number when using the paging object.
+				
+		Returns:
+		
+			Integer.
+	*/
+
+	public function previous_page()
+	{
+		return (int) ( is_object($this->_paging) ? $this->_paging->prev : 0 );
+	}
+	
+	/*
+		Function: prev_page
+		
+		Alias to previous_page().
+				
+		Returns:
+		
+			Integer.
+	*/
+
+	public function prev_page()
+	{
+		return $this->previous_page();
+	}
+	
+	/*
+		Function: total_pages
+		
+		Returns the number of pages.
+				
+		Returns:
+		
+			Integer.
+	*/
+
+	public function total_pages()
+	{
+		return $this->_paging->total_pages();
 	}
 	
 	/*
@@ -1169,8 +1245,8 @@ class model implements Iterator
 				
 				case ( preg_match('/^link_to_(.+)$/', $method, $regs) ):
 				case ( preg_match('/^paging_(.+)$/', $method, $regs) ):
-					if ( method_exists($this->page, $method) ) {
-						return call_user_func_array(array($this->page, $method), $arguments);								
+					if ( method_exists($this->_paging, $method) ) {
+						return call_user_func_array(array($this->_paging, $method), $arguments);								
 					} else {
 						throw new Exception("Undefined method <em>{$method}</em> in <strong>".get_class($this)."</strong> model.");
 					}
@@ -1420,11 +1496,11 @@ class model implements Iterator
 		$temp = (object) $temp;
 		
 		// create page object
-		$this->page = new pager($temp);
+		$this->_paging = new pager($temp);
 		
 		// update agrs with paging data
-		$args['offset'] = $this->page->offset;
-		$args['limit'] = $this->page->limit;
+		$args['offset'] = $this->_paging->offset;
+		$args['limit'] = $this->_paging->limit;
 		
 		// execute query
 		$this->find($args);

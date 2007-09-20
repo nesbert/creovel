@@ -551,5 +551,4 @@ function redirect_to_url($url)
 	die;
 }
 
-
 ?>

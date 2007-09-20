@@ -70,7 +70,25 @@ function get_user_defined_constants()
  	$return = get_defined_constants(true);
 	return $return['user'];
 }
- 
+
+/*
+	Function: get_ancestors
+	
+	Get an array of all class parents.
+	http://us.php.net/manual/en/function.get-parent-class.php#57548
+	
+	Returns:
+	
+		Array.
+*/
+
+function get_ancestors($class)
+{
+    $classes = array($class);
+    while($class = get_parent_class($class)) { $classes[] = $class; }
+    return $classes;
+}
+
 /*
 	Function: get_filesize
 	

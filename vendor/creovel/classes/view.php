@@ -47,7 +47,7 @@ class view
 					if ( file_exists($layout_path) ) {
 						$page = str_replace('@@page_contents@@', $content, self::_get_include_contents($layout_path, $options));
 					} else {
-						throw new Exception("Unable to render 'layout'. File not found <strong>{$layout_path}</strong>.");
+						throw new Exception("Unable to render <em>layout<em> not found in <strong>{$layout_path}</strong>.");
 					}
 				break;
 

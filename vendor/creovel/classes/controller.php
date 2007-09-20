@@ -87,7 +87,7 @@ class controller
 	{
 		$this->params = $params;
 	}
-
+	
 	/*
 		Function: _execute_action
 		
@@ -98,6 +98,23 @@ class controller
 	{
 		// initialize callback
 		$this->initialize();
+
+		/****************************************************************
+			Initialize Scope Fix
+		****************************************************************/		
+		
+		$parent_controllers = get_ancestors(get_class($this));
+		array_pop($parent_controllers); // remove base controller
+		
+		foreach (array_reverse($parent_controllers) as $controller) {
+			if (method_exists($controller, ($method = 'initialize_' . $controller))) {
+				$this->$method();
+			}
+		}
+		
+		/****************************************************************
+		****************************************************************/		
+
 		try {
 			
 			if ( method_exists($this, $this->_action) ) {
@@ -113,7 +130,7 @@ class controller
 				$this->after_filter();
 				
 			} else {
-				throw new Exception("Call to undefined action '{$this->_action}' not found in <strong>".get_class($this)."</strong>.");
+				throw new Exception("Call to undefined action <em>{$this->_action}</em> not found in <strong>".get_class($this)."</strong>.");
 			}
 			
 		} catch ( Exception $e ) {
@@ -235,7 +252,7 @@ class controller
 			break;
 			
 			default:
-				$_ENV['error']->add("Unable to render '".( $view{0} == '_' ? 'partial' : 'view' )."'. File not found <strong>{$view_path}</strong>.");
+				$_ENV['error']->add("Unable to render <em>".( $view{0} == '_' ? 'partial' : 'view' )."</em> not found in <strong>{$view_path}</strong>.");
 			break;
 			
 		}
@@ -411,7 +428,7 @@ class controller
 	{
 		try {
 			
-			$msg = $msg ? $msg : "An error occurred while executing the action '".$this->_action."' in the <strong>".get_class($this)."</strong>.";
+			$msg = $msg ? $msg : "An error occurred while executing the action <em>".$this->_action."</em> in the <strong>".get_class($this)."</strong>.";
 			throw new Exception($msg);
 		
 		} catch ( Exception $e ) {
@@ -436,7 +453,7 @@ class controller
 	{
 		try {
 			
-			throw new Exception("Call to undefined action '{$method}' not found in <strong>".get_class($this)."</strong>.");
+			throw new Exception("Call to undefined action <em>{$method}</em> not found in <strong>".get_class($this)."</strong>.");
 		
 		} catch ( Exception $e ) {
 		

@@ -28,7 +28,6 @@ class session extends model
 
 	public function __construct($args = null)
 	{
-	
 		if ($_ENV['sessions_table_name']) {
 			$this->_table_name = $_ENV['sessions_table_name'];
 		}

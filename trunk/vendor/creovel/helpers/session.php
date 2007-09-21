@@ -13,6 +13,7 @@ function creovel_session_open($save_path, $session_name)
 
 function creovel_session_close()
 {
+	creovel_session_gc(get_cfg_var("session.gc_maxlifetime")); // http://us.php.net/manual/en/function.session-set-save-handler.php#69763
 	return true;
 }
 

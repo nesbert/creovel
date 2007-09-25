@@ -280,7 +280,7 @@ function flash_message($message = null, $type = 'notice')
 
 function flash_type()
 {
-	return $_SESSION['flash']['type'];
+	return $_SESSION['flash']['type'] ? $_SESSION['flash']['type'] : 'notice';
 }
 
 /*

@@ -329,14 +329,46 @@ class model implements Iterator
 	Parameters:
 		name - field name
 		value - value
-
+		where - where clasue if needed
+		set_updated_at - Should this modify the updated at field
 	*/
 
-	public function update_field($name, $value)
+	public function update_field($name, $value, $where = null, $set_updated_at = true)
 	{
-		$this->update(array( 'id' => $this->key(), $name => $value ));
+		$fields = array($name => $value);
+		
+		if ($set_updated_at && $this->field_exists('updated_at')) {
+			$fields['updated_at'] = $this->updated_at;
+		}		
+		
+		$this->_execute_update($fields, $where);
+
+		return $this->_action_query->get_affected_rows();
 	}
 
+	/*
+
+	Function: update_fields
+		Updates multiple field and saves the object.
+		Bypasses validation.
+
+	Parameters:
+		fields - array of fields to update
+		where - where clasue if needed
+		set_updated_at - Should this modify the updated at field
+	*/
+	
+	public function update_fields($fields, $where, $set_updated_at = true) {
+		
+		if ($set_updated_at && $this->field_exists('updated_at')) {
+			$fields['updated_at'] = $this->updated_at;
+		}
+		
+		$this->_execute_update($fields, $where);
+
+		return $this->_action_query->get_affected_rows();		
+	}
+	 
 	/*
 	
 	Function: validate_model
@@ -381,7 +413,7 @@ class model implements Iterator
 			// if error return false
 			if ( $this->errors->has_errors() ) return false;
 			
-			$ret_val = $this->update($this->values(), $this->_primary_key . " = '" . $this->key() . "'");
+			$ret_val = $this->_execute_update($this->values(), $this->_primary_key . " = '" . $this->key() . "'");
 			
 		} else {
 		
@@ -392,7 +424,7 @@ class model implements Iterator
 			
 			$this->before_create();
 			
-			$ret_val = $this->insert($this->values());
+			$ret_val = $this->_execute_insert($this->values());
 			
 		}
 
@@ -408,7 +440,7 @@ class model implements Iterator
 
 	/*
 	
-	Function: insert
+	Function: _execute_insert
 		Insert the model into the database.
 
 	Parameters:
@@ -419,7 +451,7 @@ class model implements Iterator
 	
 	*/
 
-	public function insert($data)
+	public function _execute_insert($data)
 	{
 		$qry = "INSERT INTO {$this->_table_name} (";
 		
@@ -491,6 +523,8 @@ class model implements Iterator
 		$qry = substr($qry, 0, -2) ;
 		
 		$qry .= ')';
+		
+		
 		$this->_action_query->query($qry);
 		
 		$key = $this->_primary_key;
@@ -508,7 +542,7 @@ class model implements Iterator
 
 	/*
 	
-	Function: update
+	Function: _execute_update
 		Updates the model in the database.
 
 	Parameters:
@@ -519,7 +553,7 @@ class model implements Iterator
 
 	*/
 
-	public function update($data)
+	public function _execute_update($data, $where = null)
 	{
 		$qry = "UPDATE {$this->_table_name} SET ";
 		
@@ -577,11 +611,15 @@ class model implements Iterator
 
 		$qry = substr($qry, 0, -2) ;
 		$key = $data[$this->_primary_key];
-		$qry .= " WHERE {$this->_primary_key} = '{$key}'";
-		$this->_action_query->query($qry);
+		if ($where) {
+			$qry .= " WHERE " . $where;
+		} else {
+			$qry .= " WHERE {$this->_primary_key} = '{$key}'";
+		}
+
 		
-		//$key = $this->_primary_key;
-		//$this->_fields->$key->value = $this->_action_query->insert_id;
+		
+		$this->_action_query->query($qry);
 		
 		return $key; 
 	}
@@ -1648,6 +1686,18 @@ class model implements Iterator
 	public function has_many_link($name, $options = array())
 	{
 		$this->_links[$name]['type'] = 'has_many_link';
+		if ($options['link_table_name']) {
+			$this->_links[$name]['link_table_name'] = $options['link_table_name'];
+			unset($options['link_table_name']);
+		}
+		if ($options['this_table_id']) {
+			$this->_links[$name]['this_table_id'] = $options['this_table_id'];
+			unset($options['this_table_id']);
+		}
+		if ($options['other_table_id']) {
+			$this->_links[$name]['other_table_id'] = $options['other_table_id'];
+			unset($options['other_table_id']);
+		}
 		$this->_links[$name]['options'] = $options;
 		$this->_links[$name]['linked_to'] = false;
 		$this->_links[$name]['object'] = false;
@@ -1932,6 +1982,10 @@ class model implements Iterator
 			
 			$model_name = $this->_links[$name]['options']['class_name'];
 			
+		} else if( $this->_links[$name]['options']['model']) {
+		
+			$model_name = $this->_links[$name]['options']['model'];
+	
 		} else {
 
 			$model_name = singularize($name);
@@ -1964,34 +2018,34 @@ class model implements Iterator
 					break;
 				case 'has_many_link':
 
-					if ($this->table_exists("{$name}_{$this->_table_name}")) {
+					if (!$this->_links[$name]['link_table_name']) {
 
-						$this->_links[$name]['link_table_name']	= "{$name}_{$this->_table_name}";
-						$this->_links[$name]['this_table_id']	= singularize($this->_table_name).'_id';
-						$this->_links[$name]['other_table_id']	= singularize($name).'_id';
+						if ($this->table_exists("{$name}_{$this->_table_name}")) {
 
-						if ($args['where']) {
-							$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['this_table_id']} = {$this->id} AND ({$args['where']})";
+							$this->_links[$name]['link_table_name']	= "{$name}_{$this->_table_name}";
+
 						} else {
-							$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['this_table_id']} = {$this->id}";
-						}
 
+							$this->_links[$name]['link_table_name']	= "{$this->_table_name}_{$name}";
+
+						}
+					}
+					
+					if(!$this->_links[$name]['this_table_id']) {
+						$this->_links[$name]['this_table_id'] = singularize($this->_table_name).'_id';
+					}
+					if(!$this->_links[$name]['other_table_id']) {
+						$this->_links[$name]['other_table_id'] = singularize($name).'_id';
+					}
+					
+					if ($args['where']) {
+						$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['this_table_id']} = {$this->id} AND ({$args['where']})";
 					} else {
-
-						$this->_links[$name]['link_table_name']	= "{$this->_table_name}_{$name}";
-						$this->_links[$name]['this_table_id']	= singularize($name).'_id';
-						$this->_links[$name]['other_table_id']	= singularize($this->_table_name).'_id';
-
-						if ($args['where']) {
-							$args['where'] = "{$this->_links[$name]['this_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['other_table_id']} = {$this->id} AND ({$args['where']})";
-						} else {
-							$args['where'] = "{$this->_links[$name]['this_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['other_table_id']} = {$this->id}";
-						}
-
+						$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['this_table_id']} = {$this->id}";
 					}
 
-					$args['from'] = "{$this->_links[$name]['link_table_name']}, {$name}";
-
+					$args['from'] = "{$this->_links[$name]['link_table_name']}, {$model_obj->table_name()}";
+					
 					$model_obj->find($args);
 				  
 					break;
@@ -2034,7 +2088,7 @@ class model implements Iterator
 			}
 
 		}
-				
+	
 		$this->_links[$name]['object'] = $model_obj;
 		$this->_links[$name]['linked_to'] = $this->key();
 		

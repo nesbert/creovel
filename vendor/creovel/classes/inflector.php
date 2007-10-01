@@ -76,7 +76,7 @@ class inflector
 			'/$/' => 's'
 		);
 
-        $uncountable = array( 'data', 'equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep' );
+        $uncountable = array( 'data', 'equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep', 'history' );
 
 		$irregular = array
 		(

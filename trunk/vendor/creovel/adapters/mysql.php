@@ -109,7 +109,7 @@ class mysql implements adapter_interface
 		
 		// send a MySQL query and set query_link resource on success
 		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error($this->get_mysql_error() . ". Query \"" . str_replace(', ', ",\n", $this->query) . "\" failed.");		
-		
+
 		// set row_count with number of rows in result
 		$this->row_count = 	@mysql_num_rows($this->query_link);
 	}
@@ -147,7 +147,8 @@ class mysql implements adapter_interface
 	
 	public function get_affected_rows()
 	{
-		return @mysql_affected_rows($this->query_link);	
+		
+		return mysql_affected_rows();	
 	}
 	
 	public function get_insert_id()

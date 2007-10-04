@@ -699,8 +699,8 @@ class model implements Iterator
 			case isset($args['total']):
 				$this->select('count(*) as total ');
 				break;
-			case isset($args['selected']):
-				$this->select($args['selected']);
+			case isset($args['select']):
+				$this->select($args['select']);
 				break;
 			default:
 				break;

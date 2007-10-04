@@ -596,7 +596,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 		String.
 */
  
-function select_states_tag($name, $selected = null, $choices = null, $html_options = null, $select_all = false)
+function select_states_tag($name = 'state', $selected = null, $choices = null, $html_options = null, $select_all = false)
 {
 	
 	if ( isset($choices['abbr']) ) {
@@ -642,7 +642,7 @@ function select_states_tag($name, $selected = null, $choices = null, $html_optio
 		String.
 */
  
-function select_countries_tag($name, $selected = null, $choices = null, $html_options = null, $state_id = null)
+function select_countries_tag($name = 'country', $selected = null, $choices = null, $html_options = null, $state_id = null)
 {
 
 	$choices = ( $choices ? $choices : array('' => 'Please select...') );

@@ -691,7 +691,6 @@ function countries_array()
 																		'OK' => 'Oklahoma',
 																		'OR' => 'Oregon',
 																		'PA' => 'Pennsylvania',
-																		'PR' => 'Puerto Rico',
 																		'RI' => 'Rhode Island',
 																		'SC' => 'South Carolina',
 																		'SD' => 'South Dakota',
@@ -699,7 +698,6 @@ function countries_array()
 																		'TX' => 'Texas',
 																		'UT' => 'Utah',
 																		'VA' => 'Virginia',
-																		'VI' => 'Virgin Islands',
 																		'VT' => 'Vermont',
 																		'WA' => 'Washington',
 																		'WI' => 'Wisconsin',
@@ -779,8 +777,10 @@ function states($country = 'US', $show_abbr = false)
 	
 	if ($show_abbr) {
 		foreach ($states as $k => $v) $states[$k] = $k . ' - ' . $v;
+	} else {
+		asort($states);
 	}
-	
+		
 	return $states;
 }
 

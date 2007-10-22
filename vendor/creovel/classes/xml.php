@@ -224,6 +224,42 @@ class xml
 		return '<![CDATA[' . $cdata . ']]>';
 	}
 	
+	/*
+	
+		Function: find_element_by_attribute_value
+		
+		Create and validate CDATA.
+		
+		Parameters:
+		
+			name - required name for attribute
+			value - required value of attribute
+			$data - options
+			
+		Returns:
+		
+			Element Object
+	*/
+	
+	public function find_element_by_attribute_value($name, $value, $data = null)
+	{
+		if (!$data) $data = $this->data;
+		if ($data->$name == $value) return $data;
+		
+		if (is_object($data->children)) {
+			return $this->find_element_by_attribute_value($name, $value, $data->children->children);
+		}
+		
+		if (is_array($data)) foreach ($data as $element) {
+			if ($element->attributes->$name == $value) return $element;
+			if (is_array($element->children)) foreach ($element->children as $i) {
+				$this->find_element_by_attribute_value($name, $value, $i);
+			}
+		} else {
+			return false;
+		}
+	}
+	
 	// Section: Private
 	
 	/*

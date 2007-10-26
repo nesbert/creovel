@@ -1311,6 +1311,7 @@ class model implements Iterator
 						$function = 'get_' . $regs[1];
 						$html_options = $arguments[0];
 						
+						
 						// get HTML
 						switch ( true ) {
 						
@@ -1329,12 +1330,14 @@ class model implements Iterator
 							case preg_match('/^check_box_for_(.+)$/', $method, $regs):
 								$tag_value = $arguments[0];
 								$text = $arguments[1];
+								$html_options = $arguments[2];
 								$html = check_box($name, $this->$function(), $html_options, $tag_value, $text);
 							break;
 							
 							case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
 								$tag_value = $arguments[0];
 								$text = $arguments[1];
+								$html_options = $arguments[2];
 								$html = radio_button($name, $this->$function(), $html_options, $tag_value, $text);
 							break;
 							
@@ -1694,10 +1697,15 @@ class model implements Iterator
 			$this->_links[$name]['this_table_id'] = $options['this_table_id'];
 			unset($options['this_table_id']);
 		}
+		
 		if ($options['other_table_id']) {
 			$this->_links[$name]['other_table_id'] = $options['other_table_id'];
 			unset($options['other_table_id']);
 		}
+		
+		$this->_links[$name]['other_table_foreign_key'] = $options['other_table_foreign_key'] ? $options['other_table_foreign_key']  : 'id';
+		unset($options['other_table_foreign_key']);
+		
 		$this->_links[$name]['options'] = $options;
 		$this->_links[$name]['linked_to'] = false;
 		$this->_links[$name]['object'] = false;
@@ -2039,9 +2047,9 @@ class model implements Iterator
 					}
 					
 					if ($args['where']) {
-						$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['this_table_id']} = {$this->id} AND ({$args['where']})";
+						$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.{$this->_links[$name][other_table_foreign_key]} AND {$this->_links[$name]['this_table_id']} = {$this->id} AND ({$args['where']})";
 					} else {
-						$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.id AND {$this->_links[$name]['this_table_id']} = {$this->id}";
+						$args['where'] = "{$this->_links[$name]['other_table_id']} = {$model_obj->_table_name}.{$this->_links[$name][other_table_foreign_key]} AND {$this->_links[$name]['this_table_id']} = {$this->id}";
 					}
 
 					$args['from'] = "{$this->_links[$name]['link_table_name']}, {$model_obj->table_name()}";

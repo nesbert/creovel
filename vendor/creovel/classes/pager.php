@@ -138,15 +138,27 @@ class pager
 		$this->total_records	= (int) $total_records;
 		$this->limit 			= max((int) $limit, 1);
 		$this->total_pages		= ceil($this->total_records / $this->limit);
+
 		
 		// set current page
 		$this->current 		= (int) $page;
 		$this->current 		= max($this->current, 1);  
 		$this->current 		= min($this->current, $this->total_pages);
 		
+ 
 		// set offest
 		$this->offset 		= max(($this->current - 1) * $this->limit, 0);
 		
+		if ($this->current == 1) {
+			$this->current_min = 1;
+		} else {
+			$this->current_min = $this->current * $this->limit + 1;
+		}
+		
+		$this->current_max 	= $this->current_min + $this->limit - 1;
+		if ($this->current_max > $this->total_records) {
+			$this->current_max = $this->total_records;
+		}
 		// set next & previous pages
 		$this->next 		= min($this->current + 1, $this->total_pages);
 		$this->prev			= max($this->current - 1, 1);
@@ -154,8 +166,8 @@ class pager
 		$this->last			= $this->total_pages;
 		
 		// set url path
-		$url = @explode('?', $_SERVER['REQUEST_URI']);
-		$this->url = $url[0];
+		//$url = @explode('?', $_SERVER['REQUEST_URI']);
+		//$this->url = $url[0];
 
 	}
 	

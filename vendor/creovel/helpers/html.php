@@ -49,10 +49,11 @@ function html_options_str($html_options)
 {
 	$options_str = '';
 	if ( is_array($html_options)  && count($html_options) ){
-	
+		
 		// lowercase all attributes
 		foreach ( $html_options as $attribute => $value ) $temp_arr[strtolower($attribute)] = $value;
 		
+
 		//print_obj($temp_arr, 1);
 		// set valid html attributes
 		$html_options = array(
@@ -189,14 +190,14 @@ function html_options_str($html_options)
 			$msg = str_replace("'", "\'", htmlentities($temp_arr['confirm']));
 			$temp_arr['onclick'] = "if ( !window.confirm('{$msg}') ) return false; " . $temp_arr['onclick'];		
 		}
-		
+
 		// create options string foreach valid option set
 		foreach ( array_unique($html_options) as $attribute ) {
-			if (in_array($attribute, array_keys($temp_arr))) $options_str .= ( $temp_arr[$attribute] ? ' ' . $attribute . '="' . $temp_arr[$attribute].'"' : '' );
+			if (in_array($attribute, array_keys($temp_arr))) $options_str .= ( isset($temp_arr[$attribute]) ? ' ' . $attribute . '="' . $temp_arr[$attribute].'"' : '' );
 		}
 		
 	}
-
+	
 	return trim($options_str);
 }
 

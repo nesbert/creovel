@@ -738,7 +738,7 @@ function update_<?=$state_id?>(stateVals, stateIDs) {
  
 function select_redirect($name, $names_and_urls, $html_options = null)
 {
-	$html_options['onchange'] .= 'location.href=this.options[this.selectedIndex].value;';	
+	$html_options['onchange'] .= 'location.href=this.options[this.selectedIndex].value;';
 	return select($name, null, $names_and_urls, $html_options);
 }
 

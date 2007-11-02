@@ -1966,9 +1966,8 @@ class model implements Iterator
 			if ($this->_links[$name]['linked_to'] == $this->key()) {
 				return true;
 			} else {
-				
 				return false;
-			}	
+			}
 		} else {
 			return false;
 		}
@@ -2183,7 +2182,7 @@ class model implements Iterator
 	Function: _condition_str_from_method
 		Creates SQL string for conditons used for find_by... magic funtions
 
-	Parameters:	
+	Parameters:
 		method - required
 		args - required
 
@@ -2210,7 +2209,7 @@ class model implements Iterator
 			$or_count = 1;
 			foreach ( $ors as $or ) {
 				// hande "AND" and append to sql string
-				if ( strstr($or, '_and_') ) {				
+				if ( strstr($or, '_and_') ) {
 					$ands = explode('_and_', $or);
 					$return .= '(';
 					foreach ( $ands as $field ) {
@@ -2220,7 +2219,7 @@ class model implements Iterator
 					$return = substr($return, 0, -4).')';
 				} else {
 					$return .= $this->_conditions_str_helper($or, $args[$args_index]);
-					$args_index++;			
+					$args_index++;
 				}
 				
 				// and or if not last $or 

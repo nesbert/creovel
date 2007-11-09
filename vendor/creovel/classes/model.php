@@ -45,7 +45,7 @@ class model implements Iterator
 
 	*/
 
-	protected $_primary_key = 'id';
+	protected $_primary_key;
 	
 	/*
 	
@@ -366,7 +366,7 @@ class model implements Iterator
 		
 		$this->_execute_update($fields, $where);
 
-		return $this->_action_query->get_affected_rows();		
+		return $this->_action_query->get_affected_rows();
 	}
 	 
 	/*
@@ -383,7 +383,7 @@ class model implements Iterator
 	{
 		// validate model on every save
 		$this->validate();
-		// if error return false		
+		// if error return false
 		if ( $this->errors->has_errors() ) return false;
 		
 		return true;
@@ -418,7 +418,7 @@ class model implements Iterator
 		} else {
 		
 			// validate model on every insert
-			$this->validate_on_create();	
+			$this->validate_on_create();
 			// if error return false
 			if ( $this->errors->has_errors() ) return false;
 			
@@ -664,7 +664,7 @@ class model implements Iterator
 	public function values($load = null)
 	{
 		if (is_array($load)) {
-			$this->load_values_into_fields($load);		
+			$this->load_values_into_fields($load);
 		} else {
 			$ret = array();
 			
@@ -707,27 +707,27 @@ class model implements Iterator
 		}
 		
 		if (isset($args['from'])) {
-			$this->from($args['from']);	
+			$this->from($args['from']);
 		}
 		
 		if (isset($args['where'])) {
-			$this->where($args['where']);	
+			$this->where($args['where']);
 		}
 		
 		if (isset($args['group'])) {
-			$this->group($args['group']);	
+			$this->group($args['group']);
 		}
 		
 		if (isset($args['order'])) {
-			$this->order($args['order']);	
+			$this->order($args['order']);
 		}
 
 		if (isset($args['limit'])) {
-			$this->limit($args['limit']);	
+			$this->limit($args['limit']);
 		}
 		
 		if (isset($args['offset'])) {
-			$this->offset($args['offset']);	
+			$this->offset($args['offset']);
 		}
 		
 		if (isset($args['total'])) {
@@ -1746,17 +1746,27 @@ class model implements Iterator
 		$this->query_action($this->_action_query->transaction_string('rollback'));
 	}
 	
-	public function use_val_for_insert_id($id) {
+	public function use_val_for_insert_id($id)
+	{
 		$this->_id_to_insert = $id;
 	}
 	
-	// Section: Private	
-
-	/*
+	public function to_json()
+	{
+		$temp = array();
+		foreach( $this->get_values() as $key => $val )
+		{
+			$temp[] = '"'.addslashes($key).'":"'.addslashes($val).'"';
+		}
+		return '{' . implode(',', $temp) . '}';
+	}
 	
-	Function: _set_table
+	// Section: Private
+	
+	/*
+		Function: _set_table
+		
 		Set Table up
-
 	*/
 
 	private function _set_table()
@@ -1771,6 +1781,7 @@ class model implements Iterator
 		//$this->_db_name = $this->_select_query->get_database();
 		$this->_select_query->set_table($this->_table_name);
 		$this->_fields = $this->_select_query->get_fields_object();
+		$this->_set_primary_key();
 	}
 
 	/*
@@ -1816,40 +1827,7 @@ class model implements Iterator
 		
 		}
 	}
-
-	/*
 	
-	Function:
-		Creates an object mapped to the current table's structure
-
-	Returns:
-		array
-
-	*/	 
-
-	private function _get_fields_object()
-	{
-		// reset class properties
-		$this->reset();
-		
-		// send a DESCRIBE query and set result on success
-		$this->_select_query->query('DESCRIBE ' . $this->_table_name);
-		
-		// foreach row in results insert into fields object
-		while ( $row = mysql_fetch_assoc($result) ) {
-		
-			// set fields into an associative array		
-			foreach ( $row as $key => $value ) if ( $key != 'Field' ) $temp_arr[strtolower($key)] = $value;
-			// get default value for field
-			$temp_arr['value'] = ( $row['Default'] !== 'NULL' ? $row['Default'] : null );
-			// set property in fields object
-			$fields->$row['Field'] = (object) $temp_arr;
-			
-		}
-		
-		return $fields;
-	}
-
 	/*
 
 	Function: _build_qry
@@ -2300,7 +2278,30 @@ class model implements Iterator
 	{
 		return clone $this;
 	}
-
+	
+	/*
+		Function: _set_primary_key
+		
+		Sets models primary key;
+	*/
+	
+	private function _set_primary_key()
+	{
+		// if user specified return
+		if ($this->_primary_key) return;
+		
+		// get primary key from table
+		foreach ((array) $this->_fields as $column => $field) {
+			if ($field->key == 'PRI') {
+				$this->_primary_key = $column;
+				break;
+			}
+		}
+		
+		// no primary_key set to id
+		if (!$this->_primary_key) $this->_primary_key = 'id';
+	}
+	
 	/*
 	
 	Section: Callback Functions

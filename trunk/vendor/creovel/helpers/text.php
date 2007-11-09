@@ -115,9 +115,9 @@ Returns:
 function cycle($var1 = null, $var2 = null)
 {
 	static $return;
-	$var1 = $var1 ? $var1 : 1;
-	$var2 = $var2 ? $var2 : 2;
-	$return = ( $return == $var2 || !$return ? $var1 : $var2 );
+	//$var1 = $var1 ? $var1 : 1;
+	//$var2 = $var2 ? $var2 : 2;
+	$return = ( $return == $var2 ? $var1 : $var2 );
 	return $return;
 }
 

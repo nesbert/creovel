@@ -41,6 +41,16 @@ require_once 'classes/validation.php';
 require_once 'classes/view.php';
 require_once 'classes/xml.php';
 
+// Include environment specific file.
+require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
+
+// Set routing object.
+$_ENV['routing'] = new routing;
+
+// Set default routes
+mapper::connect();
+mapper::connect( 'index/error', array( 'name' => 'error', 'controller' => 'index', 'action' => 'error' ));
+
 // Set error object.
 $_ENV['error'] = new error('_application');
 
@@ -61,16 +71,6 @@ if ($_ENV['sessions']) {
 if ( !strstr($_SERVER['SCRIPT_NAME'], 'dispatch.php') ) {
 	$_ENV['command_line'] = true;
 }
-
-// Include environment specific file.
-require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
-
-// Set routing object.
-$_ENV['routing'] = new routing;
-
-// Set default routes
-mapper::connect();
-mapper::connect( 'index/error', array( 'name' => 'error', 'controller' => 'index', 'action' => 'error' ));
 
 // Include custom routes.
 require_once CONFIG_PATH . 'routes.php';

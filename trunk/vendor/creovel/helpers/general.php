@@ -396,6 +396,35 @@ function urlencode_array($array)
 }
 
 /*
+	Function: get_type
+	
+	Get the data type of a variable. See http://us3.php.net/manual/en/function.gettype.php#78381.
+	
+	Parameters:
+	
+		var - variable
+	
+	Retruns:
+	
+		String.
+*/
+
+function get_type($var)
+{
+	return
+		( is_array($var) ? 'array' :
+		( is_bool($var) ? 'boolean' :
+		( is_float($var) ? 'float' :
+		( is_int($var) ? 'integer' :
+		( is_null($var) ? 'null' :
+		( is_numeric($var) ? 'numeric' :
+		( is_object($var) ? 'object' :
+		( is_resource($var) ? 'resource' :
+		( is_string($var) ? 'string' :
+	'unknown' )))))))));
+}
+
+/*
 	Function: countries_array
 	
 	Returns an array of countries. Only US and Canada for now.

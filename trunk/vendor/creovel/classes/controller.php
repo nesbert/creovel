@@ -101,7 +101,7 @@ class controller
 
 		/****************************************************************
 			Initialize Scope Fix
-		****************************************************************/		
+		****************************************************************/
 		
 		$parent_controllers = get_ancestors(get_class($this));
 		array_pop($parent_controllers); // remove base controller
@@ -113,7 +113,7 @@ class controller
 		}
 		
 		/****************************************************************
-		****************************************************************/		
+		****************************************************************/
 
 		try {
 			
@@ -130,7 +130,7 @@ class controller
 				$this->after_filter();
 				
 			} else {
-				throw new Exception("Call to undefined action <em>{$this->_action}</em> not found in <strong>".get_class($this)."</strong>.");
+				throw new Exception("404: Call to undefined action <em>{$this->_action}</em> not found in <strong>".get_class($this)."</strong>.");
 			}
 			
 		} catch ( Exception $e ) {
@@ -252,7 +252,7 @@ class controller
 			break;
 			
 			default:
-				$_ENV['error']->add("Unable to render <em>".( $view{0} == '_' ? 'partial' : 'view' )."</em> not found in <strong>{$view_path}</strong>.");
+				$_ENV['error']->add("404: Unable to render <em>".( $view{0} == '_' ? 'partial' : 'view' )."</em> not found in <strong>{$view_path}</strong>.");
 			break;
 			
 		}
@@ -453,7 +453,7 @@ class controller
 	{
 		try {
 			
-			throw new Exception("Call to undefined action <em>{$method}</em> not found in <strong>".get_class($this)."</strong>.");
+			throw new Exception("404: Call to undefined action <em>{$method}</em> not found in <strong>".get_class($this)."</strong>.");
 		
 		} catch ( Exception $e ) {
 		

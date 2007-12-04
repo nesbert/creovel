@@ -145,7 +145,7 @@ class creovel
 					require_once $controller_path;
 				} else {
 					$controller_path = str_replace($class . '.php', '', $controller_path);
-					throw new Exception("Controller '{$class}' not found in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
+					throw new Exception("404: Controller '{$class}' not found in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
 				}
 			
 			} catch ( Exception $e ) {

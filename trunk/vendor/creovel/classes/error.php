@@ -48,7 +48,7 @@ class error
 		// new error add to count
 		if (!isset($_ENV['creovel']['form_errors'][$this->_type . '_' . $args[0]])) {
 			$this->_error_count++;
-		}		
+		}
 		
 		switch ( $this->_type ) {
 		
@@ -98,31 +98,28 @@ class error
 	}
 	
 	/*
-	
 		Function: email_errors
 		
 		Email application errors to the emails provided.
-
+		
 		Parameters:
 		
-			exception - Exception object.
 			emails - Array of email addresses.
-	
 	*/
 
-	public function email_errors($exception, $emails = null)
+	public function email_errors($emails = null)
 	{
-		if (!$emails) $emails = explode(',', $_ENV['email_errors']);
+		if (!$emails && strstr($_ENV['email_errors'], ',')) {
+			$emails = explode(',', $_ENV['email_errors']);
+		} else if (isset($_ENV['email_errors'])) {
+			$emails = $_ENV['email_errors'];
+		}
 		if ( !$emails || $emails == 'youremail@yourdomain.com' ) return;
-		
-		$this->traces = $exception->getTrace();
-		$this->message = strip_tags($exception->getMessage());
 		
 		$email = new mailer;
 		$email->recipients = $emails;
-		$email->subject = strip_tags($exception->getMessage());
+		$email->subject = 'Application Error: '.BASE_URL.$_SERVER['REQUEST_URI'];
 		$email->text = view::_get_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php');
-		$email->text .= 'URL: '.BASE_URL.$_SERVER['REQUEST_URI'];
 		$email->send();
 	}
 	
@@ -143,7 +140,6 @@ class error
 	private $_error_count = 0;
 	
 	/*
-	
 		Function: _model_error
 		
 		Create a property for each error.
@@ -152,7 +148,6 @@ class error
 		
 			field - Required string of field name
 			message - Required string of error message for field.
-	
 	*/
 
 	private function _model_error($field, $message)
@@ -163,7 +158,6 @@ class error
 	}
 	
 	/*
-	
 		Function:_application_error
 		
 		Display application errors to user.
@@ -172,26 +166,36 @@ class error
 			
 			message - Required error string.
 			exception - Optional bool. If set to true sets traces for debugger.
-
 	*/
 
 	private function _application_error($message, $exception = null)
 	{
-		if ( is_object($exception) ) $this->traces = $exception->getTrace();
+		// set header for error pages
+		if (preg_match('/^404:/',$message)) {
+			header('Status: 404 Not Found', true, 404);
+		} else {
+			header('Status: 500 Internal Server Error', true, 500);
+		}
+		
+		// set error object for views
+		(object) $this->error;
+		$this->error->message = $message;
+		$this->error->exception = $exception;
+		if ( is_object($exception) ) $this->error->traces = $exception->getTrace();
+		
+		//print_obj($this,1);
 		
 		// email errors
-		if ( $_ENV['mode'] != 'development' && isset($_ENV['email_errors']) ) $this->email_errors($exception);
+		if ( $_ENV['mode'] != 'development' && isset($_ENV['email_errors']) ) $this->email_errors();
 		
 		// custom error
 		if ( $_ENV['mode'] != 'development' ) {
-			creovel::run($_ENV['routing']->error_events(), array( 'error' => $exception ));
+			creovel::run($_ENV['routing']->error_events(), array( 'error' => $this->error ));
 			die;
 		}
 		
 		// clean output buffer for application errors
 		@ob_end_clean();
-		
-		$this->message = $message;
 		
 		// command line error
 		if ( isset($_ENV['command_line']) ) {

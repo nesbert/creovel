@@ -1,4 +1,6 @@
 <?php
+require_once '_adapter.php';
+
 /**
  * MySQL Adapter.
  *
@@ -7,7 +9,7 @@
  * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
  * @author		Nesbert Hidalgo
  */
-class mysql implements adapter_interface
+class mysql extends _adapter implements adapter_interface
 {
 
 	private $mode;			// Server mode developement, test, productions
@@ -147,15 +149,14 @@ class mysql implements adapter_interface
 	
 	public function get_affected_rows()
 	{
-		
-		return mysql_affected_rows();	
+		return mysql_affected_rows();
 	}
 	
 	public function get_insert_id()
 	{
 		return @mysql_insert_id();
 	}
-
+	
 	public function all_tables()
 	{
 		$this->reset();
@@ -165,7 +166,7 @@ class mysql implements adapter_interface
 		while ( $row = @mysql_fetch_assoc($result) ) $tables[] = $row['Tables_in_'.$this->database];
 		return $tables;
 	}
-
+	
 	public function field_breakdown($table_name)
 	{
 		// reset class properties
@@ -232,17 +233,6 @@ class mysql implements adapter_interface
 	{
 		// returns the text of the error message from previous MySQL operation
 		return mysql_error($this->db_link);
-	}
-	
-	private function handle_error($message)
-	{
-	
-		if ( $_ENV['mode'] == 'production' ) {
-			die('error_handler');
-		} else {
-			$_ENV['error']->add($message);
-		}
-		
 	}
 
 }

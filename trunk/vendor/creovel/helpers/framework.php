@@ -407,17 +407,19 @@ function application_error($message, $thow_exception = false)
 
 */
 
-function get_files_from_dir($dir_path, $file_type = 'php')
+function get_files_from_dir($dir_path, $file_type = 'php', $show_invisibles = false)
 {
 	$files = array();
 	if ( $handle = opendir($dir_path) ) {
-	   while ( false !== ($file = readdir($handle)) ) {
-		   if ( strstr($file, '.'.$file_type) ) {
-			   $files[substr($file, 0, -4)] = $dir_path.DS.$file;
-		   }
-	   }
-	   closedir($handle);
+		while ( false !== ($file = readdir($handle)) ) {
+			if (!$show_invisibles && $file{0} == '.') continue;
+			if ( strstr($file, '.'.$file_type) ) {
+				$files[substr($file, 0, -4)] = $dir_path.DS.$file;
+			}
+		}
+		closedir($handle);
 	}
+	asort($files);
 	return $files;
 }
 

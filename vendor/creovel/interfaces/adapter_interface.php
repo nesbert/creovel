@@ -48,12 +48,12 @@ interface adapter_interface
 	 * @param string $table name of table
 	 * @return bool
 	 */	
-	public function table_exists($table);	
+	public function table_exists($table);
 	
 	/**
 	 * Returns an object modelled by the current table strucure.
 	 *
-	 * <code>	
+	 * <code>
 		[_fields:protected] => stdClass Object
 			(
 				[id] => stdClass Object

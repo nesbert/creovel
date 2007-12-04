@@ -2146,7 +2146,7 @@ class model implements Iterator
 							return call_user_func_array(array($this->validation, $method), $params);
 						}
 					} else {
-						$_ENV['error']->add("Undefined validation method <em>{$method}</em> in <strong>".get_class($this)."</strong> model." );
+						$_ENV['error']->add("Undefined validation method <em>{$method}</em> in <strong>".get_class($this)."</strong> model.");
 					}
 				break;
 				

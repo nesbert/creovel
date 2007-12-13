@@ -193,4 +193,14 @@ function create_popup($element_id, $title = 'Popup')
 	<?php
 }
 
+
+function array_to_json($array) {
+	$temp = array();
+	foreach( $array as $key => $val )
+	{
+		$temp[] = '"'.addslashes($key).'":"'.addslashes($val).'"';
+	}
+	return '{' . implode(',', $temp) . '}';
+}
+
 ?>

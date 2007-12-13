@@ -326,6 +326,35 @@ class controller
 	}
 	
 	/*
+		Function: render_partial_to_str
+		
+		Alias to build_partial and adds an underscore to the view name to signify partials.
+		
+		Paramaters:
+		
+			options - Action to render or an array of render $options.
+			locals - *Optional* array of variables to pass to the view.
+			controller - *Optional* controller name. Use if vew is not in the current controller.
+		
+		Returns:
+			string
+	
+	*/
+
+	public function render_partial_to_str($partial, $locals = null, $controller = null)
+	{
+		if ( is_array($partial) ) {
+			$options = $partial;
+		} else {
+			$options['partial'] = $partial;
+		}
+		if ( $locals ) $options['locals'] = $locals;
+		if ( $controller ) $options['controller'] = $controller;
+		$options['to_str'] = true;
+		return $this->render($options);
+	}
+	
+	/*
 		Function: build_controller
 		
 		Allows the ability build a controller within a controller.

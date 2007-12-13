@@ -379,10 +379,10 @@ class model implements Iterator
 
 	*/	
 
-	public function validate_model()
+	public function validate_model($validation_routine = 'validate')
 	{
 		// validate model on every save
-		$this->validate();
+		$this->$validation_routine();
 		// if error return false
 		if ( $this->errors->has_errors() ) return false;
 		
@@ -394,17 +394,20 @@ class model implements Iterator
 	Function: save
 		Saves the model to the database.
 		Either calles <insert> or <update> depending on if the record exists.
-
+		
+	Parameters:
+		validation_routine - function name for the validation routine to run.  Allows the ability for multiple validation routines
+		
 	Returns:
 		int or false
 
 	*/	
 
-	public function save()
+	public function save($validation_routine = 'validate')
 	{
 		$this->before_save();
 
-		if (!$this->validate_model()) return false;
+		if (!$this->validate_model($validation_routine)) return false;
 		
 		if ( $key = $this->key() ) {
 		
@@ -1753,12 +1756,7 @@ class model implements Iterator
 	
 	public function to_json()
 	{
-		$temp = array();
-		foreach( $this->get_values() as $key => $val )
-		{
-			$temp[] = '"'.addslashes($key).'":"'.addslashes($val).'"';
-		}
-		return '{' . implode(',', $temp) . '}';
+		return array_to_json($this->values());
 	}
 	
 	// Section: Private

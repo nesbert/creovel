@@ -22,6 +22,7 @@ require_once 'helpers/general.php';
 require_once 'helpers/html.php';
 require_once 'helpers/text.php';
 require_once 'helpers/server.php';
+require_once 'helpers/utility.php';
 require_once 'helpers/validation.php';
 
 // Include base classes library.

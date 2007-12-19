@@ -524,7 +524,7 @@ Returns:
 function select($name, $selected = '', $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
 {
 
-	$return = '<select name="'.$name.'" id="'.name_to_id($name).'"'.html_options_str($html_options).">\n\r";
+	$return = '<select name="'.$name.'" id="'.name_to_id($name).'" '.html_options_str($html_options).">\n\r";
 	
 	if ( count($choices) ) {
 		
@@ -537,7 +537,11 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 				if (is_array($selected)) {
 					$select_str = ( in_array($value, $selected) ? ' selected="selected"' : '' );
 				} else {
-					$select_str = ( $selected == $value ? ' selected="selected"' : '' );
+					if (!$value) {
+						$select_str = ( $selected === $value ? ' selected="selected"' : '' );
+					} else {
+						$select_str = ( $selected == $value ? ' selected="selected"' : '' );
+					}
 				}
 				$return .= '<option value="'.$value.'"'.$select_str.'>'.($description?$description:$value)."</option>\n\r";
 			} else {
@@ -545,7 +549,11 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 				if (is_array($selected)) {
 					$select_str = ( in_array($value, $selected) ? ' selected="selected"' : '' );
 				} else {
-					$select_str = ( $selected == $value ? ' selected="selected"' : '' );
+					if (!$value) {
+						$select_str = ( $selected === $value ? ' selected="selected"' : '' );
+					} else {
+						$select_str = ( $selected == $value ? ' selected="selected"' : '' );
+					}
 				}
 				
 				$return .= '<option value="'.$value.'"'.$select_str.'>'.($description['name']?$description['name']:$value)."</option>\n\r";
@@ -556,7 +564,11 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 						if (is_array($selected)) {
 							$select_str = ( in_array($value2, $selected) ? ' selected="selected"' : '' );
 						} else {
-							$select_str = ( $selected == $value2 ? ' selected="selected"' : '' );
+							if (!$value) {
+								$select_str = ( $selected === $value2 ? ' selected="selected"' : '' );
+							} else {
+								$select_str = ( $selected == $value2 ? ' selected="selected"' : '' );
+							}
 						}
 						
 						$return .= '<option value="'.$value2.'"'.$select_str.'> - '.($description2?$description2:$value2)."</option>\n\r";
@@ -780,15 +792,15 @@ function date_select($name, $date = null)
 	
 	$i = 1;
 	$months = array();
-	while ($i <= 12) { $months[$i] = $i; $i++; }	
+	while ($i <= 12) { $months[$i] = $i; $i++; }
 
 	$i = 1;
 	$days = array();
-	while ($i <= 31) { $days[$i] = $i; $i++; }	
+	while ($i <= 31) { $days[$i] = $i; $i++; }
 
 	$i = (date('Y') - 3);
 	$years = array();
-	while ($i <= (date('Y') + 3)) { $years[$i] = $i; $i++; }	
+	while ($i <= (date('Y') + 3)) { $years[$i] = $i; $i++; }
 
 	$out = "";
 	$out .= select("{$name}[month]", date('m', $date), $months);

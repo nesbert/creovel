@@ -132,7 +132,7 @@ class pager
 				$total_records = $data;
 			break;
 			
-		}			
+		}
 	
 		// set total_records, limit, total_pages
 		$this->total_records	= (int) $total_records;
@@ -438,9 +438,9 @@ class pager
 		// if default_limit not a default value(20,50,100) create option for limit
 		switch ( $default_limit ) {
 		
-			case 20:
-			case 50:
-			case 100:
+			case ($default_limit * 2):
+			case ($default_limit * 5):
+			case ($default_limit * 10):
 				break;
 				
 			default:
@@ -449,9 +449,9 @@ class pager
 			
 		}
 		
-		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=20'.$extra_params.'"'.( $this->limit == 20 ? ' selected="selected"' : '' ).'>20</option>'."\n";
-		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=50'.$extra_params.'"'.( $this->limit == 50 ? ' selected="selected"' : '' ).'>50</option>'."\n";
-		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=100'.$extra_params.'"'.( $this->limit == 100 ? ' selected="selected"' : '' ).'>100</option>'."\n";
+		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=20'.$extra_params.'"'.( $this->limit == ($default_limit * 2) ? ' selected="selected"' : '' ).'>'.($default_limit * 2).'</option>'."\n";
+		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=50'.$extra_params.'"'.( $this->limit == ($default_limit * 5) ? ' selected="selected"' : '' ).'>'.($default_limit * 5).'</option>'."\n";
+		$str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=100'.$extra_params.'"'.( $this->limit == ($default_limit * 10) ? ' selected="selected"' : '' ).'>'.($default_limit * 10).'</option>'."\n";
 		$str .= "</select>\n";
 		
 		return $str;

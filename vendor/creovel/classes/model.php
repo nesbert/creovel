@@ -1354,19 +1354,19 @@ class model implements Iterator
 								$html_options = $arguments[1];
 								$html = select($name, $this->$function(), $options, $html_options);
 							break;
-																
+							
 							case preg_match('/^select_countries_tag_for_(.+)$/', $method, $regs):
 								$options = $arguments[0] ? $arguments[0] : $this->_fields->$regs[1]->options;
 								$html_options = $arguments[1];
 								$html = select_countries_tag($name, $this->$function(), $options, $html_options, $arguments[2]);
 							break;
-																
+							
 							case preg_match('/^select_states_tag_for_(.+)$/', $method, $regs):
 								$options = $arguments[0] ? $arguments[0] : $this->_fields->$regs[1]->options;
 								$html_options = $arguments[1];
 								$html = select_states_tag($name, $this->$function(), $options, $html_options, $arguments[2]);
 							break;
-																
+						
 						}
 						
 						// check for errors and return HTML
@@ -1390,7 +1390,7 @@ class model implements Iterator
 					if ( $this->field_exists($regs[1]) ) {
 						$title = $arguments[0];
 						$html_options = $arguments[1];
-						$html_options['class'] = trim($html_options['class'] . ' labelWithErrors');
+						//$html_options['class'] = trim($html_options['class'] . ' labelWithErrors');
 						return label($this->_class(). '[' . $regs[1] . ']', $title, $html_options);
 					} else {
 						throw new Exception("Can not create label_for_{$regs[1]}. Property <em>{$regs[1]}</em> not found in <strong>".get_class($this)."</strong> model.");

@@ -1300,6 +1300,7 @@ class model implements Iterator
 				case preg_match('/^hidden_field_for_(.+)$/', $method, $regs):
 				case preg_match('/^text_area_for_(.+)$/', $method, $regs):
 				case preg_match('/^check_box_for_(.+)$/', $method, $regs):
+				case preg_match('/^multi_check_box_for_(.+)$/', $method, $regs):
 				case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
 				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
 				case preg_match('/^textarea_for_(.+)$/', $method, $regs):
@@ -1330,12 +1331,21 @@ class model implements Iterator
 								$html = hidden_field($name, $this->$function(), $html_options);
 							break;
 							
+							case preg_match('/^multi_check_box_for_(.+)$/', $method, $regs):
+								$tag_value = $arguments[0];
+								$text = $arguments[1];
+								$html_options = $arguments[2];
+								$html = check_box($name.'[]', $this->$function(), $html_options, $tag_value, $text);
+							break;
+							
 							case preg_match('/^check_box_for_(.+)$/', $method, $regs):
 								$tag_value = $arguments[0];
 								$text = $arguments[1];
 								$html_options = $arguments[2];
 								$html = check_box($name, $this->$function(), $html_options, $tag_value, $text);
 							break;
+							
+							
 							
 							case preg_match('/^radio_button_for_(.+)$/', $method, $regs):
 								$tag_value = $arguments[0];

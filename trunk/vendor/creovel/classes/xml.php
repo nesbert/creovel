@@ -32,7 +32,7 @@ class xml
 		File encoding.
 	*/
 	
-	public $encoding		= 'ISO-8859-1';
+	public $encoding = 'ISO-8859-1';
 	
 	/*
 		Property: data
@@ -65,7 +65,6 @@ class xml
 	}
 	
 	/*
-	
 		Function: load
 		
 		Load XML data from file path or load from array.
@@ -76,8 +75,7 @@ class xml
 			
 		Returns:
 		
-			Object
-	
+			Object.
 	*/
 
 	public function load($xml_file)
@@ -96,19 +94,17 @@ class xml
 			return $this->data->children = $this->_parse($data);
 		} else {
 			application_error($error);
-		}	
+		}
 	}
 	
 	/*
-	
 		Function: to_str
 		
 		Create XML string from the $data currentlly loaded.
 		
 		Returns:
 		
-			String
-	
+			String.
 	*/
 
 	public function to_str()
@@ -117,16 +113,14 @@ class xml
 	}
 	
 	/*
-	
 		Function: file
 		
 		Output XML file.
 		
 		Returns:
 		
-			String
-	
-	*/	
+			String.
+	*/
 
 	public function file()
 	{
@@ -138,7 +132,6 @@ class xml
 	}
 	
 	/*
-	
 		Function: array_to_xml
 		
 		Convert an array or object to an XML string. Sample array structure:
@@ -170,8 +163,7 @@ class xml
 		
 		Returns:
 		
-			String
-	
+			String.
 	*/
 	
 	public function array_to_xml($data, $level = 1)
@@ -199,11 +191,10 @@ class xml
 			$xml .= '</' . $elm->name . ">\n";
 		}
 		
-		return $xml;	
+		return $xml;
 	}
 	
 	/*
-	
 		Function: cdata
 		
 		 Create and validate CDATA.
@@ -214,8 +205,7 @@ class xml
 			
 		Returns:
 		
-			String
-	
+			String.
 	*/
 	
 	public function cdata($cdata)
@@ -225,7 +215,6 @@ class xml
 	}
 	
 	/*
-	
 		Function: find_element_by_attribute_value
 		
 		Create and validate CDATA.
@@ -238,7 +227,7 @@ class xml
 			
 		Returns:
 		
-			Element Object
+			Element Object.
 	*/
 	
 	public function find_element_by_attribute_value($name, $value, $data = null)
@@ -263,7 +252,6 @@ class xml
 	// Section: Private
 	
 	/*
-	
 		Function: _parse
 		
 		XML parser that creates an object structured similar to the file.
@@ -276,54 +264,86 @@ class xml
 		
 		Returns:
 		
-			Object
-	
+			Object.
 	*/
 	
 	private function _parse($xml)
 	{
-		$this->parser = xml_parser_create();
+		$this->parser = xml_parser_create($this->encoding);
 		xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0);
 		xml_parser_set_option($this->parser, XML_OPTION_SKIP_WHITE, 1);
-		xml_parse_into_struct($this->parser, $xml, $tags);
+		xml_parse_into_struct($this->parser, (string) $xml, $tags);
 		xml_parser_free($this->parser);
 		
-		$elements = array();  // the currently filling [child] 	array
-		$stack = array();
-		foreach ( $tags as $tag ) {
-			
-			$index = count($elements);
-			
-			if ( $tag['type'] == 'complete' || $tag['type'] == 'open' ) {
-			
-				$elements[$index] = new element;
-				$elements[$index]->name = $tag['tag'];
-				$elements[$index]->cdata = trim($tag['value']);
-				
-				if ( $tag['attributes'] ) {
-					$elements[$index]->attributes = (object) $tag['attributes'];
-				}
-				
-				if ( $tag['type'] == 'open' ) {  // push
-					$elements[$index]->children = array();
-					$stack[count($stack)] = &$elements;
-					$elements = &$elements[$index]->children;
-				}
-				
-			}
-			
-			if ($tag['type'] == "close") {  // pop
-				$elements = &$stack[count($stack) - 1];
-				unset($stack[count($stack) - 1]);
-			}
-			
-		}
-		
-		return $elements[0];
+		$tree = $this->get_tree($tags, $index = -1);
+		return $tree[0];
 	}
 	
 	/*
+		Function: get_tree
+		
+		XML parser helper
+		
+		Parameters:
+		
+			tags - required array XML tags
+			i - required current index
+		
+		Returns:
+		
+			Array.
+	*/
 	
+	private function get_tree($tags, &$i)
+	{
+		$node = array();
+		while (++$i < count($tags)) {
+			$i = (int) $i;
+			$tag = $tags[$i];
+			if ( $tag['type'] == 'complete' || $tag['type'] == 'open' ) {
+				$node[] = $this->_array_to_element($tag, $tags, $i);
+			} else if ($tag['type'] == 'close') {
+				break;
+			}
+		}
+		
+		return $node;
+	}
+	
+	/*
+		Function: _array_to_element
+		
+		XML parser helper
+		
+		Parameters:
+		
+			tag - required current tag
+			tags - required array XML tags
+			i - required current index
+		
+		Returns:
+		
+			Element Object.
+	*/
+	
+	private function _array_to_element($tag, $tags, &$i)
+	{
+		$e = new element;
+		$e->name = $tag['tag'];
+		$e->cdata = trim($tag['value']);
+		
+		if (isset($tag['attributes'])) {
+			$e->attributes = (object) $tag['attributes'];
+		}
+		
+		if ($tag['type'] == 'open') {
+			$e->children = $this->get_tree($tags, $i);
+		}
+		
+		return $e;
+	}
+	
+	/*
 		Function: _get_attributes
 		
 		Formats and converts attributes array to an object.
@@ -334,8 +354,7 @@ class xml
 			
 		Returns:
 		
-			Object
-	
+			Object.
 	*/
 
 	private function _get_attributes($attributes)
@@ -348,7 +367,6 @@ class xml
 	}
 	
 	/*
-	
 		Function: _attribute_str
 		
 		Create attribute string.
@@ -359,8 +377,7 @@ class xml
 		
 		Returns:
 		
-			String
-	
+			String.
 	*/
 	
 	private function _attribute_str($attributes)
@@ -371,16 +388,13 @@ class xml
 		}
 		return $str;
 	}
-	
-	
+
 }
 
 /*
-
 	Class: element
 	
 	Element class used for XML class. Class used to store data.
-
 */
 
 class element

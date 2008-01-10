@@ -91,7 +91,7 @@ function form_errors_count()
 	
 	Prints out a formatted errors message box for an object. Errors styles below: 
 
-	(start code)	
+	(start code)
 		 #errors {} // container div
 		 #errors .top {} 
 		 #errors .body {}
@@ -364,9 +364,9 @@ function password_field($name, $value = '', $html_options = null, $text = null)
 		String.
 */
 
-function radio_button($name, $value = '', $html_options = null, $tag_value = null, $text = null)
+function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null)
 {
-	return create_input_tag('radio', $name, $value, $html_options, $tag_value, $text);
+	return create_input_tag('radio', $name, $value, $html_options, $on_value, $text);
 }
 
 /*
@@ -386,9 +386,9 @@ function radio_button($name, $value = '', $html_options = null, $tag_value = nul
 		String.
 */ 
 
-function check_box($name, $value = '', $html_options = null, $tag_value = null, $text = null)
+function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null)
 {
-	return create_input_tag('checkbox', $name, $value, $html_options, $tag_value, $text);
+	return create_input_tag('checkbox', $name, $value, $html_options, $on_value, $text);
 }
 
 /*

@@ -76,7 +76,7 @@ class rss implements Iterator
 	public $generator		= "Simple RSS a part of the Creovel - A PHP Framework (http://www.creovel.org)."; // A string indicating the program used to generate the channel.
 	public $docs			= ""; // A URL that points to the documentation for the format used in the RSS file.
 	public $cloud			= ""; // Allows processes to register with a cloud to be notified of updates to the channel, implementing a lightweight publish-subscribe protocol for RSS feeds.
-	public $ttl				= ""; // Copyright notice for content in the channel.
+	public $ttl				= ""; // Stands for time to live. It's a number of minutes that indicates how long a channel can be cached before refreshing from the source.
 	public $image			= ""; // Specifies a GIF, JPEG or PNG image that can be displayed with the channel.
 	public $rating			= ""; // The PICS rating for the channel.
 	public $textInput		= ""; // Specifies a text input box that can be displayed with the channel.
@@ -100,15 +100,14 @@ class rss implements Iterator
 	public $items = array();
 	
 	/*
-		Function: initialize
+		Function: __destruct
 		
-		Initialize class with XML class.
+		Create cache on destruct.
 	*/
-
-	public function initialize()
+	
+	public function __destruct()
 	{
-		if ( !is_object($this->xml) ) $this->xml = new xml;
-		$this->xml->encoding = $this->encoding;
+		$this->check_cache();
 	}
 	
 	/*
@@ -123,33 +122,13 @@ class rss implements Iterator
 	
 	public function load($url)
 	{
-		$this->initialize();
-		
 		// check for cache and user cache
 		if ( $this->cache && !$this->cache_expired($url) ) {
-			$url = $this->cache_dir.$this->cache_file;
+			$url = $this->cache_filename();
 		}
 		
-		// load feed to xml parser
-		$this->xml->load($url);
-		
-		//print_obj($this->xml, 1);
-		
-		// set rss version and map xml data to rss
-		switch ( $this->version = $this->xml->data->children->attributes->version )
-		{
-			case 2:
-			case 0.91:
-				$this->_map_rss20();
-			break;
-			
-			default:
-				application_error("RSS {$this->version} version currently not supported!");
-			break;
-		}
-		
-		// check to cache feed
-		$this->check_cache();
+		// load feed into class
+		$this->load_feed($url);
 	}
 	
 	/*
@@ -174,7 +153,7 @@ class rss implements Iterator
 		
 		Returns:
 		
-			String
+			String.
 	*/
 	
 	public function create_file()
@@ -211,7 +190,7 @@ class rss implements Iterator
 			
 		Returns:
 		
-			String
+			String.
 	*/
 	
 	public function item_str($item)
@@ -277,7 +256,7 @@ class rss implements Iterator
 		
 		Returns:
 		
-			String
+			String.
 	*/
 	
 	public function xmlns_str()
@@ -303,7 +282,7 @@ class rss implements Iterator
 			
 		Returns:
 		
-			String
+			String.
 	*/
 	
 	public function tag($tag, $value, $has_ending_tag = true)
@@ -345,7 +324,7 @@ class rss implements Iterator
 		
 		Returns:
 		
-			String
+			String.
 	*/
 	
 	public function xmlentities($string, $quote_style=ENT_QUOTES)
@@ -407,7 +386,7 @@ class rss implements Iterator
 			Boolean.
 	*/
 	
-	public function cache_expired($url)
+	public function cache_expired($url = null)
 	{
 		// check and set vars
 		if ( !$this->cache_dir )  $this->set_cache_dir();
@@ -443,7 +422,7 @@ class rss implements Iterator
 	/*
 		Function: check_cache
 		
-		Checks if feed should cached and creates cache.
+		Checks if feed should be cached and creates cache.
 		
 		Returns:
 		
@@ -513,10 +492,33 @@ class rss implements Iterator
 			min - Time in minutes to cache feed.
 	*/
 	
-	public function cache_feed($min = null)
+	public function cache_feed($min = null, $dir = null, $file = null, $cache_created_feed = false)
 	{
 		$this->cache = true;
-		$this->set_cache_time($min);
+		if ($min) $this->set_cache_time($min);
+		if ($dir) $this->set_cache_dir($dir);
+		if ($file) $this->set_cache_file($file);
+		if ($cache_created_feed) $this->cache_created_feed($file);
+	}
+	
+	/*
+		Function: cache_created_feed
+		
+		Caches/checkes a personally created feed.
+		
+		Pramameters:
+		
+			min - Time in minutes to cache feed.
+	*/
+	
+	public function cache_created_feed()
+	{
+		// check for cache for created feeds
+		if (!$this->cache_expired()) {
+			// has not expired so load from cache
+			$this->load_feed($this->cache_filename());
+			$this->feed();
+		}
 	}
 	
 	// Iterator Implementation
@@ -553,9 +555,9 @@ class rss implements Iterator
 	// Section: Private
 	
 	/*
-		Property: items_as_array
+		Property: cache
 		
-		An array of items for this syndication.
+		Boolean flag to check if a chaed feed.
 	*/
 	
 	private $cache = false;
@@ -571,7 +573,7 @@ class rss implements Iterator
 	/*
 		Property: cache_dir
 		
-		Cache file name..
+		Cache file name.
 	*/
 	
 	private $cache_file;
@@ -591,6 +593,35 @@ class rss implements Iterator
 	*/
 	
 	private $xml;
+	
+	/*
+		Function: _map_rss20
+		
+		Map XML data to RSS 2.0 structure.
+	*/
+	
+	private function load_feed($feed)
+	{
+		// intialize parser and set encoding
+		if ( !is_object($this->xml) ) $this->xml = new xml;
+		$this->xml->encoding = $this->encoding;
+		
+		// load feed to xml parser
+		$this->xml->load($feed);
+		
+		// set rss version and map xml data to rss
+		switch ( $this->version = $this->xml->data->children->attributes->version )
+		{
+			case 2:
+			case 0.91:
+				$this->_map_rss20();
+			break;
+			
+			default:
+				application_error("RSS {$this->version} version currently not supported!");
+			break;
+		}
+	}
 	
 	/*
 		Function: _map_rss20

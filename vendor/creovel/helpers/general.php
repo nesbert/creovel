@@ -396,6 +396,26 @@ function urlencode_array($array)
 }
 
 /*
+	Function: in_string
+	
+	A faster/less memory subsitute for strstr.
+	
+	Parameters:
+	
+		needle - String
+		haystack - String
+	
+	Retruns:
+	
+		String.
+*/
+
+function in_string($needle, $haystack)
+{
+	return strpos($haystack, $needle) == false;
+}
+
+/*
 	Function: get_type
 	
 	Get the data type of a variable. See http://us3.php.net/manual/en/function.gettype.php#78381.

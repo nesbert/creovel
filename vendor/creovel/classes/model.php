@@ -228,7 +228,7 @@ class model implements Iterator
 
 	public function __construct($data = null, $connection_properties = null)
 	{
-		
+
 		$this->errors = new error(get_class($this));
 		$this->validation = new validation($this->errors);
 
@@ -1742,7 +1742,11 @@ class model implements Iterator
 		$this->_links[$name]['linked_to'] = false;
 		$this->_links[$name]['object'] = false;
 	}
-
+	
+	public function add_error($field, $message)
+	{
+		$this->validation->add_error($field, $message);
+	}
 
 	public function transaction_start()
 	{

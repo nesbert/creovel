@@ -27,7 +27,7 @@ Parameters:
 function link_to_remote($link_title = 'Goto', $id_to_update, $url, $html_options = null)
 {
 	if ( is_array($html_options) ) foreach ($html_options as $attribute => $value ) {
-		if ( strstr($attribute, 'onclick') ) { continue; }
+		if ( in_string('onclick', $attribute) ) { continue; }
 		$extra .= ' '.$attribute.'="'.$value.'"';
 	}
 	return "<a href=\"#\" onclick=\"new Ajax.Updater('".$id_to_update."', '".$url."', {asynchronous:true}); return false;\">".$link_title."</a>\n";

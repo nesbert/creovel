@@ -373,12 +373,12 @@ class validation
 		$message = $message ? $message : $default_message;
 		
 		// check for fieldname and humanze it
-		if ( strstr($message, self::FIELD_NAME) ) {
+		if ( in_string(self::FIELD_NAME, $message) ) {
 			$message = str_replace(self::FIELD_NAME, humanize($field), $message);
 		}
 		
 		// check for value and insert it into the message
-		if ( strstr($message, self::VALUE) ) {
+		if ( in_string(self::VALUE, $message) ) {
 			$message = str_replace(self::VALUE, $value, $message);
 		}
 		

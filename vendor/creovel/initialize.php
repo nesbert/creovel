@@ -74,7 +74,7 @@ if ($_ENV['sessions']) {
 }
 
 // Set environtment for command line interfaces.
-if ( !strstr($_SERVER['SCRIPT_NAME'], 'dispatch.php') ) {
+if ( !in_string('dispatch.php', $_SERVER['SCRIPT_NAME']) ) {
 	$_ENV['command_line'] = true;
 }
 

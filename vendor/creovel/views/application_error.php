@@ -15,7 +15,7 @@ $offset = 0;
 foreach ( $this->error->traces as $trace ) {
 
 	// skip traces with no file or line number or magic fucntion calls
-	if ( !$trace['file'] || !$trace['file'] || strstr($trace['function'], '__call') ) {
+	if ( !$trace['file'] || !$trace['file'] || in_string('__call', $trace['function']) ) {
 		$offset++;
 		continue;
 	}

@@ -35,7 +35,7 @@ function __autoload($class)
 	
 	switch ( true ) {
 	
-		case ( strstr($class, '_controller') ):
+		case ( in_string('_controller', $class) ):
 			$type = 'Controller';
 			$path = CONTROLLERS_PATH.$class.'.php';
 		break;
@@ -61,7 +61,7 @@ function __autoload($class)
 			if ( file_exists($path) ) break;
 			
 		case ( true ):
-			$type = strstr($class, '_mailer') ? 'Mailer' : 'Model';
+			$type = in_string('_mailer', $class) ? 'Mailer' : 'Model';
 			$path = MODELS_PATH.$class.'.php';
 			// if model found locallly
 			if ( file_exists($path) ) {
@@ -413,7 +413,7 @@ function get_files_from_dir($dir_path, $file_type = 'php', $show_invisibles = fa
 	if ( $handle = opendir($dir_path) ) {
 		while ( false !== ($file = readdir($handle)) ) {
 			if (!$show_invisibles && $file{0} == '.') continue;
-			if ( strstr($file, '.'.$file_type) ) {
+			if ( in_string('.'.$file_type, $file) ) {
 				$files[substr($file, 0, -4)] = $dir_path.DS.$file;
 			}
 		}

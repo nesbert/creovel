@@ -1077,7 +1077,7 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
 		$class_temp = $label_options['class'];
 	
 		foreach( $choices as $value => $desc ) {
-			$label_options['class'] = $class_temp . ( strstr($desc, 'class="sub"') ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');
+			$label_options['class'] = $class_temp . ( in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');
 			$label_options['for'] = name_to_id($name) . '_' . $value;
 			$return .= "<label ".html_options_str($label_options).">\n";
 			$return .= create_input_tag('checkbox', $name, in_array($value, $selected), $box_html_options, $value, $desc)."\n";

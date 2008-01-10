@@ -2189,17 +2189,17 @@ class model implements Iterator
 		$return = '';
 		
 		// if no "AND" or "OR" return single column sql
-		if ( !strstr($method, '_and_') && !strstr($method, '_or_') ) {
+		if ( !in_string('_and_', $method) && !in_string('_or_', $method) ) {
 			return $this->_conditions_str_helper($method, $args[0]);
 		}
 		
 		// hande "OR" and create/return sql string
-		if ( strstr($method, '_or_') ) {
+		if ( in_string('_or_', $method) ) {
 			$ors = explode('_or_', $method);
 			$or_count = 1;
 			foreach ( $ors as $or ) {
 				// hande "AND" and append to sql string
-				if ( strstr($or, '_and_') ) {
+				if ( in_string('_and_', $or) ) {
 					$ands = explode('_and_', $or);
 					$return .= '(';
 					foreach ( $ands as $field ) {
@@ -2226,11 +2226,11 @@ class model implements Iterator
 		}
 		
 		// handle "AND" and create/return sql string
-		if ( strstr($method, '_and_') ) {
+		if ( in_string('_and_', $method) ) {
 			$ands = explode('_and_', $method);
 			foreach ( $ands as $field ) {
 				$return .= $this->_conditions_str_helper($field, $args[$args_index], ' AND ');
-				$args_index++;			
+				$args_index++;
 			}
 			$return = substr($return, 0, -4);
 		}
@@ -2259,12 +2259,12 @@ class model implements Iterator
 		switch ( true )
 		{
 			
-			case ( strstr($field, '_like') ):
-				if ( !strstr($value, '%') ) $value = '%' . $value . '%';
+			case ( in_string('_like', $field) ):
+				if ( !in_string('%', $value) ) $value = '%' . $value . '%';
 				$return = str_replace('_like', '', $field) . " LIKE '{$value}'";
 			break;
 			
-			case ( strstr($field, '_not') ):
+			case ( in_string('_not', $field) ):
 				$return = str_replace('_not', '', $field) . " != '{$value}'";
 			break;
 			

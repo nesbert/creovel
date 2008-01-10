@@ -109,7 +109,7 @@ class error
 
 	public function email_errors($emails = null)
 	{
-		if (!$emails && strstr($_ENV['email_errors'], ',')) {
+		if (!$emails && in_string(',', $_ENV['email_errors'])) {
 			$emails = explode(',', $_ENV['email_errors']);
 		} else if (isset($_ENV['email_errors'])) {
 			$emails = $_ENV['email_errors'];
@@ -204,7 +204,7 @@ class error
 		}
 		// application error
 		if ( isset($_GET['view_source']) ) {
-			if ( $_ENV['view_source'] && strstr($_GET['view_source'], BASE_PATH) ) {
+			if ( $_ENV['view_source'] && in_string(BASE_PATH, $_GET['view_source']) ) {
 				view::_show_view(CREOVEL_PATH.'views'.DS.'view_source.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'creovel.php');
 			} else {
 				// reset debugger error and dont index page

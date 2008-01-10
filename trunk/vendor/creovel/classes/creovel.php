@@ -11,7 +11,7 @@ class creovel
 
 	const VERSION = '0.03';
 	const RELEASE_DATE = 'Feb 27 2007 21:32:55';
-
+	
 	// Section: Public
 	
 	/*
@@ -29,7 +29,7 @@ class creovel
 		
 			<controller> object or string.
 	*/
-
+	
 	public function run($events = null, $params = null, $return_as_str = false)
 	{
 		// set event and params
@@ -68,10 +68,10 @@ class creovel
 		
 			Events array.
 	*/
-
-	public function get_events($event_to_return = null, $uri = null)
+	
+	public function get_events($event_to_return = null, $uri = null, $route_name = '')
 	{
-		$events = $_ENV['routing']->events($uri);
+		$events = $_ENV['routing']->events($uri, $route_name);
 		return $event_to_return ? $events[$event_to_return] : $events;
 	}
 	
@@ -80,7 +80,7 @@ class creovel
 		
 		Returns the framework params.
 		
-		Parameters:	
+		Parameters:
 		
 			param_to_return - Name of param to return.
 			
@@ -88,7 +88,7 @@ class creovel
 		
 			Params array.
 	*/
-
+	
 	public function get_params($param_to_return = null, $uri = null)
 	{
 		$params = $_ENV['routing']->params($uri);
@@ -109,9 +109,9 @@ class creovel
 		unset($params['_']);
 		return $param_to_return ? $params[$param_to_return] : $params;
 	}
-
+	
 	// Section: Private
-
+	
 	/*
 		Function: _include_controller
 		
@@ -121,7 +121,7 @@ class creovel
 		
 			controller_path - Server path of controller to include.
 	*/
-
+	
 	private function _include_controller($controller_path)
 	{
 		// include application controller
@@ -163,6 +163,6 @@ class creovel
 		}
 	
 	}
-	
+
 }
 ?>

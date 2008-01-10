@@ -106,7 +106,7 @@ function get_ancestors($class)
 
 function get_filesize($file_or_size)
 {
-	$iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");	
+	$iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
 	$size = is_numeric($file_or_size) ? $file_or_size : filesize($file_or_size);
 	$i = 0;
 	while ( ($size/1024) > 1 ) {
@@ -391,7 +391,7 @@ function urlencode_array($array)
 			$params	.= ( $key ? $key : '' ).( $key && ($value !== '') ? '='.$value : $value ).'&';
 		}
 	}
-		
+	
 	return substr($params, 0, -1);
 }
 
@@ -412,7 +412,11 @@ function urlencode_array($array)
 
 function in_string($needle, $haystack)
 {
-	return strpos($haystack, $needle) == false;
+	if (strpos($haystack, (string) $needle) === false) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
 /*

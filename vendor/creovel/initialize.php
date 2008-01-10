@@ -65,7 +65,12 @@ if ($_ENV['sessions']) {
 		// include session helpers
 		require_once 'helpers/session.php';
 	}
-
+	
+	// Fix for PHP 5.05
+	// http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
+	register_shutdown_function('session_write_close');
+	
+	session_start();
 }
 
 // Set environtment for command line interfaces.

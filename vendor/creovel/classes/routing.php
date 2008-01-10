@@ -63,17 +63,16 @@ class routing
 	
 	public function set_uri($uri = null)
 	{
-		if ( !$uri ) {
-			$uri = explode('?', $_SERVER['REQUEST_URI']);
-			$uri = $uri[0];
-		}
+		if ( !$uri ) $uri = $_SERVER['REQUEST_URI'];
+		$uri = explode('?', $uri);
+		$uri = $uri[0];
 		$this->uri = $uri;
 	}
 	
 	/*
 		Function: add_route
 		
-		Append a route to the routes array
+		Append a route to the routes array.
 		
 		Parameters:
 		
@@ -83,9 +82,6 @@ class routing
 	
 	public function add_route($name, $route)
 	{
-		// set route name
-		//if ( !count($this->routes) && !$name ) $name = 'default';
-		
 		// default last in routes array
 		if ( $name == 'default' ) {
 			$this->routes[$name] = $route;
@@ -108,8 +104,11 @@ class routing
 			An array of events.
 	*/
 	
-	public function events($uri)
+	public function events($uri, $route_name = '')
 	{
+		if (isset($this->routes[$route_name]->events)) {
+			return $this->routes[$route_name]->events;
+		}
 		return $this->which_route($uri);
 	}
 	
@@ -132,6 +131,21 @@ class routing
 		return $this->which_route($uri, true);
 	}
 	
+	/*
+		Function: which_route
+		
+		Get the events route depending on URI pattern or params.
+		
+		Parameters:
+		
+			uri - URI.
+			return_params - Boolean.
+			
+		Returns:
+		
+			An array of events/params.
+	*/
+	
 	public function which_route($uri = null, $return_params = false)
 	{
 		$uri = $uri ? $uri : $this->uri;
@@ -149,6 +163,10 @@ class routing
 		
 		// set uri
 		$uri = $this->trim_regex($uri);
+		
+		if (in_string('news/wire', $uri)) {
+			print_obj($_ENV['routing'], 1);
+		}
 		
 		foreach ( $this->routes as $name => $route ) {
 			// skip default route
@@ -209,9 +227,7 @@ class routing
 	
 	public function trim_regex($pattern)
 	{
-		$pattern = preg_replace('/^\//', '', $pattern);
-		$pattern = preg_replace('/\/$/', '', $pattern);
-		return $pattern;
+		return preg_replace('/^\/(.*?)[\/]?$/', "\\1", $pattern);
 	}
 	
 	public function default_events()

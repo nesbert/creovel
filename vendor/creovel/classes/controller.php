@@ -360,7 +360,7 @@ class controller
 		Allows the ability build a controller within a controller.
 		
 		
-		Parameters:	
+		Parameters:
 		
 			controller - Controller to build.
 			action - Action to view.
@@ -375,7 +375,11 @@ class controller
 
 	public function build_controller($controller, $action = '', $id = '', $extras = array(), $to_str = false)
 	{
-		$events = creovel::get_events(null, url_for($controller, $action, $id));
+		$route_name = 'build_controller_'.uniqid();
+		$route_path = "{$controller}/{$action}";
+		mapper::connect( $route_path, array( 'name' => $route_name, 'controller' => $controller, 'action' => $action ));
+		$events = creovel::get_events(null, url_for($controller, $action, $id), $route_name);
+		
 		$params = array();
 		if ( $id ) $params['id'] = $id;
 		return creovel::run($events, array_merge($params, $extras), $to_str);

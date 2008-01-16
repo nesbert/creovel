@@ -141,7 +141,7 @@ class rss implements Iterator
 			data - Array of data.
 	*/
 	
-	public function add_item($data)
+	public function add_item($data = array())
 	{
 		$this->items[] = $data;
 	}
@@ -302,43 +302,50 @@ class rss implements Iterator
 				$str .= " {$attribute}=\"{$val}\"";
 			}
 			if ( $has_ending_tag ) {
-				return "<{$tag}{$str}>" . $this->xmlentities($value['value']) . "</{$tag}>\n";
+				return "<{$tag}{$str}>" . $this->xml_str_format(strip_tags($value['value'])) . "</{$tag}>\n";
 			} else {
 				return "<{$tag}{$str} />";
 			}
 		} else {
-			return "<{$tag}>" . $this->xmlentities($value) . "</{$tag}>\n";
+			return "<{$tag}>" . $this->xml_str_format(strip_tags($value)) . "</{$tag}>\n";
 		}
 	
 	}
 	
 	/*
-		Function: xmlentities
+		Function: xml_str_format
 		
-		http://us3.php.net/manual/en/function.htmlentities.php#46785
+		Modified version of XMLStrFormat() http://us3.php.net/manual/en/function.htmlentities.php#78371
 		
-		Parameters:	
+		Parameters:
 		
 			string - required
-			quote_style - required
 		
 		Returns:
 		
 			String.
 	*/
 	
-	public function xmlentities($string, $quote_style=ENT_QUOTES)
+	public function xml_str_format($string)
 	{
-		static $trans;
-		if (!isset($trans)) {
-			$trans = get_html_translation_table(HTML_ENTITIES, $quote_style);
-			foreach ($trans as $key => $value)
-				$trans[$key] = '&#'.ord($key).';';
-			// dont translate the '&' in case it is part of &xxx;
-			$trans[chr(38)] = '&';
+		static $asc2uni;
+		if (!isset($asc2uni)) {
+			$asc2uni = array();
+			for ($i=128; $i<256; $i++) {
+				$asc2uni[chr($i)] = "&#x".dechex($i).";";
+			}
 		}
-		// after the initial translation, _do_ map standalone '&' into '&#38;'
-		return preg_replace("/&(?![A-Za-z]{0,4}\w{2,3};|#[0-9]{2,3};)/","&#38;" , strtr($string, $trans));
+		$replace = array(
+			"&" => "&amp;",
+			"<" => "&lt;",
+			">" => "&gt;",
+			"'" => "&apos;",
+			"\"" => "&quot;",
+			"\r" => ""
+		);
+		$string = str_replace(array_keys($replace), $replace, $string);
+		$string = strtr($string, $asc2uni);
+		return $string;
 	}
 	
 	/*

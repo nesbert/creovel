@@ -382,6 +382,7 @@ class model implements Iterator
 	public function validate_model($validation_routine = 'validate')
 	{
 		// validate model on every save
+
 		$this->$validation_routine();
 		// if error return false
 		if ( $this->errors->has_errors() ) return false;

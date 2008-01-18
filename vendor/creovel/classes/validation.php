@@ -209,7 +209,8 @@ class validation
 	
 	public function validates_numericality_of($field, $value, $message = null, $required = false, $only_integer = false)
 	{
-		return self::validate_field_by_bool(($only_integer ? is_int($value) : is_number($value)), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is not a number."), $required);
+		
+		return self::validate_field_by_bool(($only_integer ? (is_number($value) && is_int((int) $value)) : is_number($value)), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is not a number."), $required);
 	}
 	
 	/*

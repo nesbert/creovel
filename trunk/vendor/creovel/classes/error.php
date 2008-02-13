@@ -172,6 +172,7 @@ class error
 	{
 		// set header for error pages
 		if (preg_match('/^404:/',$message)) {
+			$message = trim(str_replace('404:', '', $message));
 			header('Status: 404 Not Found', true, 404);
 		} else {
 			header('Status: 500 Internal Server Error', true, 500);

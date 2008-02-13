@@ -252,7 +252,9 @@ class controller
 			break;
 			
 			default:
-				$_ENV['error']->add("404: Unable to render <em>".( $view{0} == '_' ? 'partial' : 'view' )."</em> not found in <strong>{$view_path}</strong>.");
+				if (!$options['no_error']) {
+					$_ENV['error']->add("404: Unable to render <em>".( $view{0} == '_' ? 'partial' : 'view' )."</em> not found in <strong>{$view_path}</strong>.");
+				}
 			break;
 			
 		}
@@ -286,9 +288,10 @@ class controller
 			options - Action to render or an array of render $options.
 			locals - *Optional* array of variables to pass to the view.
 			controller - *Optional* controller name. Use if vew is not in the current controller.
+			no_error - *Optional* no application error if partial not found.
 	*/
-
-	public function build_partial($partial, $locals = null, $controller = null)
+	
+	public function build_partial($partial, $locals = null, $controller = null, $no_error = false)
 	{
 		if ( is_array($partial) ) {
 			$options = $partial;
@@ -297,6 +300,7 @@ class controller
 		}
 		if ( $locals ) $options['locals'] = $locals;
 		if ( $controller ) $options['controller'] = $controller;
+		if ( $no_error ) $options['no_error'] = $no_error;
 		$this->render($options);
 	}
 	
@@ -310,19 +314,17 @@ class controller
 			options - Action to render or an array of render $options.
 			locals - *Optional* array of variables to pass to the view.
 			controller - *Optional* controller name. Use if vew is not in the current controller.
-	
+			no_error - *Optional* no application error if partial not found.
 	*/
-
-	public function render_partial($partial, $locals = null, $controller = null)
+	
+	public function render_partial($partial, $locals = null, $controller = null, $no_error = false)
 	{
 		if ( is_array($partial) ) {
 			$options = $partial;
 		} else {
 			$options['partial'] = $partial;
 		}
-		if ( $locals ) $options['locals'] = $locals;
-		if ( $controller ) $options['controller'] = $controller;
-		$this->render($options);
+		$this->build_partial($options, $locals, $controller, $no_error);
 	}
 	
 	/*

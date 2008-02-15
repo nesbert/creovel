@@ -481,43 +481,60 @@ function get_creovel_services()
 function url_for()
 {
 	$args = func_get_args();
-
+	
 	if (is_array($args[0])) {
-
+		
 		// Set Contoller
-		$controller = ($args[0]['controller']) ? $args[0]['controller'] : get_controller();
+		$controller = $args[0]['controller'];
 		unset($args[0]['controller']);
-
-		// Set Action
-		$action = ($args[0]['action']) ? $args[0]['action'] : get_action();
+		
+		// set action
+		$action = $args[0]['action'];
 		unset($args[0]['action']);
-
-		// Set ID
-		$id = ($args[0]['id']) ? $args[0]['id'] : null;
+		
+		// set id
+		$id = $args[0]['id'];
 		unset($args[0]['id']);
-
-		// Secure Mode
-		$https = ($args[0]['https']) ? $args[0]['https'] : null;
+		
+		// secure mode
+		$https = $args[0]['https'];
 		unset($args[0]['https']);
-
-		// Set Misc
-		$misc = '?'.urlencode_array($args[0]);
-
-		$return = "/{$controller}/{$action}/{$id}{$misc}";
-
+		
+		// set misc
+		$misc = urlencode_array($args[0]);
+		
 	} else {
-
+		
+		// set controller
 		$controller = $args[0];
+		
+		// set action
 		$action = $args[1];
-		$id = $args[2];
+		
+		// set id and misc
+		if (is_array($args[2])) {
+			$id = $args[2]['id'];
+			unset($args[2]['id']);
+			$misc = urlencode_array($args[2]);
+		} else {
+			$id = $args[2];
+		}
+		
+		// secure mode
 		$https = $args[3];
-
-		if (is_array($id)) $id = '?'.urlencode_array($id);
-
-		$return = '/'.($controller ? $controller.'/'.($action ? $action.'/' : '').($action && $id ? $id : '') : '');
-
+		
 	}
-	return ( $https ? str_replace('http://', 'https://', BASE_URL) : '' ).$return;
+	
+	// build url
+	$uri = '/'.(!$controller && $action ? get_controller() : $controller).($action ? "/{$action}" : '');
+	
+	if ($misc) {
+		$uri .= "/?".($id ? "id={$id}&" : '').$misc;
+	} else if ($id) {
+		$uri .= "/{$id}";
+	}
+	
+	return ($https ? str_replace('http://', 'https://', BASE_URL) : '').$uri;
 }
 
 /*

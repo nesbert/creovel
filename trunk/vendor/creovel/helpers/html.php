@@ -290,7 +290,10 @@ function javascript_include_tag($url)
 
 function link_to($link_title = 'Goto', $controller = '', $action = '', $id = '', $html_options = null)
 {
+	// set href
 	$html_options['href'] = $html_options['href'] ? $html_options['href'] : url_for($controller, $action, $id, $html_options['https']);
+	// if action is array merge it with html_options
+	if (is_array($action)) $html_options = array_merge((array) $action, (array) $html_options);
 	return create_html_element('a', $html_options, $link_title);
 }
 

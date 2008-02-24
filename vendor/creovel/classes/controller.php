@@ -418,12 +418,17 @@ class controller
 		Parameters:
 		
 			action - *String* Action to run.
+			kill_after - *Boolean* script stops after action is executed.
 	*/
 
-	public function run($action)
+	public function run($action, $kill_after = false)
 	{
 		$this->render = $action;
-		$this->$action();
+		if ($kill_after) {
+			$this->_action = $action;
+		} else {
+			$this->$action();
+		}
 	}
 	
 	/*

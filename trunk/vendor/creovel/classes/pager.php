@@ -375,7 +375,7 @@ class pager
 	
 			if ( ($this->current - 3) >= 1 ) {
 				$str .= '<a class="page-1" href="'.$this->url.'?page=1'.$extra_params.'">1</a>';
-				if ( ($this->current - 3) > 1 ) $str .= '<span="dots">...</span>';
+				if ( ($this->current - 3) > 1 ) $str .= '<span class="dots">...</span>';
 			}
 		
 			for ( $i = $start_page; $i <= $this->current + 2; $i++ ) {
@@ -391,7 +391,7 @@ class pager
 			}
 			
 			if ( ($this->current + 3) <= $this->total_pages ) {			
-				if ( ($this->current + 3) < $this->total_pages ) $str .= '<span="dots">...</span>';
+				if ( ($this->current + 3) < $this->total_pages ) $str .= '<span class="dots">...</span>';
 				$str .= '<a class="page-'.$this->total_pages.'" href="'.$this->url.'?page='.$this->total_pages.$extra_params.'">'.$this->total_pages.'</a>';
 			}
 			

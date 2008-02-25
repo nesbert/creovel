@@ -110,7 +110,7 @@ class mysql extends _adapter implements adapter_interface
 		$this->query = $query;
 		
 		// send a MySQL query and set query_link resource on success
-		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error($this->get_mysql_error() . ". Query \"" . str_replace(', ', ",\n", $this->query) . "\" failed.");		
+		$this->query_link = @mysql_query($this->query, $this->db_link) or $this->handle_error('Error ' . mysql_errno($this->db_link) . ': ' . $this->get_mysql_error() . ". Query \"" . str_replace(', ', ",\n", $this->query) . "\" failed.");		
 
 		// set row_count with number of rows in result
 		$this->row_count = 	@mysql_num_rows($this->query_link);

@@ -189,7 +189,7 @@ class pager
 	
 	*/
 
-	public function page_array($data, $preserve_keys = true, $limit = false)
+	public function page_array($data, $preserve_keys = true, $limit = null)
 	{
 		if ( !$this->total_records ) $this->set_properties($data, null, $limit);
 		return array_slice($data, $this->offset, $this->limit, $preserve_keys);

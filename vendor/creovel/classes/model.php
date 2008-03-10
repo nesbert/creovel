@@ -1571,9 +1571,9 @@ class model implements Iterator
 			Boolean.
 	*/
 
-    public function is_valid()
+    public function is_valid($validation_routine = 'validate')
     {
-        return $this->validate_model();
+        return $this->validate_model($validation_routine);
     }
     
     /*

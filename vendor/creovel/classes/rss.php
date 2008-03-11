@@ -84,7 +84,7 @@ class rss implements Iterator
 	public $skipDays		= ""; // A hint for aggregators telling them which days they can skip.
 	
 	/*
-		Property: items_as_array
+			Property: items_as_array
 		
 		Return each item as an Array or Object.
 	*/
@@ -226,11 +226,14 @@ class rss implements Iterator
 			foreach ( $required as $tag => $value ) {
 			$str .= $this->tag($tag, $value);
 			}
+			
 			foreach ( $optional as $tag => $value ) {
 				if ( $value ) $str .= $this->tag($tag, $value);
 			}
 			if ( count($item) ) foreach ( $item as $tag => $value ) {
+				
 				if ( !$value ) continue;
+				
 				if ( is_array($value) && array_key_exists($tag, $this->xmlns) ) foreach ( $value as $key => $val ) {
 					$name = strtolower($key{0}).substr(camelize($key), 1);
 					if ( is_array($val) ) {
@@ -307,8 +310,8 @@ class rss implements Iterator
 				return "<{$tag}{$str} />";
 			}
 		} else {
-			return "<{$tag}>" . $this->xml_str_format(strip_tags($value)) . "</{$tag}>\n";
-		}
+			return "<{$tag}>" . ( preg_match('/^<!\[CDATA\[/', $value) ? $value : $this->xml_str_format(strip_tags($value)) ) . "</{$tag}>\n";
+		}// test
 	
 	}
 	

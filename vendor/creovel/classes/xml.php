@@ -1,6 +1,5 @@
 <?php
 /*
-
 	Class: xml
 	
 	XML class to rule all.
@@ -10,7 +9,6 @@
 		* Validate CDATA
 		* might not need get_attributes()
 		* mapper -> xml to array -> easier interface/view
-
 */
 
 class xml
@@ -208,10 +206,9 @@ class xml
 			String.
 	*/
 	
-	public function cdata($cdata)
+	static public function cdata($cdata)
 	{
-		$cdata = trim($cdata);
-		return '<![CDATA[' . $cdata . ']]>';
+		return '<![CDATA[' . trim($cdata) . ']]>';
 	}
 	
 	/*

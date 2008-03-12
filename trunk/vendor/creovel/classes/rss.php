@@ -171,11 +171,10 @@ class rss implements Iterator
 					$xml .= $this->tag($tag, $this->$tag);
 				}
 				if ( count($this->items) ) foreach ( $this->items as $item ) {
-					$xml .= self::item_str($item);
+					$xml .= $this->item_str($item);
 				}
 			$xml .= '</channel>'."\n";
 		$xml .= '</rss>'."\n";
-		
 		return $xml;
 	}
 	
@@ -231,9 +230,7 @@ class rss implements Iterator
 				if ( $value ) $str .= $this->tag($tag, $value);
 			}
 			if ( count($item) ) foreach ( $item as $tag => $value ) {
-				
 				if ( !$value ) continue;
-				
 				if ( is_array($value) && array_key_exists($tag, $this->xmlns) ) foreach ( $value as $key => $val ) {
 					$name = strtolower($key{0}).substr(camelize($key), 1);
 					if ( is_array($val) ) {
@@ -246,6 +243,8 @@ class rss implements Iterator
 					} else {
 						$str .= $this->tag($tag . ':' . $name, $val);
 					}
+				} else {
+					$str .= $this->tag($tag, $value);
 				}
 			}
 		$str .= '</item>'."\n";
@@ -457,11 +456,7 @@ class rss implements Iterator
 	public function set_cache_dir($path = null)
 	{
 		$path = $path ? $path : '/tmp/creovel/';
-		
-		if (!file_exists($path)) {
-			mkdir($path);
-		}
-		
+		if (!file_exists($path)) mkdir($path);
 		$this->cache_dir = $path;
 	}
 	
@@ -526,8 +521,7 @@ class rss implements Iterator
 		// check for cache for created feeds
 		if (!$this->cache_expired()) {
 			// has not expired so load from cache
-			$this->load_feed($this->cache_filename());
-			$this->feed();
+			die(file_get_contents($this->cache_filename()));
 		}
 	}
 	

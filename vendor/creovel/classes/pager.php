@@ -511,5 +511,21 @@ class pager
 		return (int) $this->total_pages;
 	}
 	
+	/*
+	
+		Function: needs_Links
+		
+		Boolean does the result set have multiple pages
+		
+		Returns:
+		
+			Boolean
+	
+	*/
+	
+	public function needs_links()
+	{
+		return $total_pages > 1;
+	}
 }
 ?>

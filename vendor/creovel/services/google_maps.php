@@ -1,6 +1,5 @@
 <?php
 /*
-
 	Class: google_maps
 	
 	Google Maps Service Version 2.
@@ -11,7 +10,6 @@
 	Todo:
 		* Add support/interface for compressing polylines data http://www.google.com/apis/maps/documentation/#Encoded_Polylines
 		* Implement Markers Manager http://www.google.com/apis/maps/documentation/#Marker_Manager
-
 */
 
 class google_maps
@@ -243,6 +241,7 @@ class google_maps
 	
 	public function display_map($html_options = null)
 	{
+		static $shown;
 		if ( !in_string('px', $this->width) && !in_string('%', $this->width) ) $this->width .= 'px';
 		if ( !in_string('px', $this->height) && !in_string('%', $this->height) ) $this->height .= 'px';
 		$html_options['style'] = "width:{$this->width}; height:{$this->height}; " . $html_options['style'];
@@ -297,6 +296,21 @@ if ( GBrowserIsCompatible() ) {
 		?>		
 	}
 	
+	<?php if (!$shown) { ?>
+	// add new events to window
+	function addNewEvent(o, e, f) {
+		if (o.addEventListener) {
+			o.addEventListener(e, f, false);
+			return true;
+		} else if (o.attachEvent) {
+			var n = o.attachEvent('on'+e, f);
+			return n;
+		} else {
+			return false;
+		}
+	}
+	<?php } ?>
+	
 	<?=$this->onload("{$this->id} = new {$this->id}Obj();")?>
 	<?=$this->unload()?>
 	
@@ -306,6 +320,7 @@ if ( GBrowserIsCompatible() ) {
 </script>
 <div id="<?=$this->id?>"<?=html_options_str($html_options)?>></div>
 		<?
+		$shown++;
 	}
 	
 	/*
@@ -812,8 +827,8 @@ if ( GBrowserIsCompatible() ) {
 	public function onload($js_str)
 	{
 		static $code;
-		$code = ( $js_str ? $code.$js_str : $js_str );
-		return 'window.onload = new Function("' . $code . '");'."\n";
+		$code = "\t\t".( $js_str ? $code.$js_str : $js_str )."\n";
+		return "addNewEvent(window, 'load', function() {\n{$code}\t});\n";
 	}
 	
 	/*
@@ -835,8 +850,8 @@ if ( GBrowserIsCompatible() ) {
 	public function unload($js_str = null)
 	{
 		static $code;
-		$code = ( $js_str ? $code.$js_str : $js_str );
-		return 'window.unload = new Function("GUnload();' . $code . '");'."\n";
+		$code = "\t\t".( $js_str ? $code.$js_str : $js_str )."\n";
+		return "addNewEvent(window, 'unload', function() {\n\t\tGUnload();{$code}\t});\n";
 	}
 	
 	/*
@@ -893,7 +908,7 @@ if ( GBrowserIsCompatible() ) {
 		if ( !$address ) return false;
 		
 		// create xml object and load xml data
-		$xml = new xml;		
+		$xml = new xml;
 		$xml->load( 'http://maps.google.com/maps/geo?q=' . urlencode($address) . '&output=xml&key=' . $this->key );
 		
 		// get address coordinates
@@ -1131,7 +1146,7 @@ if ( GBrowserIsCompatible() ) {
 			marker.openInfoWindowHtml(marker.html);
 		}
 	}
-			<?
+				<?
 			break;
 		}
 		$count++;

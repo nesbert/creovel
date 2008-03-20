@@ -481,7 +481,7 @@ function get_creovel_services()
 function url_for()
 {
 	$args = func_get_args();
-	
+
 	if (is_array($args[0])) {
 		
 		// Set Contoller
@@ -524,7 +524,10 @@ function url_for()
 		$https = $args[3];
 		
 	}
-	
+
+	if (is_array($_ENV['secure_controllers']) && in_array($controller, $_ENV['secure_controllers'])) {
+		$https = true;
+	}
 	// build url
 	$uri = '/'.(!$controller && $action ? get_controller() : $controller).($action ? "/{$action}" : '');
 	

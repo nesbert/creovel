@@ -164,10 +164,6 @@ class routing
 		// set uri
 		$uri = $this->trim_regex($uri);
 		
-		if (in_string('news/wire', $uri)) {
-			print_obj($_ENV['routing'], 1);
-		}
-		
 		foreach ( $this->routes as $name => $route ) {
 			// skip default route
 			if ( $name == 'default' ) continue;
@@ -202,6 +198,8 @@ class routing
 
 		foreach ($parts as $segment)
 		{
+			// dont check nested segments
+			if ($segment->name == 'nested_controller_path') continue;
 			switch (true)
 			{
 				case ( $segment->type == 'static' ):
@@ -380,6 +378,7 @@ class mapper
 			$params[$part->name] = $part;
 		}
 		
+		
 		// if default route_path check/set nested controllers
 		if ( $route_path == ':controller/:action/:id' ) {
 			$path = '';
@@ -414,6 +413,17 @@ class mapper
 			
 			// set default action
 			if ( !$events['action']->value ) $events['action']->value = $options['action'];
+		
+		}
+		
+		if (isset($options['nested_controller_path'])) {
+		
+			$dirs = explode('/', $options['nested_controller_path']);
+			
+			foreach ($dirs as $dir) {
+				if (!trim($dir)) continue;
+				$events['nested_controllers'][] = $dir;
+			}
 		
 		}
 		

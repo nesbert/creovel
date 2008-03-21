@@ -199,6 +199,8 @@ class routing
 	{
 		$regex = '/^';
 		
+		//print_obj($parts);
+		
 		foreach ($parts as $segment)
 		{
 			if (!$segment->value) break;
@@ -211,14 +213,16 @@ class routing
 				break;
 				
 				case ( $segment->value && !$segment->constraint ):
-					$regex .= '|(\/\w*)';
-					continue;
+					$regex .= '(\/[A-Za-z0-9_]+)*';
+					$continue = true;
 				break;
 
 				default:
 					$part = $this->trim_regex($segment->constraint);
 				break;
 			}
+			
+			if ($continue) continue;
 			
 			$regex .= "\/{$part}";
 		}

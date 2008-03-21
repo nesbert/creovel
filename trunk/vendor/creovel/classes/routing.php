@@ -169,8 +169,11 @@ class routing
 			if ( $name == 'default' ) continue;
 			// build pattern form parts
 			$pattern = $this->parts_regex($route->parts);
+			
+			//if (in_string('a', $uri)) print_obj($pattern);
+			
 			// if match return events
-			if ( preg_match($pattern, $uri) ) {
+			if ( preg_match($pattern, '/'.$uri) ) {
 				// set current
 				$this->current = $route;
 				if ($return_params) {
@@ -195,9 +198,10 @@ class routing
 	public function parts_regex($parts)
 	{
 		$regex = '/^';
-
+		
 		foreach ($parts as $segment)
 		{
+			if (!$segment->value) break;
 			// dont check nested segments
 			if ($segment->name == 'nested_controller_path') continue;
 			switch (true)
@@ -207,7 +211,8 @@ class routing
 				break;
 				
 				case ( $segment->value && !$segment->constraint ):
-					$part = '\w*';
+					$regex .= '|(\/\w*)';
+					continue;
 				break;
 
 				default:
@@ -215,10 +220,10 @@ class routing
 				break;
 			}
 			
-			$regex .= "{$part}(\/)?";
+			$regex .= "\/{$part}";
 		}
 
-		$regex .= '/';
+		$regex .= '$/';
 
 		return $regex;
 	}

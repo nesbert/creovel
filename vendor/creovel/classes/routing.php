@@ -214,15 +214,13 @@ class routing
 				
 				case ( $segment->value && !$segment->constraint ):
 					$regex .= '(\/[A-Za-z0-9_]+)*';
-					$continue = true;
+					break 2;
 				break;
 
 				default:
 					$part = $this->trim_regex($segment->constraint);
 				break;
 			}
-			
-			if ($continue) continue;
 			
 			$regex .= "\/{$part}";
 		}

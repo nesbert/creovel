@@ -214,12 +214,17 @@ class pager
 	public function params_to_str($data)
 	{
 		$data = is_array($data) ? array_merge($_GET, $data) : $_GET;
-		$str = '';
+		unset($data['page']);
+		unset($data['limit']);
+		
+		return '&'.http_build_query($data);
+		/*$str = '';
 		foreach ( $data as $key => $val ) {
 			if ( $key == 'page' || $key == 'limit') continue;
 			$str .="&".$key."=".urlencode($val);
 		}
 		return $str;
+		*/
 	}
 	
 	/*

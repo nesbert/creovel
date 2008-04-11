@@ -530,7 +530,7 @@ class pager
 	
 	public function needs_links()
 	{
-		return $total_pages > 1;
+		return $this->total_pages() > 1;
 	}
 }
 ?>

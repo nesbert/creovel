@@ -41,8 +41,8 @@ function __autoload($class)
 		break;
 			
 		case ( true ):
-			$type = 'Interface';
-			$path = CREOVEL_PATH.'interfaces'.DS.$class.'.php';
+			$type = 'Core Class';
+			$path = CREOVEL_PATH.'classes'.DS.$class.'.php';
 			if ( file_exists($path) ) break;
 			
 		case ( true ):

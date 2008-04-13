@@ -29,18 +29,9 @@ require_once 'helpers/validation.php';
 require_once 'classes/controller.php';
 require_once 'classes/creovel.php';
 require_once 'classes/error.php';
-require_once 'classes/file.php';
 require_once 'classes/inflector.php';
-require_once 'classes/mailer.php';
-require_once 'classes/model.php';
-require_once 'classes/pager.php';
 require_once 'classes/routing.php';
-require_once 'classes/rss.php';
-require_once 'classes/translation.php';
-require_once 'classes/unittest.php';
-require_once 'classes/validation.php';
 require_once 'classes/view.php';
-require_once 'classes/xml.php';
 
 // Include environment specific file.
 require_once CONFIG_PATH . 'environments' . DS . ( $_ENV['mode'] = ( isset($_ENV['mode']) ? $_ENV['mode'] : 'development' ) ) . '.php';
@@ -71,11 +62,6 @@ if ($_ENV['sessions']) {
 	register_shutdown_function('session_write_close');
 	
 	session_start();
-}
-
-// Set environtment for command line interfaces.
-if ( !in_string('dispatch.php', $_SERVER['SCRIPT_NAME']) ) {
-	$_ENV['command_line'] = true;
 }
 
 // Include custom routes.

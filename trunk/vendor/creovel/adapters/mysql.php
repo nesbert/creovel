@@ -1,6 +1,4 @@
 <?php
-require_once '_adapter.php';
-
 /**
  * MySQL Adapter.
  *
@@ -9,7 +7,7 @@ require_once '_adapter.php';
  * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
  * @author		Nesbert Hidalgo
  */
-class mysql extends _adapter implements adapter_interface
+class mysql extends adapter_base implements adapter_interface
 {
 
 	private $mode;			// Server mode developement, test, productions

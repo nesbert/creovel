@@ -27,7 +27,8 @@
  * @license     http://www.opensource.org/licenses/mit-license.php The MIT License
  * @author		Russ Smith
  */
-class sqlite3 implements adapter_interface
+class sqlite extends adapter_base implements adapter_interface
+
 {
 
 	private $mode;			// Server mode developement, test, productions

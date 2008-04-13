@@ -1,6 +1,6 @@
 <?php
 
-abstract class _adapter
+abstract class adapter_base
 {
 	
 	// Section Protected

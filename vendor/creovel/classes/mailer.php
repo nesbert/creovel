@@ -1,6 +1,5 @@
 <?php
 /*
-
 	Class: mailer
 	
 	A email class to handle sending of emails in TEXT and HTML format.
@@ -10,12 +9,11 @@
 		* auto-load attachments
 		* smtp support
 		* receiving emails
-
 */
 
 class mailer
 {
-	
+
 	// Section: Public
 	
 	public $delivery_method = 'sendmail';
@@ -32,15 +30,13 @@ class mailer
 	public $body;
 	public $text;
 	public $html;
-
+	
 	/*
-
 		Function: __construct
 		
 		Construct set message boundaries.
-	 
 	*/
-
+	
 	public function __construct()
 	{
 		//echo 'mailer start<br />';
@@ -51,25 +47,25 @@ class mailer
 	}
 	
 	/*
-	
-	Function: __call	
+		Function: __call
+		
 		Magic functions.
-
-	Parameters:	
-		method - required
-		args - required
-
+		
+		Parameters:
+			
+			method - required
+			args - required
 	*/
-
+	
 	public function __call($method, $args)
 	{
 		switch ( true ) {
-
+			
 			case preg_match('/^create_(.+)$/', $method, $regs):
 			case preg_match('/^deliver_(.+)$/', $method, $regs):
 			
 				$this->_action = $regs[1];
-			
+				
 				// set/call controller & action and pass arguments to child mailer class
 				$this->_call_action($args);
 				
@@ -83,55 +79,58 @@ class mailer
 			default:
 				$_ENV['error']->add("Undefined action '{$method}' in <strong>{$this->_mailer_name}</strong>");
 			break;
-			
+		
 		}
 	}
-
-	/*
 	
-	Function: set_content_type
+	/*
+		Function: set_content_type
+		
 		Sets email content type ['text/plain', 'text/html']
-
-	Parameters:	
-		type - optional
-
-	Returns:
-		type
-
-	*/	
-
+		
+		Parameters:
+		
+			type - optional
+		
+		Returns:
+		
+			String of content type.
+	*/
+	
 	public function set_content_type($type = 'text/plain')
 	{
 		return $this->_content_type = $type;
 	}
 	
 	/*
-	
-	Function: set_content_transfer_encoding
+		Function: set_content_transfer_encoding
+		
 		Sets email content transfer encoding
-
-	Parameters:	
-		encoding - optional
-
-	Returns:
-		encoding
-
-	*/	
-
+		
+		Parameters:
+		
+			encoding - optional
+		
+		Returns:
+		
+			String of encoding.
+	*/
+	
 	public function set_content_transfer_encoding($encoding = '7bit')
 	{
 		return $this->_content_transfer_encoding = $encoding;
 	}
 	
 	/*
-
-	Function: encoded		
-		Encodes the current email message into a string
-
-	Returns:	
-		string
-
-	*/	
+		Function: encoded
+		
+		Encodes the current email message into a string.
+		
+		Returns:
+		
+			String of encoded message.
+	*/
+	
 	public function encoded()
 	{
 		$return = "To: ".$this->_get_email_address($this->_get_recipients())."\n";
@@ -140,15 +139,15 @@ class mailer
 	}
 	
 	/*
-	
-	Function: send	
+		Function: send
+		
 		Sends the current email message. Returns true on success.
-
-	Returns:	
-		bool
-
-	*/	
-
+		
+		Returns:
+		
+			Boolean.
+	*/
+	
 	public function send()
 	{
 		switch ( true ) {
@@ -156,11 +155,11 @@ class mailer
 			case ( $this->delivery_method == 'smtp' ):
 				return false;
 			break;
-		
+			
 			case ( $this->delivery_method == 'sendmail' ):
 				if ( mail($this->_get_email_address($this->_get_recipients()), $this->_get_subject(), $this->_get_content(), $this->_get_headers()) ) {
 					return true;
-				} else {		
+				} else {
 					return false;
 				}
 			break;
@@ -177,102 +176,106 @@ class mailer
 	}
 	
 	/*
-
-	Function: deliver
+		Function: deliver
+		
 		Alias to send(). Returns true on success.
-
-	Returns:
-		bool	
-
-	*/	
-
-	public function deliver()
-	{	
-		return $this->send();	
-	}
-
-	/*
-	
-	Function: add_attachment
-		Adds a attachment to the email.
-
-	Parameters:
-		file_path - path of the attachment
-		content_type - type of content
-		content_transfer_encoding - encoding of content
-
-	Returns:
-		string
-
+		
+		Returns:
+		
+			Boolean.
 	*/
-
+	
+	public function deliver()
+	{
+		return $this->send();
+	}
+	
+	/*
+		Function: add_attachment
+		
+		Adds a attachment to the email.
+		
+		Parameters:
+		
+			file_path - path of the attachment
+			content_type - type of content
+			content_transfer_encoding - encoding of content
+		
+		Returns:
+		
+			String.
+	*/
+	
 	public function add_attachment($file_path, $content_type = null, $content_transfer_encoding = null)
 	{
 		$key = 'attachment'.count($this->_attachments);
 		$file_name = basename($file_path);
 		
-		$this->_attachments[$key]['content_id'] = $key;		
+		$this->_attachments[$key]['content_id'] = $key;
 		$this->_attachments[$key]['content_type'] = ( $content_type ? $content_type : $this->_get_content_type($file_name) );
 		$this->_attachments[$key]['content_transfer_encoding'] = ( $content_transfer_encoding ? $content_transfer_encoding : $this->_get_transfer_encoding($file_name) );
 		$this->_attachments[$key]['file_name'] = $file_name;
 		$this->_attachments[$key]['content_data'] = $this->_encode_attachment($file_path);
-				
+		
 		return $key;
 	}
-
+	
+	// Section: Protected
+	
+	private $_content_type = 'text/plain';
+	private $_content_transfer_encoding = '7bit';
+	
 	// Section: Private	
 	
 	private $_attachments;
 	private $_content;
-	private $_content_type = 'text/plain';
-	private $_content_transfer_encoding = '7bit';
 	private $_mailer_name;
 	private $_message_boundary;
 	private $_mime_boundary;
 	private $_header;
-
-	/*
 	
-	Function: _cal
+	/*
+		Function: _call_action
+		
 		Sets $_controller & $_action and call child method
-
-	Parameters:	
-		args - required
-	 
+		
+		Parameters:
+		
+			args - required
 	*/
-
+	
 	private function _call_action($args)
 	{
 		if ( method_exists($this, $this->_action) ) {
-			call_user_func_array(array($this, $this->_action), $args);								
+			call_user_func_array(array($this, $this->_action), $args);
 		} else {
 			$_ENV['error']->add("Undefined action '{$this->_action}' in <strong>{$this->_mailer_name}</strong>");
 		}
 	}
 	
 	/*
-	
-	Function: _is_plain_text
-		Checks if content type is 'text/plain'
-
-	Returns:	
-		bool
-
+		Function: _is_plain_text
+		
+		Checks if content type is 'text/plain'.
+		
+		Returns:
+		
+			Boolean.
 	*/
-
+	
 	private function _is_plain_text()
 	{
 		return ( ($this->_content_type == 'text/plain') && !$this->html ? true : false );
 	}
 	
 	/*
-	
-	Function:
+		Function:
+		
 		Creates header of the message and loads it into $_header
-
-	Returns:	
-		string
-
+		
+		Returns:
+		
+			String.
 	*/
 
 	private function _get_headers()
@@ -298,15 +301,15 @@ class mailer
 	}
 	
 	/*
-	
-	Function:
-		Return the recipients/to fields
-	
-	Returns:	
-		string
-
+		Function:
+		
+		Return the recipients/to fields.
+		
+		Returns:
+		
+			String.
 	*/
-
+	
 	private function _get_recipients()
 	{
 		$ret = array();
@@ -321,29 +324,25 @@ class mailer
 		
 		return implode(',', $ret);
 	}
-
 	
 	/*
-	
-	Function:
-		Creates body of the message and loads it into $_content
-	
-	Returns:	
-		string
-
+		Function:
+		
+		Creates body of the message and loads it into $_content.
+		
+		Returns:
+		
+			String.
 	*/
-
+	
 	private function _get_content()
 	{
 		// intialize content string
 		$this->_content = '';
-				
+		
 		if ( $this->_is_plain_text() ) {
-		
 			$this->_content = $this->_get_text();
-			
 		} else {
-		
 			// add text verison to message
 			$this->_content .= "--{$this->_message_boundary}\n";
 			$this->_content .= "Content-Type: text/plain; charset={$this->charset}\n";
@@ -351,7 +350,7 @@ class mailer
 			$this->_content .= "Content-Disposition: inline\n\n";
 			$this->_content .= $this->_get_text();
 			$this->_content .= "\n\n";
-		
+			
 			// add html verison to message
 			$this->_content .= "--{$this->_message_boundary}\n";
 			$this->_content .= "Content-Type: text/html; charset={$this->charset}\n";
@@ -368,55 +367,57 @@ class mailer
 	}
 	
 	/*
-	
-	Function: _get_include_contents
-	Insert the view into the email.
-
-	Parameters:
-		filename - path of file
-
-	Returns:
-		string or false
-
+		Function: _get_include_contents
+		
+		Insert the view into the email.
+		
+		Parameters:
+		
+			filename - path of file.
+		
+		Returns:
+		
+			String or false.
 	*/
-
+	
 	private function _get_include_contents($filename)
 	{
-	   if ( is_file($filename) ) {
-		   ob_start();
-		   include $filename;
-		   $contents = ob_get_contents();
-		   ob_end_clean();
-		   return $contents;
-	   }
-	   return false;
+		if ( is_file($filename) ) {
+			ob_start();
+			include $filename;
+			$contents = ob_get_contents();
+			ob_end_clean();
+			return $contents;
+		}
+		return false;
 	}
 	
 	/*
-
-	Function: _get_view
-		Gets the view content for message
-
-	Return:
-		string
-
+		Function: _get_view
+		
+		Gets the view content for message.
+		
+		Returns:
+		
+			String.
 	*/
-
+	
 	private function _get_view()
 	{
 		return $this->_get_include_contents(VIEWS_PATH.$this->_mailer_name.DS.$this->_action.'.php');
 	}
 	
 	/*
-	
-	Function: _get_text
-		Get text verison of message and remove all html tags from a string. it also replaces links with a text friendly link.
-
-	Returns:	
-		string
-
+		Function: _get_text
+		
+		Get text verison of message and remove all html tags from a string. It also replaces
+		links with a text friendly link.
+		
+		Returns:
+		
+			String.
 	*/
-
+	
 	private function _get_text()
 	{
 		$return = $this->text ? $this->text : $this->_get_view();
@@ -425,15 +426,15 @@ class mailer
 	}
 	
 	/*
-	
-	Function: _get_html
-		Get html verison of message
-
-	Returns:	
-		string
-
+		Function: _get_html
+		
+		Get html verison of message.
+		
+		Returns:
+		
+			String.
 	*/
-
+	
 	private function _get_html()
 	{
 		if ($this->html) {
@@ -441,50 +442,49 @@ class mailer
 		}
 		
 		$html = $this->_get_view();
+		
 		// insert html into layout (template) for html verison of the message
 		if ( $this->layout !== false ) {
-			
 			$template_path = VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
 			$html = str_replace('@@page_contents@@', $html, $this->_get_include_contents($template_path));
-				
 		}
 		
-		return $html;	
+		return $html;
 	}
 	
 	/*
-	
-	Function: _get_email_address
-		Formats email address properties into a string
-
-	Parameters:
-		email_address - email address(es)
-
-	Return:	
-		string
-
+		Function: _get_email_address
+		
+		Formats email address properties into a string.
+		
+		Parameters:
+		
+			email_address - email address(es)
+		
+		Returns:
+		
+			String.
 	*/
-
+	
 	private function _get_email_address($email_address)
-	{	
-		return ( is_array($email_address) ? implode(',', $email_address) : $email_address );
+	{
+		return (is_array($email_address) ? implode(',', $email_address) : $email_address);
 	}
 	
 	/*
-	
-	Function: _get_subject
-		Returns email subject
-
-	Returns:
-		string
-
+		Function: _get_subject
+		
+		Returns email subject.
+		
+		Returns:
+		
+			String.
 	*/
-
+	
 	private function _get_subject()
 	{
 		return str_replace("\n", '', $this->subject);
 	}
-	
 	
 	/* need to finish attachment support */
 	
@@ -495,7 +495,7 @@ class mailer
 	
 	private function _get_content_type($file_name)
 	{
-		return get_mime_type($file_name);	
+		return get_mime_type($file_name);
 	}
 	
 	private function _get_transfer_encoding($file_name)
@@ -524,7 +524,7 @@ class mailer
 	private function _get_attachments_str()
 	{
 		if ( $this->_has_attachments() ) {
-	
+			
 			$return = "\n--{$this->message_boundary}--\n";
 			
 			foreach ( $this->_attachments as $content_id => $attachment ) {
@@ -544,9 +544,9 @@ class mailer
 		} else {
 		
 			return false;
-			
+		
 		}
 	}
-	
+
 }
 ?>

@@ -155,6 +155,7 @@ function html_options_str($html_options)
 			'ismap',
 			'label',
 			'longdesc',
+			'media',
 			'marginheight',
 			'marginwidth',
 			'nohref',

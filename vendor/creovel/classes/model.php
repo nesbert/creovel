@@ -2016,25 +2016,26 @@ class model implements Iterator
 					
 					break;
 				case 'has_many_link':
-
+					$pieces = explode('.', $this->table_name());
+					$table = end($pieces);
+						
 					if (!$this->_links[$name]['link_table_name']) {
-
-						if ($this->table_exists("{$name}_{$this->_table_name}")) {
-
-							$this->_links[$name]['link_table_name']	= "{$name}_{$this->_table_name}";
-
+							
+						if ($this->table_exists("{$name}_{$table}")) {
+																			
+							$this->_links[$name]['link_table_name']	= "{$name}_{$table}";
 						} else {
 
-							$this->_links[$name]['link_table_name']	= "{$this->_table_name}_{$name}";
+							$this->_links[$name]['link_table_name']	= "{$table}_{$name}";
 
 						}
 					}
 					
 					if(!$this->_links[$name]['this_table_id']) {
-						$this->_links[$name]['this_table_id'] = singularize($this->_table_name).'_id';
+						$this->_links[$name]['this_table_id'] = singularize($table).'_id';
 					}
 					if(!$this->_links[$name]['other_table_id']) {
-						$this->_links[$name]['other_table_id'] = singularize($name).'_id';
+						$this->_links[$name]['other_table_id'] = $this->_links[$name]['link_table_name'].'.'.	singularize($name).'_id';
 					}
 					
 					if ($args['where']) {

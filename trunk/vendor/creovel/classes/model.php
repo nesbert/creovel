@@ -600,7 +600,7 @@ class model implements Iterator
 				// if datetime save array
 				if ( $this->_fields->$name->type == 'datetime' ) {
 					$qry .= $name . " = " . "'".datetime($obj->value)."', ";
-				} else {				
+				} else {
 					$qry .= $name . " = " . "'" . addslashes(serialize($obj->value)) . "', ";
 				}
 				
@@ -620,8 +620,9 @@ class model implements Iterator
 		} else {
 			$qry .= " WHERE {$this->_primary_key} = '{$key}'";
 		}
-
 		
+		//print_obj($this);
+		//die($qry);
 		
 		$this->_action_query->query($qry);
 		

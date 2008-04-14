@@ -364,15 +364,20 @@ function link_to_google_maps($link_title = 'Google Maps&trade;', $address, $html
 		email - required
 		link_title - optional
 		html_options - optional
+		amphersand_encode - optional
 	
 	Returns:
 	
 		String.
 */
 
-function mail_to($email, $link_title = null, $html_options = null)
+function mail_to($email, $link_title = null, $html_options = null, $amphersand_encode = false)
 {
-	$html_options['href'] = 'mailto:' . $email;
+	if ($amphersand_encode) {
+		$html_options['href'] = amphersand_encode('mailto:' . $email);
+	} else {
+		$html_options['href'] = 'mailto:' . $email;
+	}
 	return link_to(($link_title ? $link_title : $email ), null, null, null, $html_options);
 }
 

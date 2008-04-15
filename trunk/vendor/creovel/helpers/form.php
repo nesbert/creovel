@@ -115,8 +115,11 @@ function form_errors_count()
 		String.
 */
 
-function error_messages_for($errors = null, $title = null, $description = 'There were problems with the following fields.')
+function error_messages_for($errors = null, $title = null, $description = null)
 {
+	if (!$description) {
+		$description = $_ENV['FORM_ERRORS_DESCRIPTION'] ? $_ENV['FORM_ERRORS_DESCRIPTION'] : 'There were problems with the following fields.';
+	}
 	// if no errors check global variable
 	if ( !$errors ) $errors = $_ENV['creovel']['form_errors'];
 	
@@ -134,8 +137,8 @@ function error_messages_for($errors = null, $title = null, $description = 'There
 	}	
 	
 	if ( $errors_count ) {
-	
-		$title = ( $title ? $title : "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".( $model ? humanize($model) : 'Form' )." from being saved." );
+		$default_title = $_ENV['FORM_ERRORS_TITLE'] ? $_ENV['FORM_ERRORS_TITLE'] : "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".( $model ? humanize($model) : 'Form' )." from being saved.";
+		$title = ( $title ? $title : $default_title);
 		$title = str_replace(array('@@errors_count@@','@@title@@'), array($errors_count, $title), $title);
 		
 	?>

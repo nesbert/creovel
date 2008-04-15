@@ -1093,4 +1093,70 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
 	return $return;
 }
 
+/*
+
+Function: checkbox_select
+	Creates a select tag (dropdown box). Can't beat this!!!
+
+Parameters:
+	name - required
+	selected - optional 
+	choices - optional
+	html_options - optional
+	none_title - optional default set to "None Available"
+
+Returns:
+	string
+
+*/ 
+
+function radio_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
+{
+	
+	if ( !is_array($selected) ) $selected = array($selected);
+	
+	if ( $html_options['label_options'] ) {
+		$label_options = $html_options['label_options'];
+		unset($html_options['label_options']);
+	}
+	
+	$box_html_options = array();
+
+	if ( is_array($html_options) && count($html_options) > 0 ) {
+	
+		foreach ( $html_options as $key=>$value ) {
+			if (strtolower(substr(trim($key), 0, 2)) == 'on') {
+				$box_html_options[$key] = $value;
+			}
+		}
+		
+		foreach ( $box_html_options as $key=>$value ) {
+			unset($html_options[$key]);
+		}
+		
+	}
+
+	$return = "<div ". html_options_str($html_options) .">\n";
+	
+	if ( count($choices) ) {
+	
+		$class_temp = $label_options['class'];
+	
+		foreach( $choices as $value => $desc ) {
+			$label_options['class'] = $class_temp . ( in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');
+			$label_options['for'] = name_to_id($name) . '_' . $value;
+			$return .= "<label ".html_options_str($label_options).">\n";
+			$return .= create_input_tag('radio', $name, in_array($value, $selected), $box_html_options, $value, $desc)."\n";
+			$return .= "<br /></label>\n";		
+		}
+		
+	} else {
+		$return .= '<span class="'.underscore($none_title).'">'.$none_title.'</span>';
+	}
+	
+	$return .= "</div>\n";
+	
+	return $return;
+}
+
 ?>

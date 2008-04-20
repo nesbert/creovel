@@ -340,7 +340,8 @@ class model implements Iterator
 		if ($set_updated_at && $this->field_exists('updated_at')) {
 			$fields['updated_at'] = $this->updated_at;
 		}		
-		
+		$fields[$this->_primary_key] =  $this->key();
+
 		$this->_execute_update($fields, $where);
 
 		return $this->_action_query->get_affected_rows();
@@ -621,6 +622,7 @@ class model implements Iterator
 			$qry .= " WHERE {$this->_primary_key} = '{$key}'";
 		}
 		
+
 		//print_obj($this);
 		//die($qry);
 		

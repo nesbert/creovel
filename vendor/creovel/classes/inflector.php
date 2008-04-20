@@ -84,7 +84,8 @@ class inflector
 			'man' => 'men',
 			'child' => 'children',
 			'sex' => 'sexes',
-			'move' => 'moves'
+			'move' => 'moves',
+			'survey' => 'surveys'
 		);
 
         $lowercased_word = strtolower($word);

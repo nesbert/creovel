@@ -125,10 +125,12 @@ function error_messages_for($errors = null, $title = null, $description = null)
 	
 	if ( is_object($errors) ) {
 		$model = get_class($errors);
-		$errors = $errors->errors;
+		$errors_count = $errors->errors->count();
+		$errors = $_ENV['creovel']['form_errors'];
+	} else {
+		$errors_count = count($errors);
 	}
 	
-	$errors_count =	count($errors);
 	$li_str = '';
 	
 	if ($errors_count) foreach ( $errors as $field => $message ) {
@@ -136,7 +138,7 @@ function error_messages_for($errors = null, $title = null, $description = null)
 		$li_str .= create_html_element('li', null, create_html_element('a', array('href' => "#error_{$field}"), $message)) . "\n";
 	}	
 	
-	if ( $errors_count ) {
+	if ($errors_count) {
 		$default_title = $_ENV['FORM_ERRORS_TITLE'] ? $_ENV['FORM_ERRORS_TITLE'] : "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".( $model ? humanize($model) : 'Form' )." from being saved.";
 		$title = ( $title ? $title : $default_title);
 		$title = str_replace(array('@@errors_count@@','@@title@@'), array($errors_count, $title), $title);

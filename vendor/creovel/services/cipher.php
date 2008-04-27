@@ -101,7 +101,7 @@ class cipher
 				$return = mcrypt_decrypt(MCRYPT_XTEA, $key, $str, MCRYPT_MODE_ECB, self::iv1());
 			break;
 		}
-		return $return;
+		return trim($return);
 	}
 	
 	// Section: Private

@@ -444,7 +444,7 @@ class mailer
 		$html = $this->_get_view();
 		
 		// insert html into layout (template) for html verison of the message
-		if ( $this->layout !== false ) {
+		if ($this->layout) {
 			$template_path = VIEWS_PATH.'layouts'.DS.$this->layout.'.php';
 			$html = str_replace('@@page_contents@@', $html, $this->_get_include_contents($template_path));
 		}

@@ -550,7 +550,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 				}
 				$return .= '<option value="'.$value.'"'.$select_str.'>'.($description?$description:$value)."</option>\n\r";
 			} else {
-				$value = ( is_assoc_array($choices) ? $value : $description['name'] );
+				//$value = ( is_assoc_array($choices) ? $value : $description['name'] );
 				if (is_array($selected)) {
 					$select_str = ( in_array($value, $selected) ? ' selected="selected"' : '' );
 				} else {

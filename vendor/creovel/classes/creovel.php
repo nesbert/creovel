@@ -49,7 +49,7 @@ class creovel
 		
 		// execute action
 		$controller->_execute_action();
-		
+
 		// output to user
 		return $controller->_output($return_as_str);
 	}

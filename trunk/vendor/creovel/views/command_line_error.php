@@ -6,11 +6,14 @@ $column_length = 80;
 echo str_repeat("-", $column_length * 1.5)."\n";
 echo "Application Error\n";
 echo str_repeat("-", $column_length * 1.5)."\n\n";
-echo wordwrap_line($this->error->message, $column_length)."\n\n";
+
+echo 'Message: ',wordwrap_line($error->getMessage(), $column_length)."\n\n";
+echo 'File: ',wordwrap_line($error->getFile(), $column_length)."\n\n";
+echo 'Line: ',wordwrap_line($error->getLine(), $column_length)."\n\n";
 
 echo "You received this error message from the following web address:\n\n".BASE_URL.$_SERVER['REQUEST_URI']."\n\n";
 
-if ($error_count = count($this->error->traces))
+if ($error_count = count($error->getTrace()))
 {
 	echo str_repeat("-", $column_length)."\n";
 	echo "Debug Trace\n";
@@ -18,7 +21,7 @@ if ($error_count = count($this->error->traces))
 
 	$trace_count = 0;
 	$offset = 0;
-	foreach ($this->error->traces as $trace)
+	foreach ($error->getTrace() as $trace)
 	{
 		// skip traces with no file or line number or magic fucntion calls
 		if (!$trace['file'] || !$trace['file'] || in_string('__call', $trace['function']))
@@ -43,7 +46,10 @@ echo str_repeat("-", $column_length * 1.5)."\n\n";
 echo "HTTP_USER_AGENT: {$_SERVER[HTTP_USER_AGENT]}\n";
 echo "HTTP_REFERER: {$_SERVER[HTTP_REFERER]}\n";
 echo "HTTP_COOKIE: {$_SERVER[HTTP_COOKIE]}\n";
-echo "REMOTE_ADDR: {$_SERVER[REMOTE_ADDR]}\n\n";
+echo "REMOTE_ADDR: {$_SERVER[REMOTE_ADDR]}\n";
+echo "SESSION_DUMP: \n";
+print_obj($_SESSION);
+echo "\n\n";
 
 echo str_repeat("-", $column_length * 1.5)."\n";
 echo wordwrap_line("This an automated message brought to by Creovel ".get_version()." (http://creovel.org)", $column_length).".\n";

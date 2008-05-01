@@ -49,7 +49,7 @@ class error
 		if (!isset($_ENV['creovel']['form_errors'][$this->_type . '_' . $args[0]])) {
 			$this->_error_count++;
 		}
-		
+
 		switch ( $this->_type ) {
 		
 			case '_application':
@@ -107,7 +107,7 @@ class error
 			emails - Array of email addresses.
 	*/
 
-	public function email_errors($emails = null)
+	public function email_errors($error = null)
 	{
 		if (!$emails && in_string(',', $_ENV['email_errors'])) {
 			$emails = explode(',', $_ENV['email_errors']);
@@ -119,7 +119,7 @@ class error
 		$email = new mailer;
 		$email->recipients = $emails;
 		$email->subject = 'Application Error: '.BASE_URL.$_SERVER['REQUEST_URI'];
-		$email->text = view::_get_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php');
+		$email->text = view::_get_view(CREOVEL_PATH.'views'.DS.'command_line_error.php', CREOVEL_PATH.'views'.DS.'layouts'.DS.'command_line.php', array('error' => $error));
 		$email->send();
 	}
 	
@@ -177,7 +177,7 @@ class error
 		} else {
 			header('Status: 500 Internal Server Error', true, 500);
 		}
-		
+
 		// set error object for views
 		(object) $this->error;
 		$this->error->message = $message;
@@ -187,7 +187,7 @@ class error
 		//print_obj($this,1);
 		
 		// email errors
-		if ( $_ENV['mode'] != 'development' && isset($_ENV['email_errors']) ) $this->email_errors();
+		if ( $_ENV['mode'] != 'development' && isset($_ENV['email_errors']) ) $this->email_errors($exception);
 		
 		// custom error
 		if ( $_ENV['mode'] != 'development' ) {

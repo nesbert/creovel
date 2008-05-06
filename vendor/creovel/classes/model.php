@@ -1184,10 +1184,10 @@ class model implements Iterator
 			switch ( true ) {
 	
 				case preg_match('/^get_(.+)$/', $method, $regs):
-					
+
 					if ( isset($this->_fields->$regs[1]) ) {
 						
-						if ( is_string($this->_fields->$regs[1]->value) ) {
+						if ( is_string($this->_fields->$regs[1]->value) && $arguments[0] != true) {
 	
 							$data = unserialize($this->_fields->$regs[1]->value);
 							if ($data !== false) {

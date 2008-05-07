@@ -216,15 +216,7 @@ class pager
 		$data = is_array($data) ? array_merge($_GET, $data) : $_GET;
 		unset($data['page']);
 		unset($data['limit']);
-		
-		return '&'.http_build_query($data);
-		/*$str = '';
-		foreach ( $data as $key => $val ) {
-			if ( $key == 'page' || $key == 'limit') continue;
-			$str .="&".$key."=".urlencode($val);
-		}
-		return $str;
-		*/
+		return $data ? '&'.http_build_query($data) : '';
 	}
 	
 	/*

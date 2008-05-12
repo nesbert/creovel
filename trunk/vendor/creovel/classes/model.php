@@ -1906,16 +1906,10 @@ class model implements Iterator
 
 	*/
 	
-	private function load_values_into_fields($data, $type = self::ROW_ASSOC)
+	private function load_values_into_fields($data)
 	{
 	
-		switch ( $type ) {
-		
-			default:
-				foreach ( $data as $field => $value ) $this->_fields->$field->value = $value;
-			break;
-			
-		}
+		foreach ( $data as $field => $value ) $this->_fields->$field->value = $value;
 		
 	}
 

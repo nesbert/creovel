@@ -293,6 +293,14 @@ if ( GBrowserIsCompatible() ) {
 			if ( ( $this->auto_zoom || $this->open_at ) && count($this->markers) ) echo "\n\t\t// extra work\n";
 			if ( $this->auto_zoom && count($this->markers) ) echo "\t\tthis.GMap.autoZoom(this.Bounds);\n";
 			if ( $this->open_at && count($this->markers) ) echo "\t\tthis.GMap.openWindow(this.Markers.{$this->open_at});\n";
+		?>
+		
+		<?php
+			if ( count($this->listeners) ) {
+				echo "// listeners\n";
+				//echo "\t\tthis.Icons = new Object;\n";
+				foreach ( $this->listeners as $listener => $vals ) echo $this->create_listener($vals['source'], $vals['event'], $vals['handler']);
+			}
 		?>		
 	}
 	
@@ -488,11 +496,16 @@ if ( GBrowserIsCompatible() ) {
 	
 	public function create_marker($name, $latitude, $longitude = null, $icon = '', $html_or_tabs = '', $onclick = false)
 	{
+		echo "\n /*";
+		print_r($latitude);
+		echo "*/ \n";
+	
 		// if $latitude is an array use its values instead.
 		if ( is_array($latitude) ) {
 			$icon = $latitude['icon'];
 			$html_or_tabs = ( $latitude['tabs'] ? $latitude['tabs'] : $latitude['html'] );
 			$onclick = $latitude['onclick'];
+			$draggable = $latitude['draggable'];			
 			$longitude = $latitude['longitude'];
 			$latitude = $latitude['latitude'];
 		}
@@ -504,7 +517,7 @@ if ( GBrowserIsCompatible() ) {
 		if ( $this->auto_zoom ) $return .= "\t\tthis.Bounds.extend(this.LatLng);\n";
 		
 		// create marker object
-		$return .= "\t\tthis.Markers.{$name} = this.GMap.createMarker(this.LatLng" . ( $icon ? ', this.Icons.' . $icon : '' ). ");\n";
+		$return .= "\t\tthis.Markers.{$name} = this.GMap.createMarker(this.LatLng" . ( $icon ? ', this.Icons.' . $icon : '' ). ( $draggable && $icon ? ', true' : ( $draggable ? ', null, true ' : '' ) ).");\n";
 		
 		switch ( true )
 		{
@@ -1126,8 +1139,12 @@ if ( GBrowserIsCompatible() ) {
 	<?
 			case ( !$count ):
 			?>// create markers
-	GMap2.prototype.createMarker = function(latlng, icon) {
-		var marker = new GMarker(latlng, icon);
+	GMap2.prototype.createMarker = function(latlng, icon, draggable) {
+		if ( draggable ) {
+			var marker = new GMarker(latlng, {  icon:icon, draggable:true });
+		} else {
+			var marker = new GMarker(latlng, icon);
+		}
 		return marker;
 	}
 	// create onclick information window

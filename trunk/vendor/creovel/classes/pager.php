@@ -354,7 +354,7 @@ class pager
 	
 	*/
 
-	public function paging_links($extra_params = null, $show_label = false)
+	public function paging_links($extra_params = null, $show_label = false, $hide_page_param = false)
 	{
 	
 		$extra_params = ( isset($_GET['limit']) ? "&limit={$this->limit}" : '' ).$this->params_to_str($extra_params);
@@ -367,11 +367,20 @@ class pager
 			if ( $show_label ) $str .= $this->paging_label();
 		
 			if ( $this->current > 1 ) {
-				$str .= '<a class="prev" href="'.$this->url.'?page='.$this->prev.$extra_params.'">&laquo; Prev</a>';
+				if ($hide_page_param) {
+					$str .= '<a class="prev" href="'.$this->url.'/page'.$this->prev.'/'.($extra_params ? '?'.$extra_params : '').'">&laquo; Prev</a>';			
+				} else {
+					$str .= '<a class="prev" href="'.$this->url.'?page='.$this->prev.$extra_params.'">&laquo; Prev</a>';
+				}
+				
 			}
 	
 			if ( ($this->current - 3) >= 1 ) {
-				$str .= '<a class="page-1" href="'.$this->url.'?page=1'.$extra_params.'">1</a>';
+				if ($hide_page_param) {
+					$str .= '<a class="page-1" href="'.$this->url.'/page1/'.($extra_params ? '?'.$extra_params : '').'">1</a>';
+				} else {
+					$str .= '<a class="page-1" href="'.$this->url.'?page=1'.$extra_params.'">1</a>';
+				}
 				if ( ($this->current - 3) > 1 ) $str .= '<span class="dots">...</span>';
 			}
 		
@@ -380,7 +389,11 @@ class pager
 				if ( $i > $this->total_pages ) break;
 			
 				if ( $this->current <> $i ) {
-					$str .= '<a class="page-'.$i.'" href="'.$this->url.'?page='.$i.$extra_params.'">'.$i.'</a>';
+					if ($hide_page_param) {					
+						$str .= '<a class="page-'.$i.'" href="'.$this->url.'/page'.$i.'/'.($extra_params ? '?'.$extra_params : '').'">'.$i.'</a>';
+					} else {
+						$str .= '<a class="page-'.$i.'" href="'.$this->url.'?page='.$i.$extra_params.'">'.$i.'</a>';
+					}
 				} else {
 					$str .= '<a class="page-'.$i.' current">'.$i.'</a>';
 				}
@@ -389,11 +402,19 @@ class pager
 			
 			if ( ($this->current + 3) <= $this->total_pages ) {			
 				if ( ($this->current + 3) < $this->total_pages ) $str .= '<span class="dots">...</span>';
-				$str .= '<a class="page-'.$this->total_pages.'" href="'.$this->url.'?page='.$this->total_pages.$extra_params.'">'.$this->total_pages.'</a>';
+					if ($hide_page_param) {					
+						$str .= '<a class="page-'.$this->total_pages.'" href="'.$this->url.'/page'.$this->total_pages.'/'.($extra_params ? '?'.$extra_params : '').'">'.$this->total_pages.'</a>';
+					} else {
+						$str .= '<a class="page-'.$this->total_pages.'" href="'.$this->url.'?page='.$this->total_pages.$extra_params.'">'.$this->total_pages.'</a>';					
+					}
 			}
 			
 			if ( $this->current < $this->total_pages ) {
-				$str .= '<a class="next" href="'.$this->url.'?page='.$this->next.$extra_params.'">Next &raquo;</a>';
+				if ($hide_page_param) {					
+					$str .= '<a class="next" href="'.$this->url.'?page'.$this->next.'/'.($extra_params ? '?'.$extra_params : '').'">Next &raquo;</a>';
+				} else {
+					$str .= '<a class="next" href="'.$this->url.'?page='.$this->next.$extra_params.'">Next &raquo;</a>';
+				}
 			}
 			
 			$str .= '</div>';

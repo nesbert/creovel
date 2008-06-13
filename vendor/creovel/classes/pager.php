@@ -411,7 +411,7 @@ class pager
 			
 			if ( $this->current < $this->total_pages ) {
 				if ($hide_page_param) {					
-					$str .= '<a class="next" href="'.$this->url.'?page'.$this->next.'/'.($extra_params ? '?'.$extra_params : '').'">Next &raquo;</a>';
+					$str .= '<a class="next" href="'.$this->url.'/page'.$this->next.'/'.($extra_params ? '?'.$extra_params : '').'">Next &raquo;</a>';
 				} else {
 					$str .= '<a class="next" href="'.$this->url.'?page='.$this->next.$extra_params.'">Next &raquo;</a>';
 				}

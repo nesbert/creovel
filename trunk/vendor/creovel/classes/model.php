@@ -1550,6 +1550,7 @@ class model implements Iterator
 		// create temp args
 		$temp = $args;
 		unset($temp['offset']);
+		unset($temp['order']);
 		$temp['total_records'] = $this->find_total($temp);
 		$temp = (object) $temp;
 		

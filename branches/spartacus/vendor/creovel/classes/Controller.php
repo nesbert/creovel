@@ -81,7 +81,7 @@ class Controller
 	}
 	
 	/**
-	 * Executes the controller's action.
+	 * Execute controller's action and calls back.
 	 *
 	 * @return void
 	 **/
@@ -93,44 +93,28 @@ class Controller
 		// initialize scope fix
 		$this->__intializeParentControllers();
 		
-		try {
+		if (method_exists($this, $this->_action)) {
 			
-			if (method_exists($this, $this->_action)) {
-				
-				// call before filter
-				$this->beforeFilter();
-				
-				// controller execute action
-				$action = $this->_action;
-				$this->$action();
-				
-				// call before filter
-				$this->afterFilter();
-				
-			} else {
-				throw new Exception("404: Call to undefined action <em>{$this->_action}</em> not found in <strong>".get_class($this)."</strong>.");
-			}
+			// call before filter
+			$this->beforeFilter();
 			
-		} catch (Exception $e) {
-			$this->__exception($e);
+			// controller execute action
+			$this->{$this->_action}();
+			
+			// call before filter
+			$this->afterFilter();
+			
+		} else {
+			$this->throwError("Call to undefined action <em>{$this->_action}</em> not found in <strong>".get_class($this)."</strong>.");
 		}
 	}
 	
-	/*
-		Function: _output
-		
-		Output contents to user. Might not need this function anymore since render() does all the
-		Leaving in for now [Nes].
-		
-		Parameters:	
-		
-			return_as_str - Return as string.
-		
-		Returns:
-		
-			Mixed.
-	*/
-	
+	/**
+	 * Output contents to user.
+	 *
+	 * @param boolean $return_as_str
+	 * @return string
+	 **/
 	public function __output($return_as_str)
 	{
 		// set options for view
@@ -143,20 +127,12 @@ class Controller
 		return $this->render($options);
 	}
 	
-	/*
-		Function: render
-		
-		Render view from options array.
-		
-		Parameters:	
-		
-			options - Array of options.
-		
-		Returns:
-		
-			Output to screen or a string.
-	*/
-
+	/**
+	 * Render view from options array.
+	 *
+	 * @param array Options array.
+	 * @return string Output to screen or a string.
+	 **/
 	public function render($options)
 	{
 		// check options
@@ -192,25 +168,25 @@ class Controller
 			$return_as_str = true;
 			unset($options['to_str']);
 		}
-
+		
 		// set view path
 		$view_path = $this->__viewPath($view, $controller);
 		
-		switch ( true ) {
+		switch (true) {
 		
 			// if view equaqls false render nothing
-			case ( $view === false ):
+			case ($view === false):
 				return;
-			break;
-
+				break;
+			
 			// if layout get page content with layout
-			case ( $layout ):
+			case ($layout):
 				if (isset($return_as_str)) {
 					return View::create($view_path, $this->__layoutPath($layout), $options);
 				} else {
 					return View::show($view_path, $this->__layoutPath($layout), $options);
 				}
-			break;
+				break;
 			
 			// if same layout include files and set variables
 			case ( file_exists($view_path) ):
@@ -225,54 +201,46 @@ class Controller
 					include $view_path;
 					return;
 				}
-			break;
+				break;
 			
 			default:
 				if (!$options['no_error']) {
-					$_ENV['error']->add("404: Unable to render <em>".( $view{0} == '_' ? 'partial' : 'view' )."</em> not found in <strong>{$view_path}</strong>.");
+					CREO('error_code', 404);
+					CREO('application_error', "Unable to render <em>" . ($view{0} == '_' ? 'partial' : 'view') . "</em> not found in <strong>{$view_path}</strong>.");
 				}
-			break;
+				break;
 			
 		}
 	
 	}
 	
-	/*
-		Function: render_to_str
-		
-		Renders view with options to a string.
-		
-		Paramaters:
-		
-			options - Array of options.
-	
-	*/
-
+	/**
+	 * Renders view with options to a string.
+	 *
+	 * @param array Options array.
+	 * @return string Output to screen or a string.
+	 **/
 	public function renderToStr($options)
 	{
 		$options['to_str'] = true;
 		return $this->render($options);
 	}
-
-	/*
-		Function: build_partial
-		
-		Include a view into the current page.
-		
-		Parameters:
-		
-			options - Action to render or an array of render $options.
-			locals - *Optional* array of variables to pass to the view.
-			controller - *Optional* controller name. Use if vew is not in the current controller.
-			no_error - *Optional* no application error if partial not found.
-	*/
 	
-	public function buildPartial($partial, $locals = null, $controller = null, $no_error = false)
+	/**
+	 * Include a view into the current page.
+	 *
+	 * @param string $view View to render or an array of render $options.
+	 * @param array $locals *Optional* array of variables to pass to the view.
+	 * @param string $controller *Optional* controller name. Use if view is not in the current controller.
+	 * @param boolean $no_error *Optional* no application error if partial not found.
+	 * @return string Output to screen or a string.
+	 **/
+	public function buildPartial($view, $locals = null, $controller = null, $no_error = false)
 	{
-		if ( is_array($partial) ) {
-			$options = $partial;
+		if ( is_array($view) ) {
+			$options = $view;
 		} else {
-			$options['render'] = $partial;
+			$options['render'] = $view;
 		}
 		if ( $locals ) $options['locals'] = $locals;
 		if ( $controller ) $options['controller'] = $controller;
@@ -280,22 +248,19 @@ class Controller
 		$this->render($options);
 	}
 	
-	/*
-		Function: render_partial
-		
-		Alias to build_partial and adds an underscore to the view name to signify partials.
-		
-		Paramaters:
-		
-			options - Action to render or an array of render $options.
-			locals - *Optional* array of variables to pass to the view.
-			controller - *Optional* controller name. Use if vew is not in the current controller.
-			no_error - *Optional* no application error if partial not found.
-	*/
-	
+	/**
+	 * Alias to build_partial and adds an underscore to the view name to
+	 * signify partials.
+	 *
+	 * @param string $partial View to render or an array of render $options.
+	 * @param array $locals *Optional* array of variables to pass to the view.
+	 * @param string $controller *Optional* controller name. Use if view is not in the current controller.
+	 * @param boolean $no_error *Optional* no application error if partial not found.
+	 * @return string Output to screen or a string.
+	 **/
 	public function renderPartial($partial, $locals = null, $controller = null, $no_error = false)
 	{
-		if ( is_array($partial) ) {
+		if (is_array($partial)) {
 			$options = $partial;
 		} else {
 			$options['partial'] = $partial;
@@ -303,22 +268,15 @@ class Controller
 		$this->buildPartial($options, $locals, $controller, $no_error);
 	}
 	
-	/*
-		Function: render_partial_to_str
-		
-		Alias to build_partial and adds an underscore to the view name to signify partials.
-		
-		Paramaters:
-		
-			options - Action to render or an array of render $options.
-			locals - *Optional* array of variables to pass to the view.
-			controller - *Optional* controller name. Use if vew is not in the current controller.
-		
-		Returns:
-			string
-	
-	*/
-
+	/**
+	 * Alias to build_partial and adds an underscore to the view name to
+	 * signify partials.
+	 *
+	 * @param string $partial View to render or an array of render $options.
+	 * @param array $locals *Optional* array of variables to pass to the view.
+	 * @param string $controller *Optional* controller name. Use if view is not in the current controller.
+	 * @return string Output string.
+	 **/
 	public function renderPartialToStr($partial, $locals = null, $controller = null)
 	{
 		if ( is_array($partial) ) {
@@ -332,25 +290,16 @@ class Controller
 		return $this->render($options);
 	}
 	
-	/*
-		Function: build_controller
-		
-		Allows the ability build a controller within a controller.
-		
-		
-		Parameters:
-		
-			controller - Controller to build.
-			action - Action to view.
-			id - *Optional*
-			extras - *Optional*
-			to_str - *Optional* bool to return controller as a string.
-		
-		Returns:
-		
-			Controller object.
-	*/
-
+	/**
+	 * Allows the ability build a controller within a controller.
+	 *
+	 * @param string $controller Controller name to build.
+	 * @param string $action Action to execute and view.
+	 * @param mixed $id
+	 * @param array $extras
+	 * @param boolean $to_str - Boolean to return controller as a string.
+	 * @return string Print output or return string.
+	 **/
 	public function buildController($controller, $action = '', $id = '', $extras = array(), $to_str = false)
 	{
 		$route_name = 'build_controller_'.uniqid();
@@ -363,40 +312,27 @@ class Controller
 		return creovel::run($events, array_merge($params, $extras), $to_str);
 	}
 	
-	/*
-		Function: build_controller_to_str
-		
-		Alias to build_controller return controller as a string.
-
-		Parameters:	
-		
-			controller - Controller to build.
-			action - Action to view.
-			id - *Optional*
-			extras - *Optional*
-			to_str - *Optional* Return controller as a string.
-		
-		Returns:
-		
-			Controller view as a string.
-	*/
-
+	/**
+	 * Alias to build_controller return controller as a string.
+	 *
+	 * @param string $controller Controller name to build.
+	 * @param string $action Action to execute and view.
+	 * @param mixed $id
+	 * @param array $extras
+	 * @return string Output string.
+	 **/
 	public function buildControllerToStr($controller, $action = '', $id = '', $extras = array())
 	{
 		return $this->build($controller, $action, $id, $extras, true);
 	}
-
-	/*
-		Function: run
-		
-		Excute and render a certain action.
-		
-		Parameters:
-		
-			action - *String* Action to run.
-			kill_after - *Boolean* script stops after action is executed.
-	*/
-
+	
+	/**
+	 * Execute and render a certain action.
+	 *
+	 * @param string $action Action to run/view.
+	 * @param boolean $kill_after Script stops after action is executed.
+	 * @return void
+	 **/
 	public function run($action, $kill_after = false)
 	{
 		$this->render = $action;
@@ -428,68 +364,40 @@ class Controller
 		return $_SERVER['REQUEST_METHOD'] == 'POST';
 	}
 	
-	/*
-		Function: application_error
-		
-		Stop the application at the controller level during an error.
-	*/
-
-	public function application_error($msg = null)
+	/**
+	 * Stop the application at the controller level during an error.
+	 *
+	 * @return void
+	 **/
+	public function throwError($msg = null)
 	{
-		try {
-			
-			$msg = $msg ? $msg : "An error occurred while executing the action <em>".$this->_action."</em> in the <strong>".get_class($this)."</strong>.";
-			throw new Exception($msg);
-		
-		} catch ( Exception $e ) {
-		
-			$this->__exception($e);
-		
+		if (!$msg) {
+			$msg = "An error occurred while executing the action <em>".$this->_action."</em> in the <strong>".get_class($this)."</strong>.";
 		}
+		CREO('error_code', 404);
+		CREO('application_error', $msg);
 	}
 	
-	/*
-		Function: __call
-		
-		Magic function call being used to catch controller errors.
-		
-		Parameters:
-		
-			method - Name of method.
-			arguments - Arguments passed.
-	*/
-
+	/**
+	 * Magic function call being used to catch controller errors.
+	 *
+	 * @param string $method Name of method being called.
+	 * @param array $arguments Arguments passed to the method being called.
+	 * @return void
+	 * @throws Exception Application error.
+	 **/
 	public function __call($method, $arguments)
 	{
-		try {
-			
-			throw new Exception("404: Call to undefined action <em>{$method}</em> not found in <strong>".get_class($this)."</strong>.");
-		
-		} catch ( Exception $e ) {
-		
-			$this->__exception($e);
-		
-		}
+		$this->throwError("Call to undefined action <em>{$method}</em> not found in <strong>".get_class($this)."</strong>.");
 	}
 	
-	// Section: Private
-	
-	/*
-		Function: _get_view_path
-		
-		Gets the path of the view file.
-		
-		
-		Parameters:	
-		
-			view - String of the view name.
-			controller - String of the controller name.
-			
-		Returns:
-		
-			String.
-	*/
-	
+	/**
+	 * Gets the path of the view file.
+	 *
+	 * @param string $view String of the view name.
+	 * @param string $controller String of the controller name.
+	 * @return string Server path of view.
+	 **/
 	private function __viewPath($view = null, $controller = null)
 	{
 		// nested controllers check [NH] might need to find a better way to do this
@@ -505,30 +413,21 @@ class Controller
 		}
 	}
 	
-	/*
-		Function: _get_layout_path
-		
-		Gets the path of the layout file.
-		
-		Parameters:
-		
-			layout - String of the layout name.
-			
-		Returns:
-		
-			String.
-	*/
-	
+	/**
+	 * Gets the path of the layout file.
+	 *
+	 * @param string $layout String of the layout name.
+	 * @return string Server path of layout.
+	 **/
 	private function __layoutPath($layout = null)
 	{
 		return VIEWS_PATH.'layouts'.DS.( $layout ? $layout : $this->layout ).'.php';
 	}
 	
 	/**
-	 * undocumented function
+	 * Waterfall initialize function routine.
 	 *
 	 * @return void
-	 * @author Nesbert Hidalgo
 	 **/
 	private function __intializeParentControllers()
 	{
@@ -542,66 +441,26 @@ class Controller
 	}
 	
 	/**
-	 * Handle error depending on $GLOBALS['CREOVEL']['MODE'].
+	 * First thing called during action execution.
 	 *
-	 * @param object $e Object of error exception.
 	 * @return void
 	 **/
-	private function __exception($e)
-	{
-		if (CREO('mode') != 'development') {
-			$this->__customError($e);
-		} else {
-			// add to errors
-			CREO('application_error', $e);
-		}
-	}
+	public function initialize()
+	{}
 	
-	/*
-		Function: _custom_error
-		
-		Show custom error page.
-		
-		Parameters:
-		
-			$e - Exception object.
-	*/
-	
-	private function __customError($e = null)
-	{
-		error::email_errors($e);
-		$this->params['error'] = $e;
-		creovel::run($_ENV['routing']->error_events(), $this->params);
-		die;
-	}
-	
-	// Section: Callbacks
-	
-	/*
-		Function: initialize
-		
-		Called when controller is intialized. *Note:* need to the scoping of this function child overrides all [Nes].
-	*/
-	
-	public function initialize() {}
-	
-	/*
-		Function: before_filter
-		
-		Called right before the action is executed.
-	*/
-	
+	/**
+	 * Called right before the action is executed.
+	 *
+	 * @return void
+	 **/
 	public function beforeFilter()
 	{}
 	
-	/*
-		Function: after_filter
-		
-		Called right after the action is executed.
-	*/
-	
+	/**
+	 * Called right after the action is executed.
+	 *
+	 * @return void
+	 **/
 	public function afterFilter()
 	{}
-	
-	
 } // END class Controller

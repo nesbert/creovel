@@ -24,7 +24,11 @@ require_once CONFIG_PATH.'databases.php';
 
 // Set default routes
 Mapper::connect();
-Mapper::connect('errors/', array('name' => 'default_error', 'controller' => 'errors', 'action' => 'general'));
+Mapper::connect('default_error', array(
+	'name' => 'default_error',
+	'controller' => 'errors',
+	'action' => 'general'
+	));
 
 // Include custom routes
 require_once CONFIG_PATH.'routes.php';

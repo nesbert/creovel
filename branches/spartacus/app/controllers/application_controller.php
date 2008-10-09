@@ -15,6 +15,6 @@ class ApplicationController extends Controller
 	 **/
 	public function initializeApplicationController()
 	{
-		echo '<h5>ApplicationController::initializeApplicationController</h5>';
+		//echo '<h5>ApplicationController::initializeApplicationController</h5>';
 	}
 } // END class ApplicationController

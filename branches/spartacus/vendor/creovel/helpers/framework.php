@@ -26,32 +26,32 @@ function __autoload($class)
 		switch (true) {
 		
 			case (in_string('Controller', $class)):
-				#$type = 'Controller';
+				$type = 'Controller';
 				$path = CONTROLLERS_PATH . underscore($class) . '.php';
 				break;
 			
 			case (true):
-				#$type = 'Core Class';
+				$type = 'Core Class';
 				$path = CREOVEL_PATH . 'Classes' . DS . $class.'.php';
 				if (file_exists($path)) break;
 			
 			case (true):
-				#$type = 'Adapter';
+				$type = 'Adapter';
 				$path = CREOVEL_PATH . 'Adapters' . DS . $class . '.php';
 				if (file_exists($path)) break;
 			
 			case (true):
-				#$type = 'Service';
+				$type = 'Service';
 				$path = CREOVEL_PATH . 'Services' . DS . $class . '.php';
 				if (file_exists($path)) break;
 			
 			case (true):
-				#$type = 'Vendor';
+				$type = 'Vendor';
 				$path = VENDOR_PATH . $class . DS . $class . '.php';
 				if (file_exists($path)) break;
 			
 			case (true):
-				#$type = in_string('Mailer', $class) ? 'Mailer' : 'Model';
+				$type = in_string('Mailer', $class) ? 'Mailer' : 'Model';
 				$path = MODELS_PATH . $class . '.php';
 				// if model found locally
 				if (file_exists($path)) {
@@ -69,6 +69,7 @@ function __autoload($class)
 		if (file_exists($path)) {
 			require_once $path;
 		} else {
+			if ($type == 'Controller') CREO('error_code', 404);
 			throw new Exception("{$class} not found in <strong>" . str_replace($class.'.php', '', $path ) . "</strong>");
 		}
 	

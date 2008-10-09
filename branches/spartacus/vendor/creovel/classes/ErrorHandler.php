@@ -35,8 +35,15 @@ class ErrorHandler
 		
 		$email = new Mailer;
 		$email->recipients = $emails;
-		$email->subject = 'Application Error: '.BASE_URL.$_SERVER['REQUEST_URI'];
-		$email->text = $error_message ? error_message : View::toString(CREOVEL_PATH.'views'.DS.'debugger'.DS.'error_text.php');
+		$email->subject = 'Application Error: ' . BASE_URL .
+							$_SERVER['REQUEST_URI'];
+		if ($error_message) {
+			$email->text = $error_message;
+		} else {
+			$email->text = View::toString(CREOVEL_PATH . 'views' . DS .
+					'debugger'.DS.'error.php', CREOVEL_PATH . 'views' .
+					DS . 'layouts' . DS . 'debugger.php');
+		} 
 		$email->send();
 	}
 	
@@ -57,19 +64,26 @@ class ErrorHandler
 		}
 		
 		// set header for error pages
-		if (preg_match('/^404:/', $this->message)) {
-			$this->message = trim(str_replace('404:', '', $this->message));
-			header('Status: 404 Not Found', true, 404);
-		} else {
-			header('Status: 500 Internal Server Error', true, 500);
+		$code = isset($GLOBALS['CREOVEL']['ERROR_CODE']) ? $GLOBALS['CREOVEL']['ERROR_CODE'] : '';
+		switch ($code) {
+			case '404':
+				header('Status: 404 Not Found', true, 404);
+				$action = 'not_found';
+				break;
+			
+			default:
+				header('Status: 500 Internal Server Error', true, 500);
+				break;
 		}
 		
 		// grace fully handle errors in none devlopment mode
 		if (CREO('mode') != 'development') {
 			// email errors
 			if (CREO('email_on_error')) $this->email(&$var);
-			die('#155 error');
-			Creovel::Run($_ENV['routing']->error_events(), array('error' => $this->error ));
+			// get default error events
+			$events = Routing::error();
+			if (isset($action)) $events['action'] = $action;
+			Creovel::run($events, array('error' => $this->message));
 			die;
 		}
 		
@@ -100,4 +114,4 @@ class ErrorHandler
 		}
 		die;
 	}
-} // END class CreovelError
+} // END class ErrorHandler

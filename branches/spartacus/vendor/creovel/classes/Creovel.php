@@ -40,7 +40,6 @@ class Creovel
 			
 			// output to user
 			return $controller->__output($return_as_str);
-			
 		} catch (Exception $e) {
 			CREO('application_error', $e);
 		}
@@ -53,7 +52,7 @@ class Creovel
 	 * @param string $uri
 	 * @return mixed 
 	 **/
-    public function events($event_to_return = null, $uri = null)
+	public function events($event_to_return = null, $uri = null)
 	{
 		$events = Routing::which($uri ? $uri : $_SERVER['REQUEST_URI']);
 		return $event_to_return ? $events[$event_to_return] : $events;
@@ -72,7 +71,6 @@ class Creovel
 		return $param_to_return ? $params[$param_to_return] : $params;
 	}
 	
-	
 	/**
 	 * Includes the required files for a controller and the controller helpers.
 	 *
@@ -87,34 +85,28 @@ class Creovel
 		$path = '';
 		
 		foreach ($controllers as $controller) {
-		
 			$class = $controller . '_controller';
 			$controller_path = CONTROLLERS_PATH . $path . $class . '.php';
 			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
 			
-			try {
-				
-				if ($class == '_controller') {
-					CREO('application_error', "Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
-				}
-				
-				if ( file_exists($controller_path) ) {
-					require_once $controller_path;
-				} else {
-					$controller_path = str_replace($class . '.php', '', $controller_path);
-					throw new Exception("404: Controller '{$class}' not found in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
-				}
+			if ($class == '_controller') {
+				CREO('error_code', 404);
+				CREO('application_error', "Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
+			}
 			
-			} catch ( Exception $e ) {
-				CREO('application_error', $e);
+			if ( file_exists($controller_path) ) {
+				require_once $controller_path;
+			} else {
+				$controller_path = str_replace($class . '.php', '', $controller_path);
+				CREO('error_code', 404);
+				CREO('application_error', "{$class} not found in <strong>" . str_replace('_controller' . '.php', '', $controller_path) . "</strong>");
 			}
 			
 			// include helper
-			if ( file_exists($helper_path) ) require_once $helper_path;
+			if (file_exists($helper_path)) require_once $helper_path;
 			
 			// append to path if a nested controller
 			$path .= str_replace('application' . DS, '', $controller . DS);
 		}
-	
 	}
-}
+} // END class Creovel

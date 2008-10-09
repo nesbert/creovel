@@ -1,0 +1,1 @@
+General: <?=$this->params['error']?>

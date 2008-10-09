@@ -15,7 +15,7 @@ class IndexController extends ApplicationController
 	 **/
 	public function initializeIndexController()
 	{
-		echo '<h5>IndexController::initializeIndexController</h5>';
+		//echo '<h5>IndexController::initializeIndexController</h5>';
 	}
 	
 	/**
@@ -26,5 +26,6 @@ class IndexController extends ApplicationController
 	public function index()
 	{
 		print_obj($this);
+		print_obj(CREO());
 	}
 } // END class IndexController

@@ -57,7 +57,7 @@ class View
 			return $page;
 			
 		} catch ( Exception $e ) {
-			// add to errors
+			CREO('error_code', 404);
 			CREO('application_error', $e);
 		}
 	}

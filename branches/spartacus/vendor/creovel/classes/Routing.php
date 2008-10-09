@@ -1,52 +1,51 @@
 <?php
-
-/*
-	Class: routing
-	
-	Routing class to allow for customer URLs.
-*/
-
+/**
+ * Routing class to allow for custom pretty URLs.
+ *
+ * @package Creovel
+ * @subpackage Creovel.Classes
+ * @copyright  2008 Creovel, creovel.org
+ * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
+ * @version    $Id:$
+ * @since      Class available since Release 0.4.0
+ */
 class Routing
 {
-	
-	// Section: Public
-
-	/*
-		Property: uri
-		
-		Uniform Resource Identifier.
-	*/
-	
+	/**
+	 * Uniform Resource Identifier string.
+	 *
+	 * @var string
+	 **/
 	public static $uri = '';
 	
-	/*
-		Property: current
-		
-		Route object of matching URI and route.
-	*/
-	
+	/**
+	 * Route object of matching URI and route.
+	 *
+	 * @var object
+	 **/
 	public static $current;
 	
-
-	public function getURI($uri = null)
+	/**
+	 * Get URI query string.
+	 *
+	 * @param string $uri
+	 * @return string
+	 **/
+	public function getQueryString($uri = null)
 	{
 		if (!$uri) $uri = $_SERVER['REQUEST_URI'];
 		$uri = explode('?', $uri);
 		return  $uri[0];
 	}
 	
-	/*
-		Function: add
-		
-		Append a route to the routes array.
-		
-		Parameters:
-		
-			name - Route name.
-			route - Route object.
-	*/
-	
-	public function add($name, $route)
+	/**
+	 * Append a route to the routes ($GLOBALS['CREOVEL']['ROUTES']) array.
+	 *
+	 * @param string $name
+	 * @param object $route Route object
+	 * @return void
+	 **/
+	public function add($name, RoutingRoute $route)
 	{
 		// default last in routes array
 		if ($name == 'default') {
@@ -56,65 +55,43 @@ class Routing
 		}
 	}
 	
-	/*
-		Function: events
-		
-		Get events from route.
-		
-		Parameters:
-		
-			uri - URI.
-			
-		Returns:
-		
-			An array of events.
-	*/
-	
+	/**
+	 * Get events from route.
+	 *
+	 * @param string $uri
+	 * @param string $route_name Get events for specific route.
+	 * @return array Events array.
+	 **/
 	public function events($uri, $route_name = '')
 	{
-		if (isset($this->routes[$route_name]->events)) {
-			return $this->routes[$route_name]->events;
+		if (isset($GLOBALS['CREOVEL']['ROUTES'][$route_name]->events)) {
+			return $GLOBALS['CREOVEL']['ROUTES'][$route_name]->events;
 		}
 		return self::which($uri);
 	}
 	
-	/*
-		Function: params
-		
-		Get params from route.
-		
-		Parameters:
-		
-			uri - URI.
-			
-		Returns:
-		
-			An array of params.
-	*/
-	
+	/**
+	 * Get custom params from route.
+	 *
+	 * @param string $uri
+	 * @return array Params array.
+	 **/
 	public function params($uri)
 	{
 		return self::which($uri, true);
 	}
 	
-	/*
-		Function: which_route
-		
-		Get the events route depending on URI pattern or params.
-		
-		Parameters:
-		
-			uri - URI.
-			return_params - Boolean.
-			
-		Returns:
-		
-			An array of events/params.
-	*/
-	
+	/**
+	 * Get the events route depending on URI pattern or params.
+	 *
+	 * @param string $uri
+	 * @param boolean $return_params Flag to return params
+	 * @return array Events|Params array.
+	 **/
 	public function which($uri = null, $return_params = false)
 	{
-		$uri = self::getURI($uri);
+		// get query string
+		$uri = self::getQueryString($uri);
 		
 		// return default route
 		if ($uri == '/') {
@@ -127,7 +104,7 @@ class Routing
 			}
 		}
 		
-		// set uri
+		// set URI
 		$uri = self::trimRegex($uri);
 		
 		foreach ($GLOBALS['CREOVEL']['ROUTES'] as $name => $route) {
@@ -151,7 +128,7 @@ class Routing
 			}
 		}
 		
-		// set current
+		// set current route
 		self::$current = $GLOBALS['CREOVEL']['ROUTES']['default'];
 		
 		if ($return_params) {
@@ -162,69 +139,137 @@ class Routing
 		
 	}
 	
+	/**
+	 * Build regex pattern from route parts.
+	 *
+	 * @param array $array Route parts.
+	 * @return string Regular expression pattern.
+	 **/
 	public function partsRegex($parts)
 	{
 		$regex = '/^';
 		
-		//print_obj($parts);
-		
-		foreach ($parts as $segment)
-		{
+		foreach ($parts as $segment) {
+			
 			if (!$segment->value) break;
+			
 			// dont check nested segments
 			if ($segment->name == 'nested_controller_path') continue;
+			
 			switch (true) {
-				case ( $segment->type == 'static' ):
+				case ($segment->type == 'static'):
 					$part = $segment->value;
-				break;
+					break;
 				
-				case ( $segment->value && !$segment->constraint ):
+				case ($segment->value && !$segment->constraint):
 					$regex .= '(\/[A-Za-z0-9_.-\/]+)*';
 					break 2;
-				break;
-
+					break;
+				
 				default:
-					$part = $this->trim_regex($segment->constraint);
-				break;
+					$part = $this->trimRegex($segment->constraint);
+					break;
 			}
 			
 			$regex .= "\/{$part}";
 		}
-
+		
 		$regex .= '$/';
-
+		
 		return $regex;
 	}
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
 	public function trimRegex($pattern)
 	{
 		return preg_replace('/^\/(.*?)[\/]?$/', "\\1", $pattern);
 	}
 	
+	/**
+	 * Get default events array.
+	 *
+	 * @return array Events array.
+	 **/
 	public function defaultEvents()
 	{
 		return $GLOBALS['CREOVEL']['ROUTES']['default']->events;
 	}
 	
+	/**
+	 * Get default params array.
+	 *
+	 * @return array Params array.
+	 **/
 	public function defaultParams()
 	{
 		return $GLOBALS['CREOVEL']['ROUTES']['default']->params;
 	}
 	
-	public function error_events()
+	/**
+	 * Get default error events array.
+	 *
+	 * @return array Params array.
+	 **/
+	public function error()
 	{
-		return $GLOBALS['CREOVEL']['ROUTES']['error']->events;
+		return $GLOBALS['CREOVEL']['ROUTES']['default_error']->events;
 	}
 
-}
+} // END class Routing
 
-class Route
+/**
+ * Routing Route storage class.
+ *
+ * @package Creovel
+ * @subpackage Creovel.Classes
+ * @copyright  2008 Creovel, creovel.org
+ * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
+ * @version    $Id:$
+ * @since      Class available since Release 0.4.0
+ */
+class RoutingRoute
 {
+	/**
+	 * URL pattern.
+	 *
+	 * @var string
+	 **/
 	public $path;
+	
+	/**
+	 * Events array for route.
+	 *
+	 * @var array
+	 **/
 	public $events;
+	
+	/**
+	 * Custom params array for route.
+	 *
+	 * @var array
+	 **/
 	public $params;
+	
+	/**
+	 * Part segments for the route.
+	 *
+	 * @var array
+	 **/
 	public $parts;
 	
+	/**
+	 * Set object properties.
+	 *
+	 * @param string $path
+	 * @param array $events
+	 * @param array $params
+	 * @param array $parts Array of RoutingSegments
+	 * @return void
+	 **/
 	public function __construct($path, $events, $params, $parts)
 	{
 		$this->path = $path;
@@ -233,44 +278,130 @@ class Route
 		$this->parts = $parts;
 	}
 	
+	/**
+	 * Filter/reformat events array.
+	 *
+	 * @param array $events
+	 * @return array Events array.
+	 **/
 	public function filterEvents($events)
 	{
 		$return = array();
-		foreach ( $events as $label => $event ) {
-			if ( $label == 'nested_controllers' ) {
+		foreach ($events as $label => $event) {
+			if ($label == 'nested_controllers') {
 				$return[$label] = $event;
 				continue;
 			}
 			$return[$label] = $event->value;
 		}
-		if ( isset($return['nested_controllers']) ) {
+		if (isset($return['nested_controllers'])) {
 			$return['nested_controller_path'] = implode(DS, $return['nested_controllers']);
 		}
 		return $return;
 	}
 	
+	/**
+	 * Filter/remove empty $params from array.
+	 *
+	 * @param array $params
+	 * @return array Params array.
+	 **/
 	public function filterParams($params)
 	{
 		$return = array();
-		foreach ( $params as $param ) {
+		foreach ($params as $param) {
 			if ($param->value) $return[$param->name] = $param->value;
 		}
 		return $return;
-	}	
-}
+	}
+} // END class RoutingRoute
 
+/**
+ * Routing Segment storage class.
+ *
+ * @package Creovel
+ * @subpackage Creovel.Classes
+ * @copyright  2008 Creovel, creovel.org
+ * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
+ * @version    $Id:$
+ * @since      Class available since Release 0.4.0
+ */
+class RoutingSegment
+{
+	
+	/**
+	 * Segment name.
+	 *
+	 * @var string
+	 **/
+	public $name;
+	
+	/**
+	 * Segment type 'dynamic' or 'static'.
+	 *
+	 * @var string
+	 **/
+	public $type;
+	
+	/**
+	 * Segment value.
+	 *
+	 * @var mixed
+	 **/
+	public $value;
+	
+	/**
+	 * Segment constraint is regular expression that value is check against.
+	 *
+	 * @var string
+	 **/
+	public $constraint;
+	
+	/**
+	 * Set object properties.
+	 *
+	 * @param string $name
+	 * @param string $type
+	 * @param mixed $value
+	 * @param string $constraint
+	 * @return void
+	 **/
+	public function __construct($name, $type, $value, $constraint = null)
+	{
+		$this->name = $name;
+		$this->type = $type;
+		$this->value = $value;
+		$this->constraint = $constraint;
+	}
+} // END class RoutingSegment
+
+/**
+ * Mapper class creates routing rules and saves them
+ * to $GLOBALS['CREOVEL']['ROUTES'].
+ *
+ * @package Creovel
+ * @subpackage Creovel.Classes
+ * @copyright  2008 Creovel, creovel.org
+ * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
+ * @version    $Id:$
+ * @since      Class available since Release 0.4.0
+ */
 class Mapper
 {
-
+	/**
+	 * Add route to framework.
+	 *
+	 * @return void
+	 **/
 	public function connect($route_path = ':controller/:action/:id', $options = null)
 	{
-		if ( count($options) ) {
+		if (count($options)) {
 			foreach ( $options as $k => $v ) {
 				$temp[self::cleanLabel($k)] = $v;
 			}
 			$options = $temp;
 		}
-
+		
 		// set default options
 		$options['controller'] = isset($options['controller']) ? $options['controller'] : CREO('default_controller');
 		$options['action'] = isset($options['action']) ? $options['action'] : CREO('default_action');
@@ -278,10 +409,9 @@ class Mapper
 		
 		// create path segments
 		$path_segments = self::cleanExplode('/', $route_path);
-		//print_obj($path_segments);
 		
 		// create uri segments
-		$uri_segments = self::cleanExplode('/', Routing::getURI());
+		$uri_segments = self::cleanExplode('/', Routing::getQueryString());
 		//print_obj($uri_segments);
 		
 		// create segments array
@@ -309,38 +439,37 @@ class Mapper
 		if (array_key_exists('controller', $segments) && $segments['controller']->value != 'index') {
 			$events['controller'] = $segments['controller'];
 		} else {
-			$events['controller'] = new Segment('controller', 'static', $options['controller']);
+			$events['controller'] = new RoutingSegment('controller', 'static', $options['controller']);
 		}
 		if (array_key_exists('action', $segments)  && $segments['action']->value != 'index') {
 			$events['action'] = $segments['action'];
 		} else {
-			$events['action'] = new Segment('action', 'static', $options['action']);
+			$events['action'] = new RoutingSegment('action', 'static', $options['action']);
 		}
 		
 		// set custom options defaults
 		foreach ($options as $k => $v) {
-			switch ( true )
-			{
-				case ( $k == 'controller' ):
-				case ( $k == 'action' ):
-				case ( $k == 'name' ):
-				case ( $k == 'requirements' ):
+			switch (true) {
+				case ($k == 'controller'):
+				case ($k == 'action'):
+				case ($k == 'name'):
+				case ($k == 'requirements'):
 				// if segment had value skip
-				case ( $segments[self::cleanLabel($k)]->value ):
+				case ($segments[self::cleanLabel($k)]->value):
 				break;
 				
 				default:
-					if ( preg_match('/:'.self::cleanLabel($k).'/', $route_path) ) {
-						$segments[self::cleanLabel($k)] = new Segment(self::cleanLabel($k), 'dynamic', $v);
+					if (preg_match('/:' . self::cleanLabel($k) . '/', $route_path)) {
+						$segments[self::cleanLabel($k)] = new RoutingSegment(self::cleanLabel($k), 'dynamic', $v);
 					} else {
-						$segments[self::cleanLabel($k)] = new Segment(self::cleanLabel($k), 'static', $v);
+						$segments[self::cleanLabel($k)] = new RoutingSegment(self::cleanLabel($k), 'static', $v);
 					}
 				break;
 			}
 		}
 		
 		// check for requirements
-		if ( isset($options['requirements']) ) foreach ( $options['requirements'] as $label => $constraint ) {
+		if ( isset($options['requirements']) ) foreach ($options['requirements'] as $label => $constraint) {
 			$segments[self::cleanLabel($label)]->constraint = $constraint;
 		}
 		
@@ -351,25 +480,30 @@ class Mapper
 			$params[$part->name] = $part;
 		}
 		
+		/*
 		// if default route_path check/set nested controllers
 		if ($route_path == ':controller/:action/:id') {
 			$path = '';
-			if ( count($uri_segments) >= 2 ) {
-				foreach ( $uri_segments as $arg ) {
-					if ( file_exists(CONTROLLERS_PATH.$path.$arg.'_controller.php') ) {
+			if (count($uri_segments) >= 2) {
+				foreach ($uri_segments as $arg) {
+					if (file_exists(CONTROLLERS_PATH . $path . $arg . '_controller.php')) {
+						echo CONTROLLERS_PATH . $path . $arg . '_controller.php';
+						echo '<br/>';
 						$events['nested_controllers'][] = $arg;
 					}
-					$path .= $arg.DS;
+					$path .= $arg . DS;
 				}
 				
-				if ( $events['nested_controllers'] >= 2 ) {
-					
-					$events['controller'] = new Segment('controller', 'static', $events['nested_controllers'][ count($events['nested_controllers']) - 1 ]);
+				print_obj($events, 1);
 				
-					foreach ( $uri_segments as $key => $arg ) {
-						if ( $arg == $events['controller']->value ) {
-							$events['action'] = new Segment('action', 'dynamic', $uri_segments[ $key + 1 ]);
-							$params['id'] = new Segment('id', 'dynamic', $uri_segments[ $key + 2 ]);
+				if (isset($events['nested_controllers']) && ($events['nested_controllers'] >= 2)) {
+					
+					$events['controller'] = new RoutingSegment('controller', 'static', $events['nested_controllers'][ count($events['nested_controllers']) - 1 ]);
+					
+					foreach ($uri_segments as $key => $arg) {
+						if ($arg == $events['controller']->value) {
+							$events['action'] = new RoutingSegment('action', 'dynamic', $uri_segments[ $key + 1 ]);
+							$params['id'] = new RoutingSegment('id', 'dynamic', $uri_segments[ $key + 2 ]);
 						}
 					
 					}
@@ -387,6 +521,7 @@ class Mapper
 			if ( !$events['action']->value ) $events['action']->value = $options['action'];
 		
 		}
+		*/
 		
 		if (isset($options['nested_controller_path'])) {
 		
@@ -405,59 +540,59 @@ class Mapper
 		unset($params['action']);
 		
 		// create route object
-		$route = new Route($route_path, $events, $params, $segments);
+		$route = new RoutingRoute($route_path, $events, $params, $segments);
 		
 		// add to routing class
 		Routing::add($options['name'], $route);
 	}
 	
-	public function cleanExplode($seperator, $string)
+	/**
+	 * Create array and remove last value if blank.
+	 *
+	 * @param string $separator
+	 * @param string $string
+	 * @return array
+	 **/
+	public function cleanExplode($separator, $string)
 	{
-		$temp = explode($seperator, $string);
+		$temp = explode($separator, $string);
 		if (!$temp[0]) array_shift($temp);
 		if ((count($temp) > 0) && (!$temp[count($temp) - 1])) array_pop($temp);
 		return $temp;
 	}
 	
+	/**
+	 * Clean label string by removing ":" from string if the first character.
+	 *
+	 * @param string $label
+	 * @return string
+	 **/
 	public function cleanLabel($label)
 	{
-		 return ( $label{0} == ':' ? substr($label, 1) : $label );
+		return $label{0} == ':' ? substr($label, 1) : $label;
 	}
 	
-	private function createSegment($name, $value)
+	/**
+	 * Create segments if name begins with ":" it is 'dynamic' else it is
+	 * 'static'. Dynamic names means their values can change.
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 * @return object RoutingSegment object.
+	 **/
+	public function createSegment($name, $value)
 	{
-		switch ( true )
-		{
+		switch (true) {
 			// dynamic segement
-			case ( $name{0} == ':' ):
+			case ($name{0} == ':'):
 				$name = substr($name, 1);
-				$segment = new Segment($name, 'dynamic', $value);
-			break;
+				return new RoutingSegment($name, 'dynamic', $value);
+				break;
 			
 			// static segement
 			default:
-				$segment = new Segment($name, 'static', $name);
-			break;
+				return new RoutingSegment($name, 'static', $name);
+				break;
 		}
-		return $segment;
 	}
-	
-}
-
-class Segment
-{
-	
-	public $name;
-	public $type;
-	public $value;
-	public $constraint;
-	
-	public function __construct($name, $type, $value, $constraint = null)
-	{
-		$this->name = $name;
-		$this->type = $type;
-		$this->value = $value;
-		$this->constraint = $constraint;
-	}
-
-}
+} // END class Mapper

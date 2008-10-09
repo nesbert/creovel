@@ -6,7 +6,7 @@
 <h1 class="top">Application Error</h1>
 <p class="top"><?=$this->message?></p>
 
-<?php if ($error_count = count($this->exception->getTrace())) { ?>
+<?php if ((is_object($this->exception)) && ($error_count = count($this->exception->getTrace()))) { ?>
 <h1>Debug Trace</h1>
 <ul class="debug">
 <?php

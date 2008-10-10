@@ -31,7 +31,7 @@ Routing::map('default_error', '/errors/:action/*', array(
 		'controller' => 'errors',
 		'action' => 'general'
 	));
-	
+
 // Include custom routes
 require_once CONFIG_PATH.'routes.php';
 

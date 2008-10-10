@@ -76,7 +76,7 @@ class Dispatcher
 	public function includeController($controller_path)
 	{
 		// include application controller
-		$controllers = array('application') + explode(DS, $controller_path);
+		$controllers = array_merge(array('application'), explode(DS, $controller_path));
 		
 		$path = '';
 		
@@ -90,7 +90,7 @@ class Dispatcher
 				CREO('application_error', "Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
 			}
 			
-			if ( file_exists($controller_path) ) {
+			if (file_exists($controller_path)) {
 				require_once $controller_path;
 			} else {
 				$controller_path = str_replace($class . '.php', '', $controller_path);

@@ -9,7 +9,7 @@
  * @version    $Id:$
  * @since      Class available since Release 0.1.0
  */
-class Creovel
+class Dispatcher
 {
 	/**
 	 * Runs the framework.
@@ -19,30 +19,26 @@ class Creovel
 	 **/
 	public static function run($events = null, $params = null, $return_as_str = false)
 	{
-		try {
-			// set event and params
-			$events = $events ? $events : self::events();
-			$params = $params ? $params : self::params();
-			
-			// include controller
-			self::includeController((isset($events['nested_controller_path']) && $events['nested_controller_path'] ? $events['nested_controller_path'] . DS : '' ) . $events['controller']);
-			
-			// create controller object and build the framework
-			$controller = humanize($events['controller']) . 'Controller';
-			$controller = new $controller();
-			
-			// set controller properties
-			$controller->__setEvents($events);
-			$controller->__setParams($params);
-			
-			// execute action
-			$controller->__executeAction();
-			
-			// output to user
-			return $controller->__output($return_as_str);
-		} catch (Exception $e) {
-			CREO('application_error', $e);
-		}
+		// set event and params
+		$events = $events ? $events : self::events();
+		$params = $params ? $params : self::params();
+		
+		// include controller
+		self::includeController((isset($events['nested_controller_path']) && $events['nested_controller_path'] ? $events['nested_controller_path'] . DS : '' ) . $events['controller']);
+		
+		// create controller object and build the framework
+		$controller = humanize($events['controller']) . 'Controller';
+		$controller = new $controller();
+		
+		// set controller properties
+		$controller->__setEvents($events);
+		$controller->__setParams($params);
+		
+		// execute action
+		$controller->__executeAction();
+		
+		// output to user
+		return $controller->__output($return_as_str);
 	}
 	
 	/**
@@ -109,4 +105,4 @@ class Creovel
 			$path .= str_replace('application' . DS, '', $controller . DS);
 		}
 	}
-} // END class Creovel
+} // END class Dispatcher

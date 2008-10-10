@@ -23,15 +23,17 @@ require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
 require_once CONFIG_PATH.'databases.php';
 
 // Set default routes
-Mapper::connect();
-Mapper::connect('default_error', array(
-	'name' => 'default_error',
-	'controller' => 'errors',
-	'action' => 'general'
+Routing::map('default', '/:controller/:action/*', array(
+		'controller' => 'index',
+		'action' => 'index'
 	));
-
+Routing::map('default_error', '/errors/:action/*', array(
+		'controller' => 'errors',
+		'action' => 'general'
+	));
+	
 // Include custom routes
 require_once CONFIG_PATH.'routes.php';
 
 // Go, go, go!
-Creovel::run();
+Dispatcher::run();

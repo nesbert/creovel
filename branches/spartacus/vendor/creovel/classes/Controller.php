@@ -87,25 +87,29 @@ class Controller
 	 **/
 	public function __executeAction()
 	{
-		// initialize callback
-		$this->initialize();
-		
-		// initialize scope fix
-		$this->__intializeParentControllers();
-		
-		if (method_exists($this, $this->_action)) {
+		try {
+			// initialize callback
+			$this->initialize();
 			
-			// call before filter
-			$this->beforeFilter();
+			// initialize scope fix
+			$this->__intializeParentControllers();
 			
-			// controller execute action
-			$this->{$this->_action}();
-			
-			// call before filter
-			$this->afterFilter();
-			
-		} else {
-			$this->throwError("Call to undefined action <em>{$this->_action}</em> not found in <strong>".get_class($this)."</strong>.");
+			if (method_exists($this, $this->_action)) {
+				// call before filter
+				$this->beforeFilter();
+				
+				// controller execute action
+				$this->{$this->_action}();
+				
+				// call before filter
+				$this->afterFilter();
+			} else {
+				throw new Exception('Call to undefined method ' .
+					"<em>{$this->_action}</em> not found in " .
+					'<strong>' . get_class($this) . '</strong>.');
+			}
+		} catch (Exception $e) {
+			CREO('application_error', $e);
 		}
 	}
 	
@@ -135,83 +139,87 @@ class Controller
 	 **/
 	public function render($options)
 	{
-		// check options
-		if ( !is_array($options) ) return false;
-		
-		// set and unset reserved $options
-		if (isset($options['partial'])) {
-			$view = '_'.$options['partial'];
-			unset($options['partial']);
-		}
-		
-		if ( isset($options['action']) ) {
-			$view = $options['action'];
-			unset($options['action']);
-		}
-		
-		if ( isset($options['render']) ) {
-			$view = $options['render'];
-			unset($options['render']);
-		}
-		
-		if ( $options['controller'] ) {
-			$controller = $options['controller'];
-			unset($options['controller']);
-		}
-		
-		if ( isset($options['layout']) ) {
-			$layout = $options['layout'];
-			unset($options['layout']);
-		}
-		
-		if ( $options['to_str'] ) {
-			$return_as_str = true;
-			unset($options['to_str']);
-		}
-		
-		// set view path
-		$view_path = $this->__viewPath($view, $controller);
-		
-		switch (true) {
-		
-			// if view equaqls false render nothing
-			case ($view === false):
-				return;
-				break;
+		try {
+			// check options
+			if ( !is_array($options) ) return false;
 			
-			// if layout get page content with layout
-			case ($layout):
-				if (isset($return_as_str)) {
-					return View::create($view_path, $this->__layoutPath($layout), $options);
-				} else {
-					return View::show($view_path, $this->__layoutPath($layout), $options);
-				}
-				break;
+			// set and unset reserved $options
+			if (isset($options['partial'])) {
+				$view = '_'.$options['partial'];
+				unset($options['partial']);
+			}
 			
-			// if same layout include files and set variables
-			case ( file_exists($view_path) ):
-				// create a variable foreach other option, using its key as the variable name
-				if ( count($options) ) foreach ( $options as $key => $values ) $$key = $values;
+			if (isset($options['action']) ) {
+				$view = $options['action'];
+				unset($options['action']);
+			}
+			
+			if (isset($options['render']) ) {
+				$view = $options['render'];
+				unset($options['render']);
+			}
+			
+			if ($options['controller'] ) {
+				$controller = $options['controller'];
+				unset($options['controller']);
+			}
+			
+			if (isset($options['layout'])) {
+				$layout = $options['layout'];
+				unset($options['layout']);
+			}
+			
+			if ($options['to_str']) {
+				$return_as_str = true;
+				unset($options['to_str']);
+			}
+			
+			// set view path
+			$view_path = $this->__viewPath($view, $controller);
+			
+			switch (true) {
 				
-				if ( $return_as_str ) {
-					$options['layout'] = false;
-					return View::create($view_path, $this->__layoutPath($layout), $options);
-				} else {
-					// include partial
-					include $view_path;
+				// if view equaqls false render nothing
+				case ($view === false):
 					return;
-				}
-				break;
-			
-			default:
-				if (!$options['no_error']) {
-					CREO('error_code', 404);
-					CREO('application_error', "Unable to render <em>" . ($view{0} == '_' ? 'partial' : 'view') . "</em> not found in <strong>{$view_path}</strong>.");
-				}
-				break;
-			
+					break;
+				
+				// if layout get page content with layout
+				case ($layout):
+					if (isset($return_as_str)) {
+						return View::create($view_path, $this->__layoutPath($layout), $options);
+					} else {
+						return View::show($view_path, $this->__layoutPath($layout), $options);
+					}
+					break;
+				
+				// if same layout include files and set variables
+				case (file_exists($view_path)):
+					// create a variable foreach other option, using its key as the variable name
+					if (count($options)) foreach ( $options as $key => $values ) $$key = $values;
+					
+					if ( $return_as_str ) {
+						$options['layout'] = false;
+						return View::create($view_path, $this->__layoutPath($layout), $options);
+					} else {
+						// include partial
+						include $view_path;
+						return;
+					}
+					break;
+				
+				default:
+					if (!$options['no_error']) {
+						throw new Exception("Unable to render <em>" .
+						($view{0} == '_' ? 'partial' : 'view') .
+						"</em> not found in <strong>{$view_path}</strong>.");
+					}
+					break;
+			}
+		} catch ( Exception $e ) {
+			CREO('error_code', 404);
+			CREO('application_error', $e);
 		}
-	
 	}
 	
 	/**
@@ -242,9 +250,9 @@ class Controller
 		} else {
 			$options['render'] = $view;
 		}
-		if ( $locals ) $options['locals'] = $locals;
-		if ( $controller ) $options['controller'] = $controller;
-		if ( $no_error ) $options['no_error'] = $no_error;
+		if ($locals) $options['locals'] = $locals;
+		if ($controller) $options['controller'] = $controller;
+		if ($no_error) $options['no_error'] = $no_error;
 		$this->render($options);
 	}
 	
@@ -372,7 +380,9 @@ class Controller
 	public function throwError($msg = null)
 	{
 		if (!$msg) {
-			$msg = "An error occurred while executing the action <em>".$this->_action."</em> in the <strong>".get_class($this)."</strong>.";
+			$msg = 'An error occurred while executing the action ' .
+			"<em>{$this->_action}</em> in the <strong> " . get_class($this) .
+			'</strong>.';
 		}
 		CREO('error_code', 404);
 		CREO('application_error', $msg);
@@ -388,7 +398,13 @@ class Controller
 	 **/
 	public function __call($method, $arguments)
 	{
-		$this->throwError("Call to undefined action <em>{$method}</em> not found in <strong>".get_class($this)."</strong>.");
+		try {
+			throw new Exception("Call to undefined method <em>{$method}</em>" .
+				' not found in <strong>' . get_class($this) . '</strong>.');
+		} catch ( Exception $e ) {
+			CREO('error_code', 404);
+			CREO('application_error', $e);
+		}
 	}
 	
 	/**
@@ -402,14 +418,18 @@ class Controller
 	{
 		// nested controllers check [NH] might need to find a better way to do this
 		if (isset($this->_nested_controller_path)) {
-			$view_path =  VIEWS_PATH.$this->_nested_controller_path.DS.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
-			if ( file_exists($view_path) ) {
+			$view_path =  VIEWS_PATH. $this->_nested_controller_path .
+				DS . ($controller ? $controller : $this->_controller) .
+				DS . $view . '.php';
+			if (file_exists($view_path)) {
 				return $view_path;
 			} else {
-				return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
+				return VIEWS_PATH . ($controller ? $controller : $this->_controller) .
+				DS . $view . '.php';
 			}
 		} else {
-			return VIEWS_PATH.( $controller ? $controller : $this->_controller ).DS.$view.'.php';
+			return VIEWS_PATH . ($controller ? $controller : $this->_controller) .
+			DS . $view . '.php';
 		}
 	}
 	
@@ -421,7 +441,7 @@ class Controller
 	 **/
 	private function __layoutPath($layout = null)
 	{
-		return VIEWS_PATH.'layouts'.DS.( $layout ? $layout : $this->layout ).'.php';
+		return VIEWS_PATH . 'layouts' . DS . ($layout ? $layout : $this->layout) . '.php';
 	}
 	
 	/**

@@ -26,7 +26,7 @@ require_once 'Helpers/general.php';
 require_once 'Helpers/text.php';
 
 // Include minimum base classes.
-require_once 'Classes/Creovel.php';
+require_once 'Classes/Dispatcher.php';
 require_once 'Classes/Controller.php';
 require_once 'Classes/ErrorHandler.php';
 require_once 'Classes/Routing.php';
@@ -43,4 +43,4 @@ $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
 $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
 $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
 $GLOBALS['CREOVEL']['EMAIL_ON_ERROR'] = false;
-$GLOBALS['CREOVEL']['ROUTES'] = array();
+$GLOBALS['CREOVEL']['ROUTING'] = array();

@@ -70,9 +70,8 @@ function __autoload($class)
 			require_once $path;
 		} else {
 			if ($type == 'Controller') CREO('error_code', 404);
-			throw new Exception("{$class} not found in <strong>" . str_replace($class.'.php', '', $path ) . "</strong>");
+			throw new Exception("{$class} not found in <strong>" . str_replace($class . '.php', '', $path ) . "</strong>");
 		}
-	
 	} catch (Exception $e) {
 		CREO('application_error', $e);
 	}

@@ -67,12 +67,12 @@ class ErrorHandler
 		$code = isset($GLOBALS['CREOVEL']['ERROR_CODE']) ? $GLOBALS['CREOVEL']['ERROR_CODE'] : '';
 		switch ($code) {
 			case '404':
-				header('Status: 404 Not Found', true, 404);
+				@header('Status: 404 Not Found', true, 404);
 				$action = 'not_found';
 				break;
 			
 			default:
-				header('Status: 500 Internal Server Error', true, 500);
+				@header('Status: 500 Internal Server Error', true, 500);
 				break;
 		}
 		

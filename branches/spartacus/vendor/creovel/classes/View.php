@@ -17,7 +17,7 @@ class View
 	 * @param array $options - Optional array of display options.
 	 * @return string Content/HTML used for output.
 	 **/
-	public function create($view_path, $layout_path, $options = null)
+	public function toString($view_path, $layout_path, $options = null)
 	{
 		try {
 			// set content data
@@ -89,20 +89,7 @@ class View
 	}
 	
 	/**
-	 * Return a page view as string. A wrapper to View::create().
-	 *
-	 * @param string $view_path Required string of the file path.
-	 * @param string $layout_path - Required string of the layout path.
-	 * @param array $options - Optional array of display options.
-	 * @return string Content/HTML used for output.
-	 **/
-	public function toString($view_path, $layout_path, $options = null)
-	{
-		return self::create($view_path, $layout_path, $options);
-	}
-	
-	/**
-	 * Print a page view to screen. A wrapper to View::create().
+	 * Print a page view to screen. A wrapper to View::toString().
 	 *
 	 * @param string $view_path Required string of the file path.
 	 * @param string $layout_path - Required string of the layout path.
@@ -111,6 +98,6 @@ class View
 	 **/
 	public function show($view_path, $layout_path, $options = null)
 	{
-		print self::create($view_path, $layout_path, $options);
+		print self::toString($view_path, $layout_path, $options);
 	}
 } // END class View

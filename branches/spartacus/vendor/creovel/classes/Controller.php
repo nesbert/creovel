@@ -109,6 +109,7 @@ class Controller
 					'<strong>' . get_class($this) . '</strong>.');
 			}
 		} catch (Exception $e) {
+			CREO('error_code', 404);
 			CREO('application_error', $e);
 		}
 	}

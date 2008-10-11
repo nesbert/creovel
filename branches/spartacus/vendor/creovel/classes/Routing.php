@@ -54,7 +54,7 @@ class Routing
 				if (isset($uri_segments[array_search(':controller', $path_segments)])) {
 					$events['controller'] = $uri_segments[array_search(':controller', $path_segments)];
 				} else {
-					$events['controller'] = $options['controller'] ? $options['controller'] : CREO('default_controller');
+					$events['controller'] = isset($options['controller']) ? $options['controller'] : CREO('default_controller');
 				}
 			} else {
 				$events['controller'] = isset($options['controller']) ? $options['controller'] : CREO('default_controller');
@@ -63,7 +63,7 @@ class Routing
 				if (isset($uri_segments[array_search(':action', $path_segments)])) {
 					$events['action'] = $uri_segments[array_search(':action', $path_segments)];
 				} else {
-					$events['action'] = $options['action'] ? $options['action'] : CREO('default_action');
+					$events['action'] = isset($options['action']) ? $options['action'] : CREO('default_action');
 				}
 			} else {
 				$events['action'] = isset($options['action']) ? $options['action'] : CREO('default_action');
@@ -98,12 +98,34 @@ class Routing
 			}
 		}
 		
-		if (count($requirements)) foreach ($requirements as $k => $v) {
-			if (isset($params[self::cleanLabel($k)]) &&
-				!$params[self::cleanLabel($k)]) {
-				unset($requirements[$k]);
+		$pattern = '';
+		if (count($requirements)) {
+			// set regex pattern
+			$pattern = '/^';
+			
+			#print_obj($path_segments);print_obj($params);print_obj($requirements);
+			
+			foreach ($path_segments as $part) {
+				
+				if ($part == '*') {
+					break;
+				}
+				
+				if ($part{0} == ':') {
+					$label = self::cleanLabel($part);
+					if (isset($requirements[$part])) {
+						$pattern .= '\/' . self::trimSlashes($requirements[$part]);
+					} elseif (isset($params[$label]) && $params[$label]) {
+						$pattern .= '([A-Za-z0-9_\-\+.\/]+)';
+					}
+				} else {
+					$pattern .= '\/' . $part;
+				}
 			}
+			
+			$pattern .= '$/';
 		}
+		
 		
 		if (count($params)) foreach ($params as $k => $v) {
 			$label = self::cleanLabel($k);
@@ -112,7 +134,7 @@ class Routing
 			}
 		}
 		
-		self::add($name, $url, $events, $params, $requirements);
+		self::add($name, $url, $events, $params, $pattern);
 	}
 	
 	/**
@@ -122,7 +144,7 @@ class Routing
 	 * @param object $route Route object
 	 * @return void
 	 **/
-	public function add($name, $url, $events, $params = array(), $requirements = '', $defaults = '')
+	public function add($name, $url, $events, $params = array(), $regex = '')
 	{
 		// default last in routes array
 		$data = array(
@@ -131,11 +153,8 @@ class Routing
 			'events'		=> $events,
 			'params'		=> $params
 			);
-		if ($requirements) {
-			$data['requirements'] = $requirements;
-		}
-		if ($defaults) {
-			$data['defaults'] = $defaults;
+		if ($regex) {
+			$data['regex'] = $regex;
 		}
 		if ($name == 'default') {
 			$GLOBALS['CREOVEL']['ROUTING']['ROUTES']['default'] = $data;
@@ -202,45 +221,13 @@ class Routing
 			}
 		}
 		
-		// set URI
-		$uri = self::trimSlashes($uri);
-		
+		// create pattern to match against URI
 		foreach ($GLOBALS['CREOVEL']['ROUTING']['ROUTES'] as $name => $route) {
-			
-			print_obj($route);
-			
 			// skip default route
-			if ($name == 'default') continue;
-			if ($name == 'default_error') continue;
-			
-			// set regex pattern
-			$pattern = '/^';
-			
-			$path_segments = self::cleanExplode('/', $route['url']);
-			
-			foreach ($path_segments as $part) {
-				
-				if ($part == '*') {
-					break;
-				}
-				
-				if ($part{0} == ':') {
-					if (isset($route['requirements'][$part])) {
-						$pattern .= '\/' . self::trimSlashes($route['requirements'][$part]);
-					} else {
-						$pattern .= '([A-Za-z0-9_\-\+.\/]+)';
-					}
-					
-				} else {
-					$pattern .= '\/' . $part;
-				}
-			}
-			
-			echo $pattern .= '$/';
-			echo '<br/>';
+			if (!isset($route['regex'])) continue;
 			
 			// if match return events
-			if (preg_match($pattern, '/'. $uri) ) {
+			if (preg_match($route['regex'], '/'. self::trimSlashes($uri)) ) {
 				// set current
 				$GLOBALS['CREOVEL']['ROUTING']['CURRENT'] = $route;
 				if ($return_params) {
@@ -259,7 +246,6 @@ class Routing
 		} else {
 			return self::defaultEvents();
 		}
-		
 	}
 	
 	/**

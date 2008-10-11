@@ -54,5 +54,4 @@ class Logger
 		if (self::$display) echo "Paging file $filename!\n";
 		rename($filename, $filename.'.'.date('YmdHis'));
 	}
-} // END class
-?>
+} // END class Logger

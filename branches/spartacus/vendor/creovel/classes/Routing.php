@@ -335,6 +335,6 @@ class Routing
 	 **/
 	public function error()
 	{
-		return $GLOBALS['CREOVEL']['ROUTES']['default_error']['events'];
+		return $GLOBALS['CREOVEL']['ROUTING']['ROUTES']['default_error']['events'];
 	}
 } // END class Routing

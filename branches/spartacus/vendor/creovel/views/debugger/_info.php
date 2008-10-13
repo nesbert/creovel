@@ -47,13 +47,14 @@
 <h1>Environment</h1>
 <table cellspacing="0" class="block environment">
 <tr><td class="sub">Mode</td><td><?=CREO('mode')?></td></tr>
-<?php if (count(CREO('routes'))) { ?>
+<?php if (count(CREO('routing'))) { ?>
+	<?php $routing = CREO('routing'); ?>
 <tr>
 	<td class="sub">Routes</td>
 	<td>
-		<?php foreach (CREO('routes') as $name => $route) { ?>
+		<?php foreach ($routing['ROUTES'] as $name => $route) { ?>
 		<dl>
-			<dt><?=$route->path?> <? if ($name) { ?>(<?=$name?>)<? } ?></dt>
+			<dt><?=$route['name']?> (<?=$route['url']?>)</dt>
 		</dl>
 		<?php } ?>
 	</td>

@@ -23,26 +23,28 @@ function __autoload($class)
 		
 		$path = implode(DS, $folders);
 		
+		$class = underscore($class);
+		
 		switch (true) {
 		
 			case (in_string('Controller', $class)):
 				$type = 'Controller';
-				$path = CONTROLLERS_PATH . underscore($class) . '.php';
+				$path = CONTROLLERS_PATH . $class . '.php';
 				break;
 			
 			case (true):
 				$type = 'Core Class';
-				$path = CREOVEL_PATH . 'Classes' . DS . $class.'.php';
+				$path = CREOVEL_PATH . 'classes' . DS . $class.'.php';
 				if (file_exists($path)) break;
 			
 			case (true):
 				$type = 'Adapter';
-				$path = CREOVEL_PATH . 'Adapters' . DS . $class . '.php';
+				$path = CREOVEL_PATH . 'adapters' . DS . $class . '.php';
 				if (file_exists($path)) break;
 			
 			case (true):
 				$type = 'Service';
-				$path = CREOVEL_PATH . 'Services' . DS . $class . '.php';
+				$path = CREOVEL_PATH . 'services' . DS . $class . '.php';
 				if (file_exists($path)) break;
 			
 			case (true):
@@ -101,19 +103,19 @@ function CREO($key = null, $val = null)
 		case ($key == 'DATABASE'):
 			$mode = strtoupper($val['mode']);
 			$GLOBALS['CREOVEL']['DATABASES'][$mode] = array(
-				'ADAPTER'	=> $val['adapter'],
-				'HOST' 		=> $val['host'],
-				'USERNAME'	=> $val['username'],
-				'PASSWORD'	=> $val['password'],
-				'DEFAULT'	=> $val['default']
+				'adapter'	=> $val['adapter'],
+				'host' 		=> $val['host'],
+				'username'	=> $val['username'],
+				'password'	=> $val['password'],
+				'default'	=> $val['default']
 				);
 			if (isset($val['port'])) {
 				$GLOBALS['CREOVEL']['DATABASES'][$mode] +=
-					array('PORT' => $val['port']);
+					array('port' => $val['port']);
 			}
 			if (isset($val['socket'])) {
 				$GLOBALS['CREOVEL']['DATABASES'][$mode] +=
-					array('SOCKET' => $val['socket']);
+					array('socket' => $val['socket']);
 			}
 			break;
 			

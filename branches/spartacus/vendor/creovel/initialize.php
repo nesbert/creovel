@@ -21,15 +21,18 @@ define('MONTH',  30 * DAY);
 define('YEAR',  365 * DAY);
 
 // Include base helper libraries.
-require_once 'Helpers/framework.php';
-require_once 'Helpers/general.php';
-require_once 'Helpers/text.php';
+require_once 'helpers/framework.php';
+require_once 'helpers/general.php';
+require_once 'helpers/server.php';
+require_once 'helpers/text.php';
 
 // Include minimum base classes.
-require_once 'Classes/Dispatcher.php';
-require_once 'Classes/Controller.php';
-require_once 'Classes/ErrorHandler.php';
-require_once 'Classes/Routing.php';
+require_once 'classes/dispatcher.php';
+require_once 'classes/inflector.php';
+require_once 'classes/action_controller.php';
+require_once 'classes/action_view.php';
+require_once 'classes/error_handler.php';
+require_once 'classes/routing.php';
 
 // Set default creovel global vars.
 $GLOBALS['CREOVEL']['MODE'] = 'production';

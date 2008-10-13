@@ -6,7 +6,7 @@
  * @subpackage Application.Controllers
  * @author Nesbert Hidalgo
  **/
-class ApplicationController extends Controller
+class ApplicationController extends ActionController
 {
 	/**
 	 * undocumented function

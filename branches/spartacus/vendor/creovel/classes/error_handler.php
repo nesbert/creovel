@@ -16,7 +16,7 @@ class ErrorHandler
 	 **/
 	public function add(&$error)
 	{
-		$this->__process($error);
+		$this->process($error);
 	}
 	
 	/**
@@ -53,7 +53,7 @@ class ErrorHandler
 	 * @param string/object $error Error message or Exception object.
 	 * @return void
 	 **/
-	private function __process(&$error)
+	private function process(&$error)
 	{
 		if (is_object($error)) {
 			$this->exception = $error;
@@ -105,11 +105,11 @@ class ErrorHandler
 			&& isset($_GET['view_source'])
 			&& in_string(BASE_PATH, $_GET['view_source'])) {
 			// show source view on application error
-			View::show(CREOVEL_PATH.'views'.DS.'debugger'.DS.'view_source.php',
+			ActionView::show(CREOVEL_PATH.'views'.DS.'debugger'.DS.'view_source.php',
 					CREOVEL_PATH.'views'.DS.'layouts'.DS.'debugger.php');
 		} else {
 			// else show source view on application error
-			View::show(CREOVEL_PATH.'views'.DS.'debugger'.DS.'error.php',
+			ActionView::show(CREOVEL_PATH.'views'.DS.'debugger'.DS.'error.php',
 					CREOVEL_PATH.'views'.DS.'layouts'.DS.'debugger.php');
 		}
 		die;

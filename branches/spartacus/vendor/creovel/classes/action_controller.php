@@ -10,7 +10,7 @@
  * @version    $Id:$
  * @since      Class available since Release 0.1.0
  **/
-class Controller
+abstract class ActionController
 {
 	/**
 	 * Name of controller to use.
@@ -188,9 +188,9 @@ class Controller
 				// if layout get page content with layout
 				case ($layout):
 					if (isset($return_as_str)) {
-						return View::create($view_path, $this->__layoutPath($layout), $options);
+						return ActionView::create($view_path, $this->__layoutPath($layout), $options);
 					} else {
-						return View::show($view_path, $this->__layoutPath($layout), $options);
+						return ActionView::show($view_path, $this->__layoutPath($layout), $options);
 					}
 					break;
 				
@@ -201,7 +201,7 @@ class Controller
 					
 					if ( $return_as_str ) {
 						$options['layout'] = false;
-						return View::create($view_path, $this->__layoutPath($layout), $options);
+						return ActionView::create($view_path, $this->__layoutPath($layout), $options);
 					} else {
 						// include partial
 						include $view_path;
@@ -217,7 +217,7 @@ class Controller
 					}
 					break;
 			}
-		} catch ( Exception $e ) {
+		} catch (Exception $e) {
 			CREO('error_code', 404);
 			CREO('application_error', $e);
 		}
@@ -311,14 +311,13 @@ class Controller
 	 **/
 	public function buildController($controller, $action = '', $id = '', $extras = array(), $to_str = false)
 	{
-		$route_name = 'build_controller_'.uniqid();
-		$route_path = "{$controller}/{$action}";
-		mapper::connect( $route_path, array( 'name' => $route_name, 'controller' => $controller, 'action' => $action ));
-		$events = creovel::get_events(null, url_for($controller, $action, $id), $route_name);
-		
+		$route_name = 'build_controller_' . uniqid();
+		$route_path = "/{$controller}/{$action}";
+		Routing::map($route_name, $route_path, array('controller' => $controller, 'action' => $action));
+		$events = Dispatcher::events(null, url_for($controller, $action, $id), $route_name);
 		$params = array();
-		if ( $id ) $params['id'] = $id;
-		return creovel::run($events, array_merge($params, $extras), $to_str);
+		if ($id) $params['id'] = $id;
+		return Dispatcher::run($events, array_merge($params, $extras), $to_str);
 	}
 	
 	/**

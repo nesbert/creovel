@@ -15,10 +15,10 @@
  */
 CREO('database', array(
 	'mode'		=> 'development',
-	'adapter'	=> 'mysql',
+	'adapter'	=> 'mysql_improved',
 	'host'		=> 'localhost',
-	'username'	=> 'root',
-	'password'	=> 'root',
+	'username'	=> '',
+	'password'	=> '',
 	'default'	=> 'creovel_development'
 	));
 

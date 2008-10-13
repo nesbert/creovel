@@ -7,7 +7,7 @@
  * @package Creovel
  * @subpackage Creovel.Classes
  */
-class View
+class ActionView
 {
 	/**
 	 * Creates the page to be displayed and sets it to the page property.

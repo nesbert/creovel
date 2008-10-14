@@ -25,6 +25,13 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 **/
 	public $query = '';
 	
+	/**
+	 * SQL query string.
+	 *
+	 * @var string
+	 **/
+	public $table_name = '';
+	
 	public function  __construct($db_properties = null)
 	{
 		// if properties passed connect to database
@@ -54,6 +61,10 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 				$db_properties['host'] . '.' . $db_properties['default'] .
 				'). ' . mysqli_connect_error() . '.');
 			exit();
+		}
+		
+		if (@$db_properties['table_name']) {
+			$this->setTable($db_properties['table_name']);
 		}
 	}
 	
@@ -110,7 +121,9 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 * @return void
 	 */
 	public function setTable($table)
-	{}
+	{
+		$this->table_name = $table;
+	}
 	
 	/**
 	 * Returns an object modeled by the current table structure.
@@ -118,7 +131,33 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 * @return object
 	 */    
 	public function columns()
-	{}
+	{
+		// send a DESCRIBE query and set result on success
+		$result = $this->mysqli->query("DESCRIBE `{$this->table_name}`;");
+		
+		// set fields object to return
+		$fields = new stdClass;
+		
+		// foreach row in results insert into fields object
+		while ($row = @$result->fetch_assoc()) {
+		
+			// set fields into an associative array
+			foreach ($row as $key => $value) {
+				if ($key != 'Field') {
+					$temp_arr[strtolower($key)] = $value;
+				}
+			}
+			// get default value for field
+			$temp_arr['value'] = $row['Default'] !== 'NULL' ? $row['Default'] : null;
+			
+			// set property in fields object
+			$fields->$row['Field'] = (object) $temp_arr;
+		}
+		
+		$result->close();
+		
+		return $fields;
+	}
 	
 	/**
 	 * Resets the row pointer (index) to zero and reintialize all class varibles.
@@ -156,14 +195,14 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	{}
 	
 	/**
-	 * Quotes a string '$string' and escapes any bad characters.
+	 * Escapes any bad characters for query string.
 	 *
-	 * @param string $string name of table
+	 * @param string $string
 	 * @return string
 	 */
-	public function quote($string)
+	public function escape($string)
 	{
-		return "'" . $string . "'";
+		return $this->mysqli->real_escape_string($string);
 	}
 	
 	/**

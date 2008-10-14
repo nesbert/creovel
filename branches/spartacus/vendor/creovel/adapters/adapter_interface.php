@@ -87,12 +87,12 @@ interface AdapterInterface
 	public function insertId();
 	
 	/**
-	 * Quotes a string '$string' and escapes any bad characters.
+	 * Escapes any bad characters for query string.
 	 *
-	 * @param string $string name of table
+	 * @param string $string
 	 * @return string
 	 */
-	public function quote($string);
+	public function escape($string);
 	
 	/**
 	 * Check if a table exists. Returns false if table not found.

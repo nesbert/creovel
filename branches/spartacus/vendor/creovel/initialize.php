@@ -25,6 +25,7 @@ require_once 'helpers/framework.php';
 require_once 'helpers/general.php';
 require_once 'helpers/server.php';
 require_once 'helpers/text.php';
+require_once 'helpers/validation.php';
 
 // Include minimum base classes.
 require_once 'classes/dispatcher.php';

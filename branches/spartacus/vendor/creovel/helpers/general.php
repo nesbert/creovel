@@ -55,6 +55,27 @@ function escape_javascript($javascript)
 	return str_replace(array_keys($escape), array_values($escape), $javascript);
 }
 
+/**
+ * Check if an array is an associative array.
+ *
+ * @param array $_array
+ * @link http://us3.php.net/manual/en/function.is-array.php#85324
+ * @return boolean
+ **/
+function is_assoc($array) {
+	if (is_array($array) == false) {
+		return false;
+	}
+	
+	foreach (array_keys($array) as $k => $v) {
+		if ($k !== $v) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 /*
 	Function: get_user_defined_constants
 	

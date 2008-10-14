@@ -89,7 +89,7 @@ class ActiveRecord
 		}
 		
 		if (@!$db_properties['table_name']) {
-			$db_properties['table_name'] = $this->getTableName();
+			$db_properties['table_name'] = $this->tableName();
 		}
 		
 		$adapter = isset($db_properties['adapter']) ? strtolower($db_properties['adapter']) : 'None';
@@ -139,7 +139,7 @@ class ActiveRecord
 	 **/
 	public function query($sql)
 	{
-		$sq = &$this->selectQuery($sql);
+		$sq = $this->selectQuery($sql);
 		
 		if ($sq->totalRows() == 1) {
 			$this->loadAttributes($sq->getRow());
@@ -241,10 +241,37 @@ class ActiveRecord
 				break;
 		}
 		if (@$options['conditions']) {
-			$where[] = "({$options['conditions']})";
+			// hash condidtions
+			if (is_assoc($options['conditions'])) {
+				$conditions = array();
+				foreach ($options['conditions'] as $k => $v) {
+					$conditions[] = "`{$this->tableName() }`.`{$k}` = {$this->quoteValue($v)}";
+				}
+				$where[] = '(' . implode(' AND ', $conditions) . ')';
+				
+			// array condidtions
+			} elseif (is_array($options['conditions']) && in_string('?', $options['conditions'][0])) {
+				$str = array_shift($options['conditions']);
+				foreach ($options['conditions'] as $v) {
+					$str = preg_replace('/\?/', $this->quoteValue($v), $str, 1);
+				}
+				$where[] = "({$str})";
+			
+			// arraty with symbold
+			} elseif (is_array($options['conditions']) && in_string(':', $options['conditions'][0])) {
+				$str = $options['conditions'][0];
+				foreach ($options['conditions'][1] as $k => $v) {
+					$str = str_replace($k, $this->quoteValue($v), $str);
+				}
+				$where[] = "({$str})";
+				
+			// string conditions UNSAFE!
+			} else {
+				$where[] = "({$options['conditions']})";
+			}
 		}
 		
-		$sql  = "SELECT $select FROM `{$this->getTableName()}`";
+		$sql  = "SELECT $select FROM `{$this->tableName()}`";
 		$sql .= count($where) ? " WHERE " . implode(' AND ', $where) : "";
 		$sql .= $options['group'] ? " GROUP BY {$options['group']}" : "";
 		$sql .= $options['order'] ? " ORDER BY {$options['order']}" : "";
@@ -303,7 +330,7 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function getClassName()
+	public function className()
 	{
 		return (string) get_class($this);
 	}
@@ -313,9 +340,9 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function getTableName()
+	public function tableName()
 	{
-		return Inflector::tableize($this->getClassName());
+		return Inflector::tableize($this->className());
 	}
 	
 	/**
@@ -339,7 +366,7 @@ class ActiveRecord
 	 **/
 	public function loadAttributes($data)
 	{
-		// get column propties once
+		// get column properties once
 		if (!count($this->_columns_)) {
 			$this->_columns_ = $this->selectQuery()->columns();
 		}
@@ -402,7 +429,7 @@ class ActiveRecord
 			if (isset($this->_columns_->$attribute)) {
 				return $this->_columns_->$attribute->value;
 			}  else {
-				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->getClassName()}</strong> model.");
+				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->className()}</strong> model.");
 			}
 			
 		} catch ( Exception $e ) {

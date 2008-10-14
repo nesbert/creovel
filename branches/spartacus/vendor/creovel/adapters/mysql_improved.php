@@ -71,7 +71,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	public function disconnect()
 	{
 		//
-		if (isset($this->result)) {
+		if (isset($this->result) && is_object($this->result)) {
 			$this->result->close();
 		}
 		// close MySQL connection

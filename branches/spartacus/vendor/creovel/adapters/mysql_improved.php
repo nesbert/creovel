@@ -23,27 +23,42 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 *
 	 * @var string
 	 **/
-	public $query = '';
+	public $table_name = '';
 	
 	/**
 	 * SQL query string.
 	 *
 	 * @var string
 	 **/
-	public $table_name = '';
+	public $query = '';
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
 	public function  __construct($db_properties = null)
 	{
 		// if properties passed connect to database
 		if (is_array($db_properties)) $this->connect($db_properties);
 	}
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
 	public function __destruct()
 	{
 		// free memory and close database connection
 		$this->disconnect();
 	}
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
 	public function connect($db_properties)
 	{
 		// open a connection to a MySQL Server and set db_link
@@ -68,6 +83,11 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 		}
 	}
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
 	public function disconnect()
 	{
 		//
@@ -192,7 +212,9 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 * @return int
 	 */
 	public function insertId()
-	{}
+	{
+		return $this->mysqli->insert_id;
+	}
 	
 	/**
 	 * Escapes any bad characters for query string.

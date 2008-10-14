@@ -17,7 +17,7 @@ class Dispatcher
 	 * @return void
 	 * @throws Exception [description]
 	 **/
-	public static function run($events = null, $params = null, $return_as_str = false)
+	public function run($events = null, $params = null, $return_as_str = false)
 	{
 		// set event and params
 		$events = $events ? $events : self::events();

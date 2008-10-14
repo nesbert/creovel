@@ -36,6 +36,20 @@ class ActiveRecord
 	public $_columns_ = array();
 	
 	/**
+	 * Primary key column name.
+	 *
+	 * @var string
+	 **/
+	public $_select_query_;
+	
+	/**
+	 * Primary key column name.
+	 *
+	 * @var string
+	 **/
+	public $_action_query_;
+	
+	/**
 	 * undocumented function
 	 *
 	 * @return void
@@ -47,9 +61,11 @@ class ActiveRecord
 		}
 		
 		if (is_array($connection_properties)) {
-			$this->_select_query = $this->establishConnection($connection_properties);
-			$this->_action_query = $this->establishConnection($connection_properties);
+			$this->_select_query_ = $this->establishConnection($connection_properties);
+			$this->_action_query_ = $this->establishConnection($connection_properties);
 		}
+		
+		$this->setTableName();
 	}
 	
 	/**
@@ -286,7 +302,7 @@ class ActiveRecord
 	 **/
 	public function selectQuery($query = '', $connection_properties = array())
 	{
-		if (!isset($this->_select_query_)) {
+		if (!is_object($this->_select_query_)) {
 			$this->_select_query_ = $this->establishConnection($connection_properties);
 		}
 		
@@ -304,7 +320,7 @@ class ActiveRecord
 	 **/
 	public function actionQuery($query = '', $connection_properties = array())
 	{
-		if (!isset($this->_action_query_)) {
+		if (!is_object($this->_action_query_)) {
 			$this->_action_query_ = $this->establishConnection($connection_properties);
 		}
 		
@@ -342,7 +358,27 @@ class ActiveRecord
 	 **/
 	public function tableName()
 	{
-		return Inflector::tableize($this->className());
+		return $this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->className());
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function setTableName($table_name = '')
+	{
+		$this->_table_name_  = $table_name ? $table_name : $this->tableName();
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function setColumns()
+	{
+		$this->_columns_ = $this->_columns_ ? $this->_columns_ : $this->selectQuery()->columns();
 	}
 	
 	/**
@@ -368,7 +404,7 @@ class ActiveRecord
 	{
 		// get column properties once
 		if (!count($this->_columns_)) {
-			$this->_columns_ = $this->selectQuery()->columns();
+			$this->setColumns();
 		}
 		
 		// set column properties
@@ -392,7 +428,7 @@ class ActiveRecord
 		
 		// get column propties once
 		if (!count($this->_columns_)) {
-			$this->_columns_ = $this->selectQuery()->columns();
+			$this->setColumns();
 		}
 		
 		$attribites = array();
@@ -415,6 +451,95 @@ class ActiveRecord
 		die("Search and Load by _primary_key_ = {id}.");
 	}
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function save($validation_routine = 'validate')
+	{
+		$this->before_save();
+		
+		#if (!$this->validate_model($validation_routine)) return false;
+		
+		//if ($key = $this->key()) {
+		if (0) {
+		
+			// validate model on every update
+			$this->validate_on_update();
+			
+			// if error return false
+			#if ($this->errors->has_errors()) return false;
+			
+			$ret_val = $this->_execute_update($this->values(), $this->_primary_key_ . " = '" . $this->id() . "'");
+			
+		} else {
+		
+			// validate model on every insert
+			$this->validate_on_create();
+			
+			// if error return false
+			#if ($this->errors->has_errors()) return false;
+			
+			$this->before_create();
+			
+			$ret_val = $this->insertRow();
+		}
+		
+		#foreach ($this->child_objects as $obj) $obj->save();
+		
+		if ($ret_val) {
+			$this->after_save();
+			return $ret_val;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function insertRow()
+	{
+		foreach ($this->_columns_ as $name => $field) {
+			switch (true) {
+				case $name == 'created_at':
+				case $name == 'updated_at':
+					$field->value = datetime($field->value);
+					break;
+				
+				case is_array($field->value):
+					if ($field->type == 'datetime') {
+						$field->value = datetime($field->value);
+					} else {
+						$field->value = serialize($field->value);
+					}
+					break;
+					
+				case $field->null == 'YES':
+					$field->value = $field->value === '' || $field->value === null ? 'NULL' : '';
+					break;
+			}
+		}
+		
+		// sanitize values
+		$values = array();
+		foreach ($this->attributes() as $val) {
+			$values[] = $this->quoteValue($val);
+		}
+		
+		// build query
+		$qry = "INSERT INTO `{$this->tableName()}` ";
+		$qry .= "(`" . implode('`, `', array_keys((array) $this->attributes())) . "`)";
+		$qry .= " VALUES ";
+		$qry .= "(" . implode(', ', $values) . ");";
+		
+		return $this->id = $this->actionQuery($qry)->insertId();
+	}
+	
+	
 	// Section: Magic Functions
 	
 	/**
@@ -432,8 +557,60 @@ class ActiveRecord
 				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->className()}</strong> model.");
 			}
 			
-		} catch ( Exception $e ) {
+		} catch (Exception $e) {
 			CREO('application_error', $e);
 		}
 	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function __set($attribute, $value)
+	{
+		try {
+			
+			// get column properties once
+			if (!count($this->_columns_)) {
+				$this->setColumns();
+			}
+			
+			if (isset($this->_columns_->$attribute)) {
+				return $this->_columns_->$attribute->value = $value;
+			} else {
+				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->className()}</strong> model.");
+			}
+			
+		} catch (Exception $e) {
+			// add to errors
+			CREO('application_error', $e);
+		}
+	}
+	
+	/*
+		Section: Callback Functions
+		
+		* after_save
+		* before_save
+		* after_find
+		* before_find
+		* before_create
+		* after_delete
+		* before_delete
+		* validate
+		* validate_on_create
+		* validate_on_update
+	
+	*/
+	public function after_save() {}
+	public function before_save() {}
+	public function after_find() {}
+	public function before_find() {}
+	public function before_create() {}
+	public function after_delete() {}
+	public function before_delete() {}
+	public function validate() {}
+	public function validate_on_create() {}
+	public function validate_on_update() {}
 } // END abstract class ActiveRecord implements Interator

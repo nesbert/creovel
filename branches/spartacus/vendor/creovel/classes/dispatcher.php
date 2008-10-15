@@ -24,18 +24,18 @@ class Dispatcher
 		$params = $params ? $params : self::params();
 		
 		// include controller
-		self::includeController((isset($events['nested_controller_path']) && $events['nested_controller_path'] ? $events['nested_controller_path'] . DS : '' ) . $events['controller']);
+		self::include_controller((isset($events['nested_controller_path']) && $events['nested_controller_path'] ? $events['nested_controller_path'] . DS : '' ) . $events['controller']);
 		
 		// create controller object and build the framework
 		$controller = humanize($events['controller']) . 'Controller';
 		$controller = new $controller();
 		
 		// set controller properties
-		$controller->__setEvents($events);
-		$controller->__setParams($params);
+		$controller->__set_events($events);
+		$controller->__set_params($params);
 		
 		// execute action
-		$controller->__executeAction();
+		$controller->__execute_action();
 		
 		// output to user
 		return $controller->__output($return_as_str);
@@ -73,7 +73,7 @@ class Dispatcher
 	 * @param string $controller_path Server path of controller to include.
 	 * @return void 
 	 **/
-	public function includeController($controller_path)
+	public function include_controller($controller_path)
 	{
 		try {
 			// include application controller

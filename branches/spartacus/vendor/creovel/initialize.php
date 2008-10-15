@@ -4,12 +4,12 @@ if (PHP_VERSION <= 5) {
 	die('Creovel requires PHP 5!');
 }
 
-// Define environment constants.
-define('PHP', phpversion());
-
 // Define creovel constants.
 define('CREOVEL_VERSION', '1.xx');
 define('CREOVEL_RELEASE_DATE', '2008-07-02 22:55:55');
+
+// Define environment constants.
+define('PHP', phpversion());
 
 // Define time constants.
 define('SECOND',  1);
@@ -22,8 +22,10 @@ define('YEAR',  365 * DAY);
 
 // Include base helper libraries.
 require_once 'helpers/datetime.php';
+require_once 'helpers/form.php';
 require_once 'helpers/framework.php';
 require_once 'helpers/general.php';
+require_once 'helpers/html.php';
 require_once 'helpers/server.php';
 require_once 'helpers/text.php';
 require_once 'helpers/validation.php';
@@ -48,5 +50,8 @@ $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
 $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
 $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
 $GLOBALS['CREOVEL']['EMAIL_ON_ERROR'] = false;
-$GLOBALS['CREOVEL']['ROUTING'] = array();
-$GLOBALS['CREOVEL']['ROUTING']['CURRENT'] = array();
+
+// Set routing defaults
+$GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());
+$GLOBALS['CREOVEL']['ROUTING']['current'] = array();
+$GLOBALS['CREOVEL']['ROUTING']['routes'] = array();

@@ -57,15 +57,15 @@ class ActiveRecord
 	public function __construct($data = null, $connection_properties = null)
 	{
 		if (is_array($data)) {
-			$this->loadData($data);
+			$this->load_data($data);
 		}
 		
 		if (is_array($connection_properties)) {
-			$this->_select_query_ = $this->establishConnection($connection_properties);
-			$this->_action_query_ = $this->establishConnection($connection_properties);
+			$this->_select_query_ = $this->establish_connection($connection_properties);
+			$this->_action_query_ = $this->establish_connection($connection_properties);
 		}
 		
-		$this->setTableName();
+		$this->set_table_name();
 	}
 	
 	/**
@@ -73,7 +73,7 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function connectionProperties()
+	public function connection_properties()
 	{
 		switch (CREO('mode')) {
 			case 'PRODUCTION':
@@ -98,14 +98,14 @@ class ActiveRecord
 	 * @param array $db_properties
 	 * @return object
 	 **/
-	public function establishConnection($db_properties = null)
+	public function establish_connection($db_properties = null)
 	{
 		if (!$db_properties || !is_array($db_properties)) {
-			$db_properties = self::connectionProperties();
+			$db_properties = self::connection_properties();
 		}
 		
 		if (@!$db_properties['table_name']) {
-			$db_properties['table_name'] = $this->tableName();
+			$db_properties['table_name'] = $this->table_name();
 		}
 		
 		$adapter = isset($db_properties['adapter']) ? strtolower($db_properties['adapter']) : 'None';
@@ -126,7 +126,7 @@ class ActiveRecord
 				break;
 			
 			default:
-				self::throwError("Unknown database adapter '{$adapter}'. Please check database configuration file.");
+				self::throw_error("Unknown database adapter '{$adapter}'. Please check database configuration file.");
 				break;
 		}
 		
@@ -138,7 +138,7 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function throwError($msg = null)
+	public function throw_error($msg = null)
 	{
 		if (!$msg) {
 			$msg = 'An error occurred while executing the method ' .
@@ -178,7 +178,7 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function findBySql($sql)
+	public function find_by_sql($sql)
 	{
 		return $this->query($sql);
 	}
@@ -190,7 +190,7 @@ class ActiveRecord
 	 **/
 	public function find($type, $options = array())
 	{
-		$sql = $this->buildQueryFromOptions(array('_type_' => $type) + (array) $options);
+		$sql = $this->build_query_from_options(array('_type_' => $type) + (array) $options);
 		return $this->query($sql);
 	}
 	
@@ -199,7 +199,7 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function buildQueryFromOptions($options = array())
+	public function build_query_from_options($options = array())
 	{
 		$select = '*';
 		$where = array();
@@ -238,7 +238,7 @@ class ActiveRecord
 			case is_array($options['_type_']):
 				$id = array();
 				foreach ($options['_type_'] as $v) {
-					$id[] = $this->quoteValue($v);
+					$id[] = $this->quote_value($v);
 				}
 				$where[] = "`{$this->_primary_key_}` IN (" .
 					implode(", ", $id) . ")";
@@ -253,7 +253,7 @@ class ActiveRecord
 				
 			default:
 				$where[] = "`{$this->_primary_key_}` = ".
-					$this->quoteValue($options['_type_']);
+					$this->quote_value($options['_type_']);
 				break;
 		}
 		if (@$options['conditions']) {
@@ -269,7 +269,7 @@ class ActiveRecord
 			} elseif (is_array($options['conditions']) && in_string('?', $options['conditions'][0])) {
 				$str = array_shift($options['conditions']);
 				foreach ($options['conditions'] as $v) {
-					$str = preg_replace('/\?/', $this->quoteValue($v), $str, 1);
+					$str = preg_replace('/\?/', $this->quote_value($v), $str, 1);
 				}
 				$where[] = "({$str})";
 			
@@ -277,7 +277,7 @@ class ActiveRecord
 			} elseif (is_array($options['conditions']) && in_string(':', $options['conditions'][0])) {
 				$str = $options['conditions'][0];
 				foreach ($options['conditions'][1] as $k => $v) {
-					$str = str_replace($k, $this->quoteValue($v), $str);
+					$str = str_replace($k, $this->quote_value($v), $str);
 				}
 				$where[] = "({$str})";
 				
@@ -300,10 +300,10 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function selectQuery($query = '', $connection_properties = array())
+	public function select_query($query = '', $connection_properties = array())
 	{
 		if (!is_object($this->_select_query_)) {
-			$this->_select_query_ = $this->establishConnection($connection_properties);
+			$this->_select_query_ = $this->establish_connection($connection_properties);
 		}
 		
 		if ($query) {
@@ -318,10 +318,10 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function actionQuery($query = '', $connection_properties = array())
+	public function action_query($query = '', $connection_properties = array())
 	{
 		if (!is_object($this->_action_query_)) {
-			$this->_action_query_ = $this->establishConnection($connection_properties);
+			$this->_action_query_ = $this->establish_connection($connection_properties);
 		}
 		
 		if ($query) {
@@ -336,9 +336,9 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function quoteValue($string)
+	public function quote_value($string)
 	{
-		return "'" . $this->selectQuery()->escape($string) . "'";
+		return "'" . $this->select_query()->escape($string) . "'";
 	}
 	
 	/**
@@ -346,7 +346,7 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function className()
+	public function class_name()
 	{
 		return (string) get_class($this);
 	}
@@ -356,9 +356,9 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function tableName()
+	public function table_name()
 	{
-		return $this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->className());
+		return $this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name());
 	}
 	
 	/**
@@ -366,9 +366,9 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function setTableName($table_name = '')
+	public function set_table_name($table_name = '')
 	{
-		$this->_table_name_  = $table_name ? $table_name : $this->tableName();
+		$this->_table_name_  = $table_name ? $table_name : $this->table_name();
 	}
 	
 	/**
@@ -376,9 +376,9 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function setColumns()
+	public function set_columns()
 	{
-		$this->_columns_ = $this->_columns_ ? $this->_columns_ : $this->selectQuery()->columns();
+		$this->_columns_ = $this->_columns_ ? $this->_columns_ : $this->select_query()->columns();
 	}
 	
 	/**
@@ -386,10 +386,10 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function loadData($data)
+	public function load_data($data)
 	{
 		if (is_array($data)) {
-			$this->loadAttributes($data);
+			$this->load_attributes($data);
 		} else {
 			$this->id($data);
 		}
@@ -400,11 +400,11 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function loadAttributes($data)
+	public function load_attributes($data)
 	{
 		// get column properties once
 		if (!count($this->_columns_)) {
-			$this->setColumns();
+			$this->set_columns();
 		}
 		
 		// set column properties
@@ -422,13 +422,13 @@ class ActiveRecord
 	{
 		// if data passed set $data else get $data
 		if ($data) {
-			$this->loadAttributes($data);
+			$this->load_attributes($data);
 			return;
 		}
 		
 		// get column propties once
 		if (!count($this->_columns_)) {
-			$this->setColumns();
+			$this->set_columns();
 		}
 		
 		$attribites = array();
@@ -483,7 +483,7 @@ class ActiveRecord
 			
 			$this->before_create();
 			
-			$ret_val = $this->insertRow();
+			$ret_val = $this->insert_row();
 		}
 		
 		#foreach ($this->child_objects as $obj) $obj->save();
@@ -501,7 +501,7 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function insertRow()
+	public function insert_row()
 	{
 		foreach ($this->_columns_ as $name => $field) {
 			switch (true) {
@@ -527,7 +527,7 @@ class ActiveRecord
 		// sanitize values
 		$values = array();
 		foreach ($this->attributes() as $val) {
-			$values[] = $this->quoteValue($val);
+			$values[] = $this->quote_value($val);
 		}
 		
 		// build query
@@ -536,7 +536,7 @@ class ActiveRecord
 		$qry .= " VALUES ";
 		$qry .= "(" . implode(', ', $values) . ");";
 		
-		return $this->id = $this->actionQuery($qry)->insertId();
+		return $this->id = $this->action_query($qry)->insert_id();
 	}
 	
 	
@@ -554,7 +554,7 @@ class ActiveRecord
 			if (isset($this->_columns_->$attribute)) {
 				return $this->_columns_->$attribute->value;
 			}  else {
-				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->className()}</strong> model.");
+				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
 			}
 			
 		} catch (Exception $e) {
@@ -573,13 +573,13 @@ class ActiveRecord
 			
 			// get column properties once
 			if (!count($this->_columns_)) {
-				$this->setColumns();
+				$this->set_columns();
 			}
 			
 			if (isset($this->_columns_->$attribute)) {
 				return $this->_columns_->$attribute->value = $value;
 			} else {
-				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->className()}</strong> model.");
+				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
 			}
 			
 		} catch (Exception $e) {

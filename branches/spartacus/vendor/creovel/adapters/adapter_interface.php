@@ -50,7 +50,7 @@ interface AdapterInterface
 	 * @param string $table name of table
 	 * @return void
 	 */
-	public function setTable($table);
+	public function set_table($table);
 	
 	/**
 	 * Returns an object modeled by the current table structure.
@@ -70,21 +70,21 @@ interface AdapterInterface
 	 *
 	 * @return int
 	 */
-	public function totalRows();
+	public function total_rows();
 	
 	/**
 	 * Returns the number of row(s) affect by a query (eg. UPDATE, DELETE).
 	 *
 	 * @return int
 	 */
-	public function affectedRows();
+	public function affected_rows();
 	
 	/**
 	 * Returns the id of the row just inserted.
 	 *
 	 * @return int
 	 */
-	public function insertId();
+	public function insert_id();
 	
 	/**
 	 * Escapes any bad characters for query string.
@@ -93,12 +93,4 @@ interface AdapterInterface
 	 * @return string
 	 */
 	public function escape($string);
-	
-	/**
-	 * Check if a table exists. Returns false if table not found.
-	 *
-	 * @param string $table name of table
-	 * @return bool
-	 */    
-	public function tableExists($table);
 }

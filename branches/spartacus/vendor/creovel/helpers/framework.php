@@ -381,7 +381,7 @@ function url_for()
 		
 		// set id and misc
 		if (is_array($args[2])) {
-			$id = $args[2]['id'];
+			$id = @$args[2]['id'];
 			unset($args[2]['id']);
 			$misc = urlencode_array($args[2]);
 		} else {
@@ -389,11 +389,10 @@ function url_for()
 		}
 		
 		// secure mode
-		$https = $args[3];
-		
+		$https = @$args[3];
 	}
 
-	if (is_array($_ENV['secure_controllers']) && in_array($controller, $_ENV['secure_controllers'])) {
+	if (@is_array($_ENV['secure_controllers']) && in_array($controller, $_ENV['secure_controllers'])) {
 		$https = true;
 	}
 	// build url

@@ -56,7 +56,7 @@ abstract class ActionController
 	 * @param array $events Array of framework events.
 	 * @return void
 	 **/
-	public function __setEvents($events)
+	public function __set_events($events)
 	{
 		$this->_controller = $events['controller'];
 		$this->_action = $events['action'];
@@ -75,7 +75,7 @@ abstract class ActionController
 	 * @param array $params Array of url parameters.
 	 * @return void
 	 **/
-	public function __setParams($params)
+	public function __set_params($params)
 	{
 		$this->params = $params;
 	}
@@ -85,24 +85,24 @@ abstract class ActionController
 	 *
 	 * @return void
 	 **/
-	public function __executeAction()
+	public function __execute_action()
 	{
 		try {
 			// initialize callback
 			$this->initialize();
 			
 			// initialize scope fix
-			$this->__intializeParentControllers();
+			$this->__intialize_parent_controllers();
 			
 			if (method_exists($this, $this->_action)) {
 				// call before filter
-				$this->beforeFilter();
+				$this->before_filter();
 				
 				// controller execute action
 				$this->{$this->_action}();
 				
 				// call before filter
-				$this->afterFilter();
+				$this->after_filter();
 			} else {
 				throw new Exception('Call to undefined method ' .
 					"<em>{$this->_action}</em> not found in " .
@@ -145,27 +145,27 @@ abstract class ActionController
 			if ( !is_array($options) ) return false;
 			
 			// set and unset reserved $options
-			if (isset($options['partial'])) {
+			if (@$options['partial']) {
 				$view = '_'.$options['partial'];
 				unset($options['partial']);
 			}
 			
-			if (isset($options['action']) ) {
+			if (@$options['action']) {
 				$view = $options['action'];
 				unset($options['action']);
 			}
 			
-			if (isset($options['render']) ) {
+			if (@$options['render']) {
 				$view = $options['render'];
 				unset($options['render']);
 			}
 			
-			if ($options['controller'] ) {
+			if (@$options['controller']) {
 				$controller = $options['controller'];
 				unset($options['controller']);
 			}
 			
-			if (isset($options['layout'])) {
+			if (@$options['layout']) {
 				$layout = $options['layout'];
 				unset($options['layout']);
 			}
@@ -176,7 +176,7 @@ abstract class ActionController
 			}
 			
 			// set view path
-			$view_path = $this->__viewPath($view, $controller);
+			$view_path = @$this->__view_path($view, $controller);
 			
 			switch (true) {
 				
@@ -186,11 +186,11 @@ abstract class ActionController
 					break;
 				
 				// if layout get page content with layout
-				case ($layout):
+				case (@$layout):
 					if (isset($return_as_str)) {
-						return ActionView::create($view_path, $this->__layoutPath($layout), $options);
+						return ActionView::create($view_path, $this->__layout_path($layout), $options);
 					} else {
-						return ActionView::show($view_path, $this->__layoutPath($layout), $options);
+						return ActionView::show($view_path, $this->__layout_path($layout), $options);
 					}
 					break;
 				
@@ -201,7 +201,7 @@ abstract class ActionController
 					
 					if ( $return_as_str ) {
 						$options['layout'] = false;
-						return ActionView::create($view_path, $this->__layoutPath($layout), $options);
+						return ActionView::create($view_path, $this->__layout_path($layout), $options);
 					} else {
 						// include partial
 						include $view_path;
@@ -210,7 +210,7 @@ abstract class ActionController
 					break;
 				
 				default:
-					if (!$options['no_error']) {
+					if (@!$options['no_error']) {
 						throw new Exception("Unable to render <em>" .
 						($view{0} == '_' ? 'partial' : 'view') .
 						"</em> not found in <strong>{$view_path}</strong>.");
@@ -229,7 +229,7 @@ abstract class ActionController
 	 * @param array Options array.
 	 * @return string Output to screen or a string.
 	 **/
-	public function renderToStr($options)
+	public function render_to_str($options)
 	{
 		$options['to_str'] = true;
 		return $this->render($options);
@@ -244,7 +244,7 @@ abstract class ActionController
 	 * @param boolean $no_error *Optional* no application error if partial not found.
 	 * @return string Output to screen or a string.
 	 **/
-	public function buildPartial($view, $locals = null, $controller = null, $no_error = false)
+	public function build_partial($view, $locals = null, $controller = null, $no_error = false)
 	{
 		if ( is_array($view) ) {
 			$options = $view;
@@ -267,14 +267,14 @@ abstract class ActionController
 	 * @param boolean $no_error *Optional* no application error if partial not found.
 	 * @return string Output to screen or a string.
 	 **/
-	public function renderPartial($partial, $locals = null, $controller = null, $no_error = false)
+	public function render_partial($partial, $locals = null, $controller = null)
 	{
 		if (is_array($partial)) {
 			$options = $partial;
 		} else {
 			$options['partial'] = $partial;
 		}
-		$this->buildPartial($options, $locals, $controller, $no_error);
+		$this->build_partial($options, $locals, $controller, $no_error);
 	}
 	
 	/**
@@ -286,15 +286,15 @@ abstract class ActionController
 	 * @param string $controller *Optional* controller name. Use if view is not in the current controller.
 	 * @return string Output string.
 	 **/
-	public function renderPartialToStr($partial, $locals = null, $controller = null)
+	public function render_partial_to_str($partial, $locals = null, $controller = null)
 	{
 		if ( is_array($partial) ) {
 			$options = $partial;
 		} else {
 			$options['partial'] = $partial;
 		}
-		if ( $locals ) $options['locals'] = $locals;
-		if ( $controller ) $options['controller'] = $controller;
+		if ($locals) $options['locals'] = $locals;
+		if ($controller) $options['controller'] = $controller;
 		$options['to_str'] = true;
 		return $this->render($options);
 	}
@@ -309,7 +309,7 @@ abstract class ActionController
 	 * @param boolean $to_str - Boolean to return controller as a string.
 	 * @return string Print output or return string.
 	 **/
-	public function buildController($controller, $action = '', $id = '', $extras = array(), $to_str = false)
+	public function build_controller($controller, $action = '', $id = '', $extras = array(), $to_str = false)
 	{
 		$route_name = 'build_controller_' . uniqid();
 		$route_path = "/{$controller}/{$action}";
@@ -329,9 +329,9 @@ abstract class ActionController
 	 * @param array $extras
 	 * @return string Output string.
 	 **/
-	public function buildControllerToStr($controller, $action = '', $id = '', $extras = array())
+	public function build_controller_to_str($controller, $action = '', $id = '', $extras = array())
 	{
-		return $this->build($controller, $action, $id, $extras, true);
+		return $this->build_controller($controller, $action, $id, $extras, true);
 	}
 	
 	/**
@@ -356,7 +356,7 @@ abstract class ActionController
 	 *
 	 * @return void
 	 **/
-	public function noView()
+	public function no_view()
 	{
 		$this->layout = false;
 		$this->render = false;
@@ -367,7 +367,7 @@ abstract class ActionController
 	 *
 	 * @return boolean
 	 **/
-	public function isPosted()
+	public function is_posted()
 	{
 		return $_SERVER['REQUEST_METHOD'] == 'POST';
 	}
@@ -377,7 +377,7 @@ abstract class ActionController
 	 *
 	 * @return void
 	 **/
-	public function throwError($msg = null)
+	public function throw_error($msg = null)
 	{
 		if (!$msg) {
 			$msg = 'An error occurred while executing the action ' .
@@ -414,7 +414,7 @@ abstract class ActionController
 	 * @param string $controller String of the controller name.
 	 * @return string Server path of view.
 	 **/
-	private function __viewPath($view = null, $controller = null)
+	private function __view_path($view = null, $controller = null)
 	{
 		// nested controllers check [NH] might need to find a better way to do this
 		if (isset($this->_nested_controller_path)) {
@@ -433,7 +433,7 @@ abstract class ActionController
 	 * @param string $layout String of the layout name.
 	 * @return string Server path of layout.
 	 **/
-	private function __layoutPath($layout = null)
+	private function __layout_path($layout = null)
 	{
 		return VIEWS_PATH . 'layouts' . DS . ($layout ? $layout : $this->layout) . '.php';
 	}
@@ -443,7 +443,7 @@ abstract class ActionController
 	 *
 	 * @return void
 	 **/
-	private function __intializeParentControllers()
+	private function __intialize_parent_controllers()
 	{
 		$parent_controllers = get_ancestors(get_class($this));
 		foreach (array_reverse($parent_controllers) as $controller) {
@@ -467,7 +467,7 @@ abstract class ActionController
 	 *
 	 * @return void
 	 **/
-	public function beforeFilter()
+	public function before_filter()
 	{}
 	
 	/**
@@ -475,6 +475,6 @@ abstract class ActionController
 	 *
 	 * @return void
 	 **/
-	public function afterFilter()
+	public function after_filter()
 	{}
 } // END class Controller

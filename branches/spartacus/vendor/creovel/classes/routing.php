@@ -18,121 +18,95 @@ class Routing
 	 **/
 	public function map($name, $url, $options = null, $requirements = null, $nested_controller = false)
 	{
-		$uri = explode('?', $_SERVER['REQUEST_URI']);
-		
-		// create path segments
-		$path_segments = self::cleanExplode('/', $url);
-		
-		// create uri segments
-		$uri_segments = self::cleanExplode('/', $uri[0]);
-		$uri_segments_count = count($uri_segments);
-		
-		#print_obj($path_segments);print_obj($uri_segments);
-		
-		// set default vals
-		$default_params = array();
-		if (count($options)) foreach ($options as $k => $v) {
-			switch (true) {
-				case ($k == 'controller'):
-				case ($k == 'action'):
-					break;
-					
-				default:
-					$default_params[$k] = $v;
-					break;
-			}
-		}
-		
-		// create events
 		$events = array();
-		
-		// set controller & action
-		if ($nested_controller) {
-			die('Nested controller support not yet complete!');
-		} else {
-			if ($uri_segments_count && in_array(':controller', $path_segments)) {
-				if (isset($uri_segments[array_search(':controller', $path_segments)])) {
-					$events['controller'] = $uri_segments[array_search(':controller', $path_segments)];
-				} else {
-					$events['controller'] = isset($options['controller']) ? $options['controller'] : CREO('default_controller');
-				}
-			} else {
-				$events['controller'] = isset($options['controller']) ? $options['controller'] : CREO('default_controller');
-			}
-			if ($uri_segments_count && in_array(':action', $path_segments)) {
-				if (isset($uri_segments[array_search(':action', $path_segments)])) {
-					$events['action'] = $uri_segments[array_search(':action', $path_segments)];
-				} else {
-					$events['action'] = isset($options['action']) ? $options['action'] : CREO('default_action');
-				}
-			} else {
-				$events['action'] = isset($options['action']) ? $options['action'] : CREO('default_action');
-			}
-		}
+		$params = array();
+		@$options['controller'] = $options['controller'] ? $options['controller'] : CREO('default_controller');
+		@$options['action'] = $options['action'] ? $options['action'] : CREO('default_action');
 		
 		// set params
 		$params = $options;
 		unset($params['controller']);
 		unset($params['action']);
-		
-		if ($uri_segments_count) {
-			foreach ($path_segments as $k => $v) {
-				switch (true) {
-					case ($v == ':controller'):
-					case ($v == ':action'):
-						break;
-						
-					case ($v == '*'):
-						foreach (range($k, $uri_segments_count) as $uri_key) {
-							if (isset($uri_segments[$uri_key + 1]) && ($uri_segments[$uri_key] < 1)) {
-								$params[$uri_segments[$uri_key]] = $uri_segments[$uri_key + 1];
-								continue;
-							}
-						}
-						break;
-					
-					case ($v{0} == ':'):
-						$params[self::cleanLabel($v)] = isset($uri_segments[$k]) ? $uri_segments[$k] : '';
-					    break;
-				}
-			}
-		}
-		
-		$pattern = '';
-		if (count($requirements)) {
-			// set regex pattern
-			$pattern = '/^';
-			
-			#print_obj($path_segments);print_obj($params);print_obj($requirements);
-			
-			foreach ($path_segments as $part) {
-				
-				if ($part == '*') {
-					break;
-				}
-				
-				if ($part{0} == ':') {
-					$label = self::cleanLabel($part);
-					if (isset($requirements[$part])) {
-						$pattern .= '\/' . self::trimSlashes($requirements[$part]);
-					} elseif (isset($params[$label]) && $params[$label]) {
-						$pattern .= '([A-Za-z0-9_\-\+.\/]+)';
-					}
-				} else {
-					$pattern .= '\/' . $part;
-				}
-			}
-			
-			$pattern .= '$/';
-		}
-		
-		
 		if (count($params)) foreach ($params as $k => $v) {
-			$label = self::cleanLabel($k);
-			if (isset($params[$label]) && !$v) {
-				$params[$label] = isset($default_params[$label]) ? $default_params[$label] : '';
+			$label = self::clean_label($k);
+			$params[$label] = $v;
+		}
+		
+		$url_path = explode('/', $url);
+		
+		// remove first and last if empty
+		if (@!$url_path[0]) array_shift($url_path);
+		if (@!$url_path[count($url_path) - 1]) array_pop($url_path);
+		
+		// segment path
+		$segments = array();
+		foreach ($url_path as $key => $segment) {
+			if (!$segment) continue;
+			if ($segment == '*') {
+				$astrik = $key;
+				continue;
+			}
+			$label = self::clean_label($segment);
+			$type = $segment{0} == ':' ? 'dynamic' : 'static';
+			$segments[] = @(object) array(
+				'name' => $label,
+				'type' => $type,
+				'value' => $type == 'static' ? '' : $options[$label],
+				'constraint' => $requirements[$segment]
+				);
+		}
+		
+		$uri_path = explode('/', $GLOBALS['CREOVEL']['ROUTING']['path']);
+		
+		// remove first and last if empty
+		if (@!$uri_path[0]) array_shift($uri_path);
+		if (@!$uri_path[count($uri_path) - 1]) array_pop($uri_path);
+		
+		// update segment values from uri
+		foreach ($uri_path as $k => $v) {
+			if ($k > count($segments) - 1) break;
+			if ($segments[$k]->type == 'dynamic') $segments[$k]->value = $v;
+		}
+		
+		// copy non staic vals to params
+		foreach ($segments as $segment) {
+			if ($segment->name == 'controller' || $segment->name == 'action') {
+				$events[$segment->name] = $segment->value;
+				continue;
+			}
+			if ($segment->type != 'static') {
+				$params[$segment->name] = $segment->value;
 			}
 		}
+		
+		// add * to params
+		if ($astrik && ($astrik < ($max = count($uri_path)))) {
+			foreach (range($astrik, $max - 1, 2) as $k) {
+				if (@$uri_path[$k]) @$params[$uri_path[$k]] = $uri_path[$k + 1];
+			}
+		}
+		
+		// if no events set events
+		if (@!$events['controller']) $events['controller'] = $options['controller'];
+		if (@!$events['action']) $events['action'] = $options['action'];
+		
+		// ceate regex
+		$regex_all = '([A-Za-z0-9_\-\+.\/]+)';
+		$pattern = '/^';
+		foreach ($segments as $segment) {
+			if ($segment->name == '*') {
+				break;
+			} else if ($segment->constraint && $segment->value) {
+				$pattern .= '\/' . self::trim_slashes($segment->constraint);
+			} else if ($segment->type == 'dynamic') {
+				if ((substr($pattern, -strlen($regex_all)) != $regex_all)) {
+					$pattern .= $regex_all;
+				}
+			} else {
+				$pattern .= '\/' . $segment->name;
+			}
+		}
+		$pattern .= '$/';
 		
 		self::add($name, $url, $events, $params, $pattern);
 	}
@@ -151,31 +125,15 @@ class Routing
 			'name'			=> $name,
 			'url'			=> $url,
 			'events'		=> $events,
-			'params'		=> $params
+			'params'		=> $params,
+			'regex'		=> $regex
 			);
-		if ($regex) {
-			$data['regex'] = $regex;
-		}
+		
 		if ($name == 'default') {
-			$GLOBALS['CREOVEL']['ROUTING']['ROUTES']['default'] = $data;
+			$GLOBALS['CREOVEL']['ROUTING']['routes']['default'] = $data;
 		} else {
-			$GLOBALS['CREOVEL']['ROUTING']['ROUTES'] = array($name => $data) + $GLOBALS['CREOVEL']['ROUTING']['ROUTES'];
+			$GLOBALS['CREOVEL']['ROUTING']['routes'] = array($name => $data) + $GLOBALS['CREOVEL']['ROUTING']['routes'];
 		}
-	}
-	
-	/**
-	 * Create array and remove last value if blank.
-	 *
-	 * @param string $separator
-	 * @param string $string
-	 * @return array
-	 **/
-	public function cleanExplode($separator, $string)
-	{
-		$temp = explode($separator, $string);
-		if (!$temp[0]) array_shift($temp);
-		if ((count($temp) > 0) && (!$temp[count($temp) - 1])) array_pop($temp);
-		return $temp;
 	}
 	
 	/**
@@ -184,9 +142,19 @@ class Routing
 	 * @param string $label
 	 * @return string
 	 **/
-	public function cleanLabel($label)
+	public function clean_label($label)
 	{
-		return $label{0} == ':' ? substr($label, 1) : $label;
+		return $label && $label{0} == ':' ? substr($label, 1) : $label;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function trim_slashes($pattern)
+	{
+		return preg_replace('/^\/(.*?)[\/]?$/', "\\1", $pattern);
 	}
 	
 	/**
@@ -198,16 +166,7 @@ class Routing
 	 **/
 	public function which($uri = null, $return_params = false)
 	{
-		// get query string
-		$uri = self::getQueryString($uri);
-		
-		if (count($GLOBALS['CREOVEL']['ROUTING']['CURRENT'])) {
-			if ($return_params) {
-				return $GLOBALS['CREOVEL']['ROUTING']['CURRENT']['params'];
-			} else {
-				return $GLOBALS['CREOVEL']['ROUTING']['CURRENT']['events'];
-			}
-		}
+		$uri = $uri ? $uri : $GLOBALS['CREOVEL']['ROUTING']['path'];
 		
 		// return default route
 		if ($uri == '/') {
@@ -222,14 +181,15 @@ class Routing
 		}
 		
 		// create pattern to match against URI
-		foreach ($GLOBALS['CREOVEL']['ROUTING']['ROUTES'] as $name => $route) {
+		foreach ($GLOBALS['CREOVEL']['ROUTING']['routes'] as $name => $route) {
+			
 			// skip default route
-			if (!isset($route['regex'])) continue;
+			if (@!$route['regex']) continue;
 			
 			// if match return events
-			if (preg_match($route['regex'], '/'. self::trimSlashes($uri)) ) {
+			if (preg_match($route['regex'], $uri)) {
 				// set current
-				$GLOBALS['CREOVEL']['ROUTING']['CURRENT'] = $route;
+				$GLOBALS['CREOVEL']['ROUTING']['current'] = $route;
 				if ($return_params) {
 					return $route['params'];
 				} else {
@@ -249,27 +209,14 @@ class Routing
 	}
 	
 	/**
-	 * Get URI query string.
-	 *
-	 * @param string $uri
-	 * @return string
-	 **/
-	public function getQueryString($uri = null)
-	{
-		if (!$uri) $uri = $_SERVER['REQUEST_URI'];
-		$uri = explode('?', $uri);
-		return  $uri[0];
-	}
-	
-	/**
 	 * undocumented function
 	 *
 	 * @return void
 	 * @author Nesbert Hidalgo
 	 **/
-	public function setCurrentDefault()
+	public function set_current_default()
 	{
-		$GLOBALS['CREOVEL']['ROUTING']['CURRENT'] = $GLOBALS['CREOVEL']['ROUTING']['ROUTES']['default'];
+		$GLOBALS['CREOVEL']['ROUTING']['current'] = $GLOBALS['CREOVEL']['ROUTING']['routes']['default'];
 	}
 	
 	/**
@@ -277,9 +224,9 @@ class Routing
 	 *
 	 * @return array Events array.
 	 **/
-	public function defaultEvents()
+	public function default_events()
 	{
-		return $GLOBALS['CREOVEL']['ROUTING']['ROUTES']['default']['events'];
+		return $GLOBALS['CREOVEL']['ROUTING']['routes']['default']['events'];
 	}
 	
 	/**
@@ -287,19 +234,9 @@ class Routing
 	 *
 	 * @return array Params array.
 	 **/
-	public function defaultParams()
+	public function default_params()
 	{
-		return $GLOBALS['CREOVEL']['ROUTING']['ROUTES']['default']['params'];
-	}
-	
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 **/
-	public function trimSlashes($pattern)
-	{
-		return preg_replace('/^\/(.*?)[\/]?$/', "\\1", $pattern);
+		return $GLOBALS['CREOVEL']['ROUTING']['routes']['default']['params'];
 	}
 	
 	/**
@@ -311,8 +248,8 @@ class Routing
 	 **/
 	public function events($uri, $route_name = '')
 	{
-		if (isset($GLOBALS['CREOVEL']['ROUTING']['ROUTES'][$route_name]['events'])) {
-			return $GLOBALS['CREOVEL']['ROUTING']['ROUTES'][$route_name]['events'];
+		if (isset($GLOBALS['CREOVEL']['ROUTING']['routes'][$route_name]['events'])) {
+			return $GLOBALS['CREOVEL']['ROUTING']['routes'][$route_name]['events'];
 		}
 		return self::which($uri);
 	}
@@ -335,6 +272,6 @@ class Routing
 	 **/
 	public function error()
 	{
-		return $GLOBALS['CREOVEL']['ROUTING']['ROUTES']['default_error']['events'];
+		return $GLOBALS['CREOVEL']['ROUTING']['routes']['default_error']['events'];
 	}
 } // END class Routing

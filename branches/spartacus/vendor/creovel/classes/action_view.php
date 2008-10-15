@@ -17,7 +17,7 @@ class ActionView
 	 * @param array $options - Optional array of display options.
 	 * @return string Content/HTML used for output.
 	 **/
-	public function toString($view_path, $layout_path, $options = null)
+	public function to_str($view_path, $layout_path, $options = null)
 	{
 		try {
 			// set content data
@@ -29,7 +29,7 @@ class ActionView
 			if ($options['render'] !== false) {
 				
 				if (is_file($view_path)) {
-					$content .= self::includeContents($view_path, $options);
+					$content .= self::include_contents($view_path, $options);
 				} else {
 					throw new Exception('Unable to render <em>view<em> '.
 						"not found in <strong>{$view_path}</strong>.");
@@ -44,7 +44,7 @@ class ActionView
 					$page = str_replace(
 							$GLOBALS['CREOVEL']['PAGE_CONTENTS'],
 							$content,
-							self::includeContents($layout_path, $options));
+							self::include_contents($layout_path, $options));
 				} else {
 					throw new Exception('Unable to render <em>layout<em> '.
 						"not found in <strong>{$layout_path}</strong>.");
@@ -72,7 +72,7 @@ class ActionView
 	 * @link http://us3.php.net/manual/en/function.include.php Example #6
 	 * @return string HTML/Text from buffer.
 	 **/
-	public function includeContents($filename, $options = null)
+	public function include_contents($filename, $options = null)
 	{
 		if (is_file($filename)) {
 			ob_start();
@@ -98,6 +98,6 @@ class ActionView
 	 **/
 	public function show($view_path, $layout_path, $options = null)
 	{
-		print self::toString($view_path, $layout_path, $options);
+		print self::to_str($view_path, $layout_path, $options);
 	}
 } // END class View

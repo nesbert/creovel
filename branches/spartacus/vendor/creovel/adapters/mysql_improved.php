@@ -72,14 +72,14 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 			);
 		
 		if (mysqli_connect_error()) {
-			self::throwError('Could not connect to database (' .
+			self::throw_error('Could not connect to database (' .
 				$db_properties['host'] . '.' . $db_properties['default'] .
 				'). ' . mysqli_connect_error() . '.');
 			exit();
 		}
 		
 		if (@$db_properties['table_name']) {
-			$this->setTable($db_properties['table_name']);
+			$this->set_table($db_properties['table_name']);
 		}
 	}
 	
@@ -117,7 +117,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 		$this->result = $this->mysqli->query($query);
 		
 		if (!$this->result) {
-			self::throwError($this->mysqli->error . ". Query \"" .
+			self::throw_error($this->mysqli->error . ". Query \"" .
 				str_replace(', ', ",\n", $this->query) . "\" failed.");
 			exit();
 		}
@@ -129,7 +129,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 * @return void
 	 * @author Nesbert Hidalgo
 	 **/
-	public function getRow()
+	public function get_row()
 	{
 		return $this->result->fetch_assoc();
 	}
@@ -140,7 +140,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 * @param string $table name of table
 	 * @return void
 	 */
-	public function setTable($table)
+	public function set_table($table)
 	{
 		$this->table_name = $table;
 	}
@@ -191,7 +191,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 *
 	 * @return int
 	 */
-	public function totalRows()
+	public function total_rows()
 	{
 		return $this->result->num_rows;
 	}
@@ -201,7 +201,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 *
 	 * @return int
 	 */
-	public function affectedRows()
+	public function affected_rows()
 	{
 		return $this->result->num_rows;
 	}
@@ -211,7 +211,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 *
 	 * @return int
 	 */
-	public function insertId()
+	public function insert_id()
 	{
 		return $this->mysqli->insert_id;
 	}
@@ -226,13 +226,4 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	{
 		return $this->mysqli->real_escape_string($string);
 	}
-	
-	/**
-	 * Check if a table exists. Returns false if table not found.
-	 *
-	 * @param string $table name of table
-	 * @return bool
-	 */    
-	public function tableExists($table)
-	{}
 }

@@ -23,7 +23,7 @@ function ip()
  */
 function http()
 {
-	return 'http'.( getenv('HTTPS') == 'on' ? 's' : '' ).'://';
+	return 'http'.(getenv('HTTPS') == 'on' ? 's' : '').'://';
 }
 
 /**
@@ -44,6 +44,16 @@ function host()
 function http_host()
 {
 	return http() . host();
+}
+
+/**
+ * Returns the current server host's URL.
+ *
+ * @return string
+ */
+function url()
+{
+	return http_host() . $_SERVER['REQUEST_URI'];
 }
 
 /**

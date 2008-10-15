@@ -244,16 +244,16 @@ function str_replace_array($str, $array)
 
 function urlencode_array($array)
 {
+	$params = '';
 	foreach ($array as $key => $value ) {
 		if (is_array($value)) {
 			$params .= http_build_query(array($key=>$value)) .'&';
 		} else if ($key == '#') {
-			$params	.= '#' . $value .'&';
+			$params .= '#' . $value .'&';
 		} else {
-			$params	.= ( $key ? $key : '' ).( $key && ($value !== '') ? '='.$value : $value ).'&';
+			$params .= ($key ? $key : '' ).($key && ($value !== '') ? '='.$value : $value).'&';
 		}
 	}
-	
 	return substr($params, 0, -1);
 }
 

@@ -171,12 +171,12 @@ class Routing
 		// return default route
 		if ($uri == '/') {
 			// set current
-			self::setCurrentDefault();
+			self::set_current_default();
 			
 			if ($return_params) {
-				return self::defaultParams();
+				return self::default_params();
 			} else {
-				return self::defaultEvents();
+				return self::default_events();
 			}
 		}
 		

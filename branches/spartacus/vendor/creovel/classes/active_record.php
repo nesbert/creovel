@@ -155,14 +155,14 @@ class ActiveRecord
 	 **/
 	public function query($sql)
 	{
-		$sq = $this->selectQuery($sql);
+		$sq = $this->select_query($sql);
 		
-		if ($sq->totalRows() == 1) {
-			$this->loadAttributes($sq->getRow());
+		if ($sq->total_rows() == 1) {
+			$this->load_attributes($sq->get_row());
 			return clone $this;
-		} elseif ($sq->totalRows()) {
+		} elseif ($sq->total_rows()) {
 		
-			while ($row = $sq->getRow()) {
+			while ($row = $sq->get_row()) {
 				print_obj($row);
 			}
 			
@@ -261,7 +261,7 @@ class ActiveRecord
 			if (is_assoc($options['conditions'])) {
 				$conditions = array();
 				foreach ($options['conditions'] as $k => $v) {
-					$conditions[] = "`{$this->tableName() }`.`{$k}` = {$this->quoteValue($v)}";
+					$conditions[] = "`{$this->tableName() }`.`{$k}` = {$this->quote_value($v)}";
 				}
 				$where[] = '(' . implode(' AND ', $conditions) . ')';
 				
@@ -287,7 +287,7 @@ class ActiveRecord
 			}
 		}
 		
-		$sql  = "SELECT $select FROM `{$this->tableName()}`";
+		$sql  = "SELECT $select FROM `{$this->table_name()}`";
 		$sql .= count($where) ? " WHERE " . implode(' AND ', $where) : "";
 		$sql .= $options['group'] ? " GROUP BY {$options['group']}" : "";
 		$sql .= $options['order'] ? " ORDER BY {$options['order']}" : "";
@@ -531,7 +531,7 @@ class ActiveRecord
 		}
 		
 		// build query
-		$qry = "INSERT INTO `{$this->tableName()}` ";
+		$qry = "INSERT INTO `{$this->table_name()}` ";
 		$qry .= "(`" . implode('`, `', array_keys((array) $this->attributes())) . "`)";
 		$qry .= " VALUES ";
 		$qry .= "(" . implode(', ', $values) . ");";

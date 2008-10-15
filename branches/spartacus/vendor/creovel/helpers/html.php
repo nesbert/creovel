@@ -63,8 +63,8 @@ function html_options_str($html_options)
 		}
 		
 		// create options string foreach valid option set
-		foreach (array_unique($html_options) as $attribute) {
-			@$options_str .= ' ' . $attribute . '="' . $html_options[$attribute].'"';
+		foreach (array_unique($html_options) as $attribute => $value) {
+			@$options_str .= ' ' . $attribute . '="' . $value .'"';
 		}
 	}
 	

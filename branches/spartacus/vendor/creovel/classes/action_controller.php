@@ -447,7 +447,7 @@ abstract class ActionController
 	{
 		$parent_controllers = get_ancestors(get_class($this));
 		foreach (array_reverse($parent_controllers) as $controller) {
-			$method = 'initialize' . $controller;
+			$method = 'initialize_' . Inflector::underscore($controller);
 			if (method_exists($controller, $method)) {
 				$this->$method();
 			}

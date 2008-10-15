@@ -23,7 +23,7 @@ function __autoload($class)
 		
 		$path = implode(DS, $folders);
 		
-		$class = underscore($class);
+		$class = Inflector::underscore($class);
 		
 		switch (true) {
 		
@@ -71,8 +71,12 @@ function __autoload($class)
 		if (file_exists($path)) {
 			require_once $path;
 		} else {
+			$file = $class;
 			if ($type == 'Controller') CREO('error_code', 404);
-			throw new Exception("{$class} not found in <strong>" . str_replace($class . '.php', '', $path ) . "</strong>");
+			if ($type == 'Controller' || $type == 'Model' || $type == 'Mailer') {
+				$class = Inflector::classify($class);
+			}
+			throw new Exception("{$class} not found in <strong>{$path}</strong>");
 		}
 	} catch (Exception $e) {
 		CREO('application_error', $e);
@@ -398,7 +402,7 @@ function url_for()
 	// build url
 	$uri = '/'.(!$controller && $action ? get_controller() : $controller).($action ? "/{$action}" : '');
 	
-	if ($misc) {
+	if (@$misc) {
 		$uri .= "/?".($id ? "id={$id}&" : '').$misc;
 	} else if ($id) {
 		$uri .= "/{$id}";

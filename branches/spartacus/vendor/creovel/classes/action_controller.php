@@ -188,7 +188,7 @@ abstract class ActionController
 				// if layout get page content with layout
 				case (@$layout):
 					if (isset($return_as_str)) {
-						return ActionView::create($view_path, $this->__layout_path($layout), $options);
+						return ActionView::to_str($view_path, $this->__layout_path($layout), $options);
 					} else {
 						return ActionView::show($view_path, $this->__layout_path($layout), $options);
 					}
@@ -199,9 +199,9 @@ abstract class ActionController
 					// create a variable foreach other option, using its key as the variable name
 					if (count($options)) foreach ( $options as $key => $values ) $$key = $values;
 					
-					if ( $return_as_str ) {
+					if ($return_as_str) {
 						$options['layout'] = false;
-						return ActionView::create($view_path, $this->__layout_path($layout), $options);
+						return @ActionView::to_str($view_path, $this->__layout_path($layout), $options);
 					} else {
 						// include partial
 						include $view_path;

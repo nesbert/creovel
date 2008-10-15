@@ -22,6 +22,11 @@ require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
 // Include application config files
 require_once CONFIG_PATH.'databases.php';
 
+// Set session handler
+if ($GLOBALS['CREOVEL']['SESSION']) {
+	session_start();
+}
+
 // Set default routes
 Routing::map('default', '/:controller/:action/*', array(
 		'controller' => 'index',

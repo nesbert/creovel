@@ -30,6 +30,5 @@ define('CREOVEL_PATH', 		VENDOR_PATH . 'creovel' . DS);
 /*
  * Define application URLs.
  */
-define('BASE_URL',			'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on" ? 's' : '') . '://'.$_SERVER['HTTP_HOST'] . '/');
 define('CSS_URL',			'/css/');
 define('JAVASCRIPT_URL',	'/js/');

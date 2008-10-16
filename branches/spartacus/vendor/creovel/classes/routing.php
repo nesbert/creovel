@@ -120,6 +120,8 @@ class Routing
 	 **/
 	public function add($name, $url, $events, $params = array(), $regex = '')
 	{
+		if (CREO('html_append')) $events['action'] = str_replace('.html', '', $events['action']);
+		
 		// default last in routes array
 		$data = array(
 			'name'			=> $name,
@@ -187,8 +189,6 @@ class Routing
 			if (preg_match($route['regex'], $uri)) {
 				// set current
 				$GLOBALS['CREOVEL']['ROUTING']['current'] = $route;
-				print_obj($route);
-				print_obj($GLOBALS['CREOVEL']['ROUTING'], 1);
 				if ($return_params) {
 					return $route['params'];
 				} else {

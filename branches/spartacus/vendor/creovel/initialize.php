@@ -50,6 +50,7 @@ $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
 $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
 $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
 $GLOBALS['CREOVEL']['EMAIL_ON_ERROR'] = false;
+$GLOBALS['CREOVEL']['HTML_APPEND'] = false;
 
 // Set routing defaults
 $GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());

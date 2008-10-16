@@ -361,7 +361,7 @@ function url_for()
 		unset($args[0]['controller']);
 		
 		// set action
-		$action = $args[0]['action'];
+		$action = $args[0]['action'] . (CREO('html_append') ? '.html' : '');
 		unset($args[0]['action']);
 		
 		// set id
@@ -381,7 +381,7 @@ function url_for()
 		$controller = $args[0];
 		
 		// set action
-		$action = $args[1];
+		$action = $args[1] . (CREO('html_append') ? '.html' : '');
 		
 		// set id and misc
 		if (is_array($args[2])) {
@@ -403,7 +403,7 @@ function url_for()
 	$uri = '/'.(!$controller && $action ? get_controller() : $controller).($action ? "/{$action}" : '');
 	
 	if (@$misc) {
-		$uri .= "/?".($id ? "id={$id}&" : '').$misc;
+		$uri .= "?" . ($id ? "id={$id}&" : '') . $misc;
 	} else if ($id) {
 		$uri .= "/{$id}";
 	}

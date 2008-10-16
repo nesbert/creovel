@@ -41,11 +41,7 @@ class Routing
 		// segment path
 		$segments = array();
 		foreach ($url_path as $key => $segment) {
-			if (!$segment) continue;
-			if ($segment == '*') {
-				$astrik = $key;
-				continue;
-			}
+			if (!$segment || $segment == '*') continue;
 			$label = self::clean_label($segment);
 			$type = $segment{0} == ':' ? 'dynamic' : 'static';
 			$segments[] = @(object) array(
@@ -79,10 +75,14 @@ class Routing
 			}
 		}
 		
-		// add * to params
-		if ($astrik && ($astrik < ($max = count($uri_path)))) {
-			foreach (range($astrik, $max - 1, 2) as $k) {
-				if (@$uri_path[$k]) @$params[$uri_path[$k]] = $uri_path[$k + 1];
+		if (in_string('*', $url)) {
+			$astrik_path = explode('/', $url);
+			$start = array_search('*', $astrik_path);
+			$end = count($uri_path);
+			if ($end > $start) {
+				for ($i = $start; $i <= $end; $i += 2) {
+					if (@$uri_path[$i]) @$params[(string) $uri_path[$i]] = $uri_path[$i + 1];
+				}
 			}
 		}
 		
@@ -91,7 +91,7 @@ class Routing
 		if (@!$events['action']) $events['action'] = $options['action'];
 		
 		// ceate regex
-		$regex_all = '([A-Za-z0-9_\-\+.\/]+)';
+		$regex_all = '([A-Za-z0-9_\-\+.\/]+|$)';
 		$pattern = '/^';
 		foreach ($segments as $segment) {
 			if ($segment->name == '*') {
@@ -182,14 +182,13 @@ class Routing
 		
 		// create pattern to match against URI
 		foreach ($GLOBALS['CREOVEL']['ROUTING']['routes'] as $name => $route) {
-			
-			// skip default route
-			if (@!$route['regex']) continue;
-			
+			#echo $route['regex'] . " :: $uri<br />";
 			// if match return events
 			if (preg_match($route['regex'], $uri)) {
 				// set current
 				$GLOBALS['CREOVEL']['ROUTING']['current'] = $route;
+				print_obj($route);
+				print_obj($GLOBALS['CREOVEL']['ROUTING'], 1);
 				if ($return_params) {
 					return $route['params'];
 				} else {
@@ -199,12 +198,12 @@ class Routing
 		}
 		
 		// set current route
-		self::setCurrentDefault();
+		self::set_current_default();
 		
 		if ($return_params) {
-			return self::defaultParams();
+			return self::default_params();
 		} else {
-			return self::defaultEvents();
+			return self::default_events();
 		}
 	}
 	

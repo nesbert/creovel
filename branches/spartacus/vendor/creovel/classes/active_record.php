@@ -49,16 +49,19 @@ class ActiveRecord
 	 **/
 	public function __construct($data = null, $connection_properties = null)
 	{
+		// load data if passed
 		if ($data) {
 			$this->load_data($data);
 		}
 		
+		// load connection if passed
 		if (is_array($connection_properties)) {
 			$this->_select_query_ = $this->establish_connection($connection_properties);
 			$this->_action_query_ = $this->establish_connection($connection_properties);
 		}
 		
-		$this->set_table_name();
+		// set table name
+		$this->table_name();
 	}
 	
 	/**
@@ -357,19 +360,9 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function table_name()
+	public function table_name($table_name = '')
 	{
-		return $this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name());
-	}
-	
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 **/
-	public function set_table_name($table_name = '')
-	{
-		$this->_table_name_  = $table_name ? $table_name : $this->table_name();
+		return $this->_table_name_ = $table_name ? $table_name : ($this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name()));
 	}
 	
 	/**
@@ -458,10 +451,7 @@ class ActiveRecord
 			return;
 		}
 		
-		// get column propties once
-		if (!count($this->_columns_)) {
-			$this->set_columns();
-		}
+		$this->columns();
 		
 		$attribites = array();
 		
@@ -471,6 +461,16 @@ class ActiveRecord
 		}
 		
 		return (object) $attribites;
+	}
+	
+	/**
+	 * Returns true if the passed attribute is a column of the class.
+	 *
+	 * @return void
+	 **/
+	public function has_attribute($attribute)
+	{
+		return array_key_exists($attribute, $this->columns());
 	}
 	
 	/**
@@ -541,10 +541,10 @@ class ActiveRecord
 		}
 		
 		// build query
-		$qry = "INSERT INTO `{$this->table_name()}` ";
-		$qry .= "(`" . implode('`, `', array_keys($values)) . "`)";
-		$qry .= " VALUES ";
-		$qry .= "(" . implode(', ', $values) . ");";
+		$qry =	"INSERT INTO `{$this->table_name()}` " .
+				"(`" . implode('`, `', array_keys($values)) . "`) " .
+				"VALUES " .
+				"(" . implode(', ', $values) . ");";
 		
 		return $this->id = $this->action_query($qry)->insert_id();
 	}

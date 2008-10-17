@@ -156,7 +156,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 		$result = $this->mysqli->query("DESCRIBE `{$this->table_name}`;");
 		
 		// set fields object to return
-		$fields = new stdClass;
+		$fields = array();
 		
 		// foreach row in results insert into fields object
 		while ($row = @$result->fetch_assoc()) {
@@ -171,7 +171,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 			$temp_arr['value'] = $row['Default'] !== 'NULL' ? $row['Default'] : null;
 			
 			// set property in fields object
-			$fields->$row['Field'] = (object) $temp_arr;
+			$fields[$row['Field']] = (object) $temp_arr;
 		}
 		
 		$result->close();

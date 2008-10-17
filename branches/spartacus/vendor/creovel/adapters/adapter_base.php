@@ -12,7 +12,7 @@ class AdapterBase
 	 *
 	 * @return void
 	 **/
-	public function throwError($msg = null)
+	public function throw_error($msg = null)
 	{
 		if (!$msg) {
 			$msg = 'An error occurred while executing the method ' .

@@ -12,13 +12,6 @@ class ActiveRecord
 	 *
 	 * @var string
 	 **/
-	public $_database_name_ = '';
-	
-	/**
-	 * Primary key column name.
-	 *
-	 * @var string
-	 **/
 	public $_table_name_ = '';
 	
 	/**
@@ -56,7 +49,7 @@ class ActiveRecord
 	 **/
 	public function __construct($data = null, $connection_properties = null)
 	{
-		if (is_array($data)) {
+		if ($data) {
 			$this->load_data($data);
 		}
 		
@@ -155,17 +148,15 @@ class ActiveRecord
 	 **/
 	public function query($sql)
 	{
-		$sq = $this->select_query($sql);
-		
-		if ($sq->total_rows() == 1) {
-			$this->load_attributes($sq->get_row());
+		if ($this->select_query($sql)->total_rows() == 1) {
+			$this->load_attributes($this->select_query($sql)->get_row());
 			return clone $this;
-		} elseif ($sq->total_rows()) {
+		} elseif ($this->select_query($sql)->total_rows()) {
 		
-			while ($row = $sq->get_row()) {
+			while ($row = $this->select_query($sql)->get_row()) {
 				print_obj($row);
 			}
-			
+		
 		}
 		
 		print_obj($this);
@@ -192,6 +183,16 @@ class ActiveRecord
 	{
 		$sql = $this->build_query_from_options(array('_type_' => $type) + (array) $options);
 		return $this->query($sql);
+	}
+	
+	/**
+	 * Alias for find('all', array());
+	 *
+	 * @return void
+	 **/
+	public function all($options = array())
+	{
+		return $this->find('all', $options);
 	}
 	
 	/**
@@ -277,7 +278,7 @@ class ActiveRecord
 			} elseif (is_array($options['conditions']) && in_string(':', $options['conditions'][0])) {
 				$str = $options['conditions'][0];
 				foreach ($options['conditions'][1] as $k => $v) {
-					$str = str_replace($k, $this->quote_value($v), $str);
+					$str = str_replace(':' . $k, $this->quote_value($v), $str);
 				}
 				$where[] = "({$str})";
 				
@@ -372,13 +373,44 @@ class ActiveRecord
 	}
 	
 	/**
-	 * undocumented function
+	 * Returns an array of column names as strings.
+	 *
+	 * @return array
+	 **/
+	public function column_names()
+	{
+		return array_keys($this->columns());
+	}
+	
+	/**
+	 * Returns an array of column objects for the table associated with class.
 	 *
 	 * @return void
 	 **/
-	public function set_columns()
+	public function columns()
 	{
-		$this->_columns_ = $this->_columns_ ? $this->_columns_ : $this->select_query()->columns();
+		return $this->_columns_ = count($this->_columns_) ? $this->_columns_ : $this->select_query()->columns();
+	}
+	
+	/**
+	 * Returns an array of column objects for the table associated with class.
+	 *
+	 * @return void
+	 **/
+	public function columns_hash()
+	{
+		return (object) $this->columns();
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Nesbert Hidalgo
+	 **/
+	public function count_by_sql($qry)
+	{
+		return (int) current($this->action_query($qry)->get_row());
 	}
 	
 	/**
@@ -391,7 +423,9 @@ class ActiveRecord
 		if (is_array($data)) {
 			$this->load_attributes($data);
 		} else {
-			$this->id($data);
+			$this->find('first', array(
+					'conditions' => array("`{$this->_primary_key_}` = ?", $data)
+				));
 		}
 	}
 	
@@ -403,13 +437,11 @@ class ActiveRecord
 	public function load_attributes($data)
 	{
 		// get column properties once
-		if (!count($this->_columns_)) {
-			$this->set_columns();
-		}
+		$this->columns();
 		
 		// set column properties
-		if (is_array($data)) foreach($data as $k => $v) {
-			$this->_columns_->$k->value = $v;
+		if (is_array($data)) foreach ($data as $k => $v) {
+			$this->_columns_[$k]->value = $v;
 		}
 	}
 	
@@ -446,9 +478,9 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function id($id)
+	public function id()
 	{
-		die("Search and Load by _primary_key_ = {id}.");
+		return $this->{$this->_primary_key_};
 	}
 	
 	/**
@@ -462,8 +494,7 @@ class ActiveRecord
 		
 		#if (!$this->validate_model($validation_routine)) return false;
 		
-		//if ($key = $this->key()) {
-		if (0) {
+		if ($this->id()) {
 		
 			// validate model on every update
 			$this->validate_on_update();
@@ -471,7 +502,7 @@ class ActiveRecord
 			// if error return false
 			#if ($this->errors->has_errors()) return false;
 			
-			$ret_val = $this->_execute_update($this->values(), $this->_primary_key_ . " = '" . $this->id() . "'");
+			$ret_val = $this->update_row();
 			
 		} else {
 		
@@ -503,42 +534,82 @@ class ActiveRecord
 	 **/
 	public function insert_row()
 	{
-		foreach ($this->_columns_ as $name => $field) {
-			switch (true) {
-				case $name == 'created_at':
-				case $name == 'updated_at':
-					$field->value = datetime($field->value);
-					break;
-				
-				case is_array($field->value):
-					if ($field->type == 'datetime') {
-						$field->value = datetime($field->value);
-					} else {
-						$field->value = serialize($field->value);
-					}
-					break;
-					
-				case $field->null == 'YES':
-					$field->value = $field->value === '' || $field->value === null ? 'NULL' : '';
-					break;
-			}
-		}
-		
 		// sanitize values
 		$values = array();
-		foreach ($this->attributes() as $val) {
-			$values[] = $this->quote_value($val);
+		foreach ($this->prepare_attributes() as $k => $v) {
+			$values[$k] = $this->quote_value($v);
 		}
 		
 		// build query
 		$qry = "INSERT INTO `{$this->table_name()}` ";
-		$qry .= "(`" . implode('`, `', array_keys((array) $this->attributes())) . "`)";
+		$qry .= "(`" . implode('`, `', array_keys($values)) . "`)";
 		$qry .= " VALUES ";
 		$qry .= "(" . implode(', ', $values) . ");";
 		
 		return $this->id = $this->action_query($qry)->insert_id();
 	}
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function update_row()
+	{
+		// sanitize values and prep set string
+		$set = array();
+		foreach ($this->prepare_attributes() as $k => $v) {
+			if ($this->_primary_key_ == $k) continue;
+			$set[] = "`$k` = {$this->quote_value($v)}";
+		}
+		
+		// build query
+		$qry = "UPDATE `{$this->table_name()}` " .
+				"SET " . implode(', ', $set) . " " .
+				"WHERE `{$this->_primary_key_}` = '{$this->id()}'";
+		
+		$this->action_query($qry);
+		
+		return $this->id();
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function prepare_attributes()
+	{
+		$return = array();
+		foreach ($this->_columns_ as $name => $field) {
+			switch (true) {
+				case $name == 'created_at' && !$this->id():
+					$return[$name] = datetime($field->value);
+					break;
+				
+				case $name == 'updated_at':
+					$return[$name] = datetime();
+					break;
+				
+				case is_array($field->value):
+					if ($field->type == 'datetime') {
+						$return[$name] = datetime($field->value);
+					} else {
+						$return[$name] = serialize($field->value);
+					}
+					break;
+					
+				case $field->null == 'YES':
+					$return[$name] = $field->value === '' || $field->value === null ? 'NULL' : '';
+					break;
+					
+				default:
+					$return[$name] = $field->value;
+					break;
+			}
+		}
+		return $return;
+	}
 	
 	// Section: Magic Functions
 	
@@ -551,8 +622,10 @@ class ActiveRecord
 	{
 		try {
 			
-			if (isset($this->_columns_->$attribute)) {
-				return $this->_columns_->$attribute->value;
+			$this->columns();
+			
+			if (isset($this->_columns_[$attribute])) {
+				return $this->_columns_[$attribute]->value;
 			}  else {
 				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
 			}
@@ -571,15 +644,32 @@ class ActiveRecord
 	{
 		try {
 			
-			// get column properties once
-			if (!count($this->_columns_)) {
-				$this->set_columns();
-			}
+			$this->columns();
 			
-			if (isset($this->_columns_->$attribute)) {
-				return $this->_columns_->$attribute->value = $value;
+			if (isset($this->_columns_[$attribute])) {
+				return $this->_columns_[$attribute]->value = $value;
 			} else {
 				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
+			}
+			
+		} catch (Exception $e) {
+			// add to errors
+			CREO('application_error', $e);
+		}
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Nesbert Hidalgo
+	 **/
+	public function __call($method, $args)
+	{
+		try {
+			
+			if (!method_exists($this, $method)) {
+				throw new Exception("Method <em>{$method}</em> not found in <strong>{$this->class_name()}</strong> model.");
 			}
 			
 		} catch (Exception $e) {
@@ -601,7 +691,6 @@ class ActiveRecord
 		* validate
 		* validate_on_create
 		* validate_on_update
-	
 	*/
 	public function after_save() {}
 	public function before_save() {}

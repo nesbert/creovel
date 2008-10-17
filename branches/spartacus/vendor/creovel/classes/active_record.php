@@ -1,11 +1,16 @@
 <?php
 /**
- * undocumented class
+ * ORM class for interfacing with relational databases and adding functionality
+ * to each modeled table.
  *
- * @package default
- * @author Nesbert Hidalgo
+ * @package Creovel
+ * @subpackage Creovel.Classes
+ * @copyright  2008 Creovel, creovel.org
+ * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
+ * @version    $Id:$
+ * @since      Class available since Release 0.1.0
  **/
-class ActiveRecord
+abstract class ActiveRecord
 {
 	/**
 	 * Primary key column name.
@@ -151,20 +156,28 @@ class ActiveRecord
 	 **/
 	public function query($sql)
 	{
-		if ($this->select_query($sql)->total_rows() == 1) {
-			$this->load_attributes($this->select_query($sql)->get_row());
-			return clone $this;
-		} elseif ($this->select_query($sql)->total_rows()) {
+		$count = $this->select_query($sql)->total_rows();
 		
-			while ($row = $this->select_query($sql)->get_row()) {
-				print_obj($row);
+		if ($count == 1) {
+			
+			// if one record load object and return
+			$this->attributes($this->_select_query_->get_row());
+			
+			return $this;
+			
+		} elseif ($count) {
+			
+			// if mulitple
+			$return = array();
+			
+			while ($row = $this->_select_query_->get_row()) {
+				$class = $this->class_name();
+				$model = new $class($row);
+				$return[] = $model;
 			}
-		
+			
+			return $return;
 		}
-		
-		print_obj($this);
-		
-		return ;
 	}
 	
 	/**
@@ -201,7 +214,8 @@ class ActiveRecord
 	/**
 	 * undocumented function
 	 *
-	 * @return void
+	 * @param array
+	 * @return string
 	 **/
 	public function build_query_from_options($options = array())
 	{
@@ -265,7 +279,7 @@ class ActiveRecord
 			if (is_assoc($options['conditions'])) {
 				$conditions = array();
 				foreach ($options['conditions'] as $k => $v) {
-					$conditions[] = "`{$this->tableName() }`.`{$k}` = {$this->quote_value($v)}";
+					$conditions[] = "`{$this->table_name()}`.`{$k}` = {$this->quote_value($v)}";
 				}
 				$where[] = '(' . implode(' AND ', $conditions) . ')';
 				
@@ -277,7 +291,7 @@ class ActiveRecord
 				}
 				$where[] = "({$str})";
 			
-			// arraty with symbold
+			// array with symbols
 			} elseif (is_array($options['conditions']) && in_string(':', $options['conditions'][0])) {
 				$str = $options['conditions'][0];
 				foreach ($options['conditions'][1] as $k => $v) {
@@ -300,9 +314,9 @@ class ActiveRecord
 	}
 	
 	/**
-	 * undocumented function
+	 * Create select query object for SELECTS.
 	 *
-	 * @return void
+	 * @return object
 	 **/
 	public function select_query($query = '', $connection_properties = array())
 	{
@@ -318,9 +332,9 @@ class ActiveRecord
 	}
 	
 	/**
-	 * undocumented function
+	 * Create action query object for INSERTS, UPDATES, DELETES, Counts, etc.
 	 *
-	 * @return void
+	 * @return object
 	 **/
 	public function action_query($query = '', $connection_properties = array())
 	{
@@ -380,9 +394,9 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function columns()
+	public function columns($columns = array())
 	{
-		return $this->_columns_ = count($this->_columns_) ? $this->_columns_ : $this->select_query()->columns();
+		return $this->_columns_ = count($columns) ? $columns : (count($this->_columns_) ? $this->_columns_ : $this->select_query()->columns());
 	}
 	
 	/**
@@ -414,7 +428,7 @@ class ActiveRecord
 	public function load_data($data)
 	{
 		if (is_array($data)) {
-			$this->load_attributes($data);
+			$this->attributes($data);
 		} else {
 			$this->find('first', array(
 					'conditions' => array("`{$this->_primary_key_}` = ?", $data)
@@ -427,40 +441,26 @@ class ActiveRecord
 	 *
 	 * @return void
 	 **/
-	public function load_attributes($data)
+	public function attributes($data = null)
 	{
 		// get column properties once
 		$this->columns();
 		
 		// set column properties
-		if (is_array($data)) foreach ($data as $k => $v) {
-			$this->_columns_[$k]->value = $v;
+		if (is_array($data)) {
+			foreach ($data as $k => $v) {
+				$this->_columns_[$k]->value = $v;
+			}
+		} else {
+			$attribites = array();
+			
+			// get column properties
+			foreach($this->_columns_ as $k => $v) {
+				$attribites[$k] = $v->value;
+			}
+			
+			return $attribites;
 		}
-	}
-	
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 **/
-	public function attributes($data = null)
-	{
-		// if data passed set $data else get $data
-		if ($data) {
-			$this->load_attributes($data);
-			return;
-		}
-		
-		$this->columns();
-		
-		$attribites = array();
-		
-		// get column properties
-		foreach($this->_columns_ as $k => $v) {
-			$attribites[$k] = $v->value;
-		}
-		
-		return (object) $attribites;
 	}
 	
 	/**
@@ -611,6 +611,33 @@ class ActiveRecord
 		return $return;
 	}
 	
+	/**
+	 * Alias to find and sets the $_paging_ object. Default page limit is
+	 * 10 records.
+	 *
+	 * @return void
+	 **/
+	public function paginate($args = null)
+	{
+		// create temp args
+		$temp = $args;
+		unset($temp['offset']);
+		unset($temp['order']);
+		$temp['_type_'] = "all";
+		$temp['select'] = "count(*)";
+		$total = $this->count_by_sql($this->build_query_from_options($temp));
+		
+		// create page object
+		$this->_paging_ = new ActivePager($temp);
+		
+		// update agrs with paging data
+		$args['offset'] = $this->_paging_->offset;
+		$args['limit'] = $this->_paging_->limit;
+		
+		// execute query
+		return $this->find('all', $args);
+	}
+	
 	// Section: Magic Functions
 	
 	/**
@@ -624,10 +651,14 @@ class ActiveRecord
 			
 			$this->columns();
 			
-			if (isset($this->_columns_[$attribute])) {
-				return $this->_columns_[$attribute]->value;
-			}  else {
-				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
+			switch (true) {
+				case isset($this->_columns_[$attribute]):
+					return $this->_columns_[$attribute]->value;
+					break;
+					
+				default:
+					throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
+					break;
 			}
 			
 		} catch (Exception $e) {
@@ -646,10 +677,18 @@ class ActiveRecord
 			
 			$this->columns();
 			
-			if (isset($this->_columns_[$attribute])) {
-				return $this->_columns_[$attribute]->value = $value;
-			} else {
-				throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
+			switch (true) {
+				case isset($this->_columns_[$attribute]):
+					return $this->_columns_[$attribute]->value = $value;
+					break;
+					
+				case $attribute == '_paging_':
+					$this->$attribute = $value;
+					break;
+					
+				default:
+					throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
+					break;
 			}
 			
 		} catch (Exception $e) {

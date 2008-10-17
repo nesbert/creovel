@@ -477,4 +477,4 @@ abstract class ActionController
 	 **/
 	public function after_filter()
 	{}
-} // END class Controller
+} // END abstract class Controller

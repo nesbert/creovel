@@ -73,6 +73,7 @@ class ErrorHandler
 			
 			default:
 				@header('Status: 500 Internal Server Error', true, 500);
+				$action = 'general';
 				break;
 		}
 		

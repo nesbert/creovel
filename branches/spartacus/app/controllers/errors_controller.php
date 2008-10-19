@@ -13,7 +13,7 @@ class ErrorsController extends ApplicationController
 	 *
 	 * @return void
 	 **/
-	public function initializeErrorsController()
+	public function initialize_errors_controller()
 	{}
 	
 	/**

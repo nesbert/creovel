@@ -19,6 +19,13 @@ require_once 'adapter_base.php';
 class MysqlImproved extends AdapterBase implements AdapterInterface
 {
 	/**
+	 * Database resource.
+	 *
+	 * @var string
+	 **/
+	public $db;
+	
+	/**
 	 * SQL query string.
 	 *
 	 * @var string
@@ -62,7 +69,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	public function connect($db_properties)
 	{
 		// open a connection to a MySQL Server and set db_link
-		$this->mysqli = @new mysqli(
+		$this->db = @new mysqli(
 			$db_properties['host'],
 			$db_properties['username'],
 			$db_properties['password'],
@@ -91,12 +98,12 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	public function disconnect()
 	{
 		//
-		if (isset($this->result) && is_object($this->result)) {
-			$this->result->close();
+		if (@isset($this->result) && is_object($this->result)) {
+			@$this->result->close();
 		}
 		// close MySQL connection
-		if (is_resource($this->mysqli)) {
-			$this->mysqli->close();
+		if (@is_resource($this->db)) {
+			@$this->db->close();
 		}
 	}
 	
@@ -114,10 +121,10 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 		$this->query = $query;
 		
 		// send a MySQL query and set query_link resource on success
-		$this->result = $this->mysqli->query($query);
+		$this->result = $this->db->query($query);
 		
 		if (!$this->result) {
-			self::throw_error($this->mysqli->error . ". Query \"" .
+			self::throw_error($this->db->error . ". Query \"" .
 				str_replace(', ', ",\n", $this->query) . "\" failed.");
 			exit();
 		}
@@ -153,7 +160,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	public function columns()
 	{
 		// send a DESCRIBE query and set result on success
-		$result = $this->mysqli->query("DESCRIBE `{$this->table_name}`;");
+		$result = $this->db->query("DESCRIBE `{$this->table_name}`;");
 		
 		// set fields object to return
 		$fields = array();
@@ -213,7 +220,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 */
 	public function insert_id()
 	{
-		return $this->mysqli->insert_id;
+		return $this->db->insert_id;
 	}
 	
 	/**
@@ -224,6 +231,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 */
 	public function escape($string)
 	{
-		return $this->mysqli->real_escape_string($string);
+		return $this->db->real_escape_string($string);
 	}
 }

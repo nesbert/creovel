@@ -60,12 +60,6 @@ interface AdapterInterface
 	public function columns();
 	
 	/**
-	 * Resets the row pointer (index) to zero and reinitialize all class variables.
-	 *
-	 */
-	 public function reset();
-	
-	/**
 	 * Returns the number of row(s) found after a query.
 	 *
 	 * @return int

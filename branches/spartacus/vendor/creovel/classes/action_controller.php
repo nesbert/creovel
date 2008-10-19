@@ -167,13 +167,17 @@ abstract class ActionController
 			
 			if (@$options['layout']) {
 				$layout = $options['layout'];
-				unset($options['layout']);
+			} else {
+				$layout = false;
 			}
+			unset($options['layout']);
 			
-			if ($options['to_str']) {
+			if (@$options['to_str']) {
 				$return_as_str = true;
-				unset($options['to_str']);
+			} else {
+				$return_as_str = false;
 			}
+			unset($options['to_str']);
 			
 			// set view path
 			$view_path = @$this->__view_path($view, $controller);
@@ -186,8 +190,8 @@ abstract class ActionController
 					break;
 				
 				// if layout get page content with layout
-				case (@$layout):
-					if (isset($return_as_str)) {
+				case ($layout):
+					if ($return_as_str) {
 						return ActionView::to_str($view_path, $this->__layout_path($layout), $options);
 					} else {
 						return ActionView::show($view_path, $this->__layout_path($layout), $options);
@@ -201,7 +205,7 @@ abstract class ActionController
 					
 					if ($return_as_str) {
 						$options['layout'] = false;
-						return @ActionView::to_str($view_path, $this->__layout_path($layout), $options);
+						return ActionView::to_str($view_path, $this->__layout_path($layout), $options);
 					} else {
 						// include partial
 						include $view_path;

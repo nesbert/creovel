@@ -56,7 +56,7 @@ abstract class ActiveRecord
 	{
 		// load data if passed
 		if ($data) {
-			$this->load_data($data);
+			$this->attributes($data);
 		}
 		
 		// load connection if passed
@@ -76,7 +76,7 @@ abstract class ActiveRecord
 	 **/
 	public function connection_properties()
 	{
-		switch (CREO('mode')) {
+		switch (strtoupper(CREO('mode'))) {
 			case 'PRODUCTION':
 				return $GLOBALS['CREOVEL']['DATABASES']['PRODUCTION'];
 				break;
@@ -158,20 +158,21 @@ abstract class ActiveRecord
 	{
 		$count = $this->select_query($sql)->total_rows();
 		
+		// if one record load object and return
 		if ($count == 1) {
 			
-			// if one record load object and return
 			$this->attributes($this->_select_query_->get_row());
 			
-			return $this;
+			return clone $this;
 			
+		// if mulitple
 		} elseif ($count) {
 			
-			// if mulitple
 			$return = array();
+			$class = $this->class_name();
 			
+			// load each record as an object
 			while ($row = $this->_select_query_->get_row()) {
-				$class = $this->class_name();
 				$model = new $class($row);
 				$return[] = $model;
 			}
@@ -380,16 +381,6 @@ abstract class ActiveRecord
 	}
 	
 	/**
-	 * Returns an array of column names as strings.
-	 *
-	 * @return array
-	 **/
-	public function column_names()
-	{
-		return array_keys($this->columns());
-	}
-	
-	/**
 	 * Returns an array of column objects for the table associated with class.
 	 *
 	 * @return void
@@ -397,6 +388,16 @@ abstract class ActiveRecord
 	public function columns($columns = array())
 	{
 		return $this->_columns_ = count($columns) ? $columns : (count($this->_columns_) ? $this->_columns_ : $this->select_query()->columns());
+	}
+	
+	/**
+	 * Returns an array of column names as strings.
+	 *
+	 * @return array
+	 **/
+	public function column_names()
+	{
+		return array_keys($this->columns());
 	}
 	
 	/**
@@ -413,27 +414,10 @@ abstract class ActiveRecord
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author Nesbert Hidalgo
 	 **/
 	public function count_by_sql($qry)
 	{
 		return (int) current($this->action_query($qry)->get_row());
-	}
-	
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 **/
-	public function load_data($data)
-	{
-		if (is_array($data)) {
-			$this->attributes($data);
-		} else {
-			$this->find('first', array(
-					'conditions' => array("`{$this->_primary_key_}` = ?", $data)
-				));
-		}
 	}
 	
 	/**
@@ -451,6 +435,10 @@ abstract class ActiveRecord
 			foreach ($data as $k => $v) {
 				$this->_columns_[$k]->value = $v;
 			}
+		} else if ($data) {
+			$this->find('first', array(
+					'conditions' => array("`{$this->_primary_key_}` = ?", $data)
+				));
 		} else {
 			$attribites = array();
 			
@@ -636,6 +624,19 @@ abstract class ActiveRecord
 		
 		// execute query
 		return $this->find('all', $args);
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Nesbert Hidalgo
+	 **/
+	public function table_object($table_name)
+	{
+		$db = self::connection_properties();
+		$db['table_name'] = $table_name;
+		return self::establish_connection($db)->db;
 	}
 	
 	// Section: Magic Functions

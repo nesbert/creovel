@@ -83,7 +83,7 @@ class ErrorHandler
 			// get default error events
 			$events = Routing::error();
 			if (isset($action)) $events['action'] = $action;
-			Dispatcher::run($events, array('error' => $this->message));
+			Dispatcher::run($events, array('error' => $this->message, 'exception' => $this->exception));
 			die;
 		}
 		

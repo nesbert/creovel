@@ -13,8 +13,6 @@ class ApplicationController extends ActionController
 	 *
 	 * @return void
 	 **/
-	public function initializeApplicationController()
-	{
-		//echo '<h5>ApplicationController::initializeApplicationController</h5>';
-	}
+	public function initialize_application_controller()
+	{}
 } // END class ApplicationController

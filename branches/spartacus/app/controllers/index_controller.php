@@ -13,7 +13,7 @@ class IndexController extends ApplicationController
 	 *
 	 * @return void
 	 **/
-	public function initializeIndexController()
+	public function initialize_index_controller()
 	{}
 	
 	/**

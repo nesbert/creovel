@@ -1,1 +1,1 @@
-Page not found: <?=$this->params['error']?>
+<p>Page not found: <?=$this->params['error']?></p>

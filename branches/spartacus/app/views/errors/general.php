@@ -1,1 +1,1 @@
-General: <?=$this->params['error']?>
+<p>General: <?=$this->params['error']?></p>

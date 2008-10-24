@@ -16,6 +16,10 @@ function create_html_element($name, $html_options = null, $content = null)
 	$name = strtolower(trim($name));
 	$no_end_tag = false;
 	
+	if ($name == 'state') {
+		print_obj($html_options, 1);
+	}
+	
 	// set flag for tags with no ends
 	switch ($name)
 	{
@@ -63,7 +67,7 @@ function html_options_str($html_options)
 		}
 		
 		// create options string foreach valid option set
-		foreach (array_unique($html_options) as $attribute => $value) {
+		foreach ($html_options as $attribute => $value) {
 			@$options_str .= ' ' . $attribute . '="' . $value .'"';
 		}
 	}

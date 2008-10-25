@@ -17,20 +17,20 @@
 function datetime($datetime = null)
 {
 	switch (true) {
-		case (!$datetime):
+		case !$datetime:
 		default:
 			return date('Y-m-d H:i:s');
 			break;
 		
-		case ( is_array($datetime) ):
+		case is_array($datetime):
 			return date('Y-m-d H:i:s', mktime($datetime['hour'], $datetime['minute'], $datetime['second'], $datetime['month'], $datetime['day'], $datetime['year']));
 			break;
 		
-		case ( is_number($datetime) ):
+		case is_number($datetime):
 			return date('Y-m-d H:i:s', $datetime);
 			break;
 		
-		case ( is_string($datetime) ):
+		case is_string($datetime) && $datetime != '0000-00-00 00:00:00':
 			return date('Y-m-d H:i:s', strtotime($datetime));
 			break;
 	}

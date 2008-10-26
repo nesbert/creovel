@@ -632,9 +632,11 @@ abstract class ActiveRecord
 	 * @return void
 	 * @author Nesbert Hidalgo
 	 **/
-	public function table_object($table_name)
+	public function table_object($table_name, $db = null)
 	{
-		$db = self::connection_properties();
+		if (@!$db) {
+			$db = self::connection_properties();
+		}
 		$db['table_name'] = $table_name;
 		return self::establish_connection($db)->db;
 	}

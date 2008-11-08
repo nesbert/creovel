@@ -143,7 +143,7 @@ function CREO($key = null, $val = null)
  **/
 function flash_message($message = null, $type = 'notice')
 {
-	if ( $message || $_SESSION['flash']['message'] ) {
+	if ($message || isset($_SESSION['flash']['message'])) {
 		
 		if ( $message ) {
 		

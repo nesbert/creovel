@@ -10,7 +10,7 @@
  * @version    $Id:$
  * @since      Class available since Release 0.1.0
  **/
-abstract class ActiveRecord
+abstract class ActiveRecord implements Iterator
 {
 	/**
 	 * Primary key column name.
@@ -106,7 +106,7 @@ abstract class ActiveRecord
 		}
 		
 		if (@!$db_properties['table_name']) {
-			$db_properties['table_name'] = $this->table_name();
+			#$db_properties['table_name'] = $this->table_name();
 		}
 		
 		$adapter = isset($db_properties['adapter']) ? strtolower($db_properties['adapter']) : 'None';
@@ -156,29 +156,7 @@ abstract class ActiveRecord
 	 **/
 	public function query($sql)
 	{
-		$count = $this->select_query($sql)->total_rows();
-		
-		// if one record load object and return
-		if ($count == 1) {
-			
-			$this->attributes($this->_select_query_->get_row());
-			
-			return clone $this;
-			
-		// if mulitple
-		} elseif ($count) {
-			
-			$return = array();
-			$class = $this->class_name();
-			
-			// load each record as an object
-			while ($row = $this->_select_query_->get_row()) {
-				$model = new $class($row);
-				$return[] = $model;
-			}
-			
-			return $return;
-		}
+		$this->select_query($sql);
 	}
 	
 	/**
@@ -387,7 +365,17 @@ abstract class ActiveRecord
 	 **/
 	public function columns($columns = array())
 	{
-		return $this->_columns_ = count($columns) ? $columns : (count($this->_columns_) ? $this->_columns_ : $this->select_query()->columns());
+		return $this->_columns_ = count($columns) ? $columns : (count($this->_columns_) ? $this->_columns_ : $this->table_columns());
+	}
+	
+	/**
+	 * Describe column details with DB object.
+	 *
+	 * @return void
+	 **/
+	public function table_columns()
+	{
+		return $this->_columns_ = $this->select_query()->columns($this->table_name());
 	}
 	
 	/**
@@ -427,9 +415,6 @@ abstract class ActiveRecord
 	 **/
 	public function attributes($data = null)
 	{
-		// get column properties once
-		$this->columns();
-		
 		// set column properties
 		if (is_array($data)) {
 			foreach ($data as $k => $v) {
@@ -439,6 +424,7 @@ abstract class ActiveRecord
 			$this->find('first', array(
 					'conditions' => array("`{$this->_primary_key_}` = ?", $data)
 				));
+			$this->attributes($this->select_query()->get_row());
 		} else {
 			$attribites = array();
 			
@@ -587,7 +573,7 @@ abstract class ActiveRecord
 					}
 					break;
 					
-				case $field->null == 'YES':
+				case isset($field->null) && $field->null == 'YES':
 					$return[$name] = $field->value === '' || $field->value === null ? 'NULL' : '';
 					break;
 					
@@ -596,6 +582,10 @@ abstract class ActiveRecord
 					break;
 			}
 		}
+		
+		// update current values
+		$this->attributes($return);
+		
 		return $return;
 	}
 	
@@ -678,7 +668,10 @@ abstract class ActiveRecord
 	{
 		try {
 			
-			$this->columns();
+			// get table columns and set
+			$vals = $this->attributes();
+			$this->table_columns();
+			$this->attributes($vals);
 			
 			switch (true) {
 				case isset($this->_columns_[$attribute]):
@@ -704,7 +697,6 @@ abstract class ActiveRecord
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author Nesbert Hidalgo
 	 **/
 	public function __call($method, $args)
 	{
@@ -720,20 +712,106 @@ abstract class ActiveRecord
 		}
 	}
 	
-	/*
-		Section: Callback Functions
-		
-		* after_save
-		* before_save
-		* after_find
-		* before_find
-		* before_create
-		* after_delete
-		* before_delete
-		* validate
-		* validate_on_create
-		* validate_on_update
-	*/
+	/**
+	 * Iterator methods.
+	 */
+	
+	/**
+	 * Resets DB properties and frees result resources.
+	 *
+	 * @return void
+	 **/
+	public function reset()
+	{
+		$this->select_query()->reset();
+	}
+	
+	/**
+	 * Set the result object pointer to its first element.
+	 *
+	 * @return void
+	 **/
+	public function rewind()
+	{
+		#echo $this->select_query()->key() . '-> rewind<br/>';
+		return $this->select_query()->rewind();
+	}
+	
+	/**
+	 * Return the current row in result object as clone Model Object.
+	 *
+	 * @return object
+	 **/
+	public function current()
+	{
+		#echo $this->select_query()->key() . '-> current<br/>';
+		$this->attributes($this->select_query()->current());
+		return clone $this;
+	}
+	
+	/**
+	 * Returns the index element of the current result object pointer.
+	 *
+	 * @return integer
+	 **/
+	public function key()
+	{
+		#echo $this->select_query()->key() . '-> key<br/>';
+		return $this->select_query()->key();
+	}
+	
+	/**
+	 * Advance the result object pointer.
+	 *
+	 * @return object
+	 **/
+	public function next()
+	{
+		#echo $this->select_query()->key() . '-> next<br/>';
+		$this->select_query()->next();
+		return $this->current();
+	}
+	
+	/**
+	 * Rewind the result object pointer by one.
+	 *
+	 * @return object
+	 **/
+	public function prev()
+	{
+		#echo $this->select_query()->key() . '-> prev<br/>';
+		$this->select_query()->prev();
+		return $this->current();
+	}
+	
+	/**
+	 * Adjusts the result pointer to an arbitrary row in the result and returns
+	 * TRUE on success or FALSE on failure.
+	 *
+	 * @return boolean
+	 **/
+	public function valid()
+	{
+		#echo $this->select_query()->key() . '-> valid<br/>';
+		return $this->select_query()->valid();
+	}
+	
+	/**
+	 * Callback Functions
+	 *
+	 * after_save
+	 * before_save
+	 * after_find
+	 * before_find
+	 * before_create
+	 * after_delete
+	 * before_delete
+	 * validate
+	 * validate_on_create
+	 * validate_on_update
+	 * @return void
+	 **/
+	
 	public function after_save() {}
 	public function before_save() {}
 	public function after_find() {}

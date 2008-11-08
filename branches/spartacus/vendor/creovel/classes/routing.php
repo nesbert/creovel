@@ -77,7 +77,7 @@ class Routing
 		
 		if (in_string('*', $url)) {
 			$astrik_path = explode('/', $url);
-			$start = array_search('*', $astrik_path);
+			$start = array_search('*', $astrik_path) - 1;
 			$end = count($uri_path);
 			if ($end > $start) {
 				for ($i = $start; $i <= $end; $i += 2) {
@@ -211,7 +211,6 @@ class Routing
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author Nesbert Hidalgo
 	 **/
 	public function set_current_default()
 	{

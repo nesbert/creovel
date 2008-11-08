@@ -23,9 +23,8 @@ interface AdapterInterface
 	 * $db_properties['socket']     = 'socket';
 	 * </code>
 	 *
-	 * @author Nesbert Hidalgo
-	 * @access public
 	 * @param array $db_properties array of DB connecting settings
+	 * @return void
 	 */
 	public function connect($db_properties);
 	
@@ -45,19 +44,12 @@ interface AdapterInterface
 	public function query();
 	
 	/**
-	 * Set the table to model.
-	 *
-	 * @param string $table name of table
-	 * @return void
-	 */
-	public function set_table($table);
-	
-	/**
 	 * Returns an object modeled by the current table structure.
 	 *
+	 * @param string $table_name
 	 * @return object
 	 */    
-	public function columns();
+	public function columns($table_name);
 	
 	/**
 	 * Returns the number of row(s) found after a query.
@@ -87,4 +79,18 @@ interface AdapterInterface
 	 * @return string
 	 */
 	public function escape($string);
+	
+	/**
+	 * Resets DB properties and frees result resources.
+	 *
+	 * @return void
+	 **/
+	public function reset();
+	
+	/**
+	 * Rewind the result object pointer.
+	 *
+	 * @return array
+	 **/
+	public function prev();
 }

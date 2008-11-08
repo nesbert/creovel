@@ -16,12 +16,12 @@
 require_once 'adapter_interface.php';
 require_once 'adapter_base.php';
 
-class MysqlImproved extends AdapterBase implements AdapterInterface
+class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
 {
 	/**
 	 * Database resource.
 	 *
-	 * @var string
+	 * @var resource
 	 **/
 	public $db;
 	
@@ -30,14 +30,15 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 *
 	 * @var string
 	 **/
-	public $table_name = '';
+	public $query = '';
 	
 	/**
-	 * SQL query string.
+	 * Result row offset. Must be between zero and the total number of
+	 * rows minus one.
 	 *
-	 * @var string
+	 * @var integer
 	 **/
-	public $query = '';
+	public $offset = 0;
 	
 	/**
 	 * undocumented function
@@ -83,10 +84,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 				$db_properties['host'] . '.' . $db_properties['default'] .
 				'). ' . mysqli_connect_error() . '.');
 			exit();
-		}
-		
-		if (@$db_properties['table_name']) {
-			$this->set_table($db_properties['table_name']);
 		}
 	}
 	
@@ -134,7 +131,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author Nesbert Hidalgo
 	 **/
 	public function get_row()
 	{
@@ -142,25 +138,15 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	}
 	
 	/**
-	 * Set the table to model.
-	 *
-	 * @param string $table name of table
-	 * @return void
-	 */
-	public function set_table($table)
-	{
-		$this->table_name = $table;
-	}
-	
-	/**
 	 * Returns an object modeled by the current table structure.
 	 *
+	 * @param string $table_name
 	 * @return object
 	 */    
-	public function columns()
+	public function columns($table_name)
 	{
 		// send a DESCRIBE query and set result on success
-		$result = $this->db->query("DESCRIBE `{$this->table_name}`;");
+		$result = $this->db->query("DESCRIBE `{$table_name}`;");
 		
 		// set fields object to return
 		$fields = array();
@@ -187,13 +173,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	}
 	
 	/**
-	 * Resets the row pointer (index) to zero and reintialize all class varibles.
-	 *
-	 */
-	 public function reset()
-	{}
-	
-	/**
 	 * Returns the number of row(s) found after a query.
 	 *
 	 * @return int
@@ -210,7 +189,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	 */
 	public function affected_rows()
 	{
-		return $this->result->num_rows;
+		return $this->db->affected_rows;
 	}
 	
 	/**
@@ -232,5 +211,94 @@ class MysqlImproved extends AdapterBase implements AdapterInterface
 	public function escape($string)
 	{
 		return $this->db->real_escape_string($string);
+	}
+	
+	/**
+	 * Resets DB properties and frees result resources.
+	 *
+	 * @return void
+	 **/
+	public function reset()
+	{
+		// reset properties
+		$this->query = '';
+		$this->offset = 0;
+		
+		// release result resource
+		if (is_resource($this->db) && is_resource($this->result)) {
+			$this->result->close();
+		}
+	}
+	
+	/**
+	 * Iterator methods.
+	 */
+	
+	/**
+	 * Set the result object pointer to its first element.
+	 *
+	 * @return void
+	 **/
+	public function rewind()
+	{
+		$this->offset = 0;
+		#echo "rewind: $this->offset<br/>";
+	}
+	
+	/**
+	 * Return the current row in result object.
+	 *
+	 * @return array
+	 **/
+	public function current()
+	{
+		#echo "current: $this->offset<br/>";
+		return $this->get_row();
+	}
+	
+	/**
+	 * Returns the index element of the current result object pointer.
+	 *
+	 * @return integer
+	 **/
+	public function key()
+	{
+		#echo "key: $this->offset<br/>";
+		return $this->offset;
+	}
+	
+	/**
+	 * Advance the result object pointer.
+	 *
+	 * @return array
+	 **/
+	public function next()
+	{
+		$this->offset++;
+		#echo "next: $this->offset<br/>";
+		return $this->current();
+	}
+	
+	/**
+	 * Rewind the result object pointer by one.
+	 *
+	 * @return array
+	 **/
+	public function prev()
+	{
+		$this->offset--;
+		#echo "prev: $this->offset<br/>";
+		return $this->current();
+	}
+	
+	/**
+	 * Adjusts the result pointer to an arbitrary row in the result and returns
+	 * TRUE on success or FALSE on failure.
+	 *
+	 * @return boolean
+	 **/
+	public function valid()
+	{
+		return $this->result->data_seek($this->offset);
 	}
 }

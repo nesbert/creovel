@@ -77,7 +77,7 @@ class Routing
 		
 		if (in_string('*', $url)) {
 			$astrik_path = explode('/', $url);
-			$start = array_search('*', $astrik_path) - 1;
+			$start = array_search('*', $astrik_path) - ($astrik_path[0] ? 0 : 1);
 			$end = count($uri_path);
 			if ($end > $start) {
 				for ($i = $start; $i <= $end; $i += 2) {

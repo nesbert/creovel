@@ -271,7 +271,7 @@ abstract class ActionController
 	 * @param boolean $no_error *Optional* no application error if partial not found.
 	 * @return string Output to screen or a string.
 	 **/
-	public function render_partial($partial, $locals = null, $controller = null)
+	public function render_partial($partial, $locals = null, $controller = null, $no_error = false)
 	{
 		if (is_array($partial)) {
 			$options = $partial;

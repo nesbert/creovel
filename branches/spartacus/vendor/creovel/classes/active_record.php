@@ -177,7 +177,11 @@ abstract class ActiveRecord implements Iterator
 	public function find($type, $options = array())
 	{
 		$sql = $this->build_query_from_options(array('_type_' => $type) + (array) $options);
-		return $this->query($sql);
+		$this->query($sql);
+		if ($type == 'first') {
+			$this->current();
+		}
+		return clone $this;
 	}
 	
 	/**
@@ -629,6 +633,26 @@ abstract class ActiveRecord implements Iterator
 		}
 		$db['table_name'] = $table_name;
 		return self::establish_connection($db)->db;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function total_rows()
+	{
+		return $this->select_query()->total_rows();
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function get_row()
+	{
+		return $this->select_query()->get_row();
 	}
 	
 	// Section: Magic Functions

@@ -66,3 +66,17 @@ function domain()
 	$url = explode('.', host());
 	return $url[count($url) - 2] . '.' . $url[count($url) - 1];
 }
+
+/**
+ * A top-level domain (TLD), sometimes referred to as a top-level domain name
+ * (TLDN), is the last part of an Internet domain name; that is, the letters
+ * that follow the final dot of any domain name. For example, in the domain
+ * name www.example.com, the top-level domain is "com".
+ *
+ * @return string
+ **/
+function tld()
+{
+	$url = explode('.', host());
+	return isset($url[count($url) - 1]) ? $url[count($url) - 1] : '';
+}

@@ -761,6 +761,7 @@ abstract class ActiveRecord implements Iterator
 							'hidden_field_for_',
 							'password_field_for_'
 							), '', $method);
+			$arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
 							
 			switch (true) {
 				case in_string('field_for_', $method):
@@ -776,16 +777,16 @@ abstract class ActiveRecord implements Iterator
 					return $this->html_field($type, $name, $this->$name, $arguments);
 					break;
 				
-				case preg_match('/^options_for_(.+)$/', $method, $regs):
-					if ($this->field_exists($name)) {
+				case in_string('options_for_', $method):
+					if ($this->attribute_exists($name)) {
 						$this->_columns_->$name->options = $arguments[0];
 					} else {
 						throw new Exception("Can set options for {$name}. Property <em>{$name}</em> not found in <strong>{$this->class_name()}</strong> model.");
 					}
 					break;
 					
-				case in_string('has_error', $method):
-					return $this->has_error($name);
+				case in_string('_has_error', $method):
+					return $this->has_error($name, $arguments[0]);
 					break;
 					
 				case in_string('validates_', $method):
@@ -952,11 +953,16 @@ abstract class ActiveRecord implements Iterator
 	 * Check if field is validation errors array.
 	 *
 	 * @param string $property
+	 * @param string $return_text_on_true
 	 * @return boolean
 	 **/
-	public function has_error($property)
+	public function has_error($property, $return_text_on_true = '')
 	{
-		return @in_array($property, array_keys($GLOBALS['CREOVEL']['VALIDATION_ERRORS']));
+		if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'][$property])) {
+			return $return_text_on_true ? $return_text_on_true : true;
+		} else {
+			return false;
+		}
 	}
 	
 	/**

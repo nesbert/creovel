@@ -16,7 +16,7 @@
 		<em>
 		<?php if ($adapters = get_creovel_adapters()) foreach ($adapters as $name => $file) { ?>
 			<?php if (CREO('show_source')) { ?>
-			<a href="<?php echo $_SERVER['REQUEST_URI'].strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?'; ?>view_source=<?php echo $file; ?>"><?php echo $name; ?></a>
+			<a href="<?php echo view_source_url($file); ?>"><?php echo $name; ?></a>
 			<?php } else { ?>
 			<?php echo $name; ?>
 			<?php } ?>
@@ -32,7 +32,7 @@
 		<em>
 		<?php if ($services = get_creovel_services()) foreach ($services as $name => $file) { ?>
 			<?php if (CREO('show_source')) { ?>
-			<a href="<?php echo $_SERVER['REQUEST_URI'].strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?'; ?>view_source=<?php echo $file; ?>"><?php echo $name; ?></a>
+			<a href="<?php echo view_source_url($file); ?>"><?php echo $name; ?></a>
 			<?php } else { ?>
 			<?php echo $name; ?>
 			<?php } ?>
@@ -52,7 +52,7 @@
 <tr>
 	<td class="sub">Routes</td>
 	<td>
-		<?php foreach ($routing['ROUTES'] as $name => $route) { ?>
+		<?php foreach ($routing['routes'] as $name => $route) { ?>
 		<dl>
 			<dt><?=$route['name']?> (<?=$route['url']?>)</dt>
 		</dl>
@@ -93,7 +93,7 @@
 	<td class="sub"><?php print($file + 1); ?>.</td>
 	<td>
 		<?php if (CREO('show_source')) { ?>
-		<a href="<?=$_SERVER['REQUEST_URI']?><?=( strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' )?>view_source=<?=$value?>"><?=$value?> (<?php echo get_filesize($value); ?>)</a>
+		<a href="<?php echo view_source_url($value); ?>"><?=$value?> (<?php echo get_filesize($value); ?>)</a>
 		<?php } else { ?>
 		<?php echo $value; ?> (<?php echo get_filesize($value); ?>)
 		<?php } ?>

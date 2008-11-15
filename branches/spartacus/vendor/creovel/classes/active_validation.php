@@ -34,7 +34,7 @@ class ActiveValidation
 	public function __construct(&$errors = null)
 	{
 		if ($errors) {
-			$_SESSION['CREOVEL']['ERRORS'] = $errors;
+			$GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = $errors;
 		}
 	}
 	
@@ -47,7 +47,7 @@ class ActiveValidation
 	 **/
 	public function add_error($field, $message)
 	{
-		$_SESSION['CREOVEL']['ERRORS'][$field] = $message;
+		$GLOBALS['CREOVEL']['VALIDATION_ERRORS'][$field] = $message;
 	}
 	
 	/**
@@ -57,7 +57,7 @@ class ActiveValidation
 	 **/
 	public function has_errors()
 	{
-		return count($_SESSION['CREOVEL']['ERRORS']);
+		return count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
 	}
 	
 	/**
@@ -67,7 +67,7 @@ class ActiveValidation
 	 **/
 	public function clear_errors()
 	{
-		$_SESSION['CREOVEL']['ERRORS'] = array();
+		$GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
 	}
 	
 	/**

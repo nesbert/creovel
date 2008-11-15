@@ -60,9 +60,11 @@ function html_options_str($html_options)
 		}
 		
 		// add confirm pop up
-		if (in_array('confirm', array_keys($html_options)) ) {
+		if (isset($html_options['confirm'])) {
 			$msg = str_replace("'", "\'", htmlentities($html_options['confirm']));
-			$html_options['onclick'] = "if ( !window.confirm('{$msg}') ) return false; " . $html_options['onclick'];
+			if (isset($html_options['onclick'])) {
+				$html_options['onclick'] = "if ( !window.confirm('{$msg}') ) return false; " . $html_options['onclick'];
+			}
 			unset($html_options['confirm']);
 		}
 		

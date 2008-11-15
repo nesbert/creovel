@@ -443,3 +443,8 @@ function redirect_to_url($url)
 	header('location: ' . $url);
 	die;
 }
+
+function view_source_url($file)
+{
+	return $_SERVER['REQUEST_URI'] . (strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' ) . 'view_source=' . $file;
+}

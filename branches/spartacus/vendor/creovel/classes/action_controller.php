@@ -59,7 +59,7 @@ abstract class ActionController
 	public function __set_events($events)
 	{
 		$this->_controller = $events['controller'];
-		$this->_action = $events['action'];
+		$this->_action = underscore($events['action']);
 		if (!$this->render) {
 			$this->render = $events['action'];
 		}

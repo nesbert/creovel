@@ -241,7 +241,7 @@ abstract class ActiveRecord implements Iterator
 				foreach ($options['_type_'] as $v) {
 					$id[] = $this->quote_value($v);
 				}
-				$where[] = "`{$this->_primary_key_}` IN (" .
+				$where[] = "`{$this->primary_key()}` IN (" .
 					implode(", ", $id) . ")";
 				break;
 				
@@ -253,7 +253,7 @@ abstract class ActiveRecord implements Iterator
 				break;
 				
 			default:
-				$where[] = "`{$this->_primary_key_}` = ".
+				$where[] = "`{$this->primary_key()}` = ".
 					$this->quote_value($options['_type_']);
 				break;
 		}
@@ -413,6 +413,16 @@ abstract class ActiveRecord implements Iterator
 	}
 	
 	/**
+	 * Checks if $attribute is a valid table column.
+	 *
+	 * @return void
+	 **/
+	public function attribute_exists($attribute)
+	{
+		return isset($this->_columns_[$attribute]);
+	}
+	
+	/**
 	 * undocumented function
 	 *
 	 * @return void
@@ -426,7 +436,7 @@ abstract class ActiveRecord implements Iterator
 			}
 		} else if ($data) {
 			$this->find('first', array(
-					'conditions' => array("`{$this->_primary_key_}` = ?", $data)
+					'conditions' => array("`{$this->primary_key()}` = ?", $data)
 				));
 			$this->attributes($this->select_query()->get_row());
 		} else {
@@ -456,9 +466,19 @@ abstract class ActiveRecord implements Iterator
 	 *
 	 * @return void
 	 **/
+	public function primary_key()
+	{
+		return $this->primary_key();
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
 	public function id()
 	{
-		return $this->{$this->_primary_key_};
+		return $this->{$this->primary_key()};
 	}
 	
 	/**
@@ -470,7 +490,10 @@ abstract class ActiveRecord implements Iterator
 	{
 		$this->before_save();
 		
-		#if (!$this->validate_model($validation_routine)) return false;
+		$this->validate();
+		
+		// if error return false
+		if ($this->has_errors()) return false;
 		
 		if ($this->id()) {
 		
@@ -537,14 +560,14 @@ abstract class ActiveRecord implements Iterator
 		// sanitize values and prep set string
 		$set = array();
 		foreach ($this->prepare_attributes() as $k => $v) {
-			if ($this->_primary_key_ == $k) continue;
+			if ($this->primary_key() == $k) continue;
 			$set[] = "`$k` = {$this->quote_value($v)}";
 		}
 		
 		// build query
 		$qry = "UPDATE `{$this->table_name()}` " .
 				"SET " . implode(', ', $set) . " " .
-				"WHERE `{$this->_primary_key_}` = '{$this->id()}'";
+				"WHERE `{$this->primary_key()}` = '{$this->id()}'";
 		
 		$this->action_query($qry);
 		
@@ -691,7 +714,6 @@ abstract class ActiveRecord implements Iterator
 	public function __set($attribute, $value)
 	{
 		try {
-			
 			// get table columns and set
 			$vals = $this->attributes();
 			$this->table_columns();
@@ -722,9 +744,54 @@ abstract class ActiveRecord implements Iterator
 	 *
 	 * @return void
 	 **/
-	public function __call($method, $args)
+	public function __call($method, $arguments)
 	{
 		try {
+			// get property name
+			$name = str_replace(array(
+							'text_field_for_',
+							'select_for_',
+							'text_area_for_',
+							'textarea_for_',
+							'radio_button_for_',
+							'check_box_for_',
+							'checkbox_for_',
+							'select_countries_tag_for_',
+							'select_countries_tag_for_',
+							'hidden_field_for_',
+							'password_field_for_'
+							), '', $method);
+							
+			switch (true) {
+				case in_string('field_for_', $method):
+				case in_string('select_for_', $method):
+				case in_string('text_area_for_', $method):
+				case in_string('textarea_for_', $method):
+				case in_string('check_box_for_', $method):
+				case in_string('checkbox_for_', $method):
+				case in_string('radio_button_for_', $method):
+				case in_string('select_countries_tag_for_', $method):
+				case in_string('select_states_tag_for_', $method):
+					$type = str_replace(array('_field_for_' . $name, '_for_' . $name), '', $method);
+					return $this->html_field($type, $name, $this->$name, $arguments);
+					break;
+				
+				case preg_match('/^options_for_(.+)$/', $method, $regs):
+					if ($this->field_exists($name)) {
+						$this->_columns_->$name->options = $arguments[0];
+					} else {
+						throw new Exception("Can set options for {$name}. Property <em>{$name}</em> not found in <strong>{$this->class_name()}</strong> model.");
+					}
+					break;
+					
+				case in_string('has_error', $method):
+					return $this->has_error($name);
+					break;
+					
+				case in_string('validates_', $method):
+					return $this->validate_by_method($method, $arguments);
+					break;
+			}
 			
 			if (!method_exists($this, $method)) {
 				throw new Exception("Method <em>{$method}</em> not found in <strong>{$this->class_name()}</strong> model.");
@@ -733,6 +800,190 @@ abstract class ActiveRecord implements Iterator
 		} catch (Exception $e) {
 			// add to errors
 			CREO('application_error', $e);
+		}
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Nesbert Hidalgo
+	 **/
+	private function validate_by_method($method, $arguments = null)
+	{
+		try {
+			// set up array to handle multi fields
+			if (is_array($arguments[0])) {
+				$fields = $arguments[0];
+			} else {
+				$fields[] = $arguments[0];
+			}
+			
+			// set params order for validation
+			$params = array('field', 'value');
+			if (isset($arguments[1])) $params[] = $arguments[1];
+			unset($arguments[0]);	// remove field name
+			unset($arguments[1]);	// remove field value
+			
+			// append optional args to params
+			$params = array_merge($params, $arguments);
+			
+			foreach ($fields as $field) {
+				// set field, value, message and extras
+				$params[0] = $field;
+				$params[1] = $this->$field;
+				$params[2] = isset($params[2]) ? $params[2] : '';
+				
+				switch ($method) {
+					case 'validates_uniqueness_of':
+						ActiveValidation::validates_presence_of($params[0], $params[1], $params[2]);
+						if (!$params[1]) return;
+						
+						if (isset($params[3])) {
+							$where_ext = $params[3];
+						} else {
+							$where_ext = '1';
+						}
+						// check if a column with that value exists in the current table and is not the currentlly loaded row
+						$this->action_query("SELECT * FROM `{$this->table_name()}` WHERE `{$params[0]}` = '{$params[1]}' AND `{$this->primary_key()}` != '{$this->id}' AND (".$where_ext.")");
+						
+						// if record found add error
+						if ($this->action_query()->total_rows()) {
+							ActiveValidation::add_error($params[0], ( $params[2] ? $params[2] : humanize($params[0]).' is not unique.' ));
+						} else {
+							return true;
+						}
+						break;
+					
+					default:
+						if (method_exists('ActiveValidation', $method) ) {
+							if (count($fields) > 1) {
+								call_user_func_array(array('ActiveValidation', $method), $params);
+							} else {
+								return call_user_func_array(array('ActiveValidation', $method), $params);
+							}
+						} else {
+							throw new Exception("Undefined validation method <em>{$method}</em> in <strong>{$this->class_name()}</strong> model.");
+						}
+						break;
+				}
+			
+			}
+		
+		} catch (Exception $e) {
+			// add to errors
+			CREO('application_error', $e);
+		}
+	}
+	
+	/**
+	 * Create HTML for field.
+	 *
+	 * @param string $type
+	 * @param string $name
+	 * @param mixed $value
+	 * @param array $arguments
+	 * @return string
+	 **/
+	public function html_field($type, $name, $value, $arguments = array())
+	{
+		// set form vars
+		$arguments[0] = isset($arguments[0]) ? $arguments[0] : null;
+		@$html_options = $arguments[0];
+		
+		// get HTML
+		switch ($type) {
+			case 'text':
+				$html = text_field($name, $value, $html_options);
+				break;
+			
+			case 'password':
+				$html = password_field($name, $value, $html_options);
+				break;
+			
+			case 'hidden':
+				$html = hidden_field($name, $value, $html_options);
+				break;
+			
+			case 'check_box':
+			case 'checkbox':
+				$tag_value = $arguments[0];
+				$text = $arguments[1];
+				$html_options = $arguments[2];
+				$html = check_box($name, $value, $html_options, $tag_value, $text);
+				break;
+			
+			case 'radio_button':
+				$tag_value = $arguments[0];
+				$text = $arguments[1];
+				$html_options = $arguments[2];
+				$html = radio_button($name, $value, $html_options, $tag_value, $text);
+				break;
+			
+			case 'text_area':
+			case 'textarea':
+				$html = textarea($name, $value, $html_options);
+				break;
+			
+			case 'select':
+			case 'select_countries_tag':
+			case 'select_states_tag':
+				$options = $arguments[0] ? $arguments[0] : $this->enum_options($name);
+				$html_options = isset($arguments[1]) ? $arguments[1] : null;
+				$arguments[2] = isset($arguments[2]) ? $arguments[2] : null;
+			
+			case 'select':
+				$html = select($name, $value, $options, $html_options);
+				break;
+			
+			case 'select_countries_tag':
+				$html = select_countries_tag($name, $value, $options, $html_options, $arguments[2]);
+				break;
+			
+			case 'select_states_tag':
+				$html = select_states_tag($name, $value, $options, $html_options, $arguments[2]);
+				break;
+		}
+		
+		return $html;
+	}
+	
+	/**
+	 * Check if field is validation errors array.
+	 *
+	 * @param string $property
+	 * @return boolean
+	 **/
+	public function has_error($property)
+	{
+		return @in_array($property, array_keys($GLOBALS['CREOVEL']['VALIDATION_ERRORS']));
+	}
+	
+	/**
+	 * Check if this any validation errors.
+	 *
+	 * @param string $property
+	 * @return boolean
+	 **/
+	public function has_errors()
+	{
+		return @count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
+	}
+	
+	/**
+	 * Get options for ENUM field types.
+	 *
+	 * @return void
+	 **/
+	public function enum_options($property)
+	{
+		if (in_string('enum(', $this->_columns_[$property]->type)) {
+			$options = explode("','", str_replace(array("enum('"), '', substr($this->_columns_[$property]->type, 0, -2)));
+			$return = array();
+			foreach ($options as $value) {
+				$return[$value] = humanize($value);
+			}
+			return $return;
 		}
 	}
 	
@@ -822,18 +1073,6 @@ abstract class ActiveRecord implements Iterator
 	
 	/**
 	 * Callback Functions
-	 *
-	 * after_save
-	 * before_save
-	 * after_find
-	 * before_find
-	 * before_create
-	 * after_delete
-	 * before_delete
-	 * validate
-	 * validate_on_create
-	 * validate_on_update
-	 * @return void
 	 **/
 	
 	public function after_save() {}

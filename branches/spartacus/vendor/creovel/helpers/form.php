@@ -33,8 +33,8 @@ function name_to_id($name)
 */
 
 function add_form_error($field_name, $message = null)
-{	
-	$_ENV['creovel']['form_errors'][name_to_id($field_name)] = $message ? $message : humanize($field_name) . ' is invalid.';
+{
+	$GLOBALS['CREOVEL']['VALIDATION_ERRORS'][name_to_id($field_name)] = $message ? $message : humanize($field_name) . ' is invalid.';
 }
 
 /*
@@ -53,7 +53,7 @@ function add_form_error($field_name, $message = null)
 
 function field_has_error($field_name)
 {	
-	return isset($_ENV['creovel']['form_errors'][name_to_id($field_name)]);
+	return isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'][name_to_id($field_name)]);
 }
 
 /*
@@ -117,16 +117,18 @@ function form_errors_count()
 
 function error_messages_for($errors = null, $title = null, $description = null)
 {
-	if (!$description) {
-		$description = $_ENV['FORM_ERRORS_DESCRIPTION'] ? $_ENV['FORM_ERRORS_DESCRIPTION'] : 'There were problems with the following fields.';
+	if (!$description && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'])) {
+		$description = $GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'] ? $GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'] : 'There were problems with the following fields.';
 	}
 	// if no errors check global variable
-	if ( !$errors ) $errors = $_ENV['creovel']['form_errors'];
+	if (!$errors && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'])) {
+		$errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
+	}
 	
-	if ( is_object($errors) ) {
+	if (is_object($errors)) {
 		$model = get_class($errors);
 		$errors_count = $errors->errors->count();
-		$errors = $_ENV['creovel']['form_errors'];
+		$errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
 	} else {
 		$errors_count = count($errors);
 	}
@@ -139,30 +141,15 @@ function error_messages_for($errors = null, $title = null, $description = null)
 	}	
 	
 	if ($errors_count) {
-		$default_title = $_ENV['FORM_ERRORS_TITLE'] ? $_ENV['FORM_ERRORS_TITLE'] : "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".( $model ? humanize($model) : 'Form' )." from being saved.";
-		$title = ( $title ? $title : $default_title);
+		if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_TITLE'])) {
+			$default_title =  $GLOBALS['CREOVEL']['VALIDATION_ERRORS_TITLE'];
+		} else {
+			$default_title = "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".(isset($model) ? humanize($model) : 'Form' )." from being saved.";
+		}
+		$title = $title ? $title : $default_title;
 		$title = str_replace(array('@@errors_count@@','@@title@@'), array($errors_count, $title), $title);
-		
-	?>
-<div class="errors">
-
-<div class="top"></div>
-	
-<div class="body">
-<?=( $title ? '<h1 class="error_title">'.$title.'</h1>' : '' )?>
-<?=( $description ? '<p>'.$description.'</p>' : '' )?>
-
-<ul>
-<?=$li_str?>
-</ul>
-
-</div>
-
-<div class="bottom"></div>
-
-</div><?php
+		include_once(CREOVEL_PATH . 'views' . DS . 'layouts' . DS . '_form_errors.php');
 	}
-
 }
 
 /*
@@ -276,17 +263,19 @@ function end_form_tag()
 		String.
 */
  
-function create_input_tag($type, $name, $value = null, $html_options = null, $tag_value = null, $text = null)
+function create_input_tag($type, $name, $value = null, $html_options = array(), $tag_value = null, $text = null)
 {
-	if (isset($type)) $html_options['type'] = $type;
+	$input = array();
+	if (isset($type)) $input['type'] = $type;
 	if (!isset($html_options['id'])) $html_options['id'] = name_to_id($name).( $type == 'radio' | $type == 'checkbox' ? '_'.str_replace(' ', '', $tag_value) : '' );
-	if (isset($name)) $html_options['name'] = $name;
-	$html_options['value'] = $value;
+	$input['id'] = $html_options['id'];
+	if (isset($name)) $input['name'] = $name;
+	$input['value'] = $value;
 	if ($type == 'radio' || $type == 'checkbox') {
-		$html_options['value'] = $tag_value;
+		$input['value'] = $tag_value;
 		if ( $value == $tag_value ) $html_options['checked'] = 'checked';
 	}
-	return create_html_element('input', $html_options) . ( $text ? ' ' . $text : '' ) . "\n";
+	return create_html_element('input', array_merge($input, $html_options)) . ($text ? ' ' . $text : '') . "\n";
 }
 
 /*
@@ -454,11 +443,11 @@ function button_tag($value = 'Button', $html_options = null)
 		String.
 */ 
 
-function textarea($name, $value = '', $html_options = null)
+function textarea($name, $value = '', $html_options = array())
 {
-	$html_options['id'] = name_to_id($name);
-	$html_options['name'] = $name;
-	return create_html_element('textarea', $html_options, $value);
+	$textarea['id'] = name_to_id($name);
+	$textarea['name'] = $name;
+	return create_html_element('textarea', array_merge($textarea, $html_options), $value);
 }
 
 /*
@@ -529,10 +518,9 @@ Returns:
 function select($name, $selected = '', $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
 {
 	$og_options = array('name' => $name, 'id' => name_to_id($name)) + (array) $html_options;
+	$content = "\n";
 	
 	if (count($choices)) {
-		
-		$content = "\n";
 		
 		if ($have_none) {
 			$content .= create_html_element('option', array('value' => ''), $none_title)."\n";
@@ -619,7 +607,7 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
 		$abbr = true;
 		unset($choices['abbr']);
 	}
-		
+	
 	if ( isset($choices['select_all']) ) {
 		$select_all = true;
 		unset($choices['select_all']);

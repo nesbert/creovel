@@ -468,7 +468,7 @@ abstract class ActiveRecord implements Iterator
 	 **/
 	public function primary_key()
 	{
-		return $this->primary_key();
+		return $this->_primary_key_;
 	}
 	
 	/**

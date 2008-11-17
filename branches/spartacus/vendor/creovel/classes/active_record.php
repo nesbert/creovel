@@ -56,7 +56,7 @@ abstract class ActiveRecord implements Iterator
 	{
 		// load data if passed
 		if ($data) {
-			$this->attributes($data);
+			$this->__load_data($data);
 		}
 		
 		// load connection if passed
@@ -176,11 +176,20 @@ abstract class ActiveRecord implements Iterator
 	 **/
 	public function find($type, $options = array())
 	{
+		// before find call-back
+		$this->before_find();
+		
 		$sql = $this->build_query_from_options(array('_type_' => $type) + (array) $options);
+		
 		$this->query($sql);
+		
 		if ($type == 'first') {
 			$this->current();
 		}
+		
+		// after find call-back
+		$this->after_find();
+		
 		return clone $this;
 	}
 	
@@ -259,7 +268,7 @@ abstract class ActiveRecord implements Iterator
 		}
 		if (@$options['conditions']) {
 			// hash condidtions
-			if (is_assoc($options['conditions'])) {
+			if (is_hash($options['conditions'])) {
 				$conditions = array();
 				foreach ($options['conditions'] as $k => $v) {
 					$conditions[] = "`{$this->table_name()}`.`{$k}` = {$this->quote_value($v)}";
@@ -430,23 +439,17 @@ abstract class ActiveRecord implements Iterator
 	public function attributes($data = null)
 	{
 		// set column properties
-		if (is_array($data)) {
+		if (is_hash($data)) {
+			// insert new vals
 			foreach ($data as $k => $v) {
 				$this->_columns_[$k]->value = $v;
 			}
-		} else if ($data) {
-			$this->find('first', array(
-					'conditions' => array("`{$this->primary_key()}` = ?", $data)
-				));
-			$this->attributes($this->select_query()->get_row());
 		} else {
 			$attribites = array();
-			
 			// get column properties
 			foreach($this->_columns_ as $k => $v) {
 				$attribites[$k] = $v->value;
 			}
-			
 			return $attribites;
 		}
 	}
@@ -757,12 +760,12 @@ abstract class ActiveRecord implements Iterator
 							'check_box_for_',
 							'checkbox_for_',
 							'select_countries_tag_for_',
-							'select_countries_tag_for_',
+							'select_states_tag_for_',
 							'hidden_field_for_',
 							'password_field_for_'
 							), '', $method);
 			$arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
-							
+			
 			switch (true) {
 				case in_string('field_for_', $method):
 				case in_string('select_for_', $method):
@@ -780,15 +783,19 @@ abstract class ActiveRecord implements Iterator
 				case in_string('options_for_', $method):
 					if ($this->attribute_exists($name)) {
 						$this->_columns_->$name->options = $arguments[0];
+					} else if (isset($this->_columns_->$name->options)) {
+						return $this->_columns_->$name->options;
+					} else if ($arguments[0] === '') {
+						return;
 					} else {
 						throw new Exception("Can set options for {$name}. Property <em>{$name}</em> not found in <strong>{$this->class_name()}</strong> model.");
 					}
 					break;
-					
+				
 				case in_string('_has_error', $method):
 					return $this->has_error($name, $arguments[0]);
 					break;
-					
+				
 				case in_string('validates_', $method):
 					return $this->validate_by_method($method, $arguments);
 					break;
@@ -797,7 +804,6 @@ abstract class ActiveRecord implements Iterator
 			if (!method_exists($this, $method)) {
 				throw new Exception("Method <em>{$method}</em> not found in <strong>{$this->class_name()}</strong> model.");
 			}
-			
 		} catch (Exception $e) {
 			// add to errors
 			CREO('application_error', $e);
@@ -808,7 +814,6 @@ abstract class ActiveRecord implements Iterator
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author Nesbert Hidalgo
 	 **/
 	private function validate_by_method($method, $arguments = null)
 	{
@@ -889,21 +894,22 @@ abstract class ActiveRecord implements Iterator
 	public function html_field($type, $name, $value, $arguments = array())
 	{
 		// set form vars
+		$field_name = strtolower($this->class_name() . "[{$name}]");
 		$arguments[0] = isset($arguments[0]) ? $arguments[0] : null;
 		@$html_options = $arguments[0];
 		
 		// get HTML
 		switch ($type) {
 			case 'text':
-				$html = text_field($name, $value, $html_options);
+				$html = text_field($field_name, $value, $html_options);
 				break;
 			
 			case 'password':
-				$html = password_field($name, $value, $html_options);
+				$html = password_field($field_name, $value, $html_options);
 				break;
 			
 			case 'hidden':
-				$html = hidden_field($name, $value, $html_options);
+				$html = hidden_field($field_name, $value, $html_options);
 				break;
 			
 			case 'check_box':
@@ -911,38 +917,38 @@ abstract class ActiveRecord implements Iterator
 				$tag_value = $arguments[0];
 				$text = $arguments[1];
 				$html_options = $arguments[2];
-				$html = check_box($name, $value, $html_options, $tag_value, $text);
+				$html = check_box($field_name, $value, $html_options, $tag_value, $text);
 				break;
 			
 			case 'radio_button':
 				$tag_value = $arguments[0];
 				$text = $arguments[1];
 				$html_options = $arguments[2];
-				$html = radio_button($name, $value, $html_options, $tag_value, $text);
+				$html = radio_button($field_name, $value, $html_options, $tag_value, $text);
 				break;
 			
 			case 'text_area':
 			case 'textarea':
-				$html = textarea($name, $value, $html_options);
+				$html = textarea($field_name, $value, $html_options);
 				break;
 			
 			case 'select':
-			case 'select_countries_tag':
-			case 'select_states_tag':
 				$options = $arguments[0] ? $arguments[0] : $this->enum_options($name);
 				$html_options = isset($arguments[1]) ? $arguments[1] : null;
 				$arguments[2] = isset($arguments[2]) ? $arguments[2] : null;
-			
-			case 'select':
-				$html = select($name, $value, $options, $html_options);
+				$html = select($field_name, $value, $options, $html_options, $arguments[2]);
 				break;
 			
 			case 'select_countries_tag':
-				$html = select_countries_tag($name, $value, $options, $html_options, $arguments[2]);
+				$html_options = isset($arguments[0]) ? $arguments[0] : null;
+				$arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
+				$html = select_countries_tag($field_name, $value, $this->{'options_for_' . $name}(), $html_options, $arguments[1]);
 				break;
 			
 			case 'select_states_tag':
-				$html = select_states_tag($name, $value, $options, $html_options, $arguments[2]);
+				$html_options = isset($arguments[0]) ? $arguments[0] : null;
+				$arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
+				$html = select_states_tag($field_name, $value, $this->{'options_for_' . $name}(), $html_options, $arguments[1]);
 				break;
 		}
 		
@@ -1080,7 +1086,6 @@ abstract class ActiveRecord implements Iterator
 	/**
 	 * Callback Functions
 	 **/
-	
 	public function after_save() {}
 	public function before_save() {}
 	public function after_find() {}
@@ -1091,4 +1096,40 @@ abstract class ActiveRecord implements Iterator
 	public function validate() {}
 	public function validate_on_create() {}
 	public function validate_on_update() {}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	private function __load_data($data)
+	{
+		if (is_hash($data)) {
+			// id set
+			if (isset($data[$this->primary_key()])) {
+				$this->__load_id($data[$this->primary_key()]);
+			}
+			// insert new vals
+			foreach ($data as $k => $v) {
+				if ($k == $this->primary_key()) continue;
+				$this->_columns_[$k]->value = $v;
+			}
+		} else if ($data) {
+			$this->__load_id($data);
+			$this->attributes($this->select_query()->get_row());
+		}
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	private function __load_id($id)
+	{
+		$this->find('first', array(
+				'conditions' => array("`{$this->primary_key()}` = ?", $id)
+			));
+	}
+	
 } // END abstract class ActiveRecord implements Interator

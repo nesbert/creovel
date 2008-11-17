@@ -31,7 +31,7 @@ class ActionView
 				if (is_file($view_path)) {
 					$content .= self::include_contents($view_path, $options);
 				} else {
-					throw new Exception('Unable to render <em>view<em> '.
+					throw new Exception('Unable to render <em>view</em> '.
 						"not found in <strong>{$view_path}</strong>.");
 				}
 			
@@ -46,7 +46,7 @@ class ActionView
 							$content,
 							self::include_contents($layout_path, $options));
 				} else {
-					throw new Exception('Unable to render <em>layout<em> '.
+					throw new Exception('Unable to render <em>layout</em> '.
 						"not found in <strong>{$layout_path}</strong>.");
 				}
 				

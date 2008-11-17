@@ -603,14 +603,18 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 function select_states_tag($name = 'state', $selected = null, $choices = null, $html_options = null, $select_all = false)
 {
 	
-	if ( isset($choices['abbr']) ) {
+	if (isset($choices['abbr'])) {
 		$abbr = true;
 		unset($choices['abbr']);
+	} else {
+		$abbr = false;
 	}
 	
-	if ( isset($choices['select_all']) ) {
+	if (isset($choices['select_all'])) {
 		$select_all = true;
 		unset($choices['select_all']);
+	} else {
+		$select_all = false;
 	}
 	
 	if ($select_all) {
@@ -622,7 +626,7 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
 	// intialize states array
 	$state_arr = states();
 	
-	if ( $abbr ) $state_arr = array_combine(array_keys($state_arr), array_keys($state_arr));
+	if ($abbr) $state_arr = array_combine(array_keys($state_arr), array_keys($state_arr));
 	
 	$state_arr = array_merge($choices, $state_arr);
 	return select($name, $selected, $state_arr, $html_options);
@@ -648,8 +652,10 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
  
 function select_countries_tag($name = 'country', $selected = null, $choices = null, $html_options = null, $state_id = null)
 {
-
-	$choices = ( $choices ? $choices : array('' => 'Please select...') );
+	$html_options['us_first'] = isset($html_options['us_first']) ? $html_options['us_first'] : false;
+	$html_options['show_abbr'] = isset($html_options['show_abbr']) ? $html_options['show_abbr'] : false;
+	
+	$choices = $choices ? $choices : array('' => 'Please select...');
 	
 	$country_arr = countries($html_options['us_first'], $html_options['show_abbr']);
 	
@@ -659,7 +665,7 @@ function select_countries_tag($name = 'country', $selected = null, $choices = nu
 
 	if ($state_id) {
 		$state_id = name_to_id($state_id);
-		$html_options['onchange'] = trim($html_options['onchange']) . ' set_'.$state_id.'();';
+		$html_options['onchange'] = (isset($html_options['onchange']) ? trim($html_options['onchange']) : '') . ' set_'.$state_id.'();';
 	}
 	
 	$return = select($name, $selected, array_merge($choices, $country_arr), $html_options);

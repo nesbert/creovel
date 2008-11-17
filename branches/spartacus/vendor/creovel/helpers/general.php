@@ -62,7 +62,7 @@ function escape_javascript($javascript)
  * @link http://us3.php.net/manual/en/function.is-array.php#85324
  * @return boolean
  **/
-function is_assoc($array) {
+function is_hash($array) {
 	if (is_array($array) == false) {
 		return false;
 	}

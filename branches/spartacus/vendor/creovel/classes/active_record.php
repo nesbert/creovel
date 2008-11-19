@@ -762,7 +762,9 @@ abstract class ActiveRecord implements Iterator
 							'select_countries_tag_for_',
 							'select_states_tag_for_',
 							'hidden_field_for_',
-							'password_field_for_'
+							'password_field_for_',
+							'options_for_',
+							'_has_error'
 							), '', $method);
 			$arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
 			
@@ -781,11 +783,11 @@ abstract class ActiveRecord implements Iterator
 					break;
 				
 				case in_string('options_for_', $method):
-					if ($this->attribute_exists($name)) {
-						$this->_columns_->$name->options = $arguments[0];
-					} else if (isset($this->_columns_->$name->options)) {
-						return $this->_columns_->$name->options;
-					} else if ($arguments[0] === '') {
+					if ($this->attribute_exists($name) && $arguments[0]) {
+						return $this->_columns_[$name]->options = $arguments[0];
+					} else if (isset($this->_columns_[$name]->options)) {
+						return $this->_columns_[$name]->options;
+					} else if (!isset($this->_columns_[$name]) ||$arguments[0] === '') {
 						return;
 					} else {
 						throw new Exception("Can set options for {$name}. Property <em>{$name}</em> not found in <strong>{$this->class_name()}</strong> model.");
@@ -933,7 +935,11 @@ abstract class ActiveRecord implements Iterator
 				break;
 			
 			case 'select':
-				$options = $arguments[0] ? $arguments[0] : $this->enum_options($name);
+				if (isset($this->_columns_[$name]->options)) {
+					$options = $this->_columns_[$name]->options;
+				} else {
+					$options = $arguments[0] ? $arguments[0] : $this->enum_options($name);
+				}
 				$html_options = isset($arguments[1]) ? $arguments[1] : null;
 				$arguments[2] = isset($arguments[2]) ? $arguments[2] : null;
 				$html = select($field_name, $value, $options, $html_options, $arguments[2]);

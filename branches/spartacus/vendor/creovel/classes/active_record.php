@@ -750,6 +750,11 @@ abstract class ActiveRecord implements Iterator
 	public function __call($method, $arguments)
 	{
 		try {
+			// get table columns and set
+			$vals = $this->attributes();
+			$this->table_columns();
+			$this->attributes($vals);
+			
 			// get property name
 			$name = str_replace(array(
 							'text_field_for_',
@@ -935,24 +940,24 @@ abstract class ActiveRecord implements Iterator
 				break;
 			
 			case 'select':
-				if (isset($this->_columns_[$name]->options)) {
-					$options = $this->_columns_[$name]->options;
+				if (isset($this->{'options_for_' . $name})) {
+					$options = $this->{'options_for_' . $name};
 				} else {
-					$options = $arguments[0] ? $arguments[0] : $this->enum_options($name);
+					$options = $this->enum_options($name);
 				}
-				$html_options = isset($arguments[1]) ? $arguments[1] : null;
-				$arguments[2] = isset($arguments[2]) ? $arguments[2] : null;
-				$html = select($field_name, $value, $options, $html_options, $arguments[2]);
+				$html_options = $arguments[0];
+				$arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
+				$html = select($field_name, $value, $options, $html_options, $arguments[1]);
 				break;
 			
 			case 'select_countries_tag':
-				$html_options = isset($arguments[0]) ? $arguments[0] : null;
+				$html_options = $arguments[0];
 				$arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
 				$html = select_countries_tag($field_name, $value, $this->{'options_for_' . $name}(), $html_options, $arguments[1]);
 				break;
 			
 			case 'select_states_tag':
-				$html_options = isset($arguments[0]) ? $arguments[0] : null;
+				$html_options = $arguments[0];
 				$arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
 				$html = select_states_tag($field_name, $value, $this->{'options_for_' . $name}(), $html_options, $arguments[1]);
 				break;

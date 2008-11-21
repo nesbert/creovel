@@ -64,7 +64,8 @@ function url()
 function domain()
 {
 	$url = explode('.', host());
-	return $url[count($url) - 2] . '.' . $url[count($url) - 1];
+	$tld = explode(':', $url[count($url) - 1]);
+	return $url[count($url) - 2] . '.' . $tld[0];
 }
 
 /**
@@ -77,6 +78,6 @@ function domain()
  **/
 function tld()
 {
-	$url = explode('.', host());
-	return isset($url[count($url) - 1]) ? $url[count($url) - 1] : '';
+	$url = explode('.', domain());
+	return isset($url[1]) ? $url[1] : '';
 }

@@ -33,18 +33,13 @@ class ErrorHandler
 		
 		if (!$emails || $emails == 'youremail@yourdomain.com') return false;
 		
-		$email = new Mailer;
-		$email->recipients = $emails;
-		$email->subject = 'Application Error: ' . BASE_URL .
-							$_SERVER['REQUEST_URI'];
 		if ($error_message) {
-			$email->text = $error_message;
+			$message = $error_message . "\n\n" . print_r(array($_SERVER, $_SESSION), 1);
 		} else {
-			$email->text = View::toString(CREOVEL_PATH . 'views' . DS .
-					'debugger'.DS.'error.php', CREOVEL_PATH . 'views' .
-					DS . 'layouts' . DS . 'debugger.php');
+			$message = print_r(array($_SERVER, $_SESSION), 1);
 		} 
-		$email->send();
+		
+		mail($emails, 'Application Error: ' . url(), strip_tags($message));
 	}
 	
 	/**
@@ -80,7 +75,7 @@ class ErrorHandler
 		// grace fully handle errors in none devlopment mode
 		if (CREO('mode') != 'development') {
 			// email errors
-			if (CREO('email_on_error')) $this->email(&$var);
+			if (CREO('email_on_error')) $this->email($this->message);
 			// get default error events
 			$events = Routing::error();
 			if (isset($action)) $events['action'] = $action;

@@ -388,7 +388,14 @@ abstract class ActiveRecord implements Iterator
 	 **/
 	public function table_columns()
 	{
-		return $this->_columns_ = $this->select_query()->columns($this->table_name());
+		// only describe talbe once
+		static $set;
+		if (!$set) {
+			$set = true;
+			return $this->_columns_ = $this->select_query()->columns($this->table_name());
+		} else {
+			return $this->_columns_;
+		}
 	}
 	
 	/**
@@ -420,6 +427,17 @@ abstract class ActiveRecord implements Iterator
 	{
 		return (int) current($this->action_query($qry)->get_row());
 	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function count()
+	{
+		return $this->count_by_sql("SELECT COUNT(*) FROM `{$this->table_name()}`;");
+	}
+	
 	
 	/**
 	 * Checks if $attribute is a valid table column.

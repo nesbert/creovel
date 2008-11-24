@@ -75,10 +75,12 @@ class ErrorHandler
 		// grace fully handle errors in none devlopment mode
 		if (CREO('mode') != 'development') {
 			// email errors
-			if (CREO('email_on_error')) $this->email($this->message);
+			$this->email($this->message);
 			// get default error events
 			$events = Routing::error();
 			if (isset($action)) $events['action'] = $action;
+			// clean output buffer for application errors
+			@ob_end_clean();
 			Dispatcher::run($events, array('error' => $this->message, 'exception' => $this->exception));
 			die;
 		}

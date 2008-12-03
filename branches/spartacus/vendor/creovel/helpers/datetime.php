@@ -23,6 +23,9 @@ function datetime($datetime = null)
 			break;
 		
 		case is_array($datetime):
+		$datetime['hour'] = isset($datetime['hour']) ? $datetime['hour'] : 0;
+		$datetime['minute'] = isset($datetime['minute']) ? $datetime['minute'] : 0;
+		$datetime['second'] = isset($datetime['second']) ? $datetime['second'] : 0;
 			return date('Y-m-d H:i:s', mktime($datetime['hour'], $datetime['minute'], $datetime['second'], $datetime['month'], $datetime['day'], $datetime['year']));
 			break;
 		

@@ -769,24 +769,7 @@ Returns:
 
 function date_select($name, $date = null)
 {
-	switch ( true ) {
-	
-		case ( !$date  || ($date == '0000-00-00 00:00:00') ):
-			$date = time();
-		break;
-		
-		case ( is_array($date) ):
-			$date = mktime($date['hour'], $date['minute'], $date['second'], $date['month'], $date['day'], $date['year']);
-		break;
-		
-		case ( is_numeric($date) ):
-		break;
-		
-		case ( is_string($date) ):
-			$date = strtotime($date);
-		break;	
-		
-	}
+	$date = strtotime(datetime($date));
 	
 	$i = 1;
 	$months = array();

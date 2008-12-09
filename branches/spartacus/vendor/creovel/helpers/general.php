@@ -164,6 +164,45 @@ function get_mime_type($filepath)
 }
 
 /*
+	Function: add_slashes
+	
+	Addslashes to arrays, objects, and strings.
+	
+	Parameters:
+	
+		data - array, string or object
+		
+	Returns:
+	
+		Array, String or Object.
+*/
+
+function add_slashes($data)
+{
+	switch (true) {
+		// clean data array
+		case is_array($data):
+			$clean_values = array();
+			foreach ($data as $name => $value) $clean_values[$name] = is_array($value) ? array_map('addslashes', $value) : addslashes(trim($value));
+			break;
+		
+		// get vars from object -> clean data -> update and return object
+		case is_object($data):
+			$clean_values = $this->strip_slashes(get_object_vars($data));
+			foreach ($clean_values as $name => $value) $data->$name = is_array($value) ? array_map('addslashes', $value) : addslashes(trim($value));
+			$clean_values = $data;
+			break;
+		
+		// clean data
+		default:
+			$clean_values = addslashes(trim($data));
+			break;
+	}
+	
+	return $clean_values;
+}
+
+/*
 	Function: strip_slashes
 	
 	Deep cleans arrays, objects, and strings.
@@ -179,31 +218,27 @@ function get_mime_type($filepath)
 
 function strip_slashes($data)
 {
-	
-	switch ( true ) {
-		
+	switch (true) {
 		// clean data array
-		case ( is_array($data) ):
+		case is_array($data):
 			$clean_values = array();
 			foreach ($data as $name => $value) $clean_values[$name] = is_array($value) ? array_map('strip_slashes', $value) : stripslashes(trim($value));
-		break;
+			break;
 		
 		// get vars from object -> clean data -> update and return object
-		case ( is_object($data) ):
+		case is_object($data):
 			$clean_values = $this->strip_slashes(get_object_vars($data));
 			foreach ($clean_values as $name => $value) $data->$name = is_array($value) ? array_map('strip_slashes', $value) : stripslashes(trim($value));
 			$clean_values = $data;
-		break;
+			break;
 		
 		// clean data
 		default:
 			$clean_values = stripslashes(trim($data));
-		break;
-		
+			break;
 	}
 	
 	return $clean_values;
-	
 }
 
 /*

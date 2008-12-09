@@ -232,3 +232,14 @@ function wordwrap_line($s, $l)
 
 	return $formatted;
 }
+
+/**
+ * Retrieve a number from a string.
+ *
+ * @param string $str
+ * @return float
+ **/
+function retrieve_number($str)
+{
+	return floatval(preg_replace('/[^0-9.-]/', '', $str));
+}

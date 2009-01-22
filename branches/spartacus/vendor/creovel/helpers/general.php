@@ -1,49 +1,38 @@
 <?php
-/*
-	Script: general
-	
-	General top-level functions.
-*/
+/**
+ * General top-level functions.
+ *
+ * @package    Creovel
+ * @subpackage Creovel.Helpers
+ * @copyright  2009 Creovel, creovel.org
+ * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
+ * @version    $Id:$
+ * @since      Helpers available since Release 0.1.0
+ */
 
-/*
-	Function: print_obj
-	
-	Prints human-readable information about a variable much prettier.
-	
-	Parameters:
-	
-		obj - The value to print out.
-		kill - Die after printing.
-*/
- 
+/**
+ * Prints human-readable information about a variable much prettier.
+ *
+ * @param mixed $obj The value to print out
+ * @param boolean $kill Die after print out to screen.
+ * @return void
+ * @author John Faircloth
+ **/
 function print_obj($obj, $kill = false)
 {
-	echo '<pre class="print_obj" style="text-align: left;">'."\n";
-	print_r($obj);
-	echo "\n</pre>\n";
-	if ( $kill ) die;
+	echo create_html_element('pre', array('class' => 'print_obj'), "\n".print_r($obj, 1));
+	if ($kill) die;
 }
 
-/*
-	Function: escape_javascript
-	
-	Cleans up javascript.
-	
-	Parameters:
-	
-		javascript - string
-		
-	Returns:
-	
-		String.
-*/
-
+/**
+ * Cleans up javascript.
+ *
+ * @param string $javascript
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function escape_javascript($javascript)
 {
-	# return preg_replace('/\r\n|\n|\r/', "\\n",
-	#       preg_replace_callback('/["\']/', create_function('$m', 'return "\\{$m}";'),
-	#       (!is_null($javascript) ? $javascript : '')));
-	
 	$escape = array(
 		"\r\n"	=> '\n',
 		"\r"	=> '\n',
@@ -51,7 +40,6 @@ function escape_javascript($javascript)
 		'"'		=> '\"',
 		"'"		=> "\\'"
 	);
-	
 	return str_replace(array_keys($escape), array_values($escape), $javascript);
 }
 
@@ -68,41 +56,30 @@ function is_hash($array) {
 	}
 	
 	foreach (array_keys($array) as $k => $v) {
-		if ($k !== $v) {
-			return true;
-		}
+		if ($k !== $v) return true;
 	}
 	
 	return false;
 }
 
-/*
-	Function: get_user_defined_constants
-	
-	Return user definde constats
-	
-	Returns:
-	
-		Array.
-*/
-
+/**
+ * Returns an array user defined constants.
+ *
+ * @return array
+ * @author Nesbert Hidalgo
+ **/
 function get_user_defined_constants()
 {
  	$return = get_defined_constants(true);
 	return $return['user'];
 }
 
-/*
-	Function: get_ancestors
-	
-	Get an array of all class parents.
-	http://us.php.net/manual/en/function.get-parent-class.php#57548
-	
-	Returns:
-	
-		Array.
-*/
-
+/**
+ * Get an array of all class parents.
+ *
+ * @link http://us.php.net/manual/en/function.get-parent-class.php#57548
+ * @return array
+ **/
 function get_ancestors($class)
 {
     $classes = array($class);
@@ -110,21 +87,13 @@ function get_ancestors($class)
     return $classes;
 }
 
-/*
-	Function: get_filesize
-	
-	Returns a human readable size or a file or a size
-	http://us2.php.net/manual/hk/function.filesize.php#64387
-	
-	Parameters:
-	
-		file_or_size - File path or size
-	
-	Returns:
-	
-		String.
-*/
-
+/**
+ * Returns a human readable size or a file or a size
+ *
+ * @param string $file_or_size File path or size.
+ * @link http://us2.php.net/manual/hk/function.filesize.php#64387
+ * @return string
+ **/
 function get_filesize($file_or_size)
 {
 	$iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
@@ -137,20 +106,13 @@ function get_filesize($file_or_size)
 	return substr($size, 0, strpos($size,'.') + 4).' '.$iec[$i];
 }
 
-/*
-	Function: get_mime_type
-	
-	Get the mime type of a file (http://us.php.net/manual/en/function.finfo-open.php#78927).
-	
-	Parameters:
-	
-		filepath - File path
-	
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Get the mime type of a file.
+ *
+ * @param string $filepath
+ * @link http://us.php.net/manual/en/function.finfo-open.php#78927
+ * @return string
+ **/
 function get_mime_type($filepath)
 {
 	ob_start();
@@ -163,20 +125,13 @@ function get_mime_type($filepath)
 	return str_replace("\n", '', $output);
 }
 
-/*
-	Function: add_slashes
-	
-	Addslashes to arrays, objects, and strings.
-	
-	Parameters:
-	
-		data - array, string or object
-		
-	Returns:
-	
-		Array, String or Object.
-*/
-
+/**
+ * Add slashes to arrays, objects, and strings recursively.
+ *
+ * @param mixed $data
+ * @return mixed
+ * @author Nesbert Hidalgo
+ **/
 function add_slashes($data)
 {
 	switch (true) {
@@ -202,20 +157,13 @@ function add_slashes($data)
 	return $clean_values;
 }
 
-/*
-	Function: strip_slashes
-	
-	Deep cleans arrays, objects, and strings.
-	
-	Parameters:
-	
-		data - array, string or object
-		
-	Returns:
-	
-		Array, String or Object.
-*/
-
+/**
+ * Strip slashes to arrays, objects, and strings recursively.
+ *
+ * @param mixed $data
+ * @return mixed
+ * @author Nesbert Hidalgo
+ **/
 function strip_slashes($data)
 {
 	switch (true) {
@@ -241,72 +189,28 @@ function strip_slashes($data)
 	return $clean_values;
 }
 
-/*
-	Function str_replace_array
-	
-	String replaces a string using array_key with array_val
-	
-	Parameters:
-	
-		string - string
-		array - associative array
-	
-	Returns:
-	
-		String.
-*/
-
-function str_replace_array($str, $array)
+/**
+ * String replaces a string using array keys with array values.
+ *
+ * @param string $string
+ * @param array $array
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function str_replace_array($string, $array)
 {
-	return str_replace(array_keys($array), array_values($array), $str);
+	return str_replace(array_keys($array), array_values($array), $string);
 }
 
-/*
-	Function: urlencode_array
-	
-	Performs urlencode on an N dimensional array
-	
-	Parameters:
-	
-		var - the array value
-		var_name - variable name to be used in the query string
-		seperator - what separating character to use in the query string
-	
-	Retruns:
-	
-		String.
-*/
-
-function urlencode_array($array)
-{
-	$params = '';
-	foreach ($array as $key => $value ) {
-		if (is_array($value)) {
-			$params .= http_build_query(array($key=>$value)) .'&';
-		} else if ($key == '#') {
-			$params .= '#' . $value .'&';
-		} else {
-			$params .= ($key ? $key : '' ).($key && ($value !== '') ? '='.$value : $value).'&';
-		}
-	}
-	return substr($params, 0, -1);
-}
-
-/*
-	Function: in_string
-	
-	A faster/less memory subsitute for strstr.
-	
-	Parameters:
-	
-		needle - String
-		haystack - String
-	
-	Retruns:
-	
-		String.
-*/
-
+/**
+ * A faster/less memory substitute for strstr() used to check the occurrence
+ * of a subject in a string.
+ *
+ * @param string $needle
+ * @param array $haystack
+ * @return boolean
+ * @author Nesbert Hidalgo
+ **/
 function in_string($needle, $haystack)
 {
 	if (strpos($haystack, (string) $needle) === false) {
@@ -316,20 +220,13 @@ function in_string($needle, $haystack)
 	}
 }
 
-/*
-	Function: get_type
-	
-	Get the data type of a variable. See http://us3.php.net/manual/en/function.gettype.php#78381.
-	
-	Parameters:
-	
-		var - variable
-	
-	Retruns:
-	
-		String.
-*/
-
+/**
+ * Get the data type of a variable.
+ *
+ * @param $var
+ * @link http://us3.php.net/manual/en/function.gettype.php#78381
+ * @return string
+ **/
 function get_type($var)
 {
 	return
@@ -345,23 +242,15 @@ function get_type($var)
 	'unknown' )))))))));
 }
 
-/*
-
-	Function: get_files_from_dir
-	
-	Gets a directories files in a directory by file type. Returns an associative array with the 
-	file_name as key and file_path as value.
-	
-	Parameters:
-		dir_path - required
-		file_type - optional default set to 'php'
-		
-	Returns:
-	
-		Array of files.
-
-*/
-
+/**
+ * Gets a directories files in a directory by file type. Returns an associative array with the
+ * file_name as key and file_path as value.
+ *
+ * @param string $dir_path
+ * @param string $file_type Optional default set to 'php'
+ * @return array
+ * @author Nesbert Hidalgo
+ **/
 function get_files_from_dir($dir_path, $file_type = 'php', $show_invisibles = false)
 {
 	$files = array();
@@ -377,6 +266,22 @@ function get_files_from_dir($dir_path, $file_type = 'php', $show_invisibles = fa
 	asort($files);
 	return $files;
 }
+
+/**
+ * Returns the raw post from php://input. It is a less memory intensive alternative to
+ * $HTTP_RAW_POST_DATA and does not need any special php.ini directives. php://input is
+ * not available with enctype="multipart/form-data".
+ *
+ * @link http://us.php.net/wrappers.php
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function get_raw_post()
+{
+	return trim(file_get_contents('php://input'));
+}
+
+///// move below into a seprate helper /////
 
 /*
 	Function: countries_array

@@ -150,7 +150,7 @@ abstract class ActiveRecord implements Iterator
 	}
 	
 	/**
-	 * undocumented function
+	 * Loads/execute SQL query using the select_query object.
 	 *
 	 * @return void
 	 **/
@@ -160,13 +160,13 @@ abstract class ActiveRecord implements Iterator
 	}
 	
 	/**
-	 * undocumented function
+	 * Loads/execute SQL query.
 	 *
 	 * @return void
 	 **/
-	public function find_by_sql($sql)
+	public function find_by_sql($sql, $type = 'all')
 	{
-		return $this->query($sql);
+		return $this->find($type, array('sql' => $sql));
 	}
 	
 	/**
@@ -174,12 +174,16 @@ abstract class ActiveRecord implements Iterator
 	 *
 	 * @return void
 	 **/
-	public function find($type, $options = array())
+	public function find($type = 'all', $options = array())
 	{
 		// before find call-back
 		$this->before_find();
 		
-		$sql = $this->build_query_from_options(array('_type_' => $type) + (array) $options);
+		if (isset($options['sql'])) {
+			$sql = $options['sql'];
+		} else {
+			$sql = $this->build_query_from_options($options, $type);
+		}
 		
 		$this->query($sql);
 		
@@ -209,7 +213,7 @@ abstract class ActiveRecord implements Iterator
 	 * @param array
 	 * @return string
 	 **/
-	public function build_query_from_options($options = array())
+	public function build_query_from_options($options, &$type)
 	{
 		$select = '*';
 		$where = array();
@@ -245,29 +249,33 @@ abstract class ActiveRecord implements Iterator
 		
 		// set where
 		switch (true) {
-			case is_array($options['_type_']):
+			case is_array($type):
 				$id = array();
-				foreach ($options['_type_'] as $v) {
+				foreach ($type as $v) {
 					$id[] = $this->quote_value($v);
 				}
 				$where[] = "`{$this->primary_key()}` IN (" .
 					implode(", ", $id) . ")";
 				break;
 				
-			case strtolower($options['_type_']) == 'all':
+			case strtolower($type) == 'all':
 				break;
 			
-			case strtolower($options['_type_']) == 'first':
+			case strtolower($type) == 'first':
 				$limit = '1';
 				break;
 				
 			default:
 				$where[] = "`{$this->primary_key()}` = ".
-					$this->quote_value($options['_type_']);
+				$this->quote_value($type);
+				// update to auto first record
+				$type = 'first';
 				break;
 		}
+		
+		// Prepare conditions array.
 		if (@$options['conditions']) {
-			// hash condidtions
+			// 1. hash condidtions
 			if (is_hash($options['conditions'])) {
 				$conditions = array();
 				foreach ($options['conditions'] as $k => $v) {
@@ -275,7 +283,7 @@ abstract class ActiveRecord implements Iterator
 				}
 				$where[] = '(' . implode(' AND ', $conditions) . ')';
 				
-			// array condidtions
+			// 2. array condidtions
 			} elseif (is_array($options['conditions']) && in_string('?', $options['conditions'][0])) {
 				$str = array_shift($options['conditions']);
 				foreach ($options['conditions'] as $v) {
@@ -283,7 +291,7 @@ abstract class ActiveRecord implements Iterator
 				}
 				$where[] = "({$str})";
 			
-			// array with symbols
+			// 3. array with symbols
 			} elseif (is_array($options['conditions']) && in_string(':', $options['conditions'][0])) {
 				$str = $options['conditions'][0];
 				foreach ($options['conditions'][1] as $k => $v) {
@@ -291,7 +299,7 @@ abstract class ActiveRecord implements Iterator
 				}
 				$where[] = "({$str})";
 				
-			// string conditions UNSAFE!
+			// 4. string conditions UNSAFE!
 			} else {
 				$where[] = "({$options['conditions']})";
 			}

@@ -171,122 +171,74 @@ function flash_message($message = null, $type = 'notice')
 	}
 }
 
-/*
-
-	Function: flash_type
-	
-	Returns the $_SESSION['flash']['type'].
-	
-	Returns:
-	
-		String.
-
-*/
-
+/**
+ * Returns the $_SESSION['flash']['type'].
+ *
+ * @global function
+ * @return string
+ **/
 function flash_type()
 {
 	return $_SESSION['flash']['type'] ? $_SESSION['flash']['type'] : 'notice';
 }
 
-/*
-
-	Function: flash_warning
-	
-	Alias for flash_message($message, 'notice').
-	
-	Parameters:
-	
-		message - Message for flash
-	
-	Returns:
-	
-		String or boolean.
-
-*/
-
+/**
+ * Alias for flash_message($message, 'notice').
+ *
+ * @global function
+ * @param string $message Message for flash notice
+ * @return mixed String or boolean
+ **/
 function flash_notice($message = null)
 {
 	return flash_message($message, 'notice');
 }
 
-/*
-
-
-	Function: flash_error
-	
-	Alias for flash_message($message, 'error').
-	
-	Parameters:
-	
-		message - Message for flash
-	
-	Returns:
-	
-		String or boolean.
-
-*/
-
+/**
+ * Alias for flash_message($message, 'error').
+ *
+ * @global function
+ * @param string $message Message for flash notice
+ * @return mixed String or boolean
+ **/
 function flash_error($message = null)
 {
 	return flash_message($message, 'error');
 }
 
-/*
-
-
-	Function: flash_warning
-	
-	Alias for flash_message($message, 'warning').
-	
-	Parameters:
-	
-		message - Message for flash
-	
-	Returns:
-	
-		String or boolean.
-
-*/
-
+/**
+ * Alias for flash_message($message, 'warning').
+ *
+ * @global function
+ * @param string $message Message for flash notice
+ * @return mixed String or boolean
+ **/
 function flash_warning($message = null)
 {
 	return flash_message($message, 'warning');
 }
 
-/*
-
-	Function: flash_warning
-	
-	Alias for flash_success($message, 'success')
-	
-	Parameters:
-	
-	message - Message for flash.
-	
-	Returns:
-	
-		String or boolean.
-
-*/
-
+/**
+ * Alias for flash_message($message, 'sucess').
+ *
+ * @global function
+ * @param string $message Message for flash notice
+ * @return mixed String or boolean
+ **/
 function flash_success($message = null)
 {
 	return flash_message($message, 'success');
 }
 
-/*
-
-	Function: application_error
-	
-	Stops the application and display an error message.
-	
-	Parameters:
-	
-		message - Error message.
-		thow_exception - Optional bool. If set to true displays additional debugging info on error.
-
-*/
-
+/**
+ * Stops the application and display an error message or handle error gracefully if not in
+ * development mode.
+ *
+ * @global function
+ * @param string $message Error message
+ * @param boolean $thow_exception Optional set to true displays additional debugging info
+ * @return mixed String or boolean
+ **/
 function application_error($message, $thow_exception = false)
 {
 	if ($thow_exception) { 
@@ -295,61 +247,42 @@ function application_error($message, $thow_exception = false)
 	$_ENV['error']->add($message, $e);
 }
 
-/*
-
-	Function: get_creovel_adapters
-	
-	Returns an array of the adapters available to the framework.
-	
-	Returns:
-	
-	Array adapters.
-
-*/	
-
+/**
+ * Returns an array of the adapters available to the framework.
+ *
+ * @global function
+ * @return array
+ **/
 function get_creovel_adapters()
 {
 	return get_files_from_dir(CREOVEL_PATH.'adapters');
 }
 
-/*
-
-	Function: get_creovel_services
-	
-	Returns an array of the services available to the framework.
-	
-	Returns:
-	
-		Array of services.
-
-*/	
-
+/**
+ * Returns an array of the services available to the framework.
+ *
+ * @global function
+ * @return array
+ **/
 function get_creovel_services()
 {
 	return get_files_from_dir(CREOVEL_PATH.'services');
 }
 
-/*
-	Function: url_for
-	
-	Creates a url path for lazy programmers.
-
-	(start code)
- 		url_for('user', 'edit', 1234)
-	(end)
-	
-	Parameters:
-	
-		controller - required
-		action - required
-		id - optional
-		https - optional
-		
-	Returns:
-	
-		String.
-*/
-
+/**
+ * Creates a url path for lazy programmers.
+ *
+ * <code>
+ * url_for('user', 'edit', 1234);
+ * </code>
+ *
+ * @global function
+ * @param string $controller
+ * @param string $action Optional
+ * @param mixed $id Optional ID or an associative array of parameters
+ * @param boolean $https Optional
+ * @return string
+ **/
 function url_for()
 {
 	$args = func_get_args();
@@ -373,7 +306,7 @@ function url_for()
 		unset($args[0]['https']);
 		
 		// set misc
-		$misc = urlencode_array($args[0]);
+		$misc = http_build_query($args[0]);
 		
 	} else {
 		
@@ -387,7 +320,7 @@ function url_for()
 		if (is_array($args[2])) {
 			$id = @$args[2]['id'];
 			unset($args[2]['id']);
-			$misc = urlencode_array($args[2]);
+			$misc = http_build_query($args[2]);
 		} else {
 			$id = $args[2];
 		}
@@ -411,40 +344,45 @@ function url_for()
 	return ($https ? str_replace('http://', 'https://', BASE_URL) : '').$uri;
 }
 
-/*
-	Function: redirecto_to
-	
-	Redirects the page. *Note should only be used inside controllers.*
-	
-	Parameters:
-	
-		controller - controller
-		action - action
-		id - id
-*/
-
+/**
+ * Redirects the page using a header location redirect. "Note should only be
+ * used inside controllers".
+ *
+ * @global function
+ * @param string $controller
+ * @param string $action Optional
+ * @param mixed $id Optional ID or an associative array of parameters
+ * @return void
+ **/
 function redirect_to($controller = '', $action = '', $id = '')
 {
 	redirect_to_url(url_for($controller, $action, $id));
 }
 
-/*
-	Function: redirect_to_url
-	
-	Header redirect.
-	
-	Parameters:
-	
-	url - String
-*/
-
+/**
+ * Header redirect and die. "Note should only be used inside controllers".
+ *
+ * @global function
+ * @param string $url
+ * @return void
+ **/
 function redirect_to_url($url)
 {
 	header('location: ' . $url);
 	die;
 }
 
+/**
+ * Create a URL to view source of page. User for when framework is in dev mode and viewing
+ * source set to "true".
+ *
+ * @global function
+ * @param string $file
+ * @return string
+ **/
 function view_source_url($file)
 {
-	return $_SERVER['REQUEST_URI'] . (strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?' ) . 'view_source=' . $file;
+	return $_SERVER['REQUEST_URI'] .
+				(strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?') .
+					'view_source=' . $file;
 }

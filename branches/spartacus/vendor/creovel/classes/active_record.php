@@ -717,13 +717,14 @@ abstract class ActiveRecord implements Iterator
 	}
 	
 	/**
-	 * undocumented function
+	 * Get a count of total rows from a query if paginating will return total number
+	 * of records found from query.
 	 *
-	 * @return void
+	 * @return integer
 	 **/
 	public function total_rows()
 	{
-		return $this->select_query()->total_rows();
+		return isset($this->_paging_) ? $this->_paging_->total_records() : $this->select_query()->total_rows();
 	}
 	
 	/**

@@ -89,6 +89,13 @@ class ActivePager
 	public $url;
 	
 	/**
+	 * Use pretty URLs for passing paging params.
+	 *
+	 * @var boolean
+	 **/
+	public $pretty_urls = false;
+	
+	/**
 	 * Class construct set class properties if $data passed.
 	 *
 	 * @param array $data - Associative array of data.
@@ -264,10 +271,8 @@ class ActivePager
 	 * @param boolean $show_label Optional associative array of HTML options.
 	 * @return string
 	 **/
-	public function paging_links($extra_params = null, $show_label = false, $hide_page_param = false)
+	public function paging_links($extra_params = null, $show_label = false)
 	{
-	
-		$extra_params = (isset($_GET['limit']) ? "&limit={$this->limit}" : '') . $this->params_to_str($extra_params);
 		$start_page = max($this->current - 2, 1);
 		
 		if ($this->total_pages > 1) {
@@ -277,54 +282,38 @@ class ActivePager
 			if ($show_label) $str .= $this->paging_label();
 			
 			if ($this->current > 1) {
-				if ($hide_page_param) {
-					$str .= '<a class="prev" href="'.$this->url.'/page'.$this->prev.'/'.($extra_params ? '?'.$extra_params : '').'">&laquo; Prev</a>';
-				} else {
-					$str .= '<a class="prev" href="'.$this->url.'?page='.$this->prev.$extra_params.'">&laquo; Prev</a>';
-				}
-				
+				$str .= '<a class="prev" href="' . $this->paging_link($this->prev, $extra_params) .
+						'">&laquo; Prev</a>';
 			}
 			
 			if ( ($this->current - 3) >= 1 ) {
-				if ($hide_page_param) {
-					$str .= '<a class="page-1" href="'.$this->url.'/page1/'.($extra_params ? '?'.$extra_params : '').'">1</a>';
-				} else {
-					$str .= '<a class="page-1" href="'.$this->url.'?page=1'.$extra_params.'">1</a>';
-				}
+				$str .= '<a class="page-1" href="' . $this->paging_link(1, $extra_params) . '">1</a>';
 				if ( ($this->current - 3) > 1 ) $str .= '<span class="dots">...</span>';
 			}
 			
 			for ($i = $start_page; $i <= $this->current + 2; $i++) {
 				
 				if ($i > $this->total_pages) break;
-			
+				
 				if ($this->current <> $i) {
-					if ($hide_page_param) {
-						$str .= '<a class="page-'.$i.'" href="'.$this->url.'/page'.$i.'/'.($extra_params ? '?'.$extra_params : '').'">'.$i.'</a>';
-					} else {
-						$str .= '<a class="page-'.$i.'" href="'.$this->url.'?page='.$i.$extra_params.'">'.$i.'</a>';
-					}
+					$str .= '<a class="page-'.$i.'" href="' . $this->paging_link($i, $extra_params) .
+							'">' . $i . '</a>';
 				} else {
-					$str .= '<a class="page-'.$i.' current">'.$i.'</a>';
+					$str .= '<a class="page-'. $i . ' current">' . $i . '</a>';
 				}
 				
 			}
 			
 			if ( ($this->current + 3) <= $this->total_pages ) {
 				if (($this->current + 3) < $this->total_pages) $str .= '<span class="dots">...</span>';
-					if ($hide_page_param) {
-						$str .= '<a class="page-'.$this->total_pages.'" href="'.$this->url.'/page'.$this->total_pages.'/'.($extra_params ? '?'.$extra_params : '').'">'.$this->total_pages.'</a>';
-					} else {
-						$str .= '<a class="page-'.$this->total_pages.'" href="'.$this->url.'?page='.$this->total_pages.$extra_params.'">'.$this->total_pages.'</a>';					
-					}
+				$str .= '<a class="page-' . $this->total_pages . '" href="' . 
+							$this->paging_link($this->total_pages, $extra_params) . '">' .
+							$this->total_pages . '</a>';
 			}
 			
 			if ($this->current < $this->total_pages) {
-				if ($hide_page_param) {
-					$str .= '<a class="next" href="'.$this->url.'/page'.$this->next.'/'.($extra_params ? '?'.$extra_params : '').'">Next &raquo;</a>';
-				} else {
-					$str .= '<a class="next" href="'.$this->url.'?page='.$this->next.$extra_params.'">Next &raquo;</a>';
-				}
+				$str .= '<a class="next" href="' . $this->paging_link($this->next, $extra_params) .
+						'">Next &raquo;</a>';
 			}
 			
 			$str .= '</div>';
@@ -416,5 +405,24 @@ class ActivePager
 	public function needs_links()
 	{
 		return $this->total_pages() > 1;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	public function paging_link($page, $extra_params = array())
+	{
+		$params = array('page' => $page) + (is_array($extra_params) ? $extra_params : array());
+		if ($this->pretty_urls) {
+			$return = array();
+			foreach ($params as $k => $v) {
+				$return[] = $k . '/' . urlencode($v);
+			}
+			return "{$this->url}/".implode('/', $return);
+		} else {
+			return "{$this->url}?" . http_build_query($params);
+		}
 	}
 } // END abstract class ActivePager

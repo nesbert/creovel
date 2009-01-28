@@ -127,7 +127,8 @@ abstract class ActiveRecord implements Iterator
 				break;
 			
 			default:
-				self::throw_error("Unknown database adapter '{$adapter}'. Please check database configuration file.");
+				self::throw_error("Unknown database adapter '{$adapter}'. Please check database" .
+									" configuration file.");
 				break;
 		}
 		
@@ -218,11 +219,16 @@ abstract class ActiveRecord implements Iterator
 		$select = '*';
 		$where = array();
 		$limit = '';
-		$regex = '/^[A-Za-z0-9_,\s\-\(\)]+$/';
+		$regex = '/^[A-Za-z0-9_,.`\s\-\(\)]+$/';
 		
 		// set defaults and validate options
 		if (@$options['select']) {
 			$select = $options['select'];
+		}
+		if (@$options['from']) {
+			$from = $options['from'];
+		} else {
+			$from = "`{$this->table_name()}`";
 		}
 		if (@!preg_match($regex, $options['order'])){
 			$options['order'] = '';
@@ -305,11 +311,12 @@ abstract class ActiveRecord implements Iterator
 			}
 		}
 		
-		$sql  = "SELECT $select FROM `{$this->table_name()}`";
+		$sql  = "SELECT $select FROM {$from}";
 		$sql .= count($where) ? " WHERE " . implode(' AND ', $where) : "";
 		$sql .= $options['group'] ? " GROUP BY {$options['group']}" : "";
 		$sql .= $options['order'] ? " ORDER BY {$options['order']}" : "";
 		$sql .= $limit ? " LIMIT {$limit}" : "";
+		
 		return $sql .= $offset ? " OFFSET {$offset}" : "";
 	}
 	
@@ -376,7 +383,8 @@ abstract class ActiveRecord implements Iterator
 	 **/
 	public function table_name($table_name = '')
 	{
-		return $this->_table_name_ = $table_name ? $table_name : ($this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name()));
+		return $this->_table_name_ = $table_name ? $table_name :
+			($this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name()));
 	}
 	
 	/**
@@ -386,7 +394,8 @@ abstract class ActiveRecord implements Iterator
 	 **/
 	public function columns($columns = array())
 	{
-		return $this->_columns_ = count($columns) ? $columns : (count($this->_columns_) ? $this->_columns_ : $this->table_columns());
+		return $this->_columns_ = count($columns) ? $columns :
+			(count($this->_columns_) ? $this->_columns_ : $this->table_columns());
 	}
 	
 	/**
@@ -653,13 +662,16 @@ abstract class ActiveRecord implements Iterator
 	 **/
 	public function paginate($args = null)
 	{
+		// search type
+		$type = 'all';
+		
 		// create temp args
 		$temp = $args;
 		unset($temp['offset']);
 		unset($temp['order']);
-		$temp['_type_'] = "all";
 		$temp['select'] = "count(*)";
-		$total = $this->count_by_sql($this->build_query_from_options($temp));
+		$temp['total_records'] = $this->count_by_sql($this->build_query_from_options($temp, $type));
+        $temp = (object) $temp;
 		
 		// create page object
 		$this->_paging_ = new ActivePager($temp);
@@ -669,7 +681,7 @@ abstract class ActiveRecord implements Iterator
 		$args['limit'] = $this->_paging_->limit;
 		
 		// execute query
-		return $this->find('all', $args);
+		return $this->find($type, $args);
 	}
 	
 	/**
@@ -726,7 +738,8 @@ abstract class ActiveRecord implements Iterator
 					break;
 					
 				default:
-					throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
+					throw new Exception("Attribute <em>{$attribute}</em> not found in " .
+										"<strong>{$this->class_name()}</strong> model.");
 					break;
 			}
 			
@@ -758,7 +771,8 @@ abstract class ActiveRecord implements Iterator
 					break;
 					
 				default:
-					throw new Exception("Attribute <em>{$attribute}</em> not found in <strong>{$this->class_name()}</strong> model.");
+					throw new Exception("Attribute <em>{$attribute}</em> not found in ".
+								"<strong>{$this->class_name()}</strong> model.");
 					break;
 			}
 			
@@ -776,6 +790,7 @@ abstract class ActiveRecord implements Iterator
 	public function __call($method, $arguments)
 	{
 		try {
+			
 			// get table columns and set
 			$vals = $this->attributes();
 			$this->table_columns();
@@ -821,7 +836,8 @@ abstract class ActiveRecord implements Iterator
 					} else if (!isset($this->_columns_[$name]) ||$arguments[0] === '') {
 						return;
 					} else {
-						throw new Exception("Can set options for {$name}. Property <em>{$name}</em> not found in <strong>{$this->class_name()}</strong> model.");
+						throw new Exception("Can set options for {$name}. Property <em>{$name}</em>" .
+							" not found in <strong>{$this->class_name()}</strong> model.");
 					}
 					break;
 				
@@ -832,10 +848,22 @@ abstract class ActiveRecord implements Iterator
 				case in_string('validates_', $method):
 					return $this->validate_by_method($method, $arguments);
 					break;
+					
+				/* Paging Links */
+				case in_string('link_to_', $method):
+				case in_string('paging_', $method):
+					if ( method_exists($this->_paging_, $method) ) {
+						return call_user_func_array(array($this->_paging_, $method), $arguments);                                                                
+					} else {
+						throw new Exception("Undefined method <em>{$method}</em> in " .
+												"<strong>ActivePager</strong> class.");
+					}
+					break;
 			}
 			
 			if (!method_exists($this, $method)) {
-				throw new Exception("Method <em>{$method}</em> not found in <strong>{$this->class_name()}</strong> model.");
+				throw new Exception("Method <em>{$method}</em> not found in " .
+										"<strong>{$this->class_name()}</strong> model.");
 			}
 		} catch (Exception $e) {
 			// add to errors
@@ -883,12 +911,17 @@ abstract class ActiveRecord implements Iterator
 						} else {
 							$where_ext = '1';
 						}
-						// check if a column with that value exists in the current table and is not the currentlly loaded row
-						$this->action_query("SELECT * FROM `{$this->table_name()}` WHERE `{$params[0]}` = '{$params[1]}' AND `{$this->primary_key()}` != '{$this->id}' AND (".$where_ext.")");
+						// check if a column with that value exists in the current table and is
+						// not the currentlly loaded row
+						$this->action_query(
+							"SELECT * FROM `{$this->table_name()}`
+							WHERE `{$params[0]}` = '{$params[1]}'
+								AND `{$this->primary_key()}` != '{$this->id}' AND (".$where_ext.")");
 						
 						// if record found add error
 						if ($this->action_query()->total_rows()) {
-							ActiveValidation::add_error($params[0], ( $params[2] ? $params[2] : humanize($params[0]).' is not unique.' ));
+							ActiveValidation::add_error($params[0],
+								($params[2] ? $params[2] : humanize($params[0]).' is not unique.' ));
 						} else {
 							return true;
 						}
@@ -902,7 +935,8 @@ abstract class ActiveRecord implements Iterator
 								return call_user_func_array(array('ActiveValidation', $method), $params);
 							}
 						} else {
-							throw new Exception("Undefined validation method <em>{$method}</em> in <strong>{$this->class_name()}</strong> model.");
+							throw new Exception("Undefined validation method <em>{$method}</em> in " .
+								"<strong>{$this->class_name()}</strong> model.");
 						}
 						break;
 				}
@@ -979,13 +1013,25 @@ abstract class ActiveRecord implements Iterator
 			case 'select_countries_tag':
 				$html_options = $arguments[0];
 				$arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
-				$html = select_countries_tag($field_name, $value, $this->{'options_for_' . $name}(), $html_options, $arguments[1]);
+				$html = select_countries_tag(
+								$field_name,
+								$value,
+								$this->{'options_for_' . $name}(),
+								$html_options,
+								$arguments[1]
+								);
 				break;
 			
 			case 'select_states_tag':
 				$html_options = $arguments[0];
 				$arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
-				$html = select_states_tag($field_name, $value, $this->{'options_for_' . $name}(), $html_options, $arguments[1]);
+				$html = select_states_tag(
+								$field_name,
+								$value,
+								$this->{'options_for_' . $name}(),
+								$html_options,
+								$arguments[1]
+								);
 				break;
 		}
 		
@@ -1027,7 +1073,11 @@ abstract class ActiveRecord implements Iterator
 	public function enum_options($property)
 	{
 		if (in_string('enum(', $this->_columns_[$property]->type)) {
-			$options = explode("','", str_replace(array("enum('"), '', substr($this->_columns_[$property]->type, 0, -2)));
+			$options = explode("','", str_replace(
+												array("enum('"),
+												'',
+												substr($this->_columns_[$property]->type, 0, -2)
+												));
 			$return = array();
 			foreach ($options as $value) {
 				$return[$value] = humanize($value);

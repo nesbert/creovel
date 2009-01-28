@@ -230,6 +230,11 @@ abstract class ActiveRecord implements Iterator
 		} else {
 			$from = "`{$this->table_name()}`";
 		}
+		if (@$options['where']) {
+			$where = $options['where'];
+		} else {
+			$where = '';
+		}
 		if (@!preg_match($regex, $options['order'])){
 			$options['order'] = '';
 		}
@@ -312,7 +317,7 @@ abstract class ActiveRecord implements Iterator
 		}
 		
 		$sql  = "SELECT $select FROM {$from}";
-		$sql .= count($where) ? " WHERE " . implode(' AND ', $where) : "";
+		$sql .= is_array($where) ? " WHERE " . implode(' AND ', $where) : ($where ? "WHERE {$where}" : '');
 		$sql .= $options['group'] ? " GROUP BY {$options['group']}" : "";
 		$sql .= $options['order'] ? " ORDER BY {$options['order']}" : "";
 		$sql .= $limit ? " LIMIT {$limit}" : "";

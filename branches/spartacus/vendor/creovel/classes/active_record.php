@@ -216,46 +216,54 @@ abstract class ActiveRecord implements Iterator
 	 **/
 	public function build_query_from_options($options, &$type)
 	{
-		$select = '*';
 		$where = array();
 		$limit = '';
 		$regex = '/^[A-Za-z0-9_,.`\s\-\(\)]+$/';
 		
-		// set defaults and validate options
-		if (@$options['select']) {
+		// set vaiables used to build query
+		if (isset($options['select'])) {
 			$select = $options['select'];
+		} else {
+			$select = '*';
 		}
-		if (@$options['from']) {
+		
+		if (isset($options['from'])) {
 			$from = $options['from'];
 		} else {
 			$from = "`{$this->table_name()}`";
 		}
-		if (@$options['where']) {
-			$where = $options['where'];
+		
+		if (isset($options['where'])) {
+			$options['conditions'] = $options['where'];
+		} else if (isset($options['conditions'])) {
+			$options['conditions'] = $options['conditions'];
 		} else {
-			$where = '';
+			$options['conditions'] = '';
 		}
-		if (@!preg_match($regex, $options['order'])){
-			$options['order'] = '';
+		
+		if (isset($options['order']) &&
+				preg_match($regex, $options['order'])) {
+			$order = $options['order'];
+		} else {
+			$order = '';
 		}
-		if (@!is_numeric($options['offset'])) {
-			$options['offset'] = '';
-		}
-		if (@!preg_match($regex, $options['limit'])) {
-			$options['limit'] = '';
-		}
-		if (@!preg_match($regex, $options['group'])) {
-			$options['group'] = '';
-		}
-		if (@$options['offset']) {
+		
+		if (isset($options['offset']) && is_numeric($options['offset'])) {
 			$offset = $options['offset'];
 		} else {
 			$offset = '';
 		}
-		if (@$options['limit']) {
+		
+		if (isset($options['limit']) && is_numeric($options['limit'])) {
 			$limit = $options['limit'];
 		} else {
 			$limit = '';
+		}
+		
+		if (isset($options['group']) && preg_match($regex, $options['group'])) {
+			$group = $options['group'];
+		} else {
+			$group = '';
 		}
 		
 		// set where
@@ -285,7 +293,7 @@ abstract class ActiveRecord implements Iterator
 		}
 		
 		// Prepare conditions array.
-		if (@$options['conditions']) {
+		if ($options['conditions']) {
 			// 1. hash condidtions
 			if (is_hash($options['conditions'])) {
 				$conditions = array();
@@ -316,13 +324,17 @@ abstract class ActiveRecord implements Iterator
 			}
 		}
 		
-		$sql  = "SELECT $select FROM {$from}";
-		$sql .= is_array($where) ? " WHERE " . implode(' AND ', $where) : ($where ? "WHERE {$where}" : '');
-		$sql .= $options['group'] ? " GROUP BY {$options['group']}" : "";
-		$sql .= $options['order'] ? " ORDER BY {$options['order']}" : "";
-		$sql .= $limit ? " LIMIT {$limit}" : "";
+		// create sql query
+		$sql  = "SELECT {$select} FROM {$from}";
+		if (count($where)) {
+			$sql .= " WHERE " . implode(' AND ', $where);
+		}
+		if ($group) $sql .= " GROUP BY {$group}";
+		if ($order) $sql .= " ORDER BY {$order}";
+		if ($limit) $sql .= " LIMIT {$limit}";
+		if ($offset) $sql .= " OFFSET {$offset}";
 		
-		return $sql .= $offset ? " OFFSET {$offset}" : "";
+		return $sql;
 	}
 	
 	/**

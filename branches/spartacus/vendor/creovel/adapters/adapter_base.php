@@ -1,24 +1,26 @@
 <?php
 /**
- * undocumented class
+ * Adapters base class.
  *
- * @package default
- * @author Nesbert Hidalgo
+ * @package     Creovel
+ * @subpackage  Creovel.Adapters
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.4.0
+ * @author      Nesbert Hidalgo
  **/
-class AdapterBase
+abstract class AdapterBase
 {
-	/**
-	 * Stop the application and display/handle error.
-	 *
-	 * @return void
-	 **/
-	public function throw_error($msg = null)
-	{
-		if (!$msg) {
-			$msg = 'An error occurred while executing the method ' .
-			"<em>{$this->_action}</em> in the <strong> " . get_class($this) .
-			'</strong>.';
-		}
-		CREO('application_error', $msg);
-	}
-} // END class AdapterBase
+    /**
+     * Stop the application and display/handle error.
+     *
+     * @return void
+     **/
+    public function throw_error($msg = null)
+    {
+        if (!$msg) {
+            $msg = 'An error occurred while interacting with a database ' .
+                "using <strong> " . get_class($this) . ' adapter.</strong> .';
+        }
+        CREO('application_error', $msg);
+    }
+} // END abstract class AdapterBase

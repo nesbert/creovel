@@ -68,7 +68,7 @@
 		<dl>
 			<dt><?=strtolower($mode)?></dt>
 			<?php if (count($data)) foreach($data as $key => $val) { ?>
-			<dd><?=strtolower($key)?> => <?=(strtoupper($key) == 'PASSWORD' ? mask($val) : $val)?></dd>
+			<dd><?=strtolower($key)?> =&gt; <?=(strtoupper($key) == 'PASSWORD' ? mask($val) : $val)?></dd>
 			<?php } ?>
 		</dl>
 		<?php } ?>

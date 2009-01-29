@@ -2,16 +2,18 @@
 /**
  * Contains all Creovel specific functions.
  *
- * @package Creovel
- * @subpackage Creovel.Helpers
+ * @package     Creovel
+ * @subpackage  Creovel.Helpers
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0
  **/
 /**
  * Autoload routine for controllers, interfaces, adapters, services, vendor,
  * mailer and models. Also creates "Virtual Model" if table exists (useful
  * for basic model functions and prototyping).
  *
- * @global function
  * @param string $class String of the class name not yet defined
+ * @author Nesbert Hidalgo
  **/
 function __autoload($class)
 {
@@ -86,10 +88,10 @@ function __autoload($class)
 /**
  * Set and get $GLOBALS['CREOVEL'] variables.
  *
- * @global function
  * @param string $key
  * @param mixed $val
  * @return mixed
+ * @author Nesbert Hidalgo
  **/
 function CREO($key = null, $val = null)
 {
@@ -136,10 +138,10 @@ function CREO($key = null, $val = null)
 /**
  * Sets and unsets $_SESSION['flash']. Used by application notices.
  *
- * @global function
  * @param string $message Optional string to be displayed.
  * @param string $type - Type of notice passed
- * @return bool/string String or message 
+ * @return bool/string String or message
+ * @author Nesbert Hidalgo
  **/
 function flash_message($message = null, $type = 'notice')
 {
@@ -174,8 +176,8 @@ function flash_message($message = null, $type = 'notice')
 /**
  * Returns the $_SESSION['flash']['type'].
  *
- * @global function
  * @return string
+ * @author Nesbert Hidalgo
  **/
 function flash_type()
 {
@@ -185,9 +187,9 @@ function flash_type()
 /**
  * Alias for flash_message($message, 'notice').
  *
- * @global function
  * @param string $message Message for flash notice
  * @return mixed String or boolean
+ * @author Nesbert Hidalgo
  **/
 function flash_notice($message = null)
 {
@@ -197,9 +199,9 @@ function flash_notice($message = null)
 /**
  * Alias for flash_message($message, 'error').
  *
- * @global function
  * @param string $message Message for flash notice
  * @return mixed String or boolean
+ * @author Nesbert Hidalgo
  **/
 function flash_error($message = null)
 {
@@ -209,9 +211,9 @@ function flash_error($message = null)
 /**
  * Alias for flash_message($message, 'warning').
  *
- * @global function
  * @param string $message Message for flash notice
  * @return mixed String or boolean
+ * @author Nesbert Hidalgo
  **/
 function flash_warning($message = null)
 {
@@ -221,9 +223,9 @@ function flash_warning($message = null)
 /**
  * Alias for flash_message($message, 'sucess').
  *
- * @global function
  * @param string $message Message for flash notice
  * @return mixed String or boolean
+ * @author Nesbert Hidalgo
  **/
 function flash_success($message = null)
 {
@@ -231,17 +233,17 @@ function flash_success($message = null)
 }
 
 /**
- * Stops the application and display an error message or handle error gracefully if not in
- * development mode.
+ * Stops the application and display an error message or handle error
+ * gracefully if not in development mode.
  *
- * @global function
  * @param string $message Error message
- * @param boolean $thow_exception Optional set to true displays additional debugging info
+ * @param boolean $thow_exception Optional displays additional debugging info
  * @return mixed String or boolean
+ * @author Nesbert Hidalgo
  **/
 function application_error($message, $thow_exception = false)
 {
-	if ($thow_exception) { 
+	if ($thow_exception) {
 		$e = new Exception($message);
 	}
 	$_ENV['error']->add($message, $e);
@@ -250,8 +252,8 @@ function application_error($message, $thow_exception = false)
 /**
  * Returns an array of the adapters available to the framework.
  *
- * @global function
  * @return array
+ * @author Nesbert Hidalgo
  **/
 function get_creovel_adapters()
 {
@@ -261,8 +263,8 @@ function get_creovel_adapters()
 /**
  * Returns an array of the services available to the framework.
  *
- * @global function
  * @return array
+ * @author Nesbert Hidalgo
  **/
 function get_creovel_services()
 {
@@ -276,12 +278,12 @@ function get_creovel_services()
  * url_for('user', 'edit', 1234);
  * </code>
  *
- * @global function
  * @param string $controller
  * @param string $action Optional
  * @param mixed $id Optional ID or an associative array of parameters
  * @param boolean $https Optional
  * @return string
+ * @author Nesbert Hidalgo
  **/
 function url_for()
 {
@@ -348,11 +350,11 @@ function url_for()
  * Redirects the page using a header location redirect. "Note should only be
  * used inside controllers".
  *
- * @global function
  * @param string $controller
  * @param string $action Optional
  * @param mixed $id Optional ID or an associative array of parameters
  * @return void
+ * @author Nesbert Hidalgo
  **/
 function redirect_to($controller = '', $action = '', $id = '')
 {
@@ -362,9 +364,9 @@ function redirect_to($controller = '', $action = '', $id = '')
 /**
  * Header redirect and die. "Note should only be used inside controllers".
  *
- * @global function
  * @param string $url
  * @return void
+ * @author John Faircloth
  **/
 function redirect_to_url($url)
 {
@@ -373,12 +375,12 @@ function redirect_to_url($url)
 }
 
 /**
- * Create a URL to view source of page. User for when framework is in dev mode and viewing
- * source set to "true".
+ * Create a URL to view source of page. User for when framework is 
+ * in dev mode and viewing source set to "true".
  *
- * @global function
  * @param string $file
  * @return string
+ * @author Nesbert Hidalgo
  **/
 function view_source_url($file)
 {

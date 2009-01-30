@@ -2,46 +2,44 @@
 /**
  * Set database connection settings.
  *
- * @package Creovel
- * @subpackage Creovel.Config
- * @copyright  2008 Creovel, creovel.org
- * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
- * @version    $Id:$
- * @since      File available since Release 0.1.0
- */
+ * @package     Creovel
+ * @subpackage  Creovel.Config
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.2.0
+ **/
 
 /**
  * Development settings.
  */
 CREO('database', array(
-	'mode'		=> 'development',
-	'adapter'	=> 'mysql_improved',
-	'host'		=> 'localhost',
-	'username'	=> '',
-	'password'	=> '',
-	'default'	=> 'creovel_development'
-	));
+    'mode'      => 'development',
+    'adapter'   => 'mysql_improved',
+    'host'      => 'localhost',
+    'username'  => '',
+    'password'  => '',
+    'default'   => 'creovel_development'
+    ));
 
 /**
  * Test settings.
  */
 CREO('database', array(
-	'mode'		=> 'test',
-	'adapter'	=> 'mysql',
-	'host'		=> 'localhost',
-	'username'	=> '',
-	'password'	=> '',
-	'default'	=> 'creovel_test'
-	));
+    'mode'      => 'test',
+    'adapter'   => 'mysql',
+    'host'      => 'localhost',
+    'username'  => '',
+    'password'  => '',
+    'default'   => 'creovel_test'
+    ));
 
 /**
  * Production settings.
  */
 CREO('database', array(
-	'mode'		=> 'production',
-	'adapter'	=> 'mysql',
-	'host'		=> 'localhost',
-	'username'	=> '',
-	'password'	=> '',
-	'default'	=> 'creovel_production'
-	));
+    'mode'      => 'production',
+    'adapter'   => 'mysql',
+    'host'      => 'localhost',
+    'username'  => '',
+    'password'  => '',
+    'default'   => 'creovel_production'
+    ));

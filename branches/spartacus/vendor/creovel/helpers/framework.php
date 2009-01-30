@@ -7,6 +7,7 @@
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0
  **/
+
 /**
  * Autoload routine for controllers, interfaces, adapters, services, vendor,
  * mailer and models. Also creates "Virtual Model" if table exists (useful

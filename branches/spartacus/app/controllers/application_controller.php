@@ -1,18 +1,17 @@
 <?php
 /**
- * Place global controller methods and login here here.
+ * Application controller class.
  *
  * @package Application
  * @subpackage Application.Controllers
- * @author Nesbert Hidalgo
  **/
 class ApplicationController extends ActionController
 {
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 **/
-	public function initialize_application_controller()
-	{}
+    /**
+     * initialize controller.
+     *
+     * @return void
+     **/
+    public function initialize_application_controller()
+    {}
 } // END class ApplicationController

@@ -139,7 +139,7 @@ class ActivePager
 		// set total_records, limit, total_pages
 		$this->total_records = (int) $total_records;
 		$this->limit = max((int) $limit, 1);
-		$this->total_pages = ceil($this->total_records / $this->limit);
+		$this->total_pages = (int) ceil($this->total_records / $this->limit);
 		
 		// set current page
 		$this->current = (int) $page;

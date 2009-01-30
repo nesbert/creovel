@@ -1,15 +1,14 @@
 <?php
 /**
- * IndexController class.
+ * Index controller class.
  *
  * @package Application
  * @subpackage Application.Controllers
- * @author Nesbert Hidalgo
  **/
 class IndexController extends ApplicationController
 {
 	/**
-	 * undocumented function
+   	 * Initialize controller.
 	 *
 	 * @return void
 	 **/
@@ -17,7 +16,7 @@ class IndexController extends ApplicationController
 	{}
 	
 	/**
-	 * undocumented function
+	 * Default action.
 	 *
 	 * @return void
 	 **/

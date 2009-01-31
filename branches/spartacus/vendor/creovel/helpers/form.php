@@ -65,7 +65,7 @@ function form_has_errors()
  **/
 function form_errors_count()
 {
-    return count(($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
+    return count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
 }
 
 /**
@@ -174,7 +174,6 @@ function start_form_tag($event_options,
                         $method = 'post',
                         $html_options= null)
 {
-
     if ($name_or_obj) {
         if (is_object($name_or_obj)) {
             $obj_id_str = hidden_field(
@@ -216,38 +215,18 @@ function start_form_tag($event_options,
                 '>' . "\n" . $obj_id_str;
 }
 
-/*
-
-Function: form_tag
-	Creates the start form tag.
-
-Parameters:
-	options - required
-
-Returns:
-	string
-
-*/
- 
-function form_tag($options)
-{
-	return '<form method="'.( $options['method'] ? $options['method'] : 'post' ).'"'.( $options['controller'] ? ' id="form_'.$options['controller'].( $options['action'] ? '_'.$options['action'] : '' ).'"' : '' ).( $options['controller'] ? ' name="form_'.$options['controller'].( $options['action'] ? '_'.$options['action'] : '' ).'"' : '' ).' action="'.url_for($options['controller'], $options['action'], $options['id']).'"'.html_options_str($options).'>'."\n";
-}
-
-/*
-
-Function: end_form_tag
-	Creates the end form tag for lazy programmers or anal ones!.
-
-Returns
-	string
-
-*/
- 
+/**
+ * Creates the end form tag for lazy programmers or anal ones!
+ *
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function end_form_tag()
 {
-	return "</form>\n";
+    return "</form>\n";
 }
+
+/* Need to rewrite/optimize these helpers */
 
 /*
 	Function: create_input_tag

@@ -197,35 +197,33 @@ class routing
 	
 	public function parts_regex($parts)
 	{
-		$regex = '/^';
-		
-		//print_obj($parts);
+		$regex = '~^/';
 		
 		foreach ($parts as $segment)
 		{
-			if (!$segment->value) break;
 			// dont check nested segments
 			if ($segment->name == 'nested_controller_path') continue;
 			switch (true)
 			{
+				case (!$segment->type == 'dynamic'):
+				  $regex .= '([A-Za-z0-9_.-]*/?)';
+				break;
+				
 				case ( $segment->type == 'static' ):
-					$part = $segment->value;
+					$regex .= $segment->value."/";
 				break;
 				
 				case ( $segment->value && !$segment->constraint ):
-					$regex .= '(\/[A-Za-z0-9_]+)*';
-					break 2;
+					$regex .= '([A-Za-z0-9_.-]*/?)';
 				break;
 
 				default:
-					$part = $this->trim_regex($segment->constraint);
+				  $regex .= '('.$this->trim_regex($segment->constraint).'/?)';
 				break;
 			}
-			
-			$regex .= "\/{$part}";
-		}
 
-		$regex .= '$/';
+		}
+		$regex .= '$~';
 
 		return $regex;
 	}

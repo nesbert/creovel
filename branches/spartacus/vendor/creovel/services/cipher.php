@@ -4,7 +4,7 @@
  * variety of block algorithms.
  *
  * @package     Creovel
- * @subpackage  Creovel.Services
+ * @subpackage  Services
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.3.0
  * @author      Nesbert Hidalgo

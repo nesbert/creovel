@@ -3,7 +3,7 @@
  * Contains all Creovel specific functions.
  *
  * @package     Creovel
- * @subpackage  Creovel.Helpers
+ * @subpackage  Helpers
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0
  **/
@@ -13,7 +13,8 @@
  * mailer and models. Also creates "Virtual Model" if table exists (useful
  * for basic model functions and prototyping).
  *
- * @param string $class String of the class name not yet defined
+ * @access private
+ * @param string $class
  * @author Nesbert Hidalgo
  **/
 function __autoload($class)

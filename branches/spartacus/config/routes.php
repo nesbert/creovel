@@ -2,10 +2,8 @@
 /**
  * Define custom routing here. See samples below.
  *
- * @package     Creovel
- * @subpackage  Creovel.Config
- * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.2.0
+ * @package     Application
+ * @subpackage  Config
  **/
  
 /*

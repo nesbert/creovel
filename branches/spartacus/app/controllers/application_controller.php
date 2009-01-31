@@ -2,13 +2,13 @@
 /**
  * Application controller class.
  *
- * @package Application
- * @subpackage Application.Controllers
+ * @package     Application
+ * @subpackage  Controllers
  **/
 class ApplicationController extends ActionController
 {
     /**
-     * initialize controller.
+     * Initialize controller.
      *
      * @return void
      **/

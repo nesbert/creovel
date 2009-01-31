@@ -3,7 +3,7 @@
  * Adapters base class.
  *
  * @package     Creovel
- * @subpackage  Creovel.Adapters
+ * @subpackage  Adapters
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo

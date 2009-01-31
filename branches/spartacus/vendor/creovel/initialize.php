@@ -1,4 +1,13 @@
 <?php
+/**
+ * This file includes base files need to initialize Creovel.
+ *
+ * @package     Creovel
+ * @subpackage  Misc
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0
+ **/
+
 // If not PHP 5 stop.
 if (PHP_VERSION <= 5) {
 	die('Creovel requires PHP >= 5!');

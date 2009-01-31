@@ -3,7 +3,7 @@
  * Text & String functions.
  *
  * @package     Creovel
- * @subpackage  Creovel.Helpers
+ * @subpackage  Helpers
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0
  **/

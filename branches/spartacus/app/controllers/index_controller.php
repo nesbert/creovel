@@ -2,8 +2,8 @@
 /**
  * Index controller class.
  *
- * @package Application
- * @subpackage Application.Controllers
+ * @package     Application
+ * @subpackage  Controllers
  **/
 class IndexController extends ApplicationController
 {

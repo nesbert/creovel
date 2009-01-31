@@ -2,10 +2,8 @@
 /**
  * Set environment variables.
  *
- * @package     Creovel
- * @subpackage  Creovel.Config
- * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.1.0
+ * @package     Application
+ * @subpackage  Config
  **/
 
 /**

@@ -3,7 +3,7 @@
  * HTML/Tag functions.
  *
  * @package     Creovel
- * @subpackage  Creovel.Helpers
+ * @subpackage  Helpers
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.2.0
 **/

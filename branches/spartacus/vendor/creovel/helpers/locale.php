@@ -3,7 +3,7 @@
  * Language and location functions.
  *
  * @package     Creovel
- * @subpackage  Creovel.Helpers
+ * @subpackage  Helpers
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.0
 **/
@@ -380,7 +380,8 @@ function states($country = 'US', $show_abbr = false)
 }
 
 /**
- * undocumented function
+ * Returns an array of timezone with GMT labels for keys and
+ * timezone name as value.
  *
  * @return void
  * @author Nesbert Hidalgo

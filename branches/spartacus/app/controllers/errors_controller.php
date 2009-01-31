@@ -2,8 +2,8 @@
 /**
  * Error controller methods.
  *
- * @package Application
- * @subpackage Application.Controllers
+ * @package     Application
+ * @subpackage  Controllers
  **/
 class ErrorsController extends ApplicationController
 {

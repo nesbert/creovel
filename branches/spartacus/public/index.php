@@ -1,9 +1,9 @@
 <?php
 /**
- * This file include base files need to start Creovel.
+ * This file includes path and initialize files need to start Creovel.
  *
  * @package     Creovel
- * @subpackage  Creovel.Helpers
+ * @subpackage  Misc
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0
  **/

@@ -1,223 +1,219 @@
 <?php
-/*
-	Script: form
-	
-	Form helpers go here.	
-*/
+/**
+ * Global form functions.
+ *
+ * @package     Creovel
+ * @subpackage  Creovel.Helpers
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0
+**/
 
-/*
-	Function: name_to_id
-	
-	Formats user[name] to user_name.
-	
-	Returns:
-	
-		String.
-*/
- 
-function name_to_id($name)
+/**
+ * Formats user[name] to user_name.
+ *
+ * @param string $name
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function name_to_id($field_name)
 {	
-	return str_replace(array('[', ']'), array('_', ''), str_replace('[]', '', $name));
+    return str_replace(array('[', ']'), array('_', ''), str_replace('[]', '', $field_name));
 }
 
-
-/*
-	Function: add_form_error
-	
-	Add error to form errors.
-	
-	Parameters:
-	
-		field_name - Field name.
-		message - Error message.
-*/
-
+/**
+ * Add error to form errors.
+ *
+ * @param string $field_name
+ * @param string $message
+ * @return void
+ * @author Nesbert Hidalgo
+ **/
 function add_form_error($field_name, $message = null)
 {
-	$GLOBALS['CREOVEL']['VALIDATION_ERRORS'][name_to_id($field_name)] = $message ? $message : humanize($field_name) . ' is invalid.';
+    $GLOBALS['CREOVEL']['VALIDATION_ERRORS'][name_to_id($field_name)] =
+        $message ? $message : humanize($field_name) . ' is invalid.';
 }
 
-/*
-	Function: field_has_error
-	
-	checkif a field is has an error.
-	
-	Parameters:
-	
-		field_name - Field name.
-		
-	Returns:
-	
-		Boolean.
-*/
-
+/**
+ * Check if a field is has an error.
+ *
+ * @param string $field_name
+ * @return boolean
+ * @author Nesbert Hidalgo
+ **/
 function field_has_error($field_name)
-{	
-	return isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'][name_to_id($field_name)]);
+{
+    return isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'][name_to_id($field_name)]);
 }
 
-/*
-	Function: form_has_errors
-	
-	Check if form has errors.
-	
-	Returns:
-	
-		Boolean.
-*/
-
+/**
+ * Check if form has errors.
+ *
+ * @return boolean
+ * @author Nesbert Hidalgo
+ **/
 function form_has_errors()
-{	
-	return form_errors_count() ? true : false;
+{
+    return form_errors_count() ? true : false;
 }
 
-/*
-	Function: form_has_errors
-	
-	Check if form has errors.
-	
-	Returns:
-	
-		Integer.
-*/
-
+/**
+ * Returns the total number of form errors.
+ *
+ * @return integer
+ * @author Nesbert Hidalgo
+ **/
 function form_errors_count()
-{	
-	return count($_ENV['creovel']['form_errors']);
+{
+    return count(($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
 }
 
-/*
-	Function: error_messages_for
-	
-	Prints out a formatted errors message box for an object. Errors styles below: 
-
-	(start code)
-		 #errors {} // container div
-		 #errors .top {} 
-		 #errors .body {}
-		 #errors .bottom {}
-		 #errors h1 {} // title
-		 #errors p {} // description
-		 #errors ul {} // errors list
-		 #errors li {} // errors list items
-		 #errors a {} // errors list items links
-		 .errors_field {} // html element with the error
-	(end)
-	
-	Parameters:
-		
-		errors - optional
-		title - optional default is "{number of errors} errors {have or has} prohibited this {object name} from being saved."
-		description - optional default is "There were problems with th following fields."
-	
-	Returns:
-	
-		String.
-*/
-
+/**
+ * Prints out a formatted errors message box for an object. Errors
+ * styles below: 
+ *
+ * <code>
+ * #errors {} // container div
+ * #errors .top {} 
+ * #errors .body {}
+ * #errors .bottom {}
+ * #errors h1 {} // title
+ * #errors p {} // description
+ * #errors ul {} // errors list
+ * #errors li {} // errors list items
+ * #errors a {} // errors list items links
+ * .errors_field {} // html element with the error
+ * </code>
+ *
+ * @param mixed $errors
+ * @param string $title Optional default "{number of errors} errors
+ * {have or has} prohibited this {object name} from being saved."
+ * @param string $description Pptional default There were problems
+ * with the following fields."
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function error_messages_for($errors = null, $title = null, $description = null)
 {
-	if (!$description && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'])) {
-		$description = $GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'] ? $GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'] : 'There were problems with the following fields.';
-	}
-	// if no errors check global variable
-	if (!$errors && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'])) {
-		$errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
-	}
-	
-	if (is_object($errors)) {
-		$model = get_class($errors);
-		$errors_count = $errors->errors->count();
-		$errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
-	} else {
-		$errors_count = count($errors);
-	}
-	
-	$li_str = '';
-	
-	if ($errors_count) foreach ( $errors as $field => $message ) {
-		if ( $message == 'no_message') continue;
-		$li_str .= create_html_element('li', null, create_html_element('a', array('href' => "#error_{$field}"), $message)) . "\n";
-	}	
-	
-	if ($errors_count) {
-		if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_TITLE'])) {
-			$default_title =  $GLOBALS['CREOVEL']['VALIDATION_ERRORS_TITLE'];
-		} else {
-			$default_title = "{$errors_count} error".( $errors_count == 1 ? ' has' : 's have' )." prohibited this ".(isset($model) ? humanize($model) : 'Form' )." from being saved.";
-		}
-		$title = $title ? $title : $default_title;
-		$title = str_replace(array('@@errors_count@@','@@title@@'), array($errors_count, $title), $title);
-		include_once(CREOVEL_PATH . 'views' . DS . 'layouts' . DS . '_form_errors.php');
-	}
+    if (!$description
+        && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'])) {
+        $description = $GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION']
+                        ? $GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION']
+                        : 'There were problems with the following fields.';
+    }
+    // if no errors check global variable
+    if (!$errors && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'])) {
+        $errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
+    }
+    
+    if (is_object($errors)) {
+        $model = get_class($errors);
+        $errors_count = $errors->errors->count();
+        $errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
+    } else {
+        $errors_count = count($errors);
+    }
+    
+    $li_str = '';
+    
+    if ($errors_count) foreach ( $errors as $field => $message ) {
+        if ( $message == 'no_message') continue;
+        $li_str .= create_html_element('li', null,
+                        create_html_element('a',                                            array('href' => "#error_{$field}"), $message)) . "\n";
+    }
+    
+    if ($errors_count) {
+        if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_TITLE'])) {
+            $default_title =  $GLOBALS['CREOVEL']['VALIDATION_ERRORS_TITLE'];
+        } else {
+            $default_title = "{$errors_count} error" .
+            ($errors_count == 1 ? ' has' : 's have') .
+            " prohibited this " . 
+            (isset($model) ? humanize($model) : 'Form' ) . 
+            " from being saved.";
+        }
+        $title = $title ? $title : $default_title;
+        $title = str_replace(
+                    array('@@errors_count@@','@@title@@'),
+                    array($errors_count, $title),
+                    $title);
+        include_once(CREOVEL_PATH . 'views' . DS . 'layouts' . DS .
+                    '_form_errors.php');
+    }
 }
 
-/*
-	Function: error_wrapper
-	
-	Parameters:
-	
-		field - Field name.
-		html_str - HTML string.
-		
-	Returns:
-	
-		String.
-*/
-
+/**
+ * Wrap error fields with span and put an anchor next to element.
+ *
+ * @param string $field_name
+ * @param string $html_str
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function error_wrapper($field_name, $html_str)
 {
-	return '<a name="error_' . name_to_id($field_name) . '"></a><span class="fieldWithErrors">' . str_replace("\n", '', $html_str) . "</span>\n";
+    return '<a name="error_' . name_to_id($field_name) .
+            '"></a><span class="fieldWithErrors">' .
+            str_replace("\n", '', $html_str) . "</span>\n";
 }
 
-/*
-
-Function: start_form_tag
-	Creates the start form tag.
-
-Parameters:
-	event_options - required
-	name_or_obj - required
-	value - optional
-	method - optional default set to "post"
-	html_options - optional
-
-Returns:
-	string
-
-*/
- 
-function start_form_tag($event_options, $name_or_obj = null, $name_value = null, $method = 'post', $html_options= null)
+/**
+ * Creates the start form tag.
+ *
+ * @param array $event_options
+ * @param mixed $name_or_obj
+ * @param string $value
+ * @param string $method Optional default set to "post"
+ * @param $html_options
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function start_form_tag($event_options,
+                        $name_or_obj = null,
+                        $name_value = null,
+                        $method = 'post',
+                        $html_options= null)
 {
 
-	if ( $name_or_obj ) {	
-		if ( is_object($name_or_obj) ) {
-			$obj_id_str = hidden_field(str_replace('_model', '', get_class($name_or_obj)).'[id]', $name_or_obj->id);
-		} else {
-			$obj_id_str = hidden_field($name_or_obj, $name_value)."\n";
-		}
-	}
-	
-	$event_arr = get_event_params();
-	
-	if ( !in_array('controller', array_keys($event_options)) ) {
-		$event_options['controller'] = $event_arr['controller'];
-	}
-
-	if ( !in_array('action', array_keys($event_options)) ) {
-		$event_options['action'] = $event_arr['action'];
-	}
-
-	if ( !in_array('id', array_keys($event_options)) ) {
-		$event_options['id'] = $event_arr['id'];
-	}
-	
-	if ( $event_options['id'] ) {
-		$obj_id_str .= hidden_field('id', $event_options['id'])."\n";
-	}
-	
-	return '<form method="'.$method.'" id="form_'.$event_options['controller'].'" name="form_'.$event_options['controller'].'" action="'.url_for($event_options['controller'], $event_options['action'], $event_options['id']).'"'.html_options_str($html_options).'>'."\n".$obj_id_str;
-	
+    if ($name_or_obj) {
+        if (is_object($name_or_obj)) {
+            $obj_id_str = hidden_field(
+                            str_replace('_model',
+                                        '',
+                                        get_class($name_or_obj)) . '[id]',
+                                        $name_or_obj->id);
+        } else {
+            $obj_id_str = hidden_field($name_or_obj, $name_value)."\n";
+        }
+    }
+    
+    $event_arr = get_event_params();
+    
+    if (!in_array('controller', array_keys($event_options))) {
+        $event_options['controller'] = $event_arr['controller'];
+    }
+    
+    if (!in_array('action', array_keys($event_options))) {
+        $event_options['action'] = $event_arr['action'];
+    }
+    
+    if (!in_array('id', array_keys($event_options))) {
+        $event_options['id'] = $event_arr['id'];
+    }
+    
+    if ( $event_options['id'] ) {
+        $obj_id_str .= hidden_field('id', $event_options['id'])."\n";
+    }
+    
+    return '<form method="' . $method . '" id="form_' .
+            $event_options['controller'] . '" name="form_' .
+            $event_options['controller'] . '" action="' .
+            url_for(
+                $event_options['controller'],
+                $event_options['action'],
+                $event_options['id']
+                ) . '"' . html_options_str($html_options) .
+                '>' . "\n" . $obj_id_str;
 }
 
 /*
@@ -921,87 +917,7 @@ Returns:
 
 function select_time_zone_tag($name, $selected = null, $choices = null, $html_options = null)
 {
-		$time_zones = array(
-			"US & Canada" => "US/Pacific",
-			"-10:00 Hawaii" => "US/Hawaii",
-			"-09:00 Alaska" => "US/Alaska",
-			"-08:00 Pacific Time" => "US/Pacific",
-			"-08:00 Pacific Time (Yukon)" =>"Canada/Yukon",
-			"-07:00 Arizona" => "US/Arizona",
-			"-07:00 Mountain Time" => "US/Mountain",
-			"-06:00 Central Time" => "US/Central",
-			"-06:00 Saskatchewan" => "Canada/Saskatchewan",
-			"-06:00 Saskatchewan (East)" => "Canada/East-Saskatchewan",
-			"-05:00 Eastern Time" => "US/Eastern",
-			"-05:00 Eastern Time (Michigan)" => "US/Michigan",
-			"-05:00 Indiana (East)" => "US/East-Indiana",
-			"-05:00 Indiana (Starke)" => "US/Indiana-Starke",
-			"-04:00 Atlantic Time (Canada)" => "Canada/Atlantic",
-			"-03:30 Newfoundland" => "Canada/Newfoundland",
-			"International" => "GMT",
-			"-12:00 Eniwetok, Kwajalein" => "Pacific/Kwajalein",
-			"-11:00 Midway Island, Samoa" => "US/Samoa",
-			"-06:00 Central America" => "Etc/GMT-6",
-			"-06:00 Mexico City" => "America/Mexico_City",
-			"-05:00 Bogota, Lima, Quito" => "America/Bogota",
-			"-04:00 Caracas, La Paz" => "America/Caracas",
-			"-04:00 Santiago" => "America/Santiago",
-			"-03:00 Brasilia" => "Brazil/West",
-			"-03:00 Greenland" => "Etc/GMT-3",
-			"-02:00 Mid-Atlantic" => "Etc/GMT-2",
-			"-01:00 Azores" => "Atlantic/Azores",
-			"-01:00 Cape Verde Is." => "Atlantic/Cape_Verde",
-			"GMT Casablanca, Monrovia" => "Africa/Casablanca",
-			"Greenwich Mean Time GMT: Dublin, Edinburgh, Lisbon, London" => "GMT",
-			"+01:00 Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna" => "Etc/GMT+1",
-			"+01:00 Belgrade, Bratislava, Budapest, Ljubljana, Prague" => "Etc/GMT+1",
-			"+01:00 Brussels, Copenhagen, Madrid, Paris" => "Etc/GMT+1",
-			"+01:00 Sarajevo, Skopje, Sofija, Vilnius, Warsaw, Zagreb" => "Etc/GMT+1",
-			"+01:00 West Central Africa" => "Etc/GMT+1",
-			"+02:00 Athens, Istanbul, Minsk" => "Etc/GMT+2",
-			"+02:00 Bucharest" => "Etc/GMT+2",
-			"+02:00 Cairo" => "Etc/GMT+2",
-			"+02:00 Harare, Pretoria" => "Etc/GMT+2",
-			"+02:00 Helsinki, Riga, Tallinn" => "Etc/GMT+2",
-			"+02:00 Jarusalem" => "Etc/GMT+2",
-			"+03:00 Baghdad" => "Etc/GMT+3",
-			"+03:00 Kuwait, Riyadh" => "Etc/GMT+3",
-			"+03:00 Moscow, St. Peter sburg, Volgograd" => "Etc/GMT+3",
-			"+03:00 Nairobi"=> "Etc/GMT+3",
-			"+03:30 Tehran" => "Etc/GMT+3",
-			"+04:00 Abu Dhabi, Muscat" => "Etc/GMT+4",
-			"+04:00 Baku, bilisi, erevan" => "Etc/GMT+4",
-			"+04:30 Kabul" => "Asia/Kabul",
-			"+05:00 Ekaterinburg" => "Etc/GMT+5",
-			"+05:00Islamabad, Karachi, Tashkent" => "Etc/GMT+5",
-			"+05:30 Calcutta, Chennai, Mumbai, New Delhi" => "Asia/Calcutta",
-			"+05:45 Kathmandu" => "Asia/Katmandu",
-			"+06:00 Almatay, Novosibirsk" => "Etc/GMT+6",
-			"+06:00Astana, Dhaki" => "Etc/GMT+6",
-			"+06:00 Sri Jayawardenepura" => "Etc/GMT+6",
-			"+06:30 Rangoon" => "Asia/Rangoon",
-			"+07:00 Bangkok, Hanoi, Jakarta" => "Etc/GMT+7",
-			"+07:00 Krasnoyarsk" => "Etc/GMT+7",
-			"+08:00Beijing, Chongqing, Hong Kong, Urumqi" => "Etc/GMT+8",
-			"+08:00 Irkutsk, Ulaan Bataar" => "Etc/GMT+8",
-			"+08:00 Kuala Lumpur, Singapore" => "Etc/GMT+8",
-			"+08:00 Perth" => "Etc/GMT+8",
-			"+08:00Taipei" => "Etc/GMT+8",
-			"+09:00 Osaka, Sapporo, Tokyo" => "Etc/GMT+9",
-			"+09:00 Seoul" => "Etc/GMT+9",
-			"+09:00 Yakutsk" => "Etc/GMT+9",
-			"+09:30 Adelaide" => "Etc/GMT+9",
-			"+09:30 Darwin" => "Australia/Darwin",
-			"+10:00 Brisbane" => "Etc/GMT+10",
-			"+10:00 Canberra, Melbourne, Sydney" => "Etc/GMT+10",
-			"+10:00 Guam, Port Moresby" => "Etc/GMT+10",
-			"+10:00 Hobart" => "Etc/GMT+10",
-			"+10:00 Vladivostok" => "Etc/GMT+10",
-			"+11:00 Magadan, Solomon Is., New Caledonia" => "Etc/GMT+11",
-			"+12:00 Auckland, ellington" => "Etc/GMT+12",
-			"+12:00 Fiji, Kamchatka, Marshall Is." => "Etc/GMT+12"
-	);
-
+	$time_zones = timezones();
 	$choices = ( $choices ? $choices : array('' => 'Please select...') );
 	$time_zones = array_merge($choices, $time_zones);
 	

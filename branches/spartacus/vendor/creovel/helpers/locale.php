@@ -17,10 +17,10 @@
  **/
 function countries_array()
 {
-	if (isset($GLOBALS['CREOVEL']['COUNTRIES'])) {
-		return $GLOBALS['CREOVEL']['COUNTRIES'];
-	} else {
-	    $usa = array(
+    if (isset($GLOBALS['CREOVEL']['COUNTRIES'])) {
+        return $GLOBALS['CREOVEL']['COUNTRIES'];
+    } else {
+        $usa = array(
             'AK' => 'Alaska',
             'AL' => 'Alabama',
             'AR' => 'Arkansas',
@@ -377,4 +377,98 @@ function states($country = 'US', $show_abbr = false)
         asort($states);
     }
     return $states;
+}
+
+/**
+ * undocumented function
+ *
+ * @return void
+ * @author Nesbert Hidalgo
+ **/
+function timezones()
+{
+    if (isset($GLOBALS['CREOVEL']['TIMEZONES'])) {
+        return $GLOBALS['CREOVEL']['TIMEZONES'];
+    } else {
+        return $GLOBALS['CREOVEL']['TIMEZONES'] = array(
+            "US & Canada" => "US/Pacific",
+            "-10:00 Hawaii" => "US/Hawaii",
+            "-09:00 Alaska" => "US/Alaska",
+            "-08:00 Pacific Time" => "US/Pacific",
+            "-08:00 Pacific Time (Yukon)" =>"Canada/Yukon",
+            "-07:00 Arizona" => "US/Arizona",
+            "-07:00 Mountain Time" => "US/Mountain",
+            "-06:00 Central Time" => "US/Central",
+            "-06:00 Saskatchewan" => "Canada/Saskatchewan",
+            "-06:00 Saskatchewan (East)" => "Canada/East-Saskatchewan",
+            "-05:00 Eastern Time" => "US/Eastern",
+            "-05:00 Eastern Time (Michigan)" => "US/Michigan",
+            "-05:00 Indiana (East)" => "US/East-Indiana",
+            "-05:00 Indiana (Starke)" => "US/Indiana-Starke",
+            "-04:00 Atlantic Time (Canada)" => "Canada/Atlantic",
+            "-03:30 Newfoundland" => "Canada/Newfoundland",
+            "International" => "GMT",
+            "-12:00 Eniwetok, Kwajalein" => "Pacific/Kwajalein",
+            "-11:00 Midway Island, Samoa" => "US/Samoa",
+            "-06:00 Central America" => "Etc/GMT-6",
+            "-06:00 Mexico City" => "America/Mexico_City",
+            "-05:00 Bogota, Lima, Quito" => "America/Bogota",
+            "-04:00 Caracas, La Paz" => "America/Caracas",
+            "-04:00 Santiago" => "America/Santiago",
+            "-03:00 Brasilia" => "Brazil/West",
+            "-03:00 Greenland" => "Etc/GMT-3",
+            "-02:00 Mid-Atlantic" => "Etc/GMT-2",
+            "-01:00 Azores" => "Atlantic/Azores",
+            "-01:00 Cape Verde Is." => "Atlantic/Cape_Verde",
+            "GMT Casablanca, Monrovia" => "Africa/Casablanca",
+            "Greenwich Mean Time GMT: Dublin, Edinburgh, Lisbon, London" => "GMT",
+            "+01:00 Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna" => "Etc/GMT+1",
+            "+01:00 Belgrade, Bratislava, Budapest, Ljubljana, Prague" => "Etc/GMT+1",
+            "+01:00 Brussels, Copenhagen, Madrid, Paris" => "Etc/GMT+1",
+            "+01:00 Sarajevo, Skopje, Sofija, Vilnius, Warsaw, Zagreb" => "Etc/GMT+1",
+            "+01:00 West Central Africa" => "Etc/GMT+1",
+            "+02:00 Athens, Istanbul, Minsk" => "Etc/GMT+2",
+            "+02:00 Bucharest" => "Etc/GMT+2",
+            "+02:00 Cairo" => "Etc/GMT+2",
+            "+02:00 Harare, Pretoria" => "Etc/GMT+2",
+            "+02:00 Helsinki, Riga, Tallinn" => "Etc/GMT+2",
+            "+02:00 Jarusalem" => "Etc/GMT+2",
+            "+03:00 Baghdad" => "Etc/GMT+3",
+            "+03:00 Kuwait, Riyadh" => "Etc/GMT+3",
+            "+03:00 Moscow, St. Peter sburg, Volgograd" => "Etc/GMT+3",
+            "+03:00 Nairobi"=> "Etc/GMT+3",
+            "+03:30 Tehran" => "Etc/GMT+3",
+            "+04:00 Abu Dhabi, Muscat" => "Etc/GMT+4",
+            "+04:00 Baku, bilisi, erevan" => "Etc/GMT+4",
+            "+04:30 Kabul" => "Asia/Kabul",
+            "+05:00 Ekaterinburg" => "Etc/GMT+5",
+            "+05:00Islamabad, Karachi, Tashkent" => "Etc/GMT+5",
+            "+05:30 Calcutta, Chennai, Mumbai, New Delhi" => "Asia/Calcutta",
+            "+05:45 Kathmandu" => "Asia/Katmandu",
+            "+06:00 Almatay, Novosibirsk" => "Etc/GMT+6",
+            "+06:00Astana, Dhaki" => "Etc/GMT+6",
+            "+06:00 Sri Jayawardenepura" => "Etc/GMT+6",
+            "+06:30 Rangoon" => "Asia/Rangoon",
+            "+07:00 Bangkok, Hanoi, Jakarta" => "Etc/GMT+7",
+            "+07:00 Krasnoyarsk" => "Etc/GMT+7",
+            "+08:00Beijing, Chongqing, Hong Kong, Urumqi" => "Etc/GMT+8",
+            "+08:00 Irkutsk, Ulaan Bataar" => "Etc/GMT+8",
+            "+08:00 Kuala Lumpur, Singapore" => "Etc/GMT+8",
+            "+08:00 Perth" => "Etc/GMT+8",
+            "+08:00Taipei" => "Etc/GMT+8",
+            "+09:00 Osaka, Sapporo, Tokyo" => "Etc/GMT+9",
+            "+09:00 Seoul" => "Etc/GMT+9",
+            "+09:00 Yakutsk" => "Etc/GMT+9",
+            "+09:30 Adelaide" => "Etc/GMT+9",
+            "+09:30 Darwin" => "Australia/Darwin",
+            "+10:00 Brisbane" => "Etc/GMT+10",
+            "+10:00 Canberra, Melbourne, Sydney" => "Etc/GMT+10",
+            "+10:00 Guam, Port Moresby" => "Etc/GMT+10",
+            "+10:00 Hobart" => "Etc/GMT+10",
+            "+10:00 Vladivostok" => "Etc/GMT+10",
+            "+11:00 Magadan, Solomon Is., New Caledonia" => "Etc/GMT+11",
+            "+12:00 Auckland, ellington" => "Etc/GMT+12",
+            "+12:00 Fiji, Kamchatka, Marshall Is." => "Etc/GMT+12"
+            );
+    }
 }

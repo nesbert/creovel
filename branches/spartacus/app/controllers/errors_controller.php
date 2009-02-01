@@ -1,6 +1,6 @@
 <?php
 /**
- * Error controller methods.
+ * Errors controller class.
  *
  * @package     Application
  * @subpackage  Controllers

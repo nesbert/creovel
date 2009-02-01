@@ -13,7 +13,5 @@ class ApplicationController extends ActionController
      * @return void
      **/
     public function initialize_application_controller()
-    {
-        #echo 'app<br>';
-    }
+    {}
 } // END class ApplicationController

@@ -13,9 +13,7 @@ class IndexController extends ApplicationController
      * @return void
      **/
     public function initialize_index_controller()
-    {
-        #echo 'index<br>';
-    }
+    {}
     
     /**
      * Default action.

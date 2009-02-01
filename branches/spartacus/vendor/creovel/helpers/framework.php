@@ -380,9 +380,10 @@ function redirect_to_url($url)
 }
 
 /**
- * Create a URL to view source of page. User for when framework is 
+ * Create a URL to view source of page. Used for when framework is 
  * in dev mode and viewing source set to "true".
  *
+ * @access private
  * @param string $file
  * @return string
  * @author Nesbert Hidalgo

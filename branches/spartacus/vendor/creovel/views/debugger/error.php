@@ -1,9 +1,14 @@
 <?php
-/*
-	Layout view used by creovel to display application error information.
-*/
-?>
-<h1 class="top">Application Error</h1>
+/**
+ * Layout view used by Creovel to display application error information.
+ *
+ * @access      private
+ * @package     Creovel
+ * @subpackage  Views
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0 
+ **/
+?><h1 class="top">Application Error</h1>
 <p class="top"><?=$this->message?></p>
 
 <?php if ((is_object($this->exception)) && ($error_count = count($this->exception->getTrace()))) { ?>

@@ -8,10 +8,12 @@
 class ApplicationController extends ActionController
 {
     /**
-     * Initialize controller.
+     * Initialize global controller.
      *
      * @return void
      **/
     public function initialize_application_controller()
-    {}
+    {
+        #echo 'app<br>';
+    }
 } // END class ApplicationController

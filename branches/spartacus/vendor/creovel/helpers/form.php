@@ -226,251 +226,194 @@ function end_form_tag()
     return "</form>\n";
 }
 
-/* Need to rewrite/optimize these helpers */
-
-/*
-	Function: create_input_tag
-	
-	Base function used to create the different types of input tags.
-	
-	Returns:
-	
-		String.
-*/
- 
+/**
+ * Base function used to create the different types of input tags.
+ *
+ * @param string $type Input type 'text', 'password', 'submit', etc.
+ * @param string $name
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @param string $tag_value
+ * @param string $text
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function create_input_tag($type, $name, $value = null, $html_options = array(), $tag_value = null, $text = null)
 {
-	$input = array();
-	if (isset($type)) $input['type'] = $type;
-	if (!isset($html_options['id'])) $html_options['id'] = name_to_id($name).( $type == 'radio' | $type == 'checkbox' ? '_'.str_replace(' ', '', $tag_value) : '' );
-	$input['id'] = $html_options['id'];
-	if (isset($name)) $input['name'] = $name;
-	$input['value'] = $value;
-	if ($type == 'radio' || $type == 'checkbox') {
-		$input['value'] = $tag_value;
-		if ( $value == $tag_value ) $html_options['checked'] = 'checked';
-	}
-	return create_html_element('input', array_merge($input, $html_options)) . ($text ? ' ' . $text : '') . "\n";
+    $input = array();
+    if (isset($type)) $input['type'] = $type;
+    if (!isset($html_options['id'])) $html_options['id'] = name_to_id($name).( $type == 'radio' | $type == 'checkbox' ? '_'.str_replace(' ', '', $tag_value) : '' );
+    $input['id'] = $html_options['id'];
+    if (isset($name)) $input['name'] = $name;
+    $input['value'] = $value;
+    if ($type == 'radio' || $type == 'checkbox') {
+        $input['value'] = $tag_value;
+        if ( $value == $tag_value ) $html_options['checked'] = 'checked';
+    }
+    return create_html_element('input', array_merge($input, $html_options)) . ($text ? ' ' . $text : '') . "\n";
 }
 
-/*
-	Function: text_field
-	
-	Creates a text input tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-		
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Creates a text input tag.
+ *
+ * @param string $name
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @param string $text
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function text_field($name, $value = '', $html_options = null, $text = null)
 {
-	return create_input_tag('text', $name, $value, $html_options, null, $text);
+    return create_input_tag('text', $name, $value, $html_options, null, $text);
 }
 
-/*
-	Function: hidden_field
-	
-	Creates a hidden text input tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-		
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Creates a hidden text input tag.
+ *
+ * @param string $name
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function hidden_field($name, $value = '', $html_options = null)
 {
 	return create_input_tag('hidden', $name, $value, $html_options);
 }
 
-/*
-	Function: password_field
-	
-	Creates a password text input tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-	
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Creates a password text input tag.
+ *
+ * @param string $name
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @param string $text
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function password_field($name, $value = '', $html_options = null, $text = null)
 {
-	return create_input_tag('password', $name, $value, $html_options, $text);
+    return create_input_tag('password', $name, $value, $html_options, $text);
 }
 
-/*
-	Function: radio_button
-	
-	Creates a radio button input tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-		on_value - optional
-	
-	Returns:
-	
-		String.
-*/
-
+/**
+ * Creates a radio button input tag.
+ *
+ * @param string $name
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @param string $on_value
+ * @param string $text
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null)
 {
-	return create_input_tag('radio', $name, $value, $html_options, $on_value, $text);
+    return create_input_tag('radio', $name, $value, $html_options, $on_value, $text);
 }
 
-/*
-	Function: check_box
-	
-	Creates a checkbox input tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-		on_value - optional
-	
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Creates a checkbox input tag.
+ *
+ * @param string $name
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @param string $on_value
+ * @param string $text
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null)
 {
-	return create_input_tag('checkbox', $name, $value, $html_options, $on_value, $text);
+    return create_input_tag('checkbox', $name, $value, $html_options, $on_value, $text);
 }
 
-/*
-	Function: submit_tag
-	
-	Creates a submit tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-	
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Creates a checkbox input tag.
+ *
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function submit_tag($value = 'Submit', $html_options = null)
 {
-	return create_input_tag('submit', $html_options['name'], $value, $html_options);
+    return create_input_tag('submit', $html_options['name'], $value, $html_options);
 }
 
-/*
-	Function: button_tag
-	
-	Creates a button tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-	
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Creates a button input tag.
+ *
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function button_tag($value = 'Button', $html_options = null)
 {
 	return create_input_tag('button', $html_options['name'], $value, $html_options);
 }
 
-/*
-	Function: textarea
-	
-	Creates a textarea tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-		
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Creates a textarea tag.
+ *
+ * @param string $name
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function textarea($name, $value = '', $html_options = array())
 {
-	$textarea['id'] = name_to_id($name);
-	$textarea['name'] = $name;
-	return create_html_element('textarea', array_merge($textarea, $html_options), $value);
+    $textarea['id'] = name_to_id($name);
+    $textarea['name'] = $name;
+    return create_html_element('textarea', array_merge($textarea, $html_options), $value);
 }
 
-/*
-	Function: text_area
-	
-	Creates a textarea tag.
-	
-	Parameters:
-	
-		name - required
-		value - optional
-		html_options - optional
-	
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Alias to textarea().
+ *
+ * @param string $name
+ * @param string $value
+ * @param array $html_options Associative array of attributes.
+ * @return string
+ * @see textarea()
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function text_area($name, $value = '', $html_options = null)
 {
-	return textarea($name, $value, $html_options);
+    return textarea($name, $value, $html_options);
 }
 
-/*
-	Function: label	
-	
-	Creates a label tag.
-	
-	Parameters:
-	
-		name - required
-		title - optional
-		required - optional
-		
-	Returns:
-	
-		String.
-*/ 
-
+/**
+ * Creates a label tag.
+ *
+ * @param string $name
+ * @param string $title
+ * @param array $html_options Associative array of attributes.
+ * @return string
+ * @see create_input_tag()
+ * @author Nesbert Hidalgo
+ **/
 function label($name, $title = null, $html_options = null)
 {
-	if (!$title) {
-		$args = explode('[', $name);
-		$title = str_replace(']', '', end($args));
-		$title = humanize($title);
-	}
-	$html_options['for'] = name_to_id($name);
-	return create_html_element('label', $html_options, $title) . "\n";
+    if (!$title) {
+        $args = explode('[', $name);
+        $title = str_replace(']', '', end($args));
+        $title = humanize($title);
+    }
+    $html_options['for'] = name_to_id($name);
+    return create_html_element('label', $html_options, $title) . "\n";
 }
 
 /*

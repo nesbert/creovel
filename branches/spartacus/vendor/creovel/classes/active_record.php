@@ -3,17 +3,16 @@
  * ORM class for interfacing with relational databases and adding functionality
  * to each modeled table.
  *
- * @package Creovel
- * @subpackage Creovel.Classes
- * @copyright  2008 Creovel, creovel.org
- * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
- * @version    $Id:$
- * @since      Class available since Release 0.1.0
+ * @package     Creovel
+ * @subpackage  Core
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0
+ * @author      Nesbert Hidalgo
  **/
 abstract class ActiveRecord implements Iterator
 {
 	/**
-	 * Primary key column name.
+	 * Table name.
 	 *
 	 * @var string
 	 **/
@@ -27,28 +26,28 @@ abstract class ActiveRecord implements Iterator
 	public $_primary_key_ = 'id';
 	
 	/**
-	 * Primary key column name.
+	 * Array of object columns.
 	 *
-	 * @var string
+	 * @var array
 	 **/
 	public $_columns_ = array();
 	
 	/**
-	 * Primary key column name.
+	 * Database object used for SELECTS.
 	 *
-	 * @var string
+	 * @var object
 	 **/
 	public $_select_query_;
 	
 	/**
-	 * Primary key column name.
+   	 * Database object used for INSERTS, UPDATES and DELETES.
 	 *
-	 * @var string
+	 * @var object
 	 **/
 	public $_action_query_;
 	
 	/**
-	 * undocumented function
+	 * Load 
 	 *
 	 * @return void
 	 **/

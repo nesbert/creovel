@@ -1,8 +1,13 @@
 == Project Goal ==
 
-The goal of the Creovel project is to encourage rapid application development. Based on the Rails approach, a variation of the classic MVC design paradigm, a 'model' manages business logic execution, the presentation logic resides in the 'view', and the 'controller' handles the processes & responses to actions that may invoke changes on the model and view.
+The goal of the Creovel project is to encourage rapid application development.
+Based on the Rails approach, a variation of the classic MVC design paradigm, a
+'model' manages business logic execution, the presentation logic resides in the
+'view', and the 'controller' handles the processes & responses to actions that
+ may invoke changes on the model and view.
 
-Creovel also allows us (the development team) to give back to the open-source community.
+Creovel also allows us (the development team) to give back to the
+open-source community.
 
 More information can be found at:
 
@@ -14,8 +19,11 @@ More information can be found at:
 == Release Log ==
 
 0.01 - Nov 24 2005 16:55:55
-	* Initial work to get this bad boy going. Thanks to everyone who put in the time to get this thing going!
+    * Initial work to get this bad boy going. Thanks to everyone who put in the
+      time to get this thing going!
 0.02 - Feb 02 2007 02:00:00
-	* Lots of cleaning up and documentation.
+    * Lots of cleaning up and documentation.
 0.03 - Feb 02 2008 10:55:55
-	* Big commit before FULL REWRITE.
+    * Big commit before FULL REWRITE.
+0.04 - Spring 2009
+    * Massive REWRITE.

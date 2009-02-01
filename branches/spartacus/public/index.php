@@ -1,6 +1,6 @@
 <?php
 /**
- * This file includes path and initialize files need to start Creovel.
+ * This file includes framework paths and starts Creovel.
  *
  * @package     Creovel
  * @subpackage  Misc
@@ -12,7 +12,5 @@
 require_once '../config/paths.php';
 
 // Initialize framework and include core libraries.
-require_once CREOVEL_PATH . 'initialize.php';
-
-// Go, go, go!
-Dispatcher::run();
+require_once CREOVEL_PATH . 'classes' . DS . 'creovel.php';
+Creovel::run();

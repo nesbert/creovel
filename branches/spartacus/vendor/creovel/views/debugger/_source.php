@@ -1,9 +1,14 @@
 <?php
-/*
-	View used by Creovel to page source.
-*/
-?>
-<div class="code" id="source_<?=$trace_count?>" style="display:<?=( isset($_GET['view_source']) ? 'block' : 'none' )?>;">
+/**
+ * Partial view used by Creovel to page source.
+ *
+ * @access      private
+ * @package     Creovel
+ * @subpackage  Views
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0 
+ **/
+?><div class="code" id="source_<?=$trace_count?>" style="display:<?=( isset($_GET['view_source']) ? 'block' : 'none' )?>;">
 	<table cellspacing="0" class="source">
 	<tr>
 		<td>

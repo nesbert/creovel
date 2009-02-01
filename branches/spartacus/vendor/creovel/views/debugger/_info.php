@@ -1,10 +1,15 @@
 <?php
-/*
-	Layout view used by creovel to display application information.
-*/
-?>
-<div class="block title">
-	<h1>creovel <?=CREOVEL_VERSION?></h1>
+/**
+ * Partial view used by Creovel to display application information.
+ *
+ * @access      private
+ * @package     Creovel
+ * @subpackage  Views
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0 
+ **/
+?><div class="block title">
+    <h1>creovel <?=CREOVEL_VERSION?></h1>
 </div>
 
 <table cellspacing="0" class="block">

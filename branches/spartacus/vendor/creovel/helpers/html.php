@@ -12,7 +12,7 @@
  * Base function used to create the different types of HTML tags.
  *
  * @param string $name Tag name
- * @param array $html_options Assoicative array of attributes
+ * @param array $html_options Associative array of attributes
  * @param string $content
  * @return string
  * @author Nesbert Hidalgo

@@ -2,12 +2,11 @@
 /**
  * Validation class for ActiveRecord.
  *
- * @package Creovel
- * @subpackage Creovel.Classes
- * @copyright  2008 Creovel, creovel.org
- * @license    http://creovel.googlecode.com/svn/trunk/License   MIT License
- * @version    $Id:$
- * @since      Class available since Release 0.1.0
+ * @package     Creovel
+ * @subpackage  Core
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0
+ * @author      Nesbert Hidalgo
  **/
 class ActiveValidation
 {

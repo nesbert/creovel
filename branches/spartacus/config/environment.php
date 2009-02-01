@@ -19,9 +19,9 @@ CREO('session', false);
 /**
  * Show source in debugger for all files.
  */
-#CREO('show_source', true);
+CREO('show_source', false);
 
 /**
  * Set error reporting level.
  */
-error_reporting(CREO('mode') == 'development' ? E_ALL ^ E_NOTICE : 0);
+error_reporting(CREO('mode') == 'development' ? E_ALL : 0);

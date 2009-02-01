@@ -8,14 +8,14 @@
  
 /*
 // Make the default controller "blog"
-Routing::map('default', '/:controller/:action/*', array(
+ActionRouter::map('default', '/:controller/:action/*', array(
             'controller' => 'blog')
             );
 */
 
 /*
 // http://www.test.com/date/2008/10/14/New+Macbooks!;
-Routing::map('blog', '/date/:year/:month/:day/:title/*', array(
+ActionRouter::map('blog', '/date/:year/:month/:day/:title/*', array(
             'controller' => 'blog',
             'action' => 'posts',
             'year' => date('Y'),

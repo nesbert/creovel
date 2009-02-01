@@ -4,12 +4,12 @@
  * framework errors and allows for graceful recovery.
  *
  * @package     Creovel
- * @subpackage  Creovel.Classes
+ * @subpackage  Core
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  */
-class ErrorHandler
+class ActionErrorHandler
 {
     /**
      * Add/process application error.
@@ -83,11 +83,11 @@ class ErrorHandler
         // grace fully handle errors in none devlopment mode
         if (CREO('mode') != 'development') {
             // get default error events
-            $events = Routing::error();
+            $events = ActionRouter::error();
             if (isset($action)) $events['action'] = $action;
             // clean output buffer for application errors
             @ob_end_clean();
-            Dispatcher::run($events, array(
+            Creovel::run($events, array(
                                 'error' => $this->message,
                                 'exception' => $this->exception
                                 ));
@@ -125,4 +125,4 @@ class ErrorHandler
         }
         die;
     }
-} // END class ErrorHandler
+} // END class ActionErrorHandler

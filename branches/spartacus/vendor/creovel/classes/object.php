@@ -1,8 +1,6 @@
 <?php
 /**
- * Extends basic functionality of class by extending functionality based on
- * data type of value (prototype). Inspired by Prototype.js the very propular
- * javascript framework created by name (http://prototypejs.com).
+ * Base Object class.
  *
  * @package     Creovel
  * @subpackage  Core
@@ -17,15 +15,10 @@ class Object
      *
      * @return void
      **/
-    public function __construct($id = null, $value = null)
+    public function __construct()
     {
         // initialize scope fix
         $this->initialize_parents();
-        
-        // if id passed prototype object
-        if (!is_null($id)) {
-            $this->init($id, $value);
-        }
     }
     
     /**
@@ -45,14 +38,6 @@ class Object
     }
     
     /**
-     * First thing called during action execution.
-     *
-     * @return void
-     **/
-    public function initialize()
-    {}
-    
-    /**
      * Magic function call being used to catch controller errors.
      *
      * @param string $method Name of method being called.
@@ -63,12 +48,13 @@ class Object
     public function __call($method, $arguments)
     {
         try {
-            throw new Exception("Call to undefined method <em>{$method}</em>" .
-                " not found in <strong>{$this->object_name()}</strong>.");
+            throw new Exception("Call to undefined method ".
+                        "<em>{$method}</em> not found in " .
+                        "<strong>{$this->to_string()}</strong>.");
         } catch (Exception $e) {
             
             switch (true) {
-                case in_string('Controller', $this->object_name()):
+                case in_string('Controller', $this->to_string()):
                     $error_type = 404;
                     break;
                 
@@ -83,11 +69,31 @@ class Object
     }
     
     /**
+     * undocumented function
+     *
+     * @return void
+     **/
+    public function __clone()
+    {
+        return $this;
+    }
+    
+    /**
+     * Safely return class name as string.
+     *
+     * @return string
+     **/
+    public function __toString()
+    {
+        return $this->to_string();
+    }
+    
+    /**
      * Get class/object name.
      *
      * @return string
      **/
-    public function object_name()
+    public function to_string()
     {
         return get_class($this);
     }

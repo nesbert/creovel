@@ -155,3 +155,16 @@ function is_length_between($var, $min, $max)
 	$length = strlen($var);
 	return ( $length >= $min ) && ( $length <= $max );
 }
+
+/**
+ * Finds whether a $var is a regular expression.
+ *
+ * @param string $var Value to validate
+ * @return boolean
+ * @author Nesbert Hidalgo
+ **/
+function is_regex($var)
+{
+    @preg_match($var, '', $test);
+    return is_array($test);
+}

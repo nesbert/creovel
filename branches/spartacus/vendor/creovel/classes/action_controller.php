@@ -103,6 +103,13 @@ abstract class ActionController extends Object
         $this->after_filter();
     }
     
+    /**
+     * First thing called during action execution.
+     *
+     * @return void
+     **/
+    public function initialize()
+    {}
     
     /**
      * Called right before the action is executed.

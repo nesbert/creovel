@@ -224,12 +224,13 @@ class Inflector
      * This can be really useful for creating friendly URLs.
      *
      * @param string $word
+     * @param string $sep Default separator is an underscore ("_").
      * @return void
      **/
-    public function underscore($word)
+    public function underscore($word, $sep = '_')
     {
         return strtolower(
-                preg_replace('/[^A-Z^a-z^0-9]+/','_',
+                preg_replace('/[^A-Z^a-z^0-9]+/', $sep,
                     preg_replace('/([a-z\d])([A-Z])/','\1_\2',
                         preg_replace('/([A-Z]+)([A-Z][a-z])/','\1_\2',$word))));
     }

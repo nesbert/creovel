@@ -59,6 +59,19 @@ function camelize($word)
 }
 
 /**
+ * Replaces every instance of the underscore ("_") or space (" ")
+ * character by a dash ("-").
+ *
+ * @param string $word
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function dasherize($word)
+{
+    return Inflector::underscore($word, '-');
+}
+
+/**
  * Transforms text like 'ProgrammersField' to 'programmers_field'.
  *
  * @param string $word

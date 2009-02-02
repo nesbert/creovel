@@ -2,7 +2,8 @@
 /**
  * Extends basic functionality of class by extending functionality based on
  * data type of value (prototype). Inspired by Prototype.js the very popular
- * javascript framework created by Sam Stephenson (http://www.prototypejs.org/).
+ * javascript framework created by Sam Stephenson
+ * (@link http://www.prototypejs.org/).
  *
  * @package     Creovel
  * @subpackage  Prototype
@@ -63,16 +64,15 @@ class Prototype extends Object
                             return new Prototype(array());
                             break;
                         
-                        case !is_array($value):
+                        #case !is_array($value):
                         #case $method == 'compact':
                         #case $method == 'uniq':
                         #case $method == 'without':
-                            return new Prototype($value);
-                            break;
+                        #    return new Prototype($value);
+                        #    break;
                         
                         default:
-                            $this->init($value, $this->name);
-                            return $this;
+                            return new Prototype($value);
                             break;
                     }
                     break;

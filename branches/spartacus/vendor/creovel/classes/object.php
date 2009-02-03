@@ -22,17 +22,17 @@ class Object
     }
     
     /**
-     * Waterfall initialize function routine.
+     * Waterfall initialize function routine. Override accordingly.
      *
      * @return void
      **/
     public function initialize_parents()
     {
-        $parents = get_ancestors(get_class($this));
+        $parents = get_ancestors($this->to_string());
         foreach (array_reverse($parents) as $parent) {
             $method = 'initialize_' . Inflector::underscore($parent);
             if (method_exists($parent, $method)) {
-                $this->$method();
+                $this->{$method}();
             }
         }
     }

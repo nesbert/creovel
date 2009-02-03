@@ -19,10 +19,10 @@ class ActionRouter
     {
         $events = array();
         $params = array();
-        $options['controller'] = $options['controller']
+        $options['controller'] = !empty($options['controller'])
                                     ? $options['controller']
                                     : CREO('default_controller');
-        $options['action'] = $options['action']
+        $options['action'] = !empty($options['action'])
                                 ? $options['action']
                                 : CREO('default_action');
         

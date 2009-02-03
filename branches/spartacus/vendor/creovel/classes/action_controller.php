@@ -49,6 +49,14 @@ abstract class ActionController extends Object
     public $params;
     
     /**
+     * undocumented function
+     *
+     * @return void
+     **/
+    public function __construct()
+    {}
+    
+    /**
      * Set the controller's events properties (controller, action,
      * render layout).
      *
@@ -91,7 +99,7 @@ abstract class ActionController extends Object
         $this->initialize();
         
         // initialize scope fix
-        #$this->intialize_parents();
+        $this->initialize_parents();
             
         // call before filter
         $this->before_filter();

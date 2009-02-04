@@ -2,6 +2,6 @@
 /**
  * Global application functions.
  *
- * @package Application
- * @subpackage Helpers
+ * @package     Application
+ * @subpackage  Helpers
  **/

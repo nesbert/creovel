@@ -11,7 +11,7 @@
 class Object
 {
     /**
-     * Initialize parents.
+     * Initialize parents. Override accordingly.
      *
      * @return void
      **/
@@ -22,7 +22,7 @@ class Object
     }
     
     /**
-     * Waterfall initialize function routine. Override accordingly.
+     * Waterfall initialize function routine.
      *
      * @return void
      **/
@@ -69,7 +69,7 @@ class Object
     }
     
     /**
-     * undocumented function
+     * Clone class.
      *
      * @return void
      **/
@@ -97,5 +97,19 @@ class Object
     public function to_string()
     {
         return get_class($this);
+    }
+    
+    /**
+     * Stop the application and display/handle error. Override accordingly.
+     *
+     * @return void
+     **/
+    public function throw_error($msg = null)
+    {
+        if (!$msg) {
+            $msg = 'An error occurred while executing a method in ' .
+                "<strong>{$this->to_string()}</strong> class.";
+        }
+        CREO('application_error', $msg);
     }
 } // END class Object

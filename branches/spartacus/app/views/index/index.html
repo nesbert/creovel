@@ -1,12 +1,19 @@
 <h1>Hello World!</h1>
 
-<p>Job well done! You have successfully installed Creovel (<?=CREOVEL_VERSION?>), released on <?=date(DATE_RFC822, strtotime(CREOVEL_RELEASE_DATE))?>.</p>
+<p>Job well done! You have successfully installed Creovel <?=CREOVEL_VERSION?>, released on <?=date(DATE_RFC822, strtotime(CREOVEL_RELEASE_DATE))?>.</p>
 
 <h2>How to Edit This Page...</h2>
 
-<p>To change this page, update <em><?=VIEWS_PATH. $this->_controller . DS . $this->_action?>.html</em></p>
+<p>To change this page, update <em><?=VIEWS_PATH . $this->_controller . DS . $this->_action?>.html</em></p>
 
-<p>To change this layout, update <em><?=VIEWS_PATH. 'layouts' . DS . $this->layout?>.html</em></p>
+<p>To change this layout, update <em><?=VIEWS_PATH . 'layouts' . DS . $this->layout?>.html</em></p>
+
+<h2>Configure Your Environment...</h2>
+
+<p>To edit/view environment settings, modify <em><?=CONFIG_PATH?>environment.php</em></p>
+
+<p>To connect to a database, modify <em><?=CONFIG_PATH?>databases.php</em></p>
+
 
 <h2>Who, What, When, Where, How...</h2>
 

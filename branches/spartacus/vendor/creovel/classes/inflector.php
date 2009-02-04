@@ -347,4 +347,4 @@ class Inflector
             }
         }
     }
-}
+} // END class Inflector

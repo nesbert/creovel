@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-abstract class AdapterBase
+abstract class AdapterBase extends Object
 {
     /**
      * Stop the application and display/handle error.
@@ -19,8 +19,8 @@ abstract class AdapterBase
     {
         if (!$msg) {
             $msg = 'An error occurred while interacting with a database ' .
-                "using <strong> " . get_class($this) . ' adapter.</strong> .';
+                "using <strong>{$this->to_string()}</strong> adapter.";
         }
         CREO('application_error', $msg);
     }
-} // END abstract class AdapterBase
+} // END abstract class AdapterBase extends Object

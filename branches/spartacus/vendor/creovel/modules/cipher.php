@@ -4,12 +4,12 @@
  * variety of block algorithms.
  *
  * @package     Creovel
- * @subpackage  Services
+ * @subpackage  Modules
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.3.0
  * @author      Nesbert Hidalgo
  **/
-class Cipher
+class Cipher extends ModuleBase
 {
     /**
      * Encrypts plaintext with given parameters. <b>Make sure to use the same
@@ -155,4 +155,4 @@ class Cipher
                     mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB),
                     MCRYPT_RAND);
     } 
-} // END class Cipher
+} // END class Cipher extends ModuleBase

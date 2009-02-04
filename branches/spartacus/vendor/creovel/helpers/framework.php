@@ -47,8 +47,8 @@ function __autoload($class)
                 if (file_exists($path)) break;
                 
             case (true):
-                $type = 'Service';
-                $path = CREOVEL_PATH . 'services' . DS . $class . '.php';
+                $type = 'Module';
+                $path = CREOVEL_PATH . 'modules' . DS . $class . '.php';
                 if (file_exists($path)) break;
                 
             case (true):
@@ -268,9 +268,9 @@ function get_creovel_adapters()
  * @return array
  * @author Nesbert Hidalgo
  **/
-function get_creovel_services()
+function get_creovel_modules()
 {
-    return get_files_from_dir(CREOVEL_PATH.'services');
+    return get_files_from_dir(CREOVEL_PATH.'modules');
 }
 
 /**

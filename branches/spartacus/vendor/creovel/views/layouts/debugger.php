@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0 
  **/
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -43,17 +43,17 @@
 <script type="text/javascript">
 function $(id)
 {
-	return document.getElementById(id);
+    return document.getElementById(id);
 }
 
 function toggle(id)
 {
-	var obj = $(id);
-	if ( obj.style.display == 'none' ) {
-		obj.style.display = '';
-	} else {
-		obj.style.display = 'none';
-	}
+    var obj = $(id);
+    if ( obj.style.display == 'none' ) {
+        obj.style.display = '';
+    } else {
+        obj.style.display = 'none';
+    }
 }
 </script>
 </head>
@@ -62,13 +62,13 @@ function toggle(id)
 
 <div id="wrapper">
 
-	<div id="header"><a name="top"></a></div>
-	
-	<div id="content">
+    <div id="header"><a name="top"></a></div>
+    
+    <div id="content">
 @@page_contents@@
-	</div>
-	
-	<div id="footer">creovel <?php echo CREOVEL_VERSION; ?> Copyright &copy; 2005-<?=date('Y')?> <a href="http://creovel.org">creovel.org</a> - A PHP Framework</div>
+    </div>
+    
+    <div id="footer">creovel <?php echo CREOVEL_VERSION; ?> Copyright &copy; 2005-<?=date('Y')?> <a href="http://creovel.org">creovel.org</a> - A PHP Framework</div>
 
 </div>
 

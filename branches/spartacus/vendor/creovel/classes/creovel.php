@@ -19,13 +19,14 @@ class Creovel
      **/
     public static function initialize()
     {
+        /*
         static $booted;
         
         // if already intialized return true
         if ($booted) {
             return true;
         }
-        
+        */
         // If not PHP 5 stop.
         if (PHP_VERSION <= 5) {
             die('Creovel requires PHP >= 5!');
@@ -59,6 +60,7 @@ class Creovel
         require_once CREOVEL_PATH . 'helpers/validation.php';
         
         // Include minimum base classes.
+        require_once CREOVEL_PATH . 'classes/object.php';
         require_once CREOVEL_PATH . 'classes/inflector.php';
         
         // Include framework base classes.
@@ -122,7 +124,6 @@ class Creovel
      * Set frame events and params. Build controller execution environment.
      *
      * @return void
-     * @throws Exception [description]
      **/
     public function run($events = null, $params = null, $return_as_str = false)
     {

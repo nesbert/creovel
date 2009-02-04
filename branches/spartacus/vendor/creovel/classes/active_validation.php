@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActiveValidation
+class ActiveValidation extends Object
 {
     /**
      * Special tag for error messages.
@@ -316,4 +316,4 @@ class ActiveValidation
         
         return $message;
     }
-} // END class ActiveValidation
+} // END class ActiveValidation extends Object

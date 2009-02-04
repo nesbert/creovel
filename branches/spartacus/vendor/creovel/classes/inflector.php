@@ -16,7 +16,7 @@
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0 
  **/
-class Inflector
+class Inflector extends Object
 {
     /**
      * Pluralizes English nouns.
@@ -347,4 +347,4 @@ class Inflector
             }
         }
     }
-} // END class Inflector
+} // END class Inflector extends Object

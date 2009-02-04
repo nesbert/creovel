@@ -32,7 +32,7 @@ class Prototype extends Object
         
         // if id passed prototype object
         if (!is_null($value)) {
-            $this->init($name, $value);
+            $this->initialize($value, $name);
         }
     }
     
@@ -101,8 +101,9 @@ class Prototype extends Object
     }
     
     /**
-     * undocumented function
+     * Magic set function to handle special property calls.
      *
+     * @access private
      * @return void
      **/
     public function __set($attribute, $value)
@@ -127,8 +128,9 @@ class Prototype extends Object
     }
     
     /**
-     * undocumented function
+     * Magic get function to handle special property calls.
      *
+     * @access private
      * @return void
      **/
     public function __get($attribute)
@@ -162,15 +164,14 @@ class Prototype extends Object
         return (string) $this->_attribites_->value;
     }
     
-    
-    //////////////////////
-    
     /**
-     * undocumented function
+     * Initialize prototype.
      *
+     * @param mixed $value Data to prototype.
+     * @param string $name Name of object for reference only.
      * @return void
      **/
-    public function init($name, $value)
+    public function initialize($value, $name)
     {
         $this->name = $name;
         $this->value = $value;

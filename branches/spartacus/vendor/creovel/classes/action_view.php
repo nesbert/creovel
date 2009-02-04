@@ -10,7 +10,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  */
-class ActionView
+class ActionView extends Object
 {
     /**
      * Creates the page to be displayed and sets it to the page property.
@@ -108,4 +108,4 @@ class ActionView
     {
         print self::to_str($view_path, $layout_path, $options);
     }
-} // END class ActionView
+} // END class ActionView extends Object

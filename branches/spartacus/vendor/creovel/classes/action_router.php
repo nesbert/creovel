@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActionRouter
+class ActionRouter extends Object
 {
     /**
      * Add route to framework.
@@ -277,4 +277,4 @@ class ActionRouter
     {
         return $GLOBALS['CREOVEL']['ROUTING']['routes']['default_error']['events'];
     }
-} // END class ActionRouter
+} // END class ActionRouter extends Object

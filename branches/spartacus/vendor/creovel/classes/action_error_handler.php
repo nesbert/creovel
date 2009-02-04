@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  */
-class ActionErrorHandler
+class ActionErrorHandler extends Object
 {
     /**
      * Add/process application error.
@@ -125,4 +125,4 @@ class ActionErrorHandler
         }
         die;
     }
-} // END class ActionErrorHandler
+} // END class ActionErrorHandler extends Object

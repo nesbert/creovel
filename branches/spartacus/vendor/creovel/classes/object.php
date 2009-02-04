@@ -89,7 +89,8 @@ class Object
     }
     
     /**
-     * Get class/object name.
+     * Get class/object name. Child classes can override accordingly to change
+     * __toString() behavior.
      *
      * @return string
      **/

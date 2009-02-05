@@ -47,8 +47,10 @@ abstract class ActiveRecord extends Object implements Iterator
     public $_action_query_;
     
     /**
-     * Load 
+     * Load $data and initialize model.
      *
+     * @param mixed $data ID, array of IDs or array of column name/value pair.
+     * @param array $$connection_properties
      * @return void
      **/
     public function __construct($data = null, $connection_properties = null)
@@ -71,9 +73,9 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Get the current database connection settings based on Creovel mode.
      *
-     * @return void
+     * @return array
      **/
     public function connection_properties()
     {
@@ -172,9 +174,11 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Execute a query by $type and $options.
      *
-     * @return void
+     * @param mixed $type 'all', 'first', ID or array of IDs
+     * @param array $options
+     * @return object
      **/
     public function find($type = 'all', $options = array())
     {
@@ -202,7 +206,8 @@ abstract class ActiveRecord extends Object implements Iterator
     /**
      * Alias for find('all', array());
      *
-     * @return void
+     * @see ActiveRecord::find()
+     * @return object
      **/
     public function all($options = array())
     {
@@ -210,9 +215,10 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Build query string from an $options array.
      *
-     * @param array
+     * @param array $options
+     * @param mixed $type 'all', 'first', ID or array of IDs
      * @return string
      **/
     public function build_query_from_options($options, &$type)
@@ -375,9 +381,10 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Escape using current adapter and single quote $string.
      *
-     * @return void
+     * @param string $string Prep for SQL query
+     * @return string
      **/
     public function quote_value($string)
     {
@@ -385,18 +392,19 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Get class name of current model.
      *
      * @return void
      **/
     public function class_name()
     {
-        return (string) get_class($this);
+        return $this->to_string();
     }
     
     /**
-     * undocumented function
+     * Set and get current table name in use.
      *
+     * @param string $table_name If passed will set the default table name.
      * @return void
      **/
     public function table_name($table_name = '')
@@ -454,7 +462,8 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Execute $qry to get the total number of rows in current table. Must
+     * pass a "SELECT COUNT(*)..." for query.
      *
      * @return void
      **/
@@ -464,7 +473,7 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Execute a query to get the total number of rows in current table.
      *
      * @return void
      **/
@@ -485,9 +494,11 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Return an array of column and values or sets the column and values
+     * if an array is passed
      *
-     * @return void
+     * @param array $data
+     * @return array
      **/
     public function attributes($data = null)
     {
@@ -518,7 +529,7 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Get column name of the primary key.
      *
      * @return void
      **/
@@ -528,9 +539,9 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Get value of the primary key.
      *
-     * @return void
+     * @return integer
      **/
     public function id()
     {
@@ -585,9 +596,9 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Insert current model's values into database.
      *
-     * @return void
+     * @return integer Current result ID.
      **/
     public function insert_row()
     {
@@ -607,9 +618,9 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Update database with the current model's values.
      *
-     * @return void
+     * @return integer Current result ID.
      **/
     public function update_row()
     {
@@ -631,7 +642,7 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Prepares the current columns and values for SQL.
      *
      * @return void
      **/
@@ -676,6 +687,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * Alias to find and sets the $_paging_ object. Default page limit is
      * 10 records.
      *
+     * @see ActiveRecord::find()
      * @return void
      **/
     public function paginate($args = null)
@@ -891,7 +903,8 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Validate wrapper function to call validation $method for a pacticular
+     * field
      *
      * @return void
      **/
@@ -1204,7 +1217,7 @@ abstract class ActiveRecord extends Object implements Iterator
     public function validate_on_update() {}
     
     /**
-     * undocumented function
+     * Load an array of parameters into columns value.
      *
      * @return void
      **/
@@ -1227,7 +1240,7 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Find $id result and load into object.
      *
      * @return void
      **/

@@ -352,7 +352,8 @@ abstract class ActiveRecord extends Object implements Iterator
     public function select_query($query = '', $connection_properties = array())
     {
         if (!is_object($this->_select_query_)) {
-            $this->_select_query_ = $this->establish_connection($connection_properties);
+            $this->_select_query_ =
+                $this->establish_connection($connection_properties);
         }
         
         if ($query) {
@@ -370,7 +371,8 @@ abstract class ActiveRecord extends Object implements Iterator
     public function action_query($query = '', $connection_properties = array())
     {
         if (!is_object($this->_action_query_)) {
-            $this->_action_query_ = $this->establish_connection($connection_properties);
+            $this->_action_query_ =
+                $this->establish_connection($connection_properties);
         }
         
         if ($query) {
@@ -435,7 +437,8 @@ abstract class ActiveRecord extends Object implements Iterator
         static $set;
         if (!$set) {
             $set = true;
-            return $this->_columns_ = $this->select_query()->columns($this->table_name());
+            return $this->_columns_ =
+                $this->select_query()->columns($this->table_name());
         } else {
             return $this->_columns_;
         }
@@ -715,9 +718,9 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Return a table object of current adapter set in database settings.
      *
-     * @return void
+     * @return object
      * @author Nesbert Hidalgo
      **/
     public function table_object($table_name, $db = null)
@@ -730,8 +733,8 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Get a count of total rows from a query if paginating will return total number
-     * of records found from query.
+     * Get a count of total rows from a query if paginating will return
+     * total number of records found from query.
      *
      * @return integer
      **/
@@ -741,9 +744,10 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Returns an associative array that corresponds to the fetched row
+     * or NULL if there are no more rows.
      *
-     * @return void
+     * @return array
      **/
     public function get_row()
     {
@@ -753,8 +757,9 @@ abstract class ActiveRecord extends Object implements Iterator
     // Section: Magic Functions
     
     /**
-     * undocumented function
+     * Magic function to get value of $attribute (column name).
      *
+     * @param string $attribute
      * @return void
      **/
     public function __get($attribute)
@@ -769,8 +774,8 @@ abstract class ActiveRecord extends Object implements Iterator
                     break;
                     
                 default:
-                    throw new Exception("Attribute <em>{$attribute}</em> not found in " .
-                                        "<strong>{$this->class_name()}</strong> model.");
+                    throw new Exception("Attribute <em>{$attribute}</em> not" .
+                    " found in <strong>{$this->class_name()}</strong> model.");
                     break;
             }
             
@@ -780,8 +785,10 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Magic function to set value of $attribute (column name).
      *
+     * @param string $attribute
+     * @param mixed $value
      * @return void
      **/
     public function __set($attribute, $value)
@@ -802,8 +809,8 @@ abstract class ActiveRecord extends Object implements Iterator
                     break;
                     
                 default:
-                    throw new Exception("Attribute <em>{$attribute}</em> not found in ".
-                                "<strong>{$this->class_name()}</strong> model.");
+                    throw new Exception("Attribute <em>{$attribute}</em> not" .
+                    " found in <strong>{$this->class_name()}</strong> model.");
                     break;
             }
             
@@ -867,8 +874,9 @@ abstract class ActiveRecord extends Object implements Iterator
                     } else if (!isset($this->_columns_[$name]) ||$arguments[0] === '') {
                         return;
                     } else {
-                        throw new Exception("Can set options for {$name}. Property <em>{$name}</em>" .
-                            " not found in <strong>{$this->class_name()}</strong> model.");
+                        throw new Exception("Can set options for {$name}." .
+                            " Property <em>{$name}</em> not found in" .
+                            " <strong>{$this->class_name()}</strong> model.");
                     }
                     break;
                 
@@ -884,17 +892,17 @@ abstract class ActiveRecord extends Object implements Iterator
                 case in_string('link_to_', $method):
                 case in_string('paging_', $method):
                     if ( method_exists($this->_paging_, $method) ) {
-                        return call_user_func_array(array($this->_paging_, $method), $arguments);                                                                
+                        return call_user_func_array(array($this->_paging_, $method), $arguments);
                     } else {
-                        throw new Exception("Undefined method <em>{$method}</em> in " .
-                                                "<strong>ActivePager</strong> class.");
+                        throw new Exception("Undefined method " .
+                "<em>{$method}</em> in <strong>ActivePager</strong> class.");
                     }
                     break;
             }
             
             if (!method_exists($this, $method)) {
                 throw new Exception("Method <em>{$method}</em> not found in " .
-                                        "<strong>{$this->class_name()}</strong> model.");
+                    "<strong>{$this->class_name()}</strong> model.");
             }
         } catch (Exception $e) {
             // add to errors
@@ -903,8 +911,8 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Validate wrapper function to call validation $method for a pacticular
-     * field
+     * Validate wrapper function to call validation routine for a particular
+     * field and value.
      *
      * @return void
      **/
@@ -943,8 +951,8 @@ abstract class ActiveRecord extends Object implements Iterator
                         } else {
                             $where_ext = '1';
                         }
-                        // check if a column with that value exists in the current table and is
-                        // not the currentlly loaded row
+                        // check if a column with that value exists in the
+                        // current table and is not the currentlly loaded row
                         $this->action_query(
                             "SELECT * FROM `{$this->table_name()}`
                             WHERE `{$params[0]}` = '{$params[1]}'
@@ -1202,9 +1210,12 @@ abstract class ActiveRecord extends Object implements Iterator
         return $this->select_query()->valid();
     }
     
-    /**
-     * Callback Functions
-     **/
+    /**#@+
+     * Callback Function.
+     *
+     * @access public
+     * @return mixed
+     */ 
     public function after_save() {}
     public function before_save() {}
     public function after_find() {}
@@ -1215,6 +1226,7 @@ abstract class ActiveRecord extends Object implements Iterator
     public function validate() {}
     public function validate_on_create() {}
     public function validate_on_update() {}
+    /**#@-*/
     
     /**
      * Load an array of parameters into columns value.

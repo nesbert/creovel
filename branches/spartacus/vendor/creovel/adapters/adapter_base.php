@@ -8,6 +8,12 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
+ 
+/**
+ * Include adapter interface.
+ */
+require_once 'adapter_interface.php';
+
 abstract class AdapterBase extends Object
 {
     /**

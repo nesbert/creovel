@@ -1,6 +1,6 @@
 <?php
 /**
- * ORM MySQLi Adapter.
+ * ORM MySQL Adapter.
  *
  * @package     Creovel
  * @subpackage  Adapters
@@ -10,11 +10,11 @@
  */
 
 /**
- * Include base class.
+ * Include base and interface classes.
  */
 require_once 'adapter_base.php';
 
-class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
+class Mysql extends AdapterBase implements AdapterInterface, Iterator
 {
     /**
      * Database resource.
@@ -70,20 +70,33 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      **/
     public function connect($db_properties)
     {
+        $server = $db_properties['host'];
+        
+        if (!empty($db_properties['port'])) {
+            $server .= ':' . $db_properties['port'];
+        }
+        
+        if (!empty($db_properties['socket'])) {
+            $server = $db_properties['socket'];
+        }
+        
         // open a connection to a MySQL Server and set db_link
-        $this->db = @new mysqli(
-            $db_properties['host'],
+        $this->db = mysql_connect(
+            $server,
             $db_properties['username'],
-            $db_properties['password'],
-            $db_properties['default'],
-            isset($db_properties['port']) ? $db_properties['port'] : null,
-            isset($db_properties['socket']) ? $db_properties['socket'] : null
+            $db_properties['password']
             );
         
-        if (mysqli_connect_error()) {
-            self::throw_error('Could not connect to database (' .
-                $db_properties['host'] . '.' . $db_properties['default'] .
-                '). ' . mysqli_connect_error() . '.');
+        if (!$this->db) {
+            self::throw_error("Could not connect to server ({$server}). " .
+                                mysql_error() . '.');
+            exit();
+        }
+        
+        if (!empty($db_properties['default'])
+            && !mysql_select_db($db_properties['default'], $this->db)) {
+            self::throw_error("Could not connect to database " .
+                "({$db_properties['default']}). " . mysql_error() . '.');
             exit();
         }
     }
@@ -97,12 +110,12 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
     {
         // close result resource
         if (isset($this->result) && is_resource($this->result)) {
-            $this->result->close();
+            mysql_free_result($this->result);
         }
         
         // close MySQL connection
         if (isset($this->db) && is_resource($this->db)) {
-            $this->db->close();
+            mysql_close($this->db);
         }
     }
     
@@ -121,10 +134,10 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         $this->query = $query;
         
         // send a MySQL query and set query_link resource on success
-        $this->result = $this->db->query($query);
+        $this->result = mysql_query($query, $this->db);
         
         if (!$this->result) {
-            self::throw_error("{$this->db->error} Query \"" .
+            self::throw_error(mysql_error() . " Query \"" .
             str_replace(', ', ",\n", $this->query) . "\" failed.");
             exit();
         }
@@ -138,7 +151,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      **/
     public function get_row()
     {
-        return $this->result->fetch_assoc();
+        return mysql_fetch_assoc($this->result);
     }
     
     /**
@@ -150,13 +163,13 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
     public function columns($table_name)
     {
         // send a DESCRIBE query and set result on success
-        $result = $this->db->query("DESCRIBE `{$table_name}`;");
+        $result = mysql_query("DESCRIBE `{$table_name}`;", $this->db);
         
         // set fields object to return
         $fields = array();
         
         // foreach row in results insert into fields object
-        while ($row = @$result->fetch_assoc()) {
+        while ($row = mysql_fetch_assoc($result)) {
             
             // set fields into an associative array
             foreach ($row as $key => $value) {
@@ -175,7 +188,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
             $fields[$row['Field']] = (object) $temp_arr;
         }
         
-        $result->close();
+        mysql_free_result($result);
         
         return $fields;
     }
@@ -187,7 +200,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      */
     public function total_rows()
     {
-        return $this->result->num_rows;
+        return mysql_num_rows($this->result);
     }
     
     /**
@@ -197,7 +210,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      */
     public function affected_rows()
     {
-        return $this->db->affected_rows;
+        return mysql_affected_rows($this->db);
     }
     
     /**
@@ -207,7 +220,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      */
     public function insert_id()
     {
-        return $this->db->insert_id;
+        return mysql_insert_id($this->db);
     }
     
     /**
@@ -218,7 +231,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      */
     public function escape($string)
     {
-        return $this->db->real_escape_string($string);
+        return mysql_real_escape_string($string);
     }
     
     /**
@@ -233,8 +246,9 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         $this->offset = 0;
         
         // release result resource
-        if (is_resource($this->db) && is_resource($this->result)) {
-            $this->result->close();
+        if (is_resource($this->db)
+            && !empty($this->result) && is_resource($this->result)) {
+            mysql_free_result($this->result);
         }
     }
     
@@ -309,4 +323,4 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
     {
         return $this->offset < $this->total_rows();
     }
-} // END class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
+} // END class Mysql extends AdapterBase implements AdapterInterface, Iterator

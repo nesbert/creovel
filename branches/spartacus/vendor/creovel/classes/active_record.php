@@ -97,45 +97,37 @@ abstract class ActiveRecord extends Object implements Iterator
     
     /**
      * Choose the correct DB adapter to use and sets its properties and
-     * return an db object.
+     * return a database object.
      *
      * @param array $db_properties
      * @return object
      **/
     public function establish_connection($db_properties = null)
     {
-        if (!$db_properties || !is_array($db_properties)) {
-            $db_properties = self::connection_properties();
-        }
-        
-        if (@!$db_properties['table_name']) {
-            #$db_properties['table_name'] = $this->table_name();
-        }
-        
-        $adapter = isset($db_properties['adapter']) ? strtolower($db_properties['adapter']) : 'None';
-        $adapter_path = dirname(dirname(__FILE__)) . DS . 'adapters' . DS;
-        
-        switch ($adapter) {
-            case 'mysql':
-                $adapter = Inflector::classify('mysql');
-                break;
+        try {
             
-            case 'mysql_improved':
-                require_once $adapter_path . 'mysql_improved.php';
-                $adapter = Inflector::classify('mysql_improved');
-                break;
+            if (!$db_properties || !is_array($db_properties)) {
+                $db_properties = self::connection_properties();
+            }
+
+            $adapter_path = CREOVEL_PATH . 'adapters' . DS;
             
-            case 'sqlite':
-                $adapter = Inflector::classify('sqlite');
-                break;
+            // set adapter and include
+            $adapter = strtolower($db_properties['adapter']);
             
-            default:
-                self::throw_error("Unknown database adapter '{$adapter}'. Please check database" .
-                                    " configuration file.");
-                break;
+            if (file_exists($adapter_path . $adapter .'.php')) {
+                require_once $adapter_path . $adapter .'.php';
+                $adapter = Inflector::classify($adapter);
+                return new $adapter($db_properties);
+            } else {
+                throw new Exception("Unknown database adapter '{$adapter}'. " .
+                    "Please check database configuration file.");
+            }
+            
+        } catch (Exception $e) {
+            CREO('error_code', 500);
+            CREO('application_error', $e);
         }
-        
-        return new $adapter($db_properties);
     }
     
     /**
@@ -146,9 +138,8 @@ abstract class ActiveRecord extends Object implements Iterator
     public function throw_error($msg = null)
     {
         if (!$msg) {
-            $msg = 'An error occurred while executing the method ' .
-            "<em>{$this->_action}</em> in the <strong> " . get_class($this) .
-            '</strong>.';
+            $msg = "An error occurred while executing a method " .
+                    "in the <strong>{$this->class_name()}</strong>.";
         }
         CREO('application_error', $msg);
     }
@@ -188,9 +179,8 @@ abstract class ActiveRecord extends Object implements Iterator
         if (isset($options['sql'])) {
             $sql = $options['sql'];
         } else {
-            $sql = $this->build_query_from_options($options, $type);
+            $sql = $this->build_query($options, $type);
         }
-        
         $this->query($sql);
         
         if ($type == 'first') {
@@ -221,7 +211,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param mixed $type 'all', 'first', ID or array of IDs
      * @return string
      **/
-    public function build_query_from_options($options, &$type)
+    public function build_query($options, &$type)
     {
         $where = array();
         $limit = '';
@@ -364,7 +354,7 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Create action query object for INSERTS, UPDATES, DELETES, Counts, etc.
+     * Create action query object for INSERT, UPDATE, DELETE, COUNT, etc.
      *
      * @return object
      **/
@@ -552,7 +542,7 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Save current object to database. If id set update else insert.
      *
      * @return void
      **/
@@ -702,8 +692,9 @@ abstract class ActiveRecord extends Object implements Iterator
         $temp = $args;
         unset($temp['offset']);
         unset($temp['order']);
-        $temp['select'] = "count(*)";
-        $temp['total_records'] = $this->count_by_sql($this->build_query_from_options($temp, $type));
+        $temp['select'] = "COUNT(*)";
+        $temp['total_records'] =
+            $this->count_by_sql($this->build_query($temp, $type));
         $temp = (object) $temp;
         
         // create page object
@@ -712,7 +703,6 @@ abstract class ActiveRecord extends Object implements Iterator
         // update agrs with paging data
         $args['offset'] = $this->_paging_->offset;
         $args['limit'] = $this->_paging_->limit;
-        
         // execute query
         return $this->find($type, $args);
     }
@@ -766,6 +756,11 @@ abstract class ActiveRecord extends Object implements Iterator
     {
         try {
             
+            // if set then get current val
+            if (isset($this->_columns_[$attribute])) {
+                return $this->_columns_[$attribute]->value;
+            }
+            
             $this->columns();
             
             switch (true) {
@@ -794,6 +789,14 @@ abstract class ActiveRecord extends Object implements Iterator
     public function __set($attribute, $value)
     {
         try {
+            
+            // set special properties
+            switch (true) {
+                case $attribute == '_paging_':
+                    return $this->$attribute = $value;
+                    break;
+            }
+            
             // get table columns and set
             $vals = $this->attributes();
             $this->table_columns();
@@ -802,10 +805,6 @@ abstract class ActiveRecord extends Object implements Iterator
             switch (true) {
                 case isset($this->_columns_[$attribute]):
                     return $this->_columns_[$attribute]->value = $value;
-                    break;
-                    
-                case $attribute == '_paging_':
-                    $this->$attribute = $value;
                     break;
                     
                 default:
@@ -821,18 +820,13 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * undocumented function
+     * Magic functions for form helpers, paging and validation.
      *
      * @return void
      **/
     public function __call($method, $arguments)
     {
         try {
-            
-            // get table columns and set
-            $vals = $this->attributes();
-            $this->table_columns();
-            $this->attributes($vals);
             
             // get property name
             $name = str_replace(array(
@@ -867,6 +861,12 @@ abstract class ActiveRecord extends Object implements Iterator
                     break;
                 
                 case in_string('options_for_', $method):
+                
+                    // get table columns and set
+                    $vals = $this->attributes();
+                    $this->table_columns();
+                    $this->attributes($vals);
+                    
                     if ($this->attribute_exists($name) && $arguments[0]) {
                         return $this->_columns_[$name]->options = $arguments[0];
                     } else if (isset($this->_columns_[$name]->options)) {

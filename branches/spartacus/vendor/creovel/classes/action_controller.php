@@ -166,34 +166,34 @@ abstract class ActionController extends Object
             if (!is_array($options)) return false;
             
             // set and unset reserved $options
-            if (isset($options['partial'])) {
+            if (!empty($options['partial'])) {
                 $view = '_'.$options['partial'];
                 unset($options['partial']);
             }
             
-            if ($options['action']) {
+            if (!empty($options['action'])) {
                 $view = $options['action'];
                 unset($options['action']);
             }
             
-            if ($options['render']) {
+            if (!empty($options['render'])) {
                 $view = $options['render'];
                 unset($options['render']);
             }
             
-            if ($options['controller']) {
+            if (!empty($options['controller'])) {
                 $controller = $options['controller'];
                 unset($options['controller']);
             }
             
-            if ($options['layout']) {
+            if (!empty($options['layout'])) {
                 $layout = $options['layout'];
             } else {
                 $layout = false;
             }
             unset($options['layout']);
             
-            if ($options['to_str']) {
+            if (!empty($options['to_str'])) {
                 $return_as_str = true;
             } else {
                 $return_as_str = false;

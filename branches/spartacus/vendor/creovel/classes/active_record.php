@@ -55,6 +55,7 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     public function __construct($data = null, $connection_properties = null)
     {
+        // call Object contruct routine
         parent::__construct();
         
         // load data if passed
@@ -331,7 +332,7 @@ abstract class ActiveRecord extends Object implements Iterator
         if ($limit) $sql .= " LIMIT {$limit}";
         if ($offset) $sql .= " OFFSET {$offset}";
         
-        return $sql;
+        return $sql . ';';
     }
     
     /**
@@ -677,6 +678,21 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Removes slashes from column value.
+     *
+     * @param string $attribute column name.
+     * @return mixed
+     **/
+    public function clean_column_value($attribute)
+    {
+        if (isset($this->_columns_[$attribute]->value)) {
+            return strip_slashes($this->_columns_[$attribute]->value);
+        } else {
+            return '';
+        }
+    }
+    
+    /**
      * Alias to find and sets the $_paging_ object. Default page limit is
      * 10 records.
      *
@@ -690,8 +706,10 @@ abstract class ActiveRecord extends Object implements Iterator
         
         // create temp args
         $temp = $args;
-        unset($temp['offset']);
-        unset($temp['order']);
+        
+        if (isset($temp['offset'])) unset($temp['offset']);
+        if (isset($temp['order'])) unset($temp['order']);
+        if (isset($temp['limit'])) unset($temp['limit']);
         $temp['select'] = "COUNT(*)";
         $temp['total_records'] =
             $this->count_by_sql($this->build_query($temp, $type));
@@ -758,14 +776,14 @@ abstract class ActiveRecord extends Object implements Iterator
             
             // if set then get current val
             if (isset($this->_columns_[$attribute])) {
-                return $this->_columns_[$attribute]->value;
+                return $this->clean_column_value($attribute);
             }
             
             $this->columns();
             
             switch (true) {
                 case isset($this->_columns_[$attribute]):
-                    return $this->_columns_[$attribute]->value;
+                    return $this->clean_column_value($attribute);
                     break;
                     
                 default:
@@ -857,7 +875,7 @@ abstract class ActiveRecord extends Object implements Iterator
                 case in_string('select_countries_tag_for_', $method):
                 case in_string('select_states_tag_for_', $method):
                     $type = str_replace(array('_field_for_' . $name, '_for_' . $name), '', $method);
-                    return $this->html_field($type, $name, $this->$name, $arguments);
+                    return $this->html_field($type, $name, $this->{$name}, $arguments);
                     break;
                 
                 case in_string('options_for_', $method):
@@ -891,7 +909,7 @@ abstract class ActiveRecord extends Object implements Iterator
                 /* Paging Links */
                 case in_string('link_to_', $method):
                 case in_string('paging_', $method):
-                    if ( method_exists($this->_paging_, $method) ) {
+                    if (method_exists($this->_paging_, $method)) {
                         return call_user_func_array(array($this->_paging_, $method), $arguments);
                     } else {
                         throw new Exception("Undefined method " .
@@ -1001,6 +1019,7 @@ abstract class ActiveRecord extends Object implements Iterator
     public function html_field($type, $name, $value, $arguments = array())
     {
         // set form vars
+        $html = '';
         $field_name = strtolower($this->class_name() . "[{$name}]");
         $arguments[0] = isset($arguments[0]) ? $arguments[0] : null;
         @$html_options = $arguments[0];
@@ -1042,6 +1061,8 @@ abstract class ActiveRecord extends Object implements Iterator
             case 'select':
                 if (isset($this->{'options_for_' . $name})) {
                     $options = $this->{'options_for_' . $name};
+                } else if (isset($this->_columns_[$name]->options)) {
+                    $options = $this->_columns_[$name]->options;
                 } else {
                     $options = $this->enum_options($name);
                 }

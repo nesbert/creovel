@@ -95,6 +95,9 @@ function form_errors_count()
  **/
 function error_messages_for($errors = null, $title = null, $description = null)
 {
+    $errors_count = 0;
+    $errors = array();
+    
     if (!$description
         && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'])) {
         $description = $GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION']
@@ -108,8 +111,10 @@ function error_messages_for($errors = null, $title = null, $description = null)
     
     if (is_object($errors)) {
         $model = get_class($errors);
-        $errors_count = $errors->errors->count();
-        $errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
+        if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'])) {
+            $errors_count = count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
+            $errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
+        }
     } else {
         $errors_count = count($errors);
     }

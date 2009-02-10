@@ -47,9 +47,11 @@ function is_email($var)
  **/
 function is_url($var)
 {
-    $var = @parse_url($var);
-    return eregi('^(http|https|ftp)$', $var[scheme])
-            && is_hostname($var[host]) ? true : false;
+    $var = parse_url($var);
+    
+    return (isset($var['scheme']) && isset($var['host']))
+            && eregi('^(http|https|ftp)$', $var['scheme'])
+            && is_hostname($var['host']) ? true : false;
 }
 
 /**

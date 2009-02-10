@@ -307,6 +307,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      **/
     public function valid()
     {
-        return $this->offset < $this->total_rows();
+        return $this->result->data_seek($this->offset);
     }
 } // END class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator

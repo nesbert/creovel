@@ -19,14 +19,6 @@ class Creovel
      **/
     public static function initialize()
     {
-        /*
-        static $booted;
-        
-        // if already intialized return true
-        if ($booted) {
-            return true;
-        }
-        */
         // If not PHP 5 stop.
         if (PHP_VERSION <= 5) {
             die('Creovel requires PHP >= 5!');
@@ -59,10 +51,26 @@ class Creovel
         require_once CREOVEL_PATH . 'helpers/text.php';
         require_once CREOVEL_PATH . 'helpers/validation.php';
         
+        // Include application_helper
+        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
+            require_once $helper;
+        }
+        
         // Include minimum base classes.
         require_once CREOVEL_PATH . 'classes/object.php';
         require_once CREOVEL_PATH . 'classes/inflector.php';
         
+        return true;
+    }
+    
+    /**
+     * Prepare framework for web applications by setting default routes and
+     * set CREOVEL environment variables for web applications.
+     *
+     * @return void
+     **/
+    public function webapp()
+    {
         // Include framework base classes.
         require_once CREOVEL_PATH . 'classes/action_controller.php';
         require_once CREOVEL_PATH . 'classes/action_view.php';
@@ -111,13 +119,6 @@ class Creovel
         
         // Include custom routes
         require_once CONFIG_PATH . 'routes.php';
-        
-        // Include application_helper
-        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
-            require_once $helper;
-        }
-        
-        return true;
     }
     
     /**
@@ -130,12 +131,26 @@ class Creovel
         // initialize framework
         self::initialize();
         
+        // initialize web for web appliocations
+        self::webapp();
+        
         // set event and params
         $events = $events ? $events : self::events();
         $params = $params ? $params : self::params();
         
+        if (isset($params['nested_controller'])
+            && $params['nested_controller']) {
+            $events['nested_controller_path'] = $params['nested_controller'];
+            $controller_path =  $events['nested_controller_path'] . DS .
+                $events['controller'];
+            // remove from params
+            unset($params['nested_controller']);
+        } else {
+            $controller_path = $events['controller'];
+        }
+        
         // include controller
-        self::include_controller((isset($events['nested_controller_path']) && $events['nested_controller_path'] ? $events['nested_controller_path'] . DS : '' ) . $events['controller']);
+        self::include_controller($controller_path);
         
         // create controller object and build the framework
         $controller = humanize($events['controller']) . 'Controller';
@@ -187,8 +202,9 @@ class Creovel
     public function include_controller($controller_path)
     {
         try {
+            
             // include application controller
-            $controllers = array_merge(array('application'), 
+            $controllers = array_merge(array('application'),
                                         explode(DS, $controller_path));
             
             $path = '';

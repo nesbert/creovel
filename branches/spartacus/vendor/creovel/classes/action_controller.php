@@ -100,7 +100,7 @@ abstract class ActionController extends Object
         
         // initialize scope fix
         $this->initialize_parents();
-            
+        
         // call before filter
         $this->before_filter();
         

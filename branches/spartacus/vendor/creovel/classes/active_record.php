@@ -424,7 +424,7 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     public function table_columns()
     {
-        // only describe talbe once
+        // only describe table once
         static $set;
         if (!$set) {
             $set = true;
@@ -549,32 +549,30 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     public function save($validation_routine = 'validate')
     {
+        // call back
         $this->before_save();
         
+        // run validate routine
         $this->validate();
         
         // if error return false
         if ($this->has_errors()) return false;
         
+        // if id update
         if ($this->id()) {
         
             // validate model on every update
             $this->validate_on_update();
             
-            // if error return false
-            #if ($this->errors->has_errors()) return false;
-            
             $ret_val = $this->update_row();
             
         } else {
-        
+            
+            // call back
+            $this->before_create();
+            
             // validate model on every insert
             $this->validate_on_create();
-            
-            // if error return false
-            #if ($this->errors->has_errors()) return false;
-            
-            $this->before_create();
             
             $ret_val = $this->insert_row();
         }
@@ -642,6 +640,9 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     public function prepare_attributes()
     {
+        // get table columns and set values
+        $this->__load_values_into_columns();
+        
         $return = array();
         foreach ($this->_columns_ as $name => $field) {
             switch (true) {
@@ -815,10 +816,8 @@ abstract class ActiveRecord extends Object implements Iterator
                     break;
             }
             
-            // get table columns and set
-            $vals = $this->attributes();
-            $this->table_columns();
-            $this->attributes($vals);
+            // get table columns and set values
+            $this->__load_values_into_columns();
             
             switch (true) {
                 case isset($this->_columns_[$attribute]):
@@ -880,10 +879,8 @@ abstract class ActiveRecord extends Object implements Iterator
                 
                 case in_string('options_for_', $method):
                 
-                    // get table columns and set
-                    $vals = $this->attributes();
-                    $this->table_columns();
-                    $this->attributes($vals);
+                    // get table columns and set values
+                    $this->__load_values_into_columns();
                     
                     if ($this->attribute_exists($name) && $arguments[0]) {
                         return $this->_columns_[$name]->options = $arguments[0];
@@ -1100,6 +1097,19 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Describe current table and load values.
+     *
+     * @return void
+     **/
+    private function __load_values_into_columns()
+    {
+        // get table columns and set
+        $vals = $this->attributes();
+        $this->table_columns();
+        $this->attributes($vals);
+    }
+    
+    /**
      * Check if field is validation errors array.
      *
      * @param string $property
@@ -1256,19 +1266,11 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     private function __load_data($data)
     {
-        if (is_hash($data)) {
-            // id set
-            if (isset($data[$this->primary_key()])) {
-                $this->__load_id($data[$this->primary_key()]);
-            }
-            // insert new vals
-            foreach ($data as $k => $v) {
-                if ($k == $this->primary_key()) continue;
-                $this->_columns_[$k]->value = $v;
-            }
-        } else if ($data) {
+        if (!is_array($data)) {
             $this->__load_id($data);
             $this->attributes($this->select_query()->get_row());
+        } else if ($data) {
+            $this->attributes($data);
         }
     }
     

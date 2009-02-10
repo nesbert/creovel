@@ -9,9 +9,7 @@
  * @author      Nesbert Hidalgo
  */
 
-/**
- * Include base and interface classes.
- */
+// include base and interface classes.
 require_once 'adapter_base.php';
 
 class Mysql extends AdapterBase implements AdapterInterface, Iterator

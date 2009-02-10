@@ -209,7 +209,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * Build query string from an $options array.
      *
      * @param array $options
-     * @param mixed $type 'all', 'first', ID or array of IDs
+     * @param mixed &$type 'all', 'first', ID or array of IDs
      * @return string
      **/
     public function build_query($options, &$type)

@@ -9,9 +9,7 @@
  * @author      Nesbert Hidalgo
  **/
  
-/**
- * Include adapter interface.
- */
+// include adapter interface.
 require_once 'adapter_interface.php';
 
 abstract class AdapterBase extends Object

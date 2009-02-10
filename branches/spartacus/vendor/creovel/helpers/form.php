@@ -523,7 +523,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
 		String.
 */
  
-function select_states_tag($name = 'state', $selected = null, $choices = null, $html_options = null, $select_all = false)
+function select_states_tag($name = 'state', $selected = null, $choices = null, $html_options = null, $country = 'US', $select_all = false)
 {
 	
 	if (isset($choices['abbr'])) {
@@ -547,7 +547,7 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
 	}
 	
 	// intialize states array
-	$state_arr = states();
+	$state_arr = states($country ? $country : 'US');
 	
 	if ($abbr) $state_arr = array_combine(array_keys($state_arr), array_keys($state_arr));
 	

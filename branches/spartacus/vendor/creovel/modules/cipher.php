@@ -1,6 +1,6 @@
 <?php
 /**
- * An wrapper class to mcrypt for encryption/decryption which supports a wide
+ * A wrapper class to mcrypt for encryption/decryption which supports a wide
  * variety of block algorithms.
  *
  * @package     Creovel

@@ -55,12 +55,18 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     public function __construct($data = null, $connection_properties = null)
     {
-        // call Object contruct routine
-        parent::__construct();
+        // model table and set columns
+        $this->columns();
+        
+        // call parent
+        $this->initialize_parents();
+        
+        // initialize_ class vars
+        $this->__initialize_vars();
         
         // load data if passed
         if ($data) {
-            $this->__load_data($data);
+            $this->load($data);
         }
         
         // load connection if passed
@@ -74,11 +80,59 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Load an array of parameters into object or an ID.
+     *
+     * @return void
+     **/
+    final public function load($data)
+    {
+        if (is_hash($data)) {
+            if (isset($data[$this->primary_key()])) {
+                $this->set_id($data[$this->primary_key()]);
+            }
+            $this->attributes($data);
+        } else if ($data) {
+            $this->set_id($data);
+        }
+    }
+    
+    /**
+     * Find $id result and load into object.
+     *
+     * @return void
+     **/
+    final public function set_id($id)
+    {
+        $this->find('first', array(
+                'conditions' => array("`{$this->primary_key()}` = ?", $id)
+            ));
+    }
+    
+    /**
+     * Execute certain processes depending special properties being set. Used
+     * to set "options_for_" and more to come.
+     *
+     * @return void
+     **/
+    final public function __initialize_vars()
+    {
+        $vars = get_class_vars($this);
+        
+        if (count($vars)) foreach ($vars as $var => $vals) {
+            switch (true) {
+                case in_string('options_for_', $var):
+                    $this->{$var}($vals);
+                    break;
+            }
+        }
+    }
+    
+    /**
      * Get the current database connection settings based on Creovel mode.
      *
      * @return array
      **/
-    public function connection_properties()
+    final public function connection_properties()
     {
         switch (strtoupper(CREO('mode'))) {
             case 'PRODUCTION':
@@ -103,14 +157,14 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param array $db_properties
      * @return object
      **/
-    public function establish_connection($db_properties = null)
+    final public function establish_connection($db_properties = null)
     {
         try {
             
             if (!$db_properties || !is_array($db_properties)) {
                 $db_properties = self::connection_properties();
             }
-
+            
             $adapter_path = CREOVEL_PATH . 'adapters' . DS;
             
             // set adapter and include
@@ -150,7 +204,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function query($sql)
+    final public function query($sql)
     {
         $this->select_query($sql);
     }
@@ -160,7 +214,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function find_by_sql($sql, $type = 'all')
+    final public function find_by_sql($sql, $type = 'all')
     {
         return $this->find($type, array('sql' => $sql));
     }
@@ -172,7 +226,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param array $options
      * @return object
      **/
-    public function find($type = 'all', $options = array())
+    final public function find($type = 'all', $options = array())
     {
         // before find call-back
         $this->before_find();
@@ -200,7 +254,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @see ActiveRecord::find()
      * @return object
      **/
-    public function all($options = array())
+    final public function all($options = array())
     {
         return $this->find('all', $options);
     }
@@ -212,7 +266,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param mixed &$type 'all', 'first', ID or array of IDs
      * @return string
      **/
-    public function build_query($options, &$type)
+    final public function build_query($options, &$type)
     {
         $where = array();
         $limit = '';
@@ -340,7 +394,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return object
      **/
-    public function select_query($query = '', $connection_properties = array())
+    final public function select_query($query = '', $connection_properties = array())
     {
         if (!is_object($this->_select_query_)) {
             $this->_select_query_ =
@@ -359,7 +413,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return object
      **/
-    public function action_query($query = '', $connection_properties = array())
+    final public function action_query($query = '', $connection_properties = array())
     {
         if (!is_object($this->_action_query_)) {
             $this->_action_query_ =
@@ -379,7 +433,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param string $string Prep for SQL query
      * @return string
      **/
-    public function quote_value($string)
+    final public function quote_value($string)
     {
         return "'" . $this->select_query()->escape($string) . "'";
     }
@@ -389,7 +443,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function class_name()
+    final public function class_name()
     {
         return $this->to_string();
     }
@@ -400,7 +454,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param string $table_name If passed will set the default table name.
      * @return void
      **/
-    public function table_name($table_name = '')
+    final public function table_name($table_name = '')
     {
         return $this->_table_name_ = $table_name ? $table_name :
             ($this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name()));
@@ -411,7 +465,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function columns($columns = array())
+    final public function columns($columns = array())
     {
         return $this->_columns_ = count($columns) ? $columns :
             (count($this->_columns_) ? $this->_columns_ : $this->table_columns());
@@ -422,7 +476,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function table_columns()
+    final public function table_columns()
     {
         // only describe table once
         static $set;
@@ -440,7 +494,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return array
      **/
-    public function column_names()
+    final public function column_names()
     {
         return array_keys($this->columns());
     }
@@ -450,7 +504,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function columns_hash()
+    final public function columns_hash()
     {
         return (object) $this->columns();
     }
@@ -461,7 +515,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function count_by_sql($qry)
+    final public function count_by_sql($qry)
     {
         return (int) current($this->action_query($qry)->get_row());
     }
@@ -471,7 +525,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function count()
+    final public function count()
     {
         return $this->count_by_sql("SELECT COUNT(*) FROM `{$this->table_name()}`;");
     }
@@ -482,7 +536,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function attribute_exists($attribute)
+    final public function attribute_exists($attribute)
     {
         return isset($this->_columns_[$attribute]);
     }
@@ -494,7 +548,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param array $data
      * @return array
      **/
-    public function attributes($data = null)
+    final public function attributes($data = null)
     {
         // set column properties
         if (is_hash($data)) {
@@ -517,7 +571,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function has_attribute($attribute)
+    final public function has_attribute($attribute)
     {
         return array_key_exists($attribute, $this->columns());
     }
@@ -527,7 +581,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function primary_key()
+    final public function primary_key()
     {
         return $this->_primary_key_;
     }
@@ -537,7 +591,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return integer
      **/
-    public function id()
+    final public function id()
     {
         return $this->{$this->primary_key()};
     }
@@ -547,7 +601,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function save($validation_routine = 'validate')
+    final public function save($validation_routine = 'validate')
     {
         // call back
         $this->before_save();
@@ -592,11 +646,18 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return integer Current result ID.
      **/
-    public function insert_row()
+    final public function insert_row()
     {
+        $attributes = $this->prepare_attributes();
+        
+        // set created at
+        if (isset($attributes['created_at'])) {
+            $attributes['created_at'] = datetime($attributes['created_at']);
+        }
+        
         // sanitize values
         $values = array();
-        foreach ($this->prepare_attributes() as $k => $v) {
+        foreach ($attributes as $k => $v) {
             $values[$k] = $this->quote_value($v);
         }
         
@@ -614,11 +675,18 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return integer Current result ID.
      **/
-    public function update_row()
+    final public function update_row()
     {
+        $attributes = $this->prepare_attributes();
+        
+        // set updated at
+        if (isset($attributes['updated_at'])) {
+            $attributes['updated_at'] = datetime();
+        }
+        
         // sanitize values and prep set string
         $set = array();
-        foreach ($this->prepare_attributes() as $k => $v) {
+        foreach ($attributes as $k => $v) {
             if ($this->primary_key() == $k) continue;
             $set[] = "`$k` = {$this->quote_value($v)}";
         }
@@ -638,22 +706,11 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function prepare_attributes()
+    final public function prepare_attributes()
     {
-        // get table columns and set values
-        $this->__load_values_into_columns();
-        
         $return = array();
         foreach ($this->_columns_ as $name => $field) {
             switch (true) {
-                case $name == 'created_at' && !$this->id():
-                    $return[$name] = datetime($field->value);
-                    break;
-                
-                case $name == 'updated_at':
-                    $return[$name] = datetime();
-                    break;
-                
                 case is_array($field->value):
                     if ($field->type == 'datetime') {
                         $return[$name] = datetime($field->value);
@@ -684,7 +741,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param string $attribute column name.
      * @return mixed
      **/
-    public function clean_column_value($attribute)
+    final public function clean_column_value($attribute)
     {
         if (isset($this->_columns_[$attribute]->value)) {
             return strip_slashes($this->_columns_[$attribute]->value);
@@ -700,7 +757,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @see ActiveRecord::find()
      * @return void
      **/
-    public function paginate($args = null)
+    final public function paginate($args = null)
     {
         // search type
         $type = 'all';
@@ -732,7 +789,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @return object
      * @author Nesbert Hidalgo
      **/
-    public function table_object($table_name, $db = null)
+    final public function table_object($table_name, $db = null)
     {
         if (@!$db) {
             $db = self::connection_properties();
@@ -747,7 +804,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return integer
      **/
-    public function total_rows()
+    final public function total_rows()
     {
         return isset($this->_paging_) ? $this->_paging_->total_records() : $this->select_query()->total_rows();
     }
@@ -758,7 +815,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return array
      **/
-    public function get_row()
+    final public function get_row()
     {
         return $this->select_query()->get_row();
     }
@@ -774,13 +831,6 @@ abstract class ActiveRecord extends Object implements Iterator
     public function __get($attribute)
     {
         try {
-            
-            // if set then get current val
-            if (isset($this->_columns_[$attribute])) {
-                return $this->clean_column_value($attribute);
-            }
-            
-            $this->columns();
             
             switch (true) {
                 case isset($this->_columns_[$attribute]):
@@ -809,17 +859,11 @@ abstract class ActiveRecord extends Object implements Iterator
     {
         try {
             
-            // set special properties
             switch (true) {
                 case $attribute == '_paging_':
-                    return $this->$attribute = $value;
+                    return $this->{$attribute} = $value;
                     break;
-            }
-            
-            // get table columns and set values
-            $this->__load_values_into_columns();
-            
-            switch (true) {
+                    
                 case isset($this->_columns_[$attribute]):
                     return $this->_columns_[$attribute]->value = $value;
                     break;
@@ -878,18 +922,10 @@ abstract class ActiveRecord extends Object implements Iterator
                     break;
                 
                 case in_string('options_for_', $method):
-                
-                    // get table columns and set values
-                    $this->__load_values_into_columns();
-                    
-                    if ($this->attribute_exists($name) && $arguments[0]) {
+                    if (is_array($arguments[0])) {
                         return $this->_columns_[$name]->options = $arguments[0];
-                    } else if (isset($this->_columns_[$name]->options)) {
-                        return $this->_columns_[$name]->options;
-                    } else if (!isset($this->_columns_[$name]) ||$arguments[0] === '') {
-                        return;
                     } else {
-                        throw new Exception("Can set options for {$name}." .
+                        throw new Exception("Unable to set options for {$name}." .
                             " Property <em>{$name}</em> not found in" .
                             " <strong>{$this->class_name()}</strong> model.");
                     }
@@ -1013,7 +1049,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param array $arguments
      * @return string
      **/
-    public function html_field($type, $name, $value, $arguments = array())
+    final public function html_field($type, $name, $value, $arguments = array())
     {
         // set form vars
         $html = '';
@@ -1069,44 +1105,30 @@ abstract class ActiveRecord extends Object implements Iterator
                 break;
             
             case 'select_countries_tag':
-                $html_options = $arguments[0];
-                $arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
-                $html = select_countries_tag(
-                                $field_name,
-                                $value,
-                                $this->{'options_for_' . $name}(),
-                                $html_options,
-                                $arguments[1]
-                                );
-                break;
-            
             case 'select_states_tag':
                 $html_options = $arguments[0];
                 $arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
-                $html = select_states_tag(
-                                $field_name,
-                                $value,
-                                $this->{'options_for_' . $name}(),
-                                $html_options,
-                                $arguments[1]
-                                );
+                $options = isset($this->{'options_for_' . $name})
+                                ? $this->{'options_for_' . $name}
+                                : array();
+                
+                if ($type == 'select_states_tag') {
+                    $func = 'select_states_tag';
+                } else {
+                    $func = 'select_countries_tag';
+                }
+                
+                $html = $func(
+                            $field_name,
+                            $value,
+                            $options,
+                            $html_options,
+                            $arguments[1]
+                            );
                 break;
         }
         
         return $html;
-    }
-    
-    /**
-     * Describe current table and load values.
-     *
-     * @return void
-     **/
-    private function __load_values_into_columns()
-    {
-        // get table columns and set
-        $vals = $this->attributes();
-        $this->table_columns();
-        $this->attributes($vals);
     }
     
     /**
@@ -1116,7 +1138,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param string $return_text_on_true
      * @return boolean
      **/
-    public function has_error($property, $return_text_on_true = '')
+    final public function has_error($property, $return_text_on_true = '')
     {
         if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'][$property])) {
             return $return_text_on_true ? $return_text_on_true : true;
@@ -1131,9 +1153,23 @@ abstract class ActiveRecord extends Object implements Iterator
      * @param string $property
      * @return boolean
      **/
-    public function has_errors()
+    final public function has_errors()
     {
         return @count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
+    }
+    
+    /**
+     * Check if model passes validation routine.
+     *
+     * @return boolean
+     **/
+    final public function validates()
+    {
+        // run validate routine
+        $this->validate();
+        
+        // if error return false
+        return !$this->has_errors();
     }
     
     /**
@@ -1141,7 +1177,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function enum_options($property)
+    final public function enum_options($property)
     {
         if (in_string('enum(', $this->_columns_[$property]->type)) {
             $options = explode("','", str_replace(
@@ -1166,7 +1202,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function reset()
+    final public function reset()
     {
         $this->select_query()->reset();
     }
@@ -1176,7 +1212,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    public function rewind()
+    final public function rewind()
     {
         #echo $this->select_query()->key() . '-> rewind<br/>';
         return $this->select_query()->rewind();
@@ -1187,7 +1223,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return object
      **/
-    public function current()
+    final public function current()
     {
         #echo $this->select_query()->key() . '-> current<br/>';
         $this->attributes($this->select_query()->current());
@@ -1199,7 +1235,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return integer
      **/
-    public function key()
+    final public function key()
     {
         #echo $this->select_query()->key() . '-> key<br/>';
         return $this->select_query()->key();
@@ -1210,7 +1246,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return object
      **/
-    public function next()
+    final public function next()
     {
         #echo $this->select_query()->key() . '-> next<br/>';
         $this->select_query()->next();
@@ -1222,7 +1258,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return object
      **/
-    public function prev()
+    final public function prev()
     {
         #echo $this->select_query()->key() . '-> prev<br/>';
         $this->select_query()->prev();
@@ -1235,7 +1271,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return boolean
      **/
-    public function valid()
+    final public function valid()
     {
         #echo $this->select_query()->key() . '-> valid<br/>';
         return $this->select_query()->valid();
@@ -1258,31 +1294,4 @@ abstract class ActiveRecord extends Object implements Iterator
     public function validate_on_create() {}
     public function validate_on_update() {}
     /**#@-*/
-    
-    /**
-     * Load an array of parameters into columns value.
-     *
-     * @return void
-     **/
-    private function __load_data($data)
-    {
-        if (!is_array($data)) {
-            $this->__load_id($data);
-            $this->attributes($this->select_query()->get_row());
-        } else if ($data) {
-            $this->attributes($data);
-        }
-    }
-    
-    /**
-     * Find $id result and load into object.
-     *
-     * @return void
-     **/
-    private function __load_id($id)
-    {
-        $this->find('first', array(
-                'conditions' => array("`{$this->primary_key()}` = ?", $id)
-            ));
-    }
 } // END abstract class ActiveRecord extends Object implements Iterator

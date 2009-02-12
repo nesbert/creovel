@@ -161,7 +161,9 @@ class Prototype extends Object
      **/
     public function to_string()
     {
-        return (string) $this->_attribites_->value;
+        return isset($this->_attribites_->value)
+                ? (string) $this->_attribites_->value
+                : '';
     }
     
     /**

@@ -50,7 +50,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * Load $data and initialize model.
      *
      * @param mixed $data ID, array of IDs or array of column name/value pair.
-     * @param array $$connection_properties
+     * @param array $connection_properties
      * @return void
      **/
     public function __construct($data = null, $connection_properties = null)
@@ -465,28 +465,15 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    final public function columns($columns = array())
-    {
-        return $this->_columns_ = count($columns) ? $columns :
-            (count($this->_columns_) ? $this->_columns_ : $this->table_columns());
-    }
-    
-    /**
-     * Describe column details with DB object.
-     *
-     * @return void
-     **/
-    final public function table_columns()
+    final public function columns()
     {
         // only describe table once
-        static $set;
-        if (!$set) {
-            $set = true;
-            return $this->_columns_ =
+        if (empty($this->_columns_)) {
+            $this->_columns_ =
                 $this->select_query()->columns($this->table_name());
-        } else {
-            return $this->_columns_;
         }
+        
+        return $this->_columns_;
     }
     
     /**
@@ -648,16 +635,14 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function insert_row()
     {
-        $attributes = $this->prepare_attributes();
-        
         // set created at
-        if (isset($attributes['created_at'])) {
-            $attributes['created_at'] = datetime($attributes['created_at']);
+        if ($this->attribute_exists('created_at')) {
+            $this->created_at = datetime($this->created_at);
         }
         
         // sanitize values
         $values = array();
-        foreach ($attributes as $k => $v) {
+        foreach ($this->prepare_attributes() as $k => $v) {
             $values[$k] = $this->quote_value($v);
         }
         
@@ -677,16 +662,14 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function update_row()
     {
-        $attributes = $this->prepare_attributes();
-        
         // set updated at
-        if (isset($attributes['updated_at'])) {
-            $attributes['updated_at'] = datetime();
+        if ($this->attribute_exists('updated_at')) {
+            $this->updated_at = datetime();
         }
         
         // sanitize values and prep set string
         $set = array();
-        foreach ($attributes as $k => $v) {
+        foreach ($this->prepare_attributes() as $k => $v) {
             if ($this->primary_key() == $k) continue;
             $set[] = "`$k` = {$this->quote_value($v)}";
         }
@@ -765,16 +748,17 @@ abstract class ActiveRecord extends Object implements Iterator
         // create temp args
         $temp = $args;
         
+        // set options for query count
         if (isset($temp['offset'])) unset($temp['offset']);
         if (isset($temp['order'])) unset($temp['order']);
         if (isset($temp['limit'])) unset($temp['limit']);
         $temp['select'] = "COUNT(*)";
-        $temp['total_records'] =
-            $this->count_by_sql($this->build_query($temp, $type));
-        $temp = (object) $temp;
+        $qry = $this->build_query($temp, $type);
+        // use select object to reduce connections
+        $temp['total_records'] = current($this->select_query($qry)->get_row());
         
         // create page object
-        $this->_paging_ = new ActivePager($temp);
+        $this->_paging_ = new ActivePager((object) $temp);
         
         // update agrs with paging data
         $args['offset'] = $this->_paging_->offset;

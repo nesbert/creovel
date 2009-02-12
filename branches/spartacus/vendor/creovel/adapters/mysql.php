@@ -107,9 +107,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
     public function disconnect()
     {
         // close result resource
-        if (isset($this->result) && is_resource($this->result)) {
-            mysql_free_result($this->result);
-        }
+        $this->close();
         
         // close MySQL connection
         if (isset($this->db) && is_resource($this->db)) {
@@ -142,6 +140,18 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
     }
     
     /**
+     * Free result resource.
+     *
+     * @return void
+     **/
+    public function close()
+    {
+        if (isset($this->result) && is_resource($this->result)) {
+            mysql_free_result($this->result);
+        }
+    }
+    
+    /**
      * Returns an associative array that corresponds to the fetched row
      * or NULL if there are no more rows.
      *
@@ -161,7 +171,15 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
     public function columns($table_name)
     {
         // send a DESCRIBE query and set result on success
-        $result = mysql_query("DESCRIBE `{$table_name}`;", $this->db);
+        $sql = "DESCRIBE `{$table_name}`;";
+        $result = mysql_query($sql, $this->db);
+        
+        // no result throw error
+        if (!$result) {
+            self::throw_error(mysql_error() . " Query \"" .
+            str_replace(', ', ",\n", $sql) . "\" failed.");
+            exit();
+        }
         
         // set fields object to return
         $fields = array();

@@ -15,7 +15,7 @@ interface AdapterInterface
      *
      * <code>
      * $db_properties['host']       = 'localhost';
-     * $db_properties['database']   = 'database';
+     * $db_properties['default']    = 'database';
      * $db_properties['username']   = 'username';
      * $db_properties['password']   = 'password';
      * $db_properties['port']       = 'port';
@@ -41,6 +41,13 @@ interface AdapterInterface
      * @return void
      **/
     public function query($query);
+    
+    /**
+     * Free result resource.
+     *
+     * @return void
+     **/
+    public function close();
     
     /**
      * Returns an associative array that corresponds to the fetched row

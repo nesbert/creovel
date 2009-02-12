@@ -786,16 +786,15 @@ abstract class ActiveRecord extends Object implements Iterator
     /**
      * Return a table object of current adapter set in database settings.
      *
+     * @param string $table_name
+     * @param array $db array of DB connecting settings
      * @return object
-     * @author Nesbert Hidalgo
      **/
-    final public function table_object($table_name, $db = null)
+    final public function table_object($table_name = '', $db = null)
     {
-        if (@!$db) {
-            $db = self::connection_properties();
-        }
-        $db['table_name'] = $table_name;
-        return self::establish_connection($db)->db;
+        if (!is_array($db)) $db = self::connection_properties();
+        if ($table_name) $db['table_name'] = $table_name;
+        return self::establish_connection($db);
     }
     
     /**
@@ -806,7 +805,9 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function total_rows()
     {
-        return isset($this->_paging_) ? $this->_paging_->total_records() : $this->select_query()->total_rows();
+        return isset($this->_paging_)
+            ? $this->_paging_->total_records()
+            : $this->select_query()->total_rows();
     }
     
     /**

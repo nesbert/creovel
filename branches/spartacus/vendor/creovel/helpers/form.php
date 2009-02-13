@@ -65,7 +65,7 @@ function form_has_errors()
  **/
 function form_errors_count()
 {
-    return count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
+    return (int) @count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
 }
 
 /**
@@ -95,6 +95,10 @@ function form_errors_count()
  **/
 function error_messages_for($errors = null, $title = null, $description = null)
 {
+    if (is_string($errors)) {
+        $title = $errors;
+    }
+    
     $errors_count = 0;
     $errors = array();
     

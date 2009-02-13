@@ -146,11 +146,9 @@ function add_slashes($data)
         
         // get vars from object -> clean data -> update and return object
         case is_object($data):
-            $clean_values = $this->strip_slashes(get_object_vars($data));
+            $clean_values = get_object_vars($data);
             foreach ($clean_values as $name => $value) {
-                $data->$name = is_array($value)
-                                ? array_map('addslashes', $value)
-                                : addslashes(trim($value));
+                $data->{$name} = add_slashes(trim($value));
             }
             $clean_values = $data;
             break;
@@ -186,11 +184,9 @@ function strip_slashes($data)
         
         // get vars from object -> clean data -> update and return object
         case is_object($data):
-            $clean_values = $this->strip_slashes(get_object_vars($data));
+            $clean_values = get_object_vars($data);
             foreach ($clean_values as $name => $value) {
-                $data->$name = is_array($value)
-                                        ? array_map('strip_slashes', $value)
-                                        : stripslashes(trim($value));
+                $data->{$name} = strip_slashes(trim($value));
             }
             $clean_values = $data;
             break;

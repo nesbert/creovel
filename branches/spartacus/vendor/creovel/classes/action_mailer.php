@@ -112,7 +112,7 @@ abstract class ActionMailer extends Object
             call_user_func_array(array($this, $this->_action), $args);
         } else {
             $this->throw_error("Undefined action '{$this->_action}' in " .
-                "<strong>{$this->_mailer_name}</strong>");
+                "<strong>{$this->to_string()}</strong>.");
         }
     }
     
@@ -167,7 +167,8 @@ abstract class ActionMailer extends Object
                     $this->get_email_address($this->get_recipients()),
                     $this->get_subject(),
                     $this->get_content(),
-                    $this->get_headers());
+                    $this->get_headers()
+                    );
                 break;
                 
             case $this->delivery_method == 'test':
@@ -328,6 +329,23 @@ abstract class ActionMailer extends Object
                 $this->_action . '.txt'
                 );
             $return = $text ? $text : $this->get_html();
+            $return = preg_split('~</head>~', $return);
+            
+            // remove head
+            if (count($return)) {
+                $return = $return[1];
+            } else {
+                $return = $return[0];
+            }
+            
+            // clean empty lines and extra spaces
+            $lines = split("\n", $return);
+            $return = '';
+            foreach ($lines as $line) {
+                if (empty($line)) continue;
+                $return .= trim($line) . "\n\n";
+            }
+            
         }
         
         $return = preg_replace(
@@ -335,7 +353,8 @@ abstract class ActionMailer extends Object
                     '$4 ($2)',
                     $return
                     );
-        return strip_tags($return);
+        
+        return trim(str_replace("\n\n\n", "\n\n", strip_tags($return)));
     }
     
     /**

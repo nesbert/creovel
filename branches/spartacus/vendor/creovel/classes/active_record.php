@@ -346,34 +346,7 @@ abstract class ActiveRecord extends Object implements Iterator
         
         // Prepare conditions array.
         if ($options['conditions']) {
-            // 1. hash condidtions
-            if (is_hash($options['conditions'])) {
-                $conditions = array();
-                foreach ($options['conditions'] as $k => $v) {
-                    $conditions[] = "`{$this->table_name()}`.`{$k}` = {$this->quote_value($v)}";
-                }
-                $where[] = '(' . implode(' AND ', $conditions) . ')';
-                
-            // 2. array condidtions
-            } elseif (is_array($options['conditions']) && in_string('?', $options['conditions'][0])) {
-                $str = array_shift($options['conditions']);
-                foreach ($options['conditions'] as $v) {
-                    $str = preg_replace('/\?/', $this->quote_value($v), $str, 1);
-                }
-                $where[] = "({$str})";
-            
-            // 3. array with symbols
-            } elseif (is_array($options['conditions']) && in_string(':', $options['conditions'][0])) {
-                $str = $options['conditions'][0];
-                foreach ($options['conditions'][1] as $k => $v) {
-                    $str = str_replace(':' . $k, $this->quote_value($v), $str);
-                }
-                $where[] = "({$str})";
-                
-            // 4. string conditions UNSAFE!
-            } else {
-                $where[] = "({$options['conditions']})";
-            }
+            $where[] = $this->build_where($options['conditions']);
         }
         
         // create sql query
@@ -387,6 +360,48 @@ abstract class ActiveRecord extends Object implements Iterator
         if ($offset) $sql .= " OFFSET {$offset}";
         
         return $sql . ';';
+    }
+    
+    /**
+     * Builds where SQL string by the conditions array passed.
+     *
+     * @param mixed $where_conditions
+     * @return void
+     **/
+    final public function build_where($where_conditions)
+    {
+        $where = '';
+        
+        // 1. hash condidtions
+        if (is_hash($where_conditions)) {
+            $conditions = array();
+            foreach ($where_conditions as $k => $v) {
+                $conditions[] = "`{$this->table_name()}`.`{$k}` = {$this->quote_value($v)}";
+            }
+            $where = '(' . implode(' AND ', $conditions) . ')';
+            
+        // 2. array condidtions
+        } elseif (is_array($where_conditions) && in_string('?', $where_conditions[0])) {
+            $str = array_shift($where_conditions);
+            foreach ($where_conditions as $v) {
+                $str = preg_replace('/\?/', $this->quote_value($v), $str, 1);
+            }
+            $where = "({$str})";
+        
+        // 3. array with symbols
+        } elseif (is_array($where_conditions) && in_string(':', $where_conditions[0])) {
+            $str = $where_conditions[0];
+            foreach ($where_conditions[1] as $k => $v) {
+                $str = str_replace(':' . $k, $this->quote_value($v), $str);
+            }
+            $where = "({$str})";
+            
+        // 4. string conditions UNSAFE!
+        } else {
+            $where = "({$where_conditions})";
+        }
+        
+        return $where;
     }
     
     /**
@@ -435,7 +450,7 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function quote_value($string)
     {
-        return "'" . $this->select_query()->escape($string) . "'";
+        return "'" . $this->select_query()->escape((string) $string) . "'";
     }
     
     /**
@@ -734,6 +749,56 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Deletes current object loaded or records that match the $conditions
+     * passed. Returns the number of records affected.
+     
+     * <code>
+     * $model->destroy();
+     * DELETE FROM `users` WHERE `users`.`id` = '2' LIMIT 1;
+     *
+     * $model->destroy(array('state' => 'NV', 'zip' => 89107));
+     * DELETE FROM `users` WHERE (`users`.`state` = 'NV' AND `users`.`zip` = '89107');
+     *
+     * $model->destroy(array(
+     *     '(state = ? OR other_state = ?) AND zip = ?',
+     *     'NV', 'NV', 89107
+     *     ));
+     * DELETE FROM `users` WHERE ((state = 'NV' OR other_state = 'NV') AND zip = '89107');
+     *
+     * $model->destroy(array(
+     *   '(state = :state OR other_state = :state) AND zip = :zip',
+     *   array(
+     *       'state' => 'NV',
+     *       'zip' => 89107
+     *       )
+     *   ));
+     * DELETE FROM `users` WHERE ((state = 'NV' OR other_state = 'NV') AND zip = '89107');
+     * </code>
+     *
+     * @return integer
+     **/
+    final public function destroy($conditions = '')
+    {
+        if ($conditions) {
+            $where = $this->build_where($conditions);
+        } else {
+            $where = "`{$this->table_name()}`.`{$this->primary_key()}` = '{$this->id()}' LIMIT 1";
+        }
+        
+        // before delete call-back
+        $this->before_delete();
+        
+        // delete record(s) and return affected rows
+        $this->action_query("DELETE FROM `{$this->table_name()}` WHERE {$where};");
+        $affected_rows = $this->action_query()->affected_rows();
+        
+        // after delete call-back
+        $this->after_delete();
+        
+        return $affected_rows;
+    }
+    
+    /**
      * Alias to find and sets the $_paging_ object. Default page limit is
      * 10 records.
      *
@@ -888,7 +953,8 @@ abstract class ActiveRecord extends Object implements Iterator
                             'hidden_field_for_',
                             'password_field_for_',
                             'options_for_',
-                            '_has_error'
+                            '_has_error',
+                            'find_by_'
                             ), '', $method);
             $arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
             
@@ -918,6 +984,19 @@ abstract class ActiveRecord extends Object implements Iterator
                 
                 case in_string('_has_error', $method):
                     return $this->has_error($name, $arguments[0]);
+                    break;
+                
+                case in_string('find_by_', $method):
+                    $return = $this->find('all', array('conditions' => array(
+                        $name => $arguments[0]
+                        )));
+                    
+                    // if one record load the first
+                    if ($this->total_rows() == 1) {
+                        $this->current();
+                    }
+                    
+                    return $return;
                     break;
                 
                 case in_string('validates_', $method):

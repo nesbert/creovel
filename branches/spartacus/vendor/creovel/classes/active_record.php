@@ -1341,6 +1341,16 @@ abstract class ActiveRecord extends Object implements Iterator
         return $this->select_query()->valid();
     }
     
+    /**
+     * Check if this object's results is paged.
+     
+     * @return boolean
+     **/
+    final function is_paged()
+    {
+        return isset($this->_paging_);
+    }
+    
     /**#@+
      * Callback Function.
      *

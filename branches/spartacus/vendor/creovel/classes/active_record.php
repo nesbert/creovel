@@ -123,6 +123,10 @@ abstract class ActiveRecord extends Object implements Iterator
                 case in_string('options_for_', $var):
                     $this->{$var}($vals);
                     break;
+                    
+                case starts_with('has_many', $var):
+                    $this->has_many($vals);
+                    break;
             }
         }
     }
@@ -775,6 +779,7 @@ abstract class ActiveRecord extends Object implements Iterator
      * DELETE FROM `users` WHERE ((state = 'NV' OR other_state = 'NV') AND zip = '89107');
      * </code>
      *
+     * @param mixed $conditions
      * @return integer
      **/
     final public function destroy($conditions = '')
@@ -785,12 +790,29 @@ abstract class ActiveRecord extends Object implements Iterator
             $where = "`{$this->table_name()}`.`{$this->primary_key()}` = '{$this->id()}' LIMIT 1";
         }
         
-        // before delete call-back
-        $this->before_delete();
-        
         // delete record(s) and return affected rows
         $this->action_query("DELETE FROM `{$this->table_name()}` WHERE {$where};");
         $affected_rows = $this->action_query()->affected_rows();
+        
+        return $affected_rows;
+    }
+    
+    /**
+     * Deletes current object loaded or records that match the $conditions
+     * passed. Similar to destroy() except executes the before_delete() and
+     * after_delete() call back functions. Returns the number of
+     * records affected.
+     *
+     * @param mixed $conditions
+     * @return integer
+     * @see ActiveRecord::destroy()
+     **/
+    final public function delete($conditions = '')
+    {
+        // before delete call-back
+        $this->before_delete();
+        
+        $affected_rows = $this->destroy($conditions);
         
         // after delete call-back
         $this->after_delete();
@@ -911,6 +933,7 @@ abstract class ActiveRecord extends Object implements Iterator
             
             switch (true) {
                 case $attribute == '_paging_':
+                case $attribute == '_relationships_':
                     return $this->{$attribute} = $value;
                     break;
                     
@@ -954,7 +977,9 @@ abstract class ActiveRecord extends Object implements Iterator
                             'password_field_for_',
                             'options_for_',
                             '_has_error',
-                            'find_by_'
+                            'find_by_',
+                            'date_',
+                            'time_'
                             ), '', $method);
             $arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
             
@@ -968,17 +993,38 @@ abstract class ActiveRecord extends Object implements Iterator
                 case in_string('radio_button_for_', $method):
                 case in_string('select_countries_tag_for_', $method):
                 case in_string('select_states_tag_for_', $method):
-                    $type = str_replace(array('_field_for_' . $name, '_for_' . $name), '', $method);
+                case in_string('date_time_select_for_', $method):
+                    $type = str_replace(
+                                array(
+                                    '_field_for_' . $name,
+                                    '_for_' . $name
+                                    ),
+                                '',
+                                $method);
                     return $this->html_field($type, $name, $this->{$name}, $arguments);
                     break;
                 
                 case in_string('options_for_', $method):
-                    if (is_array($arguments[0])) {
-                        return $this->_columns_[$name]->options = $arguments[0];
-                    } else {
-                        throw new Exception("Unable to set options for {$name}." .
-                            " Property <em>{$name}</em> not found in" .
-                            " <strong>{$this->class_name()}</strong> model.");
+                    switch (true) {
+                        // set options for ENUM field types
+                        case isset($this->_columns_[$name]->type)
+                            && in_string('enum(', $this->_columns_[$name]->type):
+                        // if options for property is set
+                        case isset($this->_columns_[$name]->options):
+                            $type = 'select';
+                            return $this->html_field($type, $name, $this->{$name}, $arguments);
+                            break;
+                        
+                        // options_for_* called for existing field
+                        case isset($this->_columns_[$name]) && is_array($arguments[0]):
+                            return $this->_columns_[$name]->options = $arguments[0];
+                            break;
+                            
+                        default:
+                            throw new Exception("Unable to set options for {$name}." .
+                                " Property <em>{$name}</em> not found in" .
+                                " <strong>{$this->class_name()}</strong> model.");
+                            break;
                     }
                     break;
                 
@@ -1190,6 +1236,14 @@ abstract class ActiveRecord extends Object implements Iterator
                             $arguments[1]
                             );
                 break;
+            
+            case 'datetime_select':
+            case 'date_time_select':
+            case 'date_select':
+            case 'time_select':
+                $html_options = $arguments[0];
+                $html = $type($field_name, $value, $html_options);
+                break;
         }
         
         return $html;
@@ -1255,6 +1309,50 @@ abstract class ActiveRecord extends Object implements Iterator
             }
             return $return;
         }
+    }
+    
+    /// Relationships Logic
+    
+    /**
+     * Set the has many relationship for the current model.
+     *
+     * @return void
+     **/
+    public function has_many($options)
+    {
+        if (count($options)) {
+            $this->_relationships_ = array();
+            $key = strtolower(Inflector::singularize($this->to_string())) . 
+                    '_' . $this->primary_key();
+            $id = $this->id();
+            foreach ($options as $name => $params) {
+                if (is_array($params)) {
+                    if (!isset($params['conditions'])) {
+                        $params['conditions'] = array($key => $id);
+                    }
+                    $this->_relationships_[$params['name']] = $params;
+                } else {
+                    // simple relationship
+                    $this->_relationships_[$params] = array(
+                        'name'          => $params,
+                        'conditions'    => array($key => $id)
+                        );
+                }
+            }
+        }
+        
+        //print_obj($this, 1);
+    }
+    
+    /**
+     * Set the has many relationship for the current model.
+     *
+     * @return void
+     **/
+    public function has_one($options)
+    {
+        $options['limit'] = 1;
+        $this->has_many($options);
     }
     
     /**

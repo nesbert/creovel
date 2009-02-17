@@ -77,7 +77,7 @@ class CreovelString extends Prototype
      **/
     public function ends_with($str)
     {
-        return substr($this->value, -strlen($str)) == $str;
+        return ends_with($str, $this->value);
     }
     
     /**
@@ -123,7 +123,7 @@ class CreovelString extends Prototype
      **/
     public function starts_with($str)
     {
-        return substr($this->value, 0, strlen($str)) == $str;
+        return starts_with($str, $this->value);
     }
     
     /**

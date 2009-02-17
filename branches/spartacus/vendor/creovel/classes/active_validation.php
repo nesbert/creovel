@@ -157,7 +157,8 @@ class ActiveValidation extends Object
      **/
     public function validates_presence_of($field, $value, $message = null)
     {
-        return self::validate_field_by_bool(!empty($value), $field, trim($value), self::format_message($field, $value, $message, self::FIELD_NAME." is a required field."), true);
+        $value = is_string($value) ? trim($value) : $value;
+        return self::validate_field_by_bool(!empty($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is a required field."), true);
     }
     
     /**

@@ -686,7 +686,7 @@ Returns:
 
 */
 
-function date_select($name, $date = null)
+function date_select($name, $date = null, $html_options = null)
 {
     $date = strtotime(datetime($date));
     
@@ -703,9 +703,9 @@ function date_select($name, $date = null)
     while ($i <= (date('Y') + 3)) { $years[$i] = $i; $i++; }
 
     $out = "";
-    $out .= select("{$name}[month]", date('m', $date), $months);
-    $out .= select("{$name}[day]", date('j', $date), $days);
-    $out .= select("{$name}[year]", date('Y', $date), $years);
+    $out .= select("{$name}[month]", date('m', $date), $months, $html_options);
+    $out .= select("{$name}[day]", date('j', $date), $days, $html_options);
+    $out .= select("{$name}[year]", date('Y', $date), $years, $html_options);
 
     return $out;
 }
@@ -724,7 +724,7 @@ Returns:
 
 */
 
-function time_select($name, $time = null)
+function time_select($name, $time = null, $html_options = null)
 {
     switch ( true ) {
     
@@ -757,9 +757,9 @@ function time_select($name, $time = null)
     $ampm['PM'] = 'PM';
 
     $out = "";
-    $out .= select("{$name}[hour]", date('g', $time), $hours);
-    $out .= select("{$name}[minute]", date('i', $time), $minutes);
-    $out .= select("{$name}[ampm]", date('A', $time), $ampm);
+    $out .= select("{$name}[hour]", date('g', $time), $hours, $html_options);
+    $out .= select("{$name}[minute]", date('i', $time), $minutes, $html_options);
+    $out .= select("{$name}[ampm]", date('A', $time), $ampm, $html_options);
 
     return $out;
 }
@@ -778,9 +778,9 @@ Returns:
 
 */
 
-function date_time_select($name, $datetime = null)
+function date_time_select($name, $datetime = null, $html_options = null)
 {
-    return date_select($name, $datetime)." @ ".time_select($name, $datetime);
+    return date_select($name, $datetime, $html_options)." @ ".time_select($name, $datetime, $html_options);
 }
 
 /*

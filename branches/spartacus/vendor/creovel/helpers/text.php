@@ -205,3 +205,29 @@ function retrieve_number($str)
 {
     return floatval(preg_replace('/[^0-9.-]/', '', $str));
 }
+
+/**
+ * Checks if the string starts with $needle.
+ *
+ * @param string $needle
+ * @param string $haystack
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function starts_with($needle, $haystack)
+{
+    return substr($haystack, 0, strlen($needle)) == $needle;
+}
+
+/**
+ * Checks if the string ends with $needle.
+ *
+ * @param string $needle
+ * @param string $haystack
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function ends_with($needle, $haystack)
+{
+    return substr($haystack, -strlen($needle)) == $needle;
+}

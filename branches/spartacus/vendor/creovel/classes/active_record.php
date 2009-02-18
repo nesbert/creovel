@@ -61,13 +61,13 @@ abstract class ActiveRecord extends Object implements Iterator
         // call parent
         $this->initialize_parents();
         
-        // initialize_ class vars
-        $this->__initialize_vars();
-        
         // load data if passed
         if ($data) {
             $this->load($data);
         }
+        
+        // initialize_ class vars
+        $this->__initialize_vars();
         
         // load connection if passed
         if (is_array($connection_properties)) {
@@ -124,8 +124,12 @@ abstract class ActiveRecord extends Object implements Iterator
                     $this->{$var}($vals);
                     break;
                     
-                case starts_with('has_many', $var):
-                    $this->has_many($vals);
+                case 'belongs_to' == $var:
+                case 'has_many' == $var:
+                case 'has_one' == $var:
+                    foreach ($vals as $val) {
+                        $this->{$var}($val);
+                    }
                     break;
             }
         }
@@ -913,6 +917,10 @@ abstract class ActiveRecord extends Object implements Iterator
                     return $this->clean_column_value($attribute);
                     break;
                     
+                case isset($this->_associations_[$attribute]):
+                    return $this->__get_association($this->_associations_[$attribute]);
+                    break;
+                    
                 default:
                     throw new Exception("Attribute <em>{$attribute}</em> not" .
                     " found in <strong>{$this->class_name()}</strong> model.");
@@ -937,7 +945,7 @@ abstract class ActiveRecord extends Object implements Iterator
             
             switch (true) {
                 case $attribute == '_paging_':
-                case $attribute == '_relationships_':
+                case $attribute == '_associations_':
                     return $this->{$attribute} = $value;
                     break;
                     
@@ -1327,48 +1335,120 @@ abstract class ActiveRecord extends Object implements Iterator
         }
     }
     
-    /// Relationships Logic
+    /**
+     * Association methods.
+     */
     
     /**
      * Set the has many relationship for the current model.
      *
+     * @param array $params
      * @return void
      **/
-    public function has_many($options)
+    final public function create_association($params)
     {
-        if (count($options)) {
-            $this->_relationships_ = array();
-            $key = strtolower(Inflector::singularize($this->to_string())) . 
-                    '_' . $this->primary_key();
-            $id = $this->id();
-            foreach ($options as $name => $params) {
-                if (is_array($params)) {
-                    if (!isset($params['conditions'])) {
-                        $params['conditions'] = array($key => $id);
-                    }
-                    $this->_relationships_[$params['name']] = $params;
-                } else {
-                    // simple relationship
-                    $this->_relationships_[$params] = array(
-                        'name'          => $params,
-                        'conditions'    => array($key => $id)
-                        );
-                }
-            }
+        // set property
+        if (!isset($this->_associations_)) {
+            $this->_associations_ = array();
         }
         
-        //print_obj($this, 1);
+        $params['type'] = isset($params['type']) ? $params['type'] : 'has_many';
+        
+        // set key table linking
+        if (!empty($params['key'])):
+            $key = $params['key'];
+        elseif ($params['type'] == 'has_many'):
+            $key = strtolower(Inflector::singularize($this->to_string())) .
+                    '_' . $this->primary_key();
+        elseif ($params['type'] == 'belongs_to'):
+            $key = $this->primary_key();
+        endif;
+        
+        // set id for linking value
+        $id = $this->id();
+        
+        if (!isset($params['name'])) {
+            $params['name'] = strtolower(Inflector::pluralize($this->to_string()));
+        }
+        if (!isset($params['conditions'])) {
+            $params['conditions'] = array($key => $id);
+        }
+        $this->_associations_[$params['name']] = $params;
     }
     
     /**
-     * Set the has many relationship for the current model.
+     * undocumented function
      *
+     * @param array $params
+     * @return object
+     **/
+    final private function __get_association($params)
+    {
+        // set class name
+        $class = empty($params['table_name']) ? $params['name'] : $params['table_name'];
+        $class = Inflector::classify($class);
+        
+        // set args
+        $args = array();
+        if (!empty($params['where'])) $args['where'] = $params['where'];
+        if (!empty($params['conditions'])) $args['conditions'] = $params['conditions'];
+        if (!empty($params['order'])) $args['order'] = $params['order'];
+        if (!empty($params['limit'])) $args['limit'] = $params['limit'];
+        
+        switch ($params['type']) {
+            case 'belongs_to':
+                $obj = new $class;
+                $obj->find('first', $args);
+                return $obj;
+                break;
+        }
+    }
+    
+    /**
+     * Set a "belongs to" relationship for the current model.
+     *
+     * @param mixed $params
      * @return void
      **/
-    public function has_one($options)
+    final public function belongs_to($params)
     {
-        $options['limit'] = 1;
-        $this->has_many($options);
+        if (!is_array($params)) {
+            $params = array('name' => $params);
+        }
+        $params['limit'] = 1;
+        $params['type'] = 'belongs_to';
+        $this->create_association($params);
+    }
+    
+    /**
+     * Set a "has one" relationship for the current model.
+     *
+     * @param mixed $params
+     * @return void
+     **/
+    public function has_one($params)
+    {
+        if (!is_array($params)) {
+            $params = array('name' => $params);
+        }
+        $params['limit'] = 1;
+        $params['type'] = 'has_one';
+        $this->create_association($params);
+    }
+    
+    /**
+     * Set a "has many" relationship for the current model.
+     *
+     * @param mixed $params
+     * @return void
+     **/
+    final public function has_many($params)
+    {
+        if (!is_array($params)) {
+            $params = array('name' => $params);
+        }
+        $params['type'] = 'has_many';
+        $this->create_association($params);
     }
     
     /**
@@ -1392,7 +1472,6 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function rewind()
     {
-        #echo $this->select_query()->key() . '-> rewind<br/>';
         return $this->select_query()->rewind();
     }
     
@@ -1403,8 +1482,12 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function current()
     {
-        #echo $this->select_query()->key() . '-> current<br/>';
+        // set attributes with current row
         $this->attributes($this->select_query()->current());
+        
+        // initialize class vars for each record
+        $this->__initialize_vars();
+        
         return clone $this;
     }
     
@@ -1415,7 +1498,6 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function key()
     {
-        #echo $this->select_query()->key() . '-> key<br/>';
         return $this->select_query()->key();
     }
     
@@ -1426,7 +1508,6 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function next()
     {
-        #echo $this->select_query()->key() . '-> next<br/>';
         $this->select_query()->next();
         return $this->current();
     }
@@ -1438,7 +1519,6 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function prev()
     {
-        #echo $this->select_query()->key() . '-> prev<br/>';
         $this->select_query()->prev();
         return $this->current();
     }
@@ -1451,7 +1531,6 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function valid()
     {
-        #echo $this->select_query()->key() . '-> valid<br/>';
         return $this->select_query()->valid();
     }
     

@@ -727,46 +727,44 @@ Returns:
 function time_select($name, $time = null, $html_options = null)
 {
     switch ( true ) {
-    
-        case ( !$time  || ($time == '0000-00-00 00:00:00') ):
+        case !$time  || ($time == '0000-00-00 00:00:00'):
             $time = time();
-        break;
+            break;
         
-        case ( is_array($time) ):
-            $time = mktime($time['hour'], $time['minute'], $time['second'], $time['month'], $time['day'], $time['year']);
-        break;
+        case is_array($time):
+            $time = @mktime($time['hour'], $time['minute'], $time['second'], $time['month'], $time['day'], $time['year']);
+            break;
         
-        case ( is_numeric($time) ):
-        break;
+        case is_numeric($time):
+            break;
         
-        case ( is_string($time) ):
+        case is_string($time):
             $time = strtotime($time);
-        break;    
-        
+            break;
     }
     
     $i = 1;
     $hours = array();
-    while ($i <= 12) { $hours[$i] = $i; $i++; }    
-
+    while ($i <= 12) { $hours[$i] = $i; $i++; }
+    
     $i = 0;
     $minutes = array();
-    while ($i <= 59) { $minutes[sprintf("%02d", $i)] = sprintf("%02d", $i); $i++; }    
-
+    while ($i <= 59) { $minutes[sprintf("%02d", $i)] = sprintf("%02d", $i); $i++; }
+    
     $ampm['AM'] = 'AM';
     $ampm['PM'] = 'PM';
-
+    
     $out = "";
     $out .= select("{$name}[hour]", date('g', $time), $hours, $html_options);
     $out .= select("{$name}[minute]", date('i', $time), $minutes, $html_options);
     $out .= select("{$name}[ampm]", date('A', $time), $ampm, $html_options);
-
+    
     return $out;
 }
 
 /*
-        
-Function: date_time_select    
+
+Function: date_time_select
     Create date selectboxes
 
 Parameters:
@@ -869,7 +867,7 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
     
     if ( !is_array($selected) ) $selected = array();
     
-    if ( $html_options['label_options'] ) {
+    if (!empty($html_options['label_options'])) {
         $label_options = $html_options['label_options'];
         unset($html_options['label_options']);
     }
@@ -890,11 +888,11 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
         
     }
 
-    $return = "<div ". html_options_str($html_options) .">\n";
+    $return = "<div". html_options_str($html_options) .">\n";
     
     if ( count($choices) ) {
     
-        $class_temp = $label_options['class'];
+        $class_temp = isset($label_options['class']) ? $label_options['class'] : '';
     
         foreach( $choices as $value => $desc ) {
             $label_options['class'] = $class_temp . ( in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');

@@ -206,11 +206,15 @@ abstract class ActiveRecord extends Object implements Iterator
     /**
      * Loads/execute SQL query using the select_query object.
      *
-     * @return void
+     * @return object
      **/
-    final public function query($sql)
+    final public function query($sql, $action_query = false)
     {
-        $this->select_query($sql);
+        if ($action_query) {
+            return $this->action_query($sql);
+        } else {
+            return $this->select_query($sql);
+        }
     }
     
     /**
@@ -1247,6 +1251,18 @@ abstract class ActiveRecord extends Object implements Iterator
         }
         
         return $html;
+    }
+    
+    /**
+     * Check if field is validation errors array.
+     *
+     * @param string $property
+     * @param string $return_text_on_true
+     * @return boolean
+     **/
+    final public function add_error($property, $msg)
+    {
+        $GLOBALS['CREOVEL']['VALIDATION_ERRORS'][$property] = $msg;
     }
     
     /**

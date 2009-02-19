@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class CreovelString extends Prototype
+class PrototypeString extends Prototype
 {
     /**
      * String value.
@@ -242,4 +242,4 @@ class CreovelString extends Prototype
     {
         return html_entity_decode($this->value);
     }
-} // END CreovelString extends Prototype
+} // END PrototypeString extends Prototype

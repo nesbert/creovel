@@ -576,7 +576,7 @@ abstract class ActiveRecord extends Object implements Iterator
             foreach($this->_columns_ as $k => $v) {
                 $attribites[$k] = $v->value;
             }
-            return $attribites;
+            return $this->return_value($attribites);
         }
     }
     
@@ -914,11 +914,11 @@ abstract class ActiveRecord extends Object implements Iterator
             
             switch (true) {
                 case isset($this->_columns_[$attribute]):
-                    return $this->clean_column_value($attribute);
+                    return $this->return_value($this->clean_column_value($attribute));
                     break;
                     
                 case isset($this->_associations_[$attribute]):
-                    return $this->__get_association($this->_associations_[$attribute]);
+                    return $this->return_value($this->__get_association($this->_associations_[$attribute]));
                     break;
                     
                 default:
@@ -1536,12 +1536,42 @@ abstract class ActiveRecord extends Object implements Iterator
     
     /**
      * Check if this object's results is paged.
-     
+     *
      * @return boolean
      **/
     final function is_paged()
     {
         return isset($this->_paging_);
+    }
+    
+    /**
+     * Pass through function used to add Prototype functionality to
+     * value if prototype is enabled.
+     *
+     * @param mixed $value
+     * @return mixed
+     **/
+    public function return_value($value)
+    {
+        if ($this->prototype(1)) {
+            return new Prototype($value);
+        } else {
+            return $value;
+        }
+    }
+    
+    /**
+     * Enable prototype data extending. If $check true verify if
+     * prototype has been enabled.
+     *
+     * @param boolean $check
+     * @return boolean
+     **/
+    public function prototype($check = false)
+    {
+        static $enable;
+        if (!$check) $enable = true;
+        return $enable;
     }
     
     /**#@+

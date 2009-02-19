@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class CreovelArray extends Prototype
+class PrototypeArray extends Prototype
 {
     /**
      * Array value.
@@ -44,7 +44,7 @@ class CreovelArray extends Prototype
      **/
     public function first()
     {
-        return $this->value[0];
+        return reset($this->value);
     }
     
     /**
@@ -54,6 +54,6 @@ class CreovelArray extends Prototype
      **/
     public function last()
     {
-        return $this->value[count($this->value) - 1];
+        return end($this->value);
     }
-} // END CreovelArray extends Prototype
+} // END PrototypeArray extends Prototype

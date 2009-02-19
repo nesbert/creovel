@@ -1,9 +1,8 @@
 <?php
 /**
  * Extends basic functionality of class by extending functionality based on
- * data type of value (prototype). Inspired by Prototype.js the very popular
- * javascript framework created by Sam Stephenson
- * (@link http://www.prototypejs.org/).
+ * data type of value (prototype). Inspired by Prototype.js a javascript
+ * framework created by Sam Stephenson.
  *
  * @package     Creovel
  * @subpackage  Prototype
@@ -14,7 +13,7 @@
 class Prototype extends Object
 {
     /**
-     * undocumented class variable
+     * Storage for object values.
      *
      * @var object
      **/
@@ -37,17 +36,18 @@ class Prototype extends Object
     }
     
     /**
-     * Magic function call being used to catch controller errors.
+     * Return Prototype object base on data type. Returning an object allows
+     * for chaining.
      *
      * @param string $method Name of method being called.
      * @param array $arguments Arguments passed to the method being called.
-     * @return void
+     * @return object
      * @throws Exception Application error.
      **/
     public function __call($method, $arguments)
     {
         try {
-            $DataType = "Creovel{$this->type}";
+            $DataType = "Prototype{$this->type}";
             switch (true) {
                 case method_exists($DataType, $method):
                     $value = call_user_func_array(
@@ -58,20 +58,14 @@ class Prototype extends Object
                             return $value;
                             break;
                         
-                        case ($DataType == 'CreovelArray'
+                        case ($DataType == 'PrototypeArray'
                                 && $method == 'clear'):
                             $this->value = $value;
                             return new Prototype(array());
                             break;
                         
-                        #case !is_array($value):
-                        #case $method == 'compact':
-                        #case $method == 'uniq':
-                        #case $method == 'without':
-                        #    return new Prototype($value);
-                        #    break;
-                        
-                        default:
+                        case $DataType == 'PrototypeArray';
+                        case $DataType == 'PrototypeString';
                             return new Prototype($value);
                             break;
                     }
@@ -147,6 +141,10 @@ class Prototype extends Object
                 return $this->length();
                 break;
                 
+            case $attribute == 'val':
+                return $this->value;
+                break;
+                
             default:
                 if (isset($this->{$attribute}))
                     return $this->{$attribute};
@@ -173,9 +171,9 @@ class Prototype extends Object
      * @param string $name Name of object for reference only.
      * @return void
      **/
-    public function initialize($value, $name)
+    public function initialize($value, $name = '')
     {
-        $this->name = $name;
+        if ($name) $this->name = $name;
         $this->value = $value;
     }
     
@@ -186,9 +184,7 @@ class Prototype extends Object
      **/
     public function length()
     {
-        return (int) is_array($this->_attribites_->value)
-                        ? count($this->_attribites_->value)
-                        : strlen($this->_attribites_->value);
+        return is_array($this->value) ? count($this->value) : strlen($this->value);
     }
     
     /**
@@ -198,6 +194,6 @@ class Prototype extends Object
      **/
     public function blank()
     {
-        return trim($this->value) == '';
+        return is_array($this->value) ? count($this->value) > 0 : trim($this->value);
     }
 } // END class Prototype extends Object

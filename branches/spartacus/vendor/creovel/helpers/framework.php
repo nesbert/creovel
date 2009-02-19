@@ -394,3 +394,16 @@ function view_source_url($file)
                 (strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?') .
                     'view_source=' . $file;
 }
+
+/**
+ * Create a Prototype object from $val. Helper function for the
+ * Prototype data classes.
+ *
+ * @param mixed $val
+ * @return mixed
+ * @author Nesbert Hidalgo
+ **/
+function p($val)
+{
+    return new Prototype($val);
+}

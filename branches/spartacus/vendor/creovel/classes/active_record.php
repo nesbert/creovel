@@ -1354,25 +1354,31 @@ abstract class ActiveRecord extends Object implements Iterator
         
         $params['type'] = isset($params['type']) ? $params['type'] : 'has_many';
         
+        if (!isset($params['name'])) {
+            $params['name'] = strtolower(Inflector::pluralize($this->to_string()));
+        }
+        
         // set key table linking
         if (!empty($params['key'])):
             $key = $params['key'];
         elseif ($params['type'] == 'has_many'):
             $key = strtolower(Inflector::singularize($this->to_string())) .
                     '_' . $this->primary_key();
-        elseif ($params['type'] == 'belongs_to'):
+        else:
             $key = $this->primary_key();
         endif;
         
         // set id for linking value
-        $id = $this->id();
+        if (0):
+            $id = 1;
+        else:
+            $id = $this->{$params['name'] . '_id'};
+        endif;
         
-        if (!isset($params['name'])) {
-            $params['name'] = strtolower(Inflector::pluralize($this->to_string()));
-        }
         if (!isset($params['conditions'])) {
             $params['conditions'] = array($key => $id);
         }
+        
         $this->_associations_[$params['name']] = $params;
     }
     
@@ -1397,6 +1403,7 @@ abstract class ActiveRecord extends Object implements Iterator
         
         switch ($params['type']) {
             case 'belongs_to':
+            case 'has_one':
                 $obj = new $class;
                 $obj->find('first', $args);
                 return $obj;

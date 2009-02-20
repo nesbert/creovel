@@ -88,7 +88,7 @@ function html_options_str($html_options)
  **/
 function stylesheet_include_tag($url, $media = 'screen')
 {
-    if ( is_array($url) ) foreach ( $url as $path ) {
+    if (is_array($url)) foreach ($url as $path) {
         $return .= stylesheet_include_tag(CSS_URL . $path . '.css', $media) . "\n";
     }
     return $return
@@ -109,11 +109,10 @@ function stylesheet_include_tag($url, $media = 'screen')
  * @return string
  * @author Nesbert Hidalgo
  **/
-function javascript_tag($script)
+function javascript_tag($script = '', $html_options = array())
 {
-    return create_html_element('script',
-                                array('type' => 'text/javascript'),
-                                $script);
+    $html_options['type'] = 'text/javascript';
+    return create_html_element('script', $html_options, $script);
 }
 
 /**
@@ -123,20 +122,16 @@ function javascript_tag($script)
  * @return string
  * @author Nesbert Hidalgo
  **/
-function javascript_include_tag($url)
+function javascript_include_tag($url, $html_options = array())
 {
     $return = '';
     if (is_array($url)) foreach ($url as $path) {
-        $return .= javascript_include_tag(JAVASCRIPT_URL . $path . '.js',
-                                            $media) . "\n";
+        $return .= javascript_include_tag(
+                    $path ? JAVASCRIPT_URL . $path . '.js' : '',
+                    $html_options) . "\n";
     }
-    return $return
-            ? $return
-            : create_html_element('script',
-                                        array(
-                                        'type' => 'text/javascript',
-                                        'src' => $url)
-                                        );
+    if ($url) $html_options['src'] = $url;
+    return $return ? $return : javascript_tag('', $html_options);
 }
 
 

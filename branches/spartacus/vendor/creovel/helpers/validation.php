@@ -170,3 +170,25 @@ function is_regex($var)
     @preg_match($var, '', $test);
     return is_array($test);
 }
+
+/**
+ * Finds whether a $var is an odd number.
+ *
+ * @return boolean
+ * @author Nesbert Hidalgo
+ **/
+function is_even($var)
+{
+    return !is_odd($var);
+}
+
+/**
+ * Finds whether a $var is an odd number.
+ *
+ * @return boolean
+ * @author Nesbert Hidalgo
+ **/
+function is_odd($var)
+{
+    return $var & 1;
+}

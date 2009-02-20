@@ -86,6 +86,7 @@ class Creovel
         $GLOBALS['CREOVEL']['MODE'] = 'production';
         $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
         $GLOBALS['CREOVEL']['SESSION'] = true;
+        $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'sessions';
         $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
         
         // Set routing defaults
@@ -102,7 +103,29 @@ class Creovel
         
         // Set session handler
         if ($GLOBALS['CREOVEL']['SESSION']) {
-            session_start();
+            
+            if ($GLOBALS['CREOVEL']['SESSION'] == 'table') {
+                // include/create session db object
+                require_once CREOVEL_PATH . 'classes/session.php';
+                
+                ini_set('session.save_handler', 'user');
+                
+                session_set_save_handler(
+                    array('Session', 'open'),
+                    array('Session', 'close'),
+                    array('Session', 'read'),
+                    array('Session', 'write'),
+                    array('Session', 'destroy'),
+                    array('Session', 'gc')
+                    );
+            }
+            
+            // Fix for PHP 5.05
+            // http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
+            register_shutdown_function('session_write_close');
+            
+            // start session
+            if (session_id() == '') session_start();
         }
         
         // Set default route

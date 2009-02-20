@@ -128,7 +128,8 @@ function error_messages_for($errors = null, $title = null, $description = null)
     if ($errors_count) foreach ( $errors as $field => $message ) {
         if ( $message == 'no_message') continue;
         $li_str .= create_html_element('li', null,
-                        create_html_element('a',                                            array('href' => "#error_{$field}"), $message)) . "\n";
+                        create_html_element('a',
+                        array('href' => "#error_{$field}"), $message)) . "\n";
     }
     
     if ($errors_count) {
@@ -425,23 +426,17 @@ function label($name, $title = null, $html_options = null)
     return create_html_element('label', $html_options, $title) . "\n";
 }
 
-/*
-
-Function: select
-    Creates a select tag (dropdown box). Can't beat this!!!
-
-Parameters:
-    name - required
-    selected - optional 
-    choices - optional
-    html_options - optional
-    none_title - optional default set to "None Available"
-
-Returns:
-    string
-
-*/ 
-
+/**
+ * Creates a select tag (dropdown box).
+ *
+ * @param string $name
+ * @param string $selected
+ * @param string $choices
+ * @param string $html_options
+ * @param string $none_title Default set to "None Available"
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function select($name, $selected = '', $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
 {
     $og_options = array('name' => $name, 'id' => name_to_id($name)) + (array) $html_options;
@@ -501,24 +496,18 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
     return $out;
 }
 
-/*
-
-    Function: select_states_tag    
-    
-    Creates dropdown of states.
-
-    Parameters:
-    
-        name - required
-        selected - optional
-        choices - optional
-        html_options - optional
-    
-    Returns:
-    
-        String.
-*/
- 
+/**
+ * Creates dropdown of states.
+ *
+ * @param string $name
+ * @param string $selected
+ * @param string $choices
+ * @param string $html_options
+ * @param string $country Default set to "US"
+ * @param boolean $select_all
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function select_states_tag($name = 'state', $selected = null, $choices = null, $html_options = null, $country = 'US', $select_all = false)
 {
     
@@ -551,24 +540,18 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
     return select($name, $selected, $state_arr, $html_options);
 }
 
-/*
-    Function: select_countries_tag
-    
-    Creates dropdown of countries. if $state_id is it will automatically populate those values depending on the contry selected.
-    
-    Parameters:
-    
-        name - required
-        selected - optional
-        choices - optional
-        html_options - optional
-        state_id - optional will update the states depending on the country selected
-        
-    Returns:
-    
-        String.
-*/
- 
+/**
+ * Creates dropdown of countries. if $state_id is it will automatically
+ * populate those values depending on the country selected.
+ *
+ * @param string $name
+ * @param string $selected
+ * @param string $choices
+ * @param string $html_options
+ * @param string $state_id
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function select_countries_tag($name = 'country', $selected = null, $choices = null, $html_options = null, $state_id = null)
 {
     $html_options['us_first'] = isset($html_options['us_first']) ? $html_options['us_first'] : false;
@@ -590,102 +573,42 @@ function select_countries_tag($name = 'country', $selected = null, $choices = nu
     $return = select($name, $selected, array_merge($choices, $country_arr), $html_options);
     
     // automatic state dropdown update
-    if ( $state_id ) {
-    
+    if ($state_id) {
         $us_states = states('US');
         $ca_states = states('CA');
-        ?>
-<script language="javascript" type="text/javascript">
-<!--
-function set_<?=$state_id?>() {
-    
-    var usaVals = new Array("<?=implode('", "', $us_states)?>");
-    var usaIDs = new Array("<?=implode('", "', array_keys($us_states))?>");
-    var canadaVals = new Array("<?=implode('", "', $ca_states)?>");
-    var canadaIDs = new Array("<?=implode('", "', array_keys($ca_states))?>");
-    var countryDrop = document.getElementById("<?=name_to_id($name)?>");
-    var selectedCountry = countryDrop.options[countryDrop.selectedIndex].value;
-    
-    switch ( selectedCountry ) {
-        case "United States":
-        case "USA":
-        case "US":
-            update_<?=$state_id?>(usaVals, usaIDs);
-        break;
-        case "Canada":
-        case "CA":
-            update_<?=$state_id?>(canadaVals, canadaIDs);
-        break;
-        default:
-            update_<?=$state_id?>();
-        break;
-    }
-}
-
-function update_<?=$state_id?>(stateVals, stateIDs) {
-    
-    var stateDrop = document.getElementById("<?=$state_id?>");
-    stateDrop.options.length = 0;
-    stateDrop.options[stateDrop.options.length] = new Option("Please select...", "");
-    
-    if ( stateVals ) {
-        for(var i=0; i<stateVals.length; i++) {
-            stateDrop.options[stateDrop.options.length] = new Option(stateVals[i], stateIDs[i]);
-            stateDrop.options[0].selected = true;
-        }
-    } else {
-        stateDrop.options.length = 0;
-        stateDrop.options[stateDrop.options.length] = new Option("None Available", "");
-        stateDrop.options.selected = true;
-    }
-    
-};
--->
-</script>
-<?
+        
+        // include JS view
+        include(CREOVEL_PATH . 'views' . DS . 'layouts' . DS . '_states_dropdown_js.php');
     }
     
     return $return;
     
 }
 
-/*
-    Function: select_redirect
-    
-    Creates dropdown that redirects the page onchange.
-    
-    Parameters:
-    
-        name - required
-        names_and_urls - required
-        html_options - optional
-        
-    Returns:
-    
-        String.
-*/
- 
+/**
+ * Creates dropdown that redirects the page onchange.
+ *
+ * @param string $name
+ * @param string $names_and_urls
+ * @param string $html_options
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function select_redirect($name, $names_and_urls, $html_options = null)
 {
     $html_options['onchange'] .= 'location.href=this.options[this.selectedIndex].value;';
     return select($name, null, $names_and_urls, $html_options);
 }
 
-
-/*
-        
-Function: date_select    
-    Create date selectboxes
-
-Parameters:
-    name - name
-    date - date to use
-
-Returns:
-    string
-
-*/
-
+/**
+ * Create date select boxes.
+ *
+ * @param string $name
+ * @param string $date
+ * @param string $html_options
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function date_select($name, $date = null, $html_options = null)
 {
     $date = strtotime(datetime($date));
@@ -710,23 +633,18 @@ function date_select($name, $date = null, $html_options = null)
     return $out;
 }
 
-/*
-        
-Function: time_select    
-    Create time selectboxes
-
-Parameters:
-    name - name
-    date - time to use
-
-Returns:
-    string
-
-*/
-
+/**
+ * Create time select boxes.
+ *
+ * @param string $name
+ * @param string $time
+ * @param string $html_options
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function time_select($name, $time = null, $html_options = null)
 {
-    switch ( true ) {
+    switch (true) {
         case !$time  || ($time == '0000-00-00 00:00:00'):
             $time = time();
             break;
@@ -762,80 +680,56 @@ function time_select($name, $time = null, $html_options = null)
     return $out;
 }
 
-/*
-
-Function: date_time_select
-    Create date selectboxes
-
-Parameters:
-    name - name
-    datetime - datetime to use
-
-Returns:
-    string
-
-*/
-
+/**
+ * Create date & time select boxes.
+ *
+ * @param string $name
+ * @param string $time
+ * @param string $html_options
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
 function date_time_select($name, $datetime = null, $html_options = null)
 {
     return date_select($name, $datetime, $html_options)." @ ".time_select($name, $datetime, $html_options);
 }
 
-/*
-        
-Function: get_timestamp_from_post
-    Get the timestamp array from post
-
-Parameters:
-    key - key to use
-
-Returns:
-    string
-
-*/
-
+/**
+ * Get the timestamp array from post.
+ *
+ * @param string $key
+ * @return string
+ * @author Russ Smith
+ **/
 function get_timestamp_from_post($key)
 {
     $_POST[$key]['hour'] = ($_POST[$key]['ampm'] == 'pm') ? ($_POST[$key]['hour'] + 12) : $_POST[$key]['hour'];
     return mktime($_POST[$key]['hour'], $_POST[$key]['minute'], 0, $_POST[$key]['month'], $_POST[$key]['day'], $_POST[$key]['year']);
 }
 
-/*
-        
-Function: date_select    
-    Create date selectboxes
-
-Parameters:
-    name - name
-    date - date to use
-
-Returns:
-    string
-
-*/
-
+/**
+ * Get the timestamp array from array.
+ *
+ * @param array $array
+ * @return string
+ * @author Russ Smith
+ **/
 function get_timestamp_from_array($array)
 {
     $array['hour'] = ($array['ampm'] == 'pm') ? ($array['hour'] + 12) : $array['hour'];
     return mktime($array['hour'], $array['minute'], 0, $array['month'], $array['day'], $array['year']);
 }
 
-/*
-        
-Function: select_time_zone_tag    
-    Create time zone selectboxes
-
-Parameters:
-    name - name
-    selected - item to be selected
-    choices - array of choices
-    html_options - html options
-
-Returns:
-    string
-
-*/
-
+/**
+ * Create timezone select boxes.
+ *
+ * @param string $name
+ * @param string $selected
+ * @param string $choices
+ * @param string $html_options
+ * @return void
+ * @author Nesbert Hidalgo
+ **/
 function select_time_zone_tag($name, $selected = null, $choices = null, $html_options = null)
 {
     $time_zones = timezones();
@@ -845,27 +739,21 @@ function select_time_zone_tag($name, $selected = null, $choices = null, $html_op
     return select($name, $selected, $time_zones, $html_options);
 }
 
-/*
-
-Function: checkbox_select
-    Creates a select tag (dropdown box). Can't beat this!!!
-
-Parameters:
-    name - required
-    selected - optional 
-    choices - optional
-    html_options - optional
-    none_title - optional default set to "None Available"
-
-Returns:
-    string
-
-*/ 
-
-function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
+/**
+ * Creates a DIV with a group of checkbox inputs.
+ *
+ * @param string $name
+ * @param string $selected
+ * @param string $choices
+ * @param string $html_options
+ * @param string $none_title Default set to "None Available"
+ * @param boolean $have_none
+ * @return void
+ * @author Nesbert Hidalgo
+ **/
+function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false, $type = 'checkbox')
 {
-    
-    if ( !is_array($selected) ) $selected = array();
+    if (!is_array($selected)) $selected = array();
     
     if (!empty($html_options['label_options'])) {
         $label_options = $html_options['label_options'];
@@ -873,32 +761,32 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
     }
     
     $box_html_options = array();
-
-    if ( is_array($html_options) && count($html_options) > 0 ) {
     
-        foreach ( $html_options as $key=>$value ) {
+    if (is_array($html_options) && count($html_options) > 0) {
+    
+        foreach ($html_options as $key=>$value) {
             if (strtolower(substr(trim($key), 0, 2)) == 'on') {
                 $box_html_options[$key] = $value;
             }
         }
         
-        foreach ( $box_html_options as $key=>$value ) {
+        foreach ($box_html_options as $key => $value) {
             unset($html_options[$key]);
         }
         
     }
-
+    
     $return = "<div". html_options_str($html_options) .">\n";
     
     if ( count($choices) ) {
-    
+        
         $class_temp = isset($label_options['class']) ? $label_options['class'] : '';
-    
+        
         foreach( $choices as $value => $desc ) {
             $label_options['class'] = $class_temp . ( in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');
             $label_options['for'] = name_to_id($name) . '_' . $value;
             $return .= "<label ".html_options_str($label_options).">\n";
-            $return .= create_input_tag('checkbox', $name, in_array($value, $selected), $box_html_options, $value, $desc)."\n";
+            $return .= create_input_tag($type, $name, in_array($value, $selected), $box_html_options, $value, $desc)."\n";
             $return .= "<br /></label>\n";        
         }
         
@@ -911,68 +799,19 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
     return $return;
 }
 
-/*
-
-Function: checkbox_select
-    Creates a select tag (dropdown box). Can't beat this!!!
-
-Parameters:
-    name - required
-    selected - optional 
-    choices - optional
-    html_options - optional
-    none_title - optional default set to "None Available"
-
-Returns:
-    string
-
-*/ 
-
+/**
+ * Creates a DIV with a group of radio inputs.
+ *
+ * @param string $name
+ * @param string $selected
+ * @param string $choices
+ * @param string $html_options
+ * @param string $none_title Default set to "None Available"
+ * @param boolean $have_none
+ * @return void
+ * @author Nesbert Hidalgo
+ **/
 function radio_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
 {
-    
-    if ( !is_array($selected) ) $selected = array($selected);
-    
-    if ( $html_options['label_options'] ) {
-        $label_options = $html_options['label_options'];
-        unset($html_options['label_options']);
-    }
-    
-    $box_html_options = array();
-
-    if ( is_array($html_options) && count($html_options) > 0 ) {
-    
-        foreach ( $html_options as $key=>$value ) {
-            if (strtolower(substr(trim($key), 0, 2)) == 'on') {
-                $box_html_options[$key] = $value;
-            }
-        }
-        
-        foreach ( $box_html_options as $key=>$value ) {
-            unset($html_options[$key]);
-        }
-        
-    }
-
-    $return = "<div ". html_options_str($html_options) .">\n";
-    
-    if ( count($choices) ) {
-    
-        $class_temp = $label_options['class'];
-    
-        foreach( $choices as $value => $desc ) {
-            $label_options['class'] = $class_temp . ( in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');
-            $label_options['for'] = name_to_id($name) . '_' . $value;
-            $return .= "<label ".html_options_str($label_options).">\n";
-            $return .= create_input_tag('radio', $name, in_array($value, $selected), $box_html_options, $value, $desc)."\n";
-            $return .= "<br /></label>\n";        
-        }
-        
-    } else {
-        $return .= '<span class="'.underscore($none_title).'">'.$none_title.'</span>';
-    }
-    
-    $return .= "</div>\n";
-    
-    return $return;
+    return checkbox_select($name, $selected, $choices, $html_options, $none_title, $have_none, 'radio');
 }

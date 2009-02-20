@@ -34,6 +34,10 @@ function datetime($datetime = null)
             $datetime['second'] = isset($datetime['second'])
                                 ? $datetime['second']
                                 : 0;
+            if (!empty($datetime['ampm'])
+                && strtoupper($datetime['ampm']) == 'PM') {
+                $datetime['hour'] += 12;
+            }
             return date('Y-m-d H:i:s', mktime(
                                             $datetime['hour'],
                                             $datetime['minute'],

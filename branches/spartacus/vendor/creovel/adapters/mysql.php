@@ -34,7 +34,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      *
      * @var integer
      **/
-    public $offset = 0;
+    //public $offset = 0;
     
     /**
      * Pass an associative array of database settings to connect
@@ -46,17 +46,6 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
     {
         // if properties passed connect to database
         if (is_array($db_properties)) $this->connect($db_properties);
-    }
-    
-    /**
-     * Disconnect from MySQl Server on destruct.
-     *
-     * @return void
-     **/
-    public function __destruct()
-    {
-        // free memory and close database connection
-        # $this->disconnect(); // sessions gc warning loses connection
     }
     
     /**
@@ -111,7 +100,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         
         // close MySQL connection
         if (isset($this->db) && is_resource($this->db)) {
-            mysql_close($this->db);
+            return mysql_close($this->db);
         }
     }
     
@@ -128,6 +117,11 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         
         // set database property
         $this->query = $query;
+        
+        // if connection lost reconnect
+        if (!is_resource($this->db)) {
+            $this->connect(ActiveRecord::connection_properties());
+        }
         
         // send a MySQL query and set query_link resource on success
         $this->result = mysql_query($query, $this->db);
@@ -299,7 +293,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      **/
     public function key()
     {
-        return $this->offset;
+        return (int) $this->offset;
     }
     
     /**

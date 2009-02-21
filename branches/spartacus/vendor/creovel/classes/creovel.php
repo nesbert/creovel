@@ -107,17 +107,7 @@ class Creovel
             if ($GLOBALS['CREOVEL']['SESSION'] == 'table') {
                 // include/create session db object
                 require_once CREOVEL_PATH . 'classes/session.php';
-                
-                ini_set('session.save_handler', 'user');
-                
-                session_set_save_handler(
-                    array('Session', 'open'),
-                    array('Session', 'close'),
-                    array('Session', 'read'),
-                    array('Session', 'write'),
-                    array('Session', 'destroy'),
-                    array('Session', 'gc')
-                    );
+                $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new Session;
             }
             
             // Fix for PHP 5.05

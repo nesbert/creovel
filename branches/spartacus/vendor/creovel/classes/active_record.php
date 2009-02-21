@@ -127,8 +127,10 @@ abstract class ActiveRecord extends Object implements Iterator
                 case 'belongs_to' == $var:
                 case 'has_many' == $var:
                 case 'has_one' == $var:
-                    foreach ($vals as $val) {
+                    if (is_array($vals)) foreach ($vals as $val) {
                         $this->{$var}($val);
+                    } else {
+                        $this->{$var}($vals);
                     }
                     break;
             }
@@ -409,7 +411,7 @@ abstract class ActiveRecord extends Object implements Iterator
             $where = "({$str})";
             
         // 4. string conditions UNSAFE!
-        } else {
+        } elseif ($where_conditions) {
             $where = "({$where_conditions})";
         }
         
@@ -917,8 +919,8 @@ abstract class ActiveRecord extends Object implements Iterator
                     return $this->return_value($this->clean_column_value($attribute));
                     break;
                     
-                case isset($this->_associations_[$attribute]):
-                    return $this->return_value($this->__get_association($this->_associations_[$attribute]));
+                case isset($this->_associations_) && isset($this->_associations_[$attribute]):
+                    return $this->return_value($this->association($this->_associations_[$attribute]));
                     break;
                     
                 default:
@@ -1340,122 +1342,115 @@ abstract class ActiveRecord extends Object implements Iterator
      */
     
     /**
-     * Set the has many relationship for the current model.
+     * Build association rules.
      *
-     * @param array $params
+     * @param array $options
      * @return void
      **/
-    final public function create_association($params)
+    final public function build_association($options)
     {
-        // set property
-        if (!isset($this->_associations_)) {
-            $this->_associations_ = array();
+        // set associations property
+        if (!isset($this->_associations_)) $this->_associations_ = array();
+        
+        // set foreign key
+        if (empty($options['foreign_key'])) {
+            if ($options['type'] == 'has_one' || $options['type'] == 'has_many') {
+                 $options['foreign_key'] = strtolower($this->to_string()) . '_id';
+            } else {
+                $options['foreign_key'] = $options['association_id'] . '_id';
+            }
         }
         
-        $params['type'] = isset($params['type']) ? $params['type'] : 'has_many';
-        
-        if (!isset($params['name'])) {
-            $params['name'] = strtolower(Inflector::pluralize($this->to_string()));
-        }
-        
-        // set key table linking
-        if (!empty($params['key'])):
-            $key = $params['key'];
-        elseif ($params['type'] == 'has_many'):
-            $key = strtolower(Inflector::singularize($this->to_string())) .
-                    '_' . $this->primary_key();
-        else:
-            $key = $this->primary_key();
-        endif;
-        
-        // set id for linking value
-        if (0):
-            $id = 1;
-        else:
-            $id = $this->{$params['name'] . '_id'};
-        endif;
-        
-        if (!isset($params['conditions'])) {
-            $params['conditions'] = array($key => $id);
-        }
-        
-        $this->_associations_[$params['name']] = $params;
+        $this->_associations_[$options['association_id']] = $options;
     }
     
     /**
-     * undocumented function
+     * Create association and returns a new object of the associated type.
      *
-     * @param array $params
+     * @param array $options
      * @return object
      **/
-    final private function __get_association($params)
+    final private function association($options)
     {
         // set class name
-        $class = empty($params['table_name']) ? $params['name'] : $params['table_name'];
-        $class = Inflector::classify($class);
+        $options['class_name'] = Inflector::classify(empty($options['class_name'])
+                        ? $options['association_id'] : $options['class_name']);
         
         // set args
         $args = array();
-        if (!empty($params['where'])) $args['where'] = $params['where'];
-        if (!empty($params['conditions'])) $args['conditions'] = $params['conditions'];
-        if (!empty($params['order'])) $args['order'] = $params['order'];
-        if (!empty($params['limit'])) $args['limit'] = $params['limit'];
+        if (!empty($options['where'])) {
+            $args['conditions'] = $options['where'];
+        } elseif (!empty($options['conditions'])) {
+            $args['conditions'] = $options['conditions'];
+        } else {
+            $args['conditions'] = '';
+        }
+        if (!empty($options['order'])) $args['order'] = $options['order'];
+        if (!empty($options['limit'])) $args['limit'] = $options['limit'];
         
-        switch ($params['type']) {
+        switch ($options['type']) {
             case 'belongs_to':
-            case 'has_one':
-                $obj = new $class;
+                $args['conditions'] = array('id' => $this->{$options['foreign_key']});
+                $obj = new $options['class_name'];
                 $obj->find('first', $args);
-                return $obj;
+                break;
+                
+            case 'has_one':
+                $args['conditions'] = array($options['foreign_key'] => $this->id());
+                $obj = new $options['class_name'];
+                $obj->find('first', $args);
+                break;
+                
+            case 'has_many':
+                $args['conditions'] = array($options['foreign_key'] => $this->id());
+                $obj = new $options['class_name'];
+                $obj->find('all', $args);
                 break;
         }
+        
+        return $obj;
     }
     
     /**
      * Set a "belongs to" relationship for the current model.
      *
-     * @param mixed $params
+     * @param string $association_id
+     * @param array $options
      * @return void
      **/
-    final public function belongs_to($params)
+    final public function belongs_to($association_id, $options = array())
     {
-        if (!is_array($params)) {
-            $params = array('name' => $params);
-        }
-        $params['limit'] = 1;
-        $params['type'] = 'belongs_to';
-        $this->create_association($params);
+        $options['type'] = 'belongs_to';
+        $options['association_id'] = $association_id;
+        $this->build_association($options);
     }
     
     /**
      * Set a "has one" relationship for the current model.
      *
-     * @param mixed $params
+     * @param string $association_id
+     * @param array $options
      * @return void
      **/
-    public function has_one($params)
+    public function has_one($association_id, $options = array())
     {
-        if (!is_array($params)) {
-            $params = array('name' => $params);
-        }
-        $params['limit'] = 1;
-        $params['type'] = 'has_one';
-        $this->create_association($params);
+        $options['type'] = 'has_one';
+        $options['association_id'] = $association_id;
+        $this->build_association($options);
     }
     
     /**
      * Set a "has many" relationship for the current model.
      *
-     * @param mixed $params
+     * @param string $association_id
+     * @param array $options
      * @return void
      **/
-    final public function has_many($params)
+    final public function has_many($association_id, $options = array())
     {
-        if (!is_array($params)) {
-            $params = array('name' => $params);
-        }
-        $params['type'] = 'has_many';
-        $this->create_association($params);
+        $options['type'] = 'has_many';
+        $options['association_id'] = $association_id;
+        $this->build_association($options);
     }
     
     /**

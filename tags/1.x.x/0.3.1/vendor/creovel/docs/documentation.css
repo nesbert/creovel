@@ -1,0 +1,348 @@
+body {
+	font: 12px Geneva, Arial, Helvetica, sans-serif;
+	color: #555;
+	margin: 0;
+	padding: 0;
+	background: #E6EDF5;
+}
+
+table td {
+	color: #555;
+	font: 12px Geneva, Arial, Helvetica, sans-serif;
+}
+
+/*redefine*/
+
+::-moz-selection {
+	background: #111;
+	color: #eee;
+}
+
+::selection {
+	background: #111;
+	color: #eee;
+}
+
+/*links*/
+
+a:link, a:visited {
+	color: #5e92dd;
+}
+
+a:hover, a:active {
+	color: #face8f;
+}
+
+h1, h2, h3, h4, h5, p, blockquote {
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+}
+
+h1 {
+	font-size: 24px;
+	padding: 5px 0;
+}
+
+h2 {
+	font-size: 20px;
+	padding: 4px 0;
+}
+
+h3 {
+	font-size: 16px;
+	padding: 3px 0;
+}
+
+h4 {
+	font-size: 14px;
+	padding: 2px 0;
+}
+
+p {
+	padding: 5px 0;
+}
+
+#MTitle {
+	font-weight: bold;
+	font-size: 28px;
+	padding: 10px 10px 20px;
+	display: none;
+}
+
+#MSubTitle {
+	font-size: 11px;
+}
+
+/*menu*/
+
+.MenuSection {
+	width: 210px;
+	margin-top: 0;
+}
+
+.MGroup {
+	font-weight: bold;
+	font-size: 12px;
+	padding: 0;
+	text-decoration: none;
+}
+
+.MGroup a:link, .MGroup a:visited {
+	padding: 6px 10px;
+	text-decoration: none;
+	display: block;
+	background: #6188bc;
+	color: #fff;
+	text-align: left;
+}
+
+.MGroupContent {
+	font-size: 12px;
+	font-weight: normal;
+	text-transform: none;
+}
+
+#MSelected, .MFile a:link, .MFile a:visited, .MIndex a:link, .MIndex a:visited {
+	display: block;
+	padding: 6px 4px 6px 10px;
+	background: #e6edf5;
+	color: #858585;
+	text-decoration: none;
+	text-align: left;
+}
+
+.MFile a:hover, .MFile a:active, .MIndex a:hover, .MIndex a:active {
+	color: #6188bc;
+	background-color: #fff;
+}
+
+#MSelected {
+	background-color: #fff;
+	color: #777;
+	font-style: italic;
+	font-weight: bold;
+	border: 0 none;
+}
+
+/*content, paragraphs, code, headings*/
+
+.ContentSection, .IndexSection {
+	padding: 10px 25px 25px;
+	font-size: 14px;
+	min-height: 600px;
+	background: #fff url(logo.png) no-repeat top right;
+}
+
+#MainTopic .CTitle, .IPageTitle {
+	font-size: 30px;
+	margin-bottom: 5px;
+	padding: 70px 10px 0 0;
+}
+
+.IPageTitle { margin-bottom: 25px; }
+
+.CSection .CTitle {
+	color: #777;
+	font-size: 20px;
+	margin: 15px 0 5px;
+	padding: 5px 10px;
+	background: #f0f0f0;
+}
+
+.CGroup .CTitle, .INavigationBar {
+	font-size: 17px;
+	margin: 15px 0 5px;
+	padding: 5px 10px;
+	background: #f3f3f3;
+}
+
+.CClass .CTitle
+{
+	font-size: 14px;
+	font-weight: bold;
+	margin: 15px 0 5px;
+	padding: 5px;
+}
+
+.CFunction .CTitle,
+.CProperty .CTitle,
+.CFunction .CTitle
+{
+	color: #fff;
+	font-size: 14px;
+	font-weight: bold;
+	margin: 15px 0 5px;
+	padding: 5px;
+	border-bottom: 1px solid #eee;
+	border-top: 1px solid #eee;
+	background: #6188bc;
+}
+
+.CCode {
+	font: 12px "Monaco", "Courier New", Monospace;
+	background: #f5f5f5;
+	border: 1px solid #ddd;
+	padding: 5px;
+	color: #444;
+	margin-left: 30px;
+	overflow: auto !important;
+	overflow: scroll;
+}
+
+.CParagraph, .CDescriptionList {
+	padding: 7px 7px 7px 30px;
+}
+
+.CDLEntry {
+	padding: 0 10px 0 0;
+	color: #666;
+	font: 12px "Monaco", "Courier New", Monospace;
+}
+
+h4.CHeading, .STitle {
+	margin-top: 5px;
+	padding-left: 10px;
+	border-bottom: 1px solid #eee;
+	border-top: 1px solid #eee;
+	background: #fdfdfd;
+}
+
+.CProperty .CTitle, .CFunction .CTitle, .CGroup .CTitle, .CClass .CTitle, .CSection .CTitle {
+	margin: 15px 0 10px;
+}
+
+
+
+.SBody {
+	margin-left: 30px;
+}
+
+.STitle {
+	font-size: 14px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	padding: 5px 10px;
+}
+
+.STable {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+.STable a:link, .STable a:visited {
+	color: #6188BC;
+}
+
+.STable a:hover, .STable a:active {
+	color: #342113;
+}
+
+.SBody {
+	padding: 10px;
+	background: #fff9f0;
+}
+
+.SMarked {
+	background: #E8F6F8;
+}
+
+.STable td {
+	border: 2px solid #fff;
+	padding: 3px 6px;
+	vertical-align: top;
+}
+
+h4.CHeading, .STitle {
+	margin: 10px 0 7px;
+}
+
+.SMain {
+	font-size: 16px;
+	background: #A3F3F3;
+}
+
+.SMain td {
+	padding: 4px 6px;
+}
+
+.SProperty .SEntry, .SFunction .SEntry {
+	text-align: right;
+}
+
+.SClass, .SSection {
+	font-size: 14px;
+	background: #A3F3F3;
+}
+
+.SGroup {
+	font-size: 13px;
+	background: #A3F3F3;
+}
+
+
+#Index table {
+	padding: 10px;
+	font-size: 14px;
+}
+
+#Index table td {
+	padding: 2px 6px;
+}
+
+.IHeading, .ISymbolPrefix {
+	width: 50px;
+	font-weight: bold;
+	font-size: 15px;
+	text-align: left;
+}
+
+td.IHeading {
+	padding-top: 10px;
+	border-top: 4px solid #fff;
+	text-align: center;
+}
+
+.ISubIndex {
+	padding-left: 20px;
+}
+
+.ISubIndex a {
+	display: block;
+}
+
+.IPageTitle {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.INavigationBar {
+	font-size: 13px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.Footer {
+	font-size: 9px;
+	text-align: right;
+	color: #dadada;
+	margin-left: 210px;
+	padding: 10px 25px 25px;
+	background: #fff;
+	border-top: 1px solid #eee;
+}
+
+.CToolTip {
+	position: absolute;
+	visibility: hidden;
+	left: 0;
+	top: 0;
+	background: #444;
+	padding: 10px;
+	color: #fff;
+}
+
+.CToolTip * {
+	color: #fff;
+}

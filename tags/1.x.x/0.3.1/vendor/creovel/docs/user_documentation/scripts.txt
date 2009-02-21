@@ -1,0 +1,160 @@
+Package: Scripts
+
+Section: document
+The document script will produce a documentation site just like the one your on now. It relies on Natural Docs being installed in your path.
+
+It takes one option, the documentation to produce. It can be either *application* or *creovel*. If left blank it defaults to application.
+
+(start code)
+./script/document
+(end)
+
+The docs will be put into doc/creovel or doc/application depending on what you choose.
+
+Remeber to ignore these files in your repository.
+
+
+Section: freeze
+Freezing keeps your application up to date with the most recent versio of Creovel. The way Creovel is structured keeps all Creovel specific code stored in directories seperate from your code. This allows you to work almost independently from it. But there will come the time that you need to update to the newest version. Using the freeze script brings Creovel to the most update to date version (trunk right now, this may change later). From there you can start making the change you need to work the current version.
+
+On the other hand, if you never want to update, you never have to. You have a copy of Creovel in your app that will never change. This is ideal for applications that are running on a production server that are mission critical.
+
+(start code)
+./script/freeze
+(end)
+
+*FYI:* This script deletes the vendor/creovel directory. So if your app is in a repository, you may want to do this yourself. Subversion can get real whiny when this isn't done right.
+
+(start code)
+svn rm vendor/creovel
+./script/freeze
+svn add vendor/creovel
+(end)
+
+
+Section: generate
+Creovel's version of scaffolding. This script will generate the base files for controllers, models and mailers. It allows you to get a quick foot up on the idea thats rolling around in your head. For instance, let's generate a blog.
+
+We'll start with the models
+(start code)
+./script/generate model user
+./script/generate model post
+./script/generate model comment
+(end)
+This drops in the model files in app/models/model.php
+
+(start code)
+./script/generate controller login index login logout
+./script/generate controller posts index list view
+(end)
+This will create the controller files, helper files and each view passed after the controller name.
+
+(start code)
+./script/generate mailer user welcome thanks
+(end)
+Just like the contoller we now have the files necessary to start using the user_mailer.
+
+
+Section: migrate
+Migrations give you the ability to version your database. Migration files are stored in a YAML format. After making changes to your database, you can create a migration of that version. That file then can be run later to either upgrade or downgrade your database.
+
+(start code)
+./migrate
+(end)
+
+It uses a menu system. So you can just follow the instructions.
+
+
+Section: pheonix
+Phoenix is a script that SSH's into the defined servers for that application and exports a new version of the application. It does not delete old versions of the app in case of the need of a rollback. It is also capable of display a "Be Right Back Page" in the case of prolonged down time..
+
+It uses the config/pheonix.php file for it's information. Here is a sample config.
+(start code)
+class phoenix_configuration
+{
+	public function __construct()
+	{
+  		$this->appname		= 'creovel';
+		$this->path			= '/var/www/html/';
+
+		$this->svnurl		= 'http://creovel.googlecode.com/svn';
+		$this->svnusername	= null;
+		$this->password		= null;
+
+		$this->servers = array
+		(	
+			'localhost' => array
+			(
+				'address'	=> 'localhost',
+				'user'		=> 'user',
+				'pass'		=> 'pass',
+				'port'		=> 22
+			)
+		);
+	}
+}
+
+class phoenix_tasks
+{
+	public function pre_halt($connection, $config, $server_config)
+	{
+	}
+
+	public function post_halt($connection, $config, $server_config)
+	{
+	}
+
+	public function pre_fallback($connection, $config, $server_config)
+	{
+	}
+
+	public function post_fallback($connection, $config, $server_config)
+	{
+	}
+
+	public function pre_release($connection, $config, $server_config)
+	{
+	}
+
+	public function post_release($connection, $config, $server_config)
+	{
+		// Automatically Set Production Environment
+		Phoenix::shell_exec($connection, "sed -e \"s/= 'development'/= 'production'/g\" {$config->application_path}/releases/{$server_config['timestamp']}/config/environment.php > {$config->application_path}/releases/{$server_config['timestamp']}/temp");
+		Phoenix::shell_exec($connection, "mv {$config->application_path}/releases/{$server_config['timestamp']}/temp {$config->application_path}/releases/{$server_config['timestamp']}/config/environment.php");
+	}
+}
+(end)
+
+You can add as many servers as you need. Pheonix will deploy to each one. It does expect each server to follow the config given.
+
+The tasks allow commands to be run on the remote servers after each step of the process. By default it only has one defined that sets the application to production mode. Feel free to write your own.
+
+One requirement for this script is for PHP to have SSH2 enabled. This only needs to be on the machine deploying the application. For help installing read this page: http://us3.php.net/%25s
+
+To run it just use the following.
+(start code)
+./script/phoenix 
+(end)
+It has a menu system. So just follow the instructions.
+
+
+Section: server
+The server script generates a config file based on where you have your Creovel app installed. It then passes that config over to lighttpd and starts in foreground mode. This gives you a built in server to test your application with, without having to create virtual hosts or modify DNS settings.
+
+It's simple enough to use. Just run the script with the port number of your choice (if you have permissions to use that port).
+
+(start code)
+./script/server 8000
+(end)
+
+The server will stay in the foreground with no output. Hit Ctrl-C to kill it. It saves it's log files to the log directory in the root of your app.
+
+(start code)
+lighttpd.access.log <- access information
+lighttpd.error.log <- error information
+(end)
+
+Remember to ignore these files when you add your add to a repository. Because you are, aren't you?
+
+Getting Lighttpd:
+Check http://www.lighttpd.net/ for the best way to install on your computer. After you have it installed, in just needs to be in your path to work.

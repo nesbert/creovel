@@ -1,4 +1,15 @@
-<script language="javascript" type="text/javascript">
+<?php
+/**
+ * Partial used for Javascript country to state switcher.
+ *
+ * @access      private
+ * @package     Creovel
+ * @subpackage  Views
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.1.0 
+ * @see         error_messages_for()
+ **/
+?><script language="javascript" type="text/javascript">
 <!--
 function set_<?=$state_id?>() {
     

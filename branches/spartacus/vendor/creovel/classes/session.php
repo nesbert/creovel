@@ -10,35 +10,32 @@
 class Session extends Object
 {
     /**
-     * Create/use DB object and.
+     * Storage resource.
      *
-     * @return object
+     * @var object
      **/
-    public function db()
-    {
-        static $db;
-        
-        if (empty($db)) {
-            $db = ActiveRecord::table_object();
-        }
-        return $db;
-    }
+    public static $r;
     
     /**
      * Create sessions table if it doesn't exists.
      *
+     * @param boolean $query_only
      * @return boolean
      **/
-    public function create_table()
+    public function create_table($query_only = false)
     {
-        return self::db()->query(
-            "CREATE TABLE IF NOT EXISTS {$GLOBALS['CREOVEL']['SESSIONS_TABLE']}
+        $sql = "CREATE TABLE IF NOT EXISTS {$GLOBALS['CREOVEL']['SESSIONS_TABLE']}
                 (
                     id VARCHAR (255) NOT NULL,
                     expires_at datetime NOT NULL,
                     data TEXT NOT NULL,
                     PRIMARY KEY (id)
-                )");
+                );";
+        if ($query_only) {
+            return $sql;
+        } else {
+            return self::$r->query($sql);
+        }
     }
     
     /**
@@ -48,7 +45,8 @@ class Session extends Object
      **/
     public function open()
     {
-        return self::db()->db ? true : false;
+        self::$r = ActiveRecord::table_object();
+        return is_resource(self::$r);
     }
     
     /**
@@ -58,7 +56,7 @@ class Session extends Object
      **/
     public function close()
     {
-        return self::db()->disconnect();
+        return true;
     }
     
     /**
@@ -71,10 +69,10 @@ class Session extends Object
     {
         if (!$id) return false;
         
-        self::db()->query(sprintf("SELECT * FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `id` = '%s';", self::db()->escape($id)));
-        $result = self::db()->next();
+        self::$r->query(sprintf("SELECT * FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `id` = '%s';", self::$r->escape($id)));
+        $result = self::$r->next();
         
-        if (self::db()->total_rows() == 1) {
+        if (self::$r->total_rows() == 1) {
             return $result['data'];
         } else {
             return "";
@@ -92,13 +90,13 @@ class Session extends Object
     {
         if (!$id) return false;
         
-        self::db()->query(sprintf("REPLACE INTO `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` VALUES('%s', '%s', '%s')",
-            self::db()->escape($id),
+        self::$r->query(sprintf("REPLACE INTO `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` VALUES('%s', '%s', '%s')",
+            self::$r->escape($id),
             datetime(time() + get_cfg_var("session.gc_maxlifetime")),
-            self::db()->escape($val)
+            self::$r->escape($val)
             ));
         
-        return self::db()->affected_rows();
+        return self::$r->affected_rows();
     }
     
     /**
@@ -109,8 +107,8 @@ class Session extends Object
      **/
     public function destroy($id)
     {
-        self::db()->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `id` = '" . self::db()->escape($id) . "'");
-        return self::db()->affected_rows();
+        self::$r->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `id` = '" . self::$r->escape($id) . "'");
+        return self::$r->affected_rows();
     }
     
     /**
@@ -121,7 +119,7 @@ class Session extends Object
      **/
     public function gc($maxlifetime)
     {
-        self::db()->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `expires_at` < '" . datetime() . "';");
-        return self::db()->affected_rows();
+        self::$r->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `expires_at` < '" . datetime() . "';");
+        return self::$r->affected_rows();
     }
 } // END class Session extends Object

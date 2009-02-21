@@ -11,7 +11,7 @@
  */
 CREO('database', array(
     'mode'      => 'development',
-    'adapter'   => 'mysql_improved',
+    'adapter'   => 'mysql',
     'host'      => 'localhost',
     'username'  => '',
     'password'  => '',
@@ -23,7 +23,7 @@ CREO('database', array(
  */
 CREO('database', array(
     'mode'      => 'test',
-    'adapter'   => 'mysql_improved',
+    'adapter'   => 'mysql',
     'host'      => 'localhost',
     'username'  => '',
     'password'  => '',
@@ -35,7 +35,7 @@ CREO('database', array(
  */
 CREO('database', array(
     'mode'      => 'production',
-    'adapter'   => 'mysql_improved',
+    'adapter'   => 'mysql',
     'host'      => 'localhost',
     'username'  => '',
     'password'  => '',

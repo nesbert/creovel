@@ -56,7 +56,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
     public function __destruct()
     {
         // free memory and close database connection
-        $this->disconnect();
+        # $this->disconnect(); // sessions gc warning loses connection
     }
     
     /**
@@ -262,8 +262,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         $this->offset = 0;
         
         // release result resource
-        if (is_resource($this->db)
-            && !empty($this->result) && is_resource($this->result)) {
+        if (is_resource($this->db) && !empty($this->result) && is_resource($this->result)) {
             mysql_free_result($this->result);
         }
     }

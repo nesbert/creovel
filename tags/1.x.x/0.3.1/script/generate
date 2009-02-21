@@ -1,0 +1,75 @@
+#!/usr/bin/env php
+<?
+
+require dirname(__FILE__)."/../config/environment.php";
+
+$type = $_SERVER['argv'][1];
+$name = $_SERVER['argv'][2];
+
+switch ($type)
+{
+	case 'model':
+		$file = fopen(dirname(__FILE__)."/../app/models/{$name}.php", 'w+');
+		fwrite($file, "<?php\n\n/*\n\tClass: {$name}\n\t\n\t".humanize($name)." Model.\n*/\n\nclass {$name} extends model\n{\n\n\t// Section: Public\n\t\n\tpublic function __construct(".'$args'." = null)\n\t{\n\t\tparent::__construct(".'$args'.");\n\t}\n\n}\n\n?>");
+		fclose($file);
+		break;
+
+	case 'mailer':
+
+		$file = fopen(dirname(__FILE__)."/../app/models/{$name}_mailer.php", 'w+');
+
+		exec("mkdir -p ".dirname(__FILE__)."/../app/views/{$name}_mailer");
+
+		for ($i = 3; $i < count($_SERVER['argv']); $i++)
+		{
+			$view_name = $_SERVER['argv'][$i];
+
+			$views .= "\n\t/*\n\n\tFunction: {$view_name}\n\t\t{$view_name} Email\n\n\t*/\n";
+			$views .= "\n\tpublic function {$view_name}()\n\t{\n\t}\n";
+
+			$view = fopen(dirname(__FILE__)."/../app/views/{$name}_mailer/{$view_name}.php", 'w+');
+			fwrite($view, "<h1>{$view_name} View for {$name}_mailer</h1>\n<p>You can find me in views/{$name}_mailer/{$view_name}.php</p>");
+			fclose($view);
+		}
+
+		if ($views == '') $views = "\n";
+
+		fwrite($file, "<?\n\n/*\n\nClass: {$controller_name}\n\t{$controller_name} Controller\n\n*/\n\nclass {$name}_mailer extends mailer\n{{$views}}\n\n?>");
+		fclose($file);
+		break;
+
+	case 'controller':
+		$controller_name = str_replace('/', '_', $name);
+
+		if (preg_match('/\//', $name)) { 
+			$path = explode('/', $name);
+			array_pop($path);
+			$path = implode('/', $path);
+			exec("mkdir -p ".dirname(__FILE__)."/../app/controllers/{$path}");
+		}
+
+		$file = fopen(dirname(__FILE__)."/../app/controllers/{$name}_controller.php", 'w+');
+
+		touch(dirname(__FILE__)."/../app/helpers/{$controller_name}_helper.php", 'w+');
+		exec("mkdir -p ".dirname(__FILE__)."/../app/views/{$name}");
+
+		for ($i = 3; $i < count($_SERVER['argv']); $i++)
+		{
+			$view_name = $_SERVER['argv'][$i];
+
+			$views .= "\n\t/*\n\n\tFunction: {$view_name}\n\t\t{$view_name} Action\n\n\t*/\n";
+			$views .= "\n\tpublic function {$view_name}()\n\t{\n\t}\n";
+
+			$view = fopen(dirname(__FILE__)."/../app/views/{$name}/{$view_name}.php", 'w+');
+			fwrite($view, "<h1>{$view_name} View for {$controller_name}</h1>\n<p>You can find me in views/{$name}/{$view_name}.php</p>");
+			fclose($view);
+		}
+
+		if ($views == '') $views = "\n";
+
+		fwrite($file, "<?\n\n/*\n\nClass: {$controller_name}\n\t{$controller_name} Controller\n\n*/\n\nclass {$controller_name}_controller extends application_controller\n{{$views}}\n\n?>");
+		fclose($file);
+		break;
+}
+
+?>

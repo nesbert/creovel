@@ -396,17 +396,6 @@ function view_source_url($file)
 }
 
 /**
- * Create sessions table if it doesn't exists.
- *
- * @return boolean
- * @author Nesbert Hidalgo
- **/
-function create_sesssions_table()
-{
-    return Session::create_table();
-}
-
-/**
  * Create a Prototype object from $val. Helper function for the
  * Prototype data classes.
  *

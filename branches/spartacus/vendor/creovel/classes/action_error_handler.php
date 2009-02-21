@@ -19,7 +19,7 @@ class ActionErrorHandler extends Object
      **/
     public function add(&$error)
     {
-        $this->process($error);
+        $this->__process($error);
     }
     
     /**
@@ -53,7 +53,7 @@ class ActionErrorHandler extends Object
      * @param string/object $error Error message or Exception object.
      * @return void
      **/
-    private function process(&$error)
+    private function __process(&$error)
     {
         if (is_object($error)) {
             $this->exception = $error;
@@ -62,6 +62,8 @@ class ActionErrorHandler extends Object
             $this->exception = '';
             $this->message = $error;
         }
+        
+        $this->__custom_errors();
         
         // set header for error pages
         $code = isset($GLOBALS['CREOVEL']['ERROR_CODE'])
@@ -124,5 +126,19 @@ class ActionErrorHandler extends Object
                             'debugger.php');
         }
         die;
+    }
+    
+    /**
+     * undocumented function
+     *
+     * @return void
+     * @author Nesbert Hidalgo
+     **/
+    private function __custom_errors()
+    {
+        if (in_string(".sessions' doesn't exist", $this->message)) {
+            Session::create_table();
+            $this->message .= " The following Query has been executed: \"". Session::create_table(1) ."\". You should not see this message again.";
+        }
     }
 } // END class ActionErrorHandler extends Object

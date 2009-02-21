@@ -332,7 +332,7 @@ abstract class ActionMailer extends Object
             $return = preg_split('~</head>~', $return);
             
             // remove head
-            if (count($return)) {
+            if (count($return) > 1) {
                 $return = $return[1];
             } else {
                 $return = $return[0];

@@ -206,6 +206,7 @@ abstract class ActiveRecord extends Object implements Iterator
             $msg = "An error occurred while executing a method " .
                     "in the <strong>{$this->class_name()}</strong>.";
         }
+        CREO('error_code', 500);
         CREO('application_error', $msg);
     }
     

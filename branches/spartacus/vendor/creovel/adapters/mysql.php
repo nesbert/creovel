@@ -68,7 +68,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         }
         
         // open a connection to a MySQL Server and set db_link
-        $this->db = mysql_connect(
+        $this->db = @mysql_connect(
             $server,
             $db_properties['username'],
             $db_properties['password']

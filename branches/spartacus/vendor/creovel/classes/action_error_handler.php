@@ -63,14 +63,11 @@ class ActionErrorHandler extends Object
             $this->message = $error;
         }
         
+        // hcek for custom errors
         $this->__custom_errors();
         
         // set header for error pages
-        $code = isset($GLOBALS['CREOVEL']['ERROR_CODE'])
-                    ? $GLOBALS['CREOVEL']['ERROR_CODE']
-                    : '';
-        
-        switch ($code) {
+        switch ($GLOBALS['CREOVEL']['ERROR_CODE']) {
             case '404':
                 @header('Status: 404 Not Found', true, 404);
                 $action = 'not_found';
@@ -87,12 +84,11 @@ class ActionErrorHandler extends Object
             // get default error events
             $events = ActionRouter::error();
             if (isset($action)) $events['action'] = $action;
+            // set params
+            $params = array('error' => $this->message, 'exception' => $this->exception);
             // clean output buffer for application errors
             @ob_end_clean();
-            Creovel::run($events, array(
-                                'error' => $this->message,
-                                'exception' => $this->exception
-                                ));
+            Creovel::run($events, $params);
             die;
         }
         

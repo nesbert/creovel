@@ -19,6 +19,10 @@ class Creovel
      **/
     public static function initialize()
     {
+        // only run once
+        static $initialized;
+        if ($initialized) return $initialized;
+        
         // If not PHP 5 stop.
         if (PHP_VERSION <= 5) {
             die('Creovel requires PHP >= 5!');
@@ -60,7 +64,7 @@ class Creovel
         require_once CREOVEL_PATH . 'classes/object.php';
         require_once CREOVEL_PATH . 'classes/inflector.php';
         
-        return true;
+        return $initialized = true;
     }
     
     /**
@@ -69,8 +73,12 @@ class Creovel
      *
      * @return void
      **/
-    public function webapp()
+    public function initialize_for_web()
     {
+        // only run once
+        static $initialized;
+        if ($initialized) return $initialized;
+        
         // Include framework base classes.
         require_once CREOVEL_PATH . 'classes/action_controller.php';
         require_once CREOVEL_PATH . 'classes/action_view.php';
@@ -82,6 +90,7 @@ class Creovel
         $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
         $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
         $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
+        $GLOBALS['CREOVEL']['ERROR_CODE'] = '';
         $GLOBALS['CREOVEL']['HTML_APPEND'] = false;
         $GLOBALS['CREOVEL']['MODE'] = 'production';
         $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
@@ -94,12 +103,8 @@ class Creovel
         $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
         $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
         
-        // Include application config files
-        require_once CONFIG_PATH . 'environment.php';
-        require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
-        
-        // Include application config files
-        require_once CONFIG_PATH.'databases.php';
+        // set configuration settings
+        self::config();
         
         // Set session handler
         if ($GLOBALS['CREOVEL']['SESSION']) {
@@ -125,13 +130,30 @@ class Creovel
                     ));
         
         // Set default error route
-        ActionRouter::map('default_error', '/errors/:action/*', array(
+        ActionRouter::map('errors', '/errors/:action/*', array(
                     'controller' => 'errors',
                     'action' => 'general'
                     ));
         
         // Include custom routes
         require_once CONFIG_PATH . 'routes.php';
+        
+        return $initialized = true;
+    }
+    
+    /**
+     * Read and set environment and databases files .
+     *
+     * @return void
+     **/
+    public function config()
+    {
+        // Include application config files
+        require_once CONFIG_PATH . 'environment.php';
+        require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
+        
+        // Include application config files
+        require_once CONFIG_PATH.'databases.php';
     }
     
     /**
@@ -139,17 +161,17 @@ class Creovel
      *
      * @return void
      **/
-    public function run($events = null, $params = null, $return_as_str = false)
+    public function run($events = null, $params = null, $return_as_str = false, $skip_init = false)
     {
         // initialize framework
         self::initialize();
         
         // initialize web for web appliocations
-        self::webapp();
+        self::initialize_for_web();
         
         // set event and params
-        $events = $events ? $events : self::events();
-        $params = $params ? $params : self::params();
+        $events = is_array($events) ? $events : self::events();
+        $params = is_array($params) ? $params : self::params();
         
         if (isset($params['nested_controller'])
             && $params['nested_controller']) {

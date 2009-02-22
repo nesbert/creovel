@@ -275,6 +275,6 @@ class ActionRouter extends Object
      **/
     public function error()
     {
-        return $GLOBALS['CREOVEL']['ROUTING']['routes']['default_error']['events'];
+        return $GLOBALS['CREOVEL']['ROUTING']['routes']['errors']['events'];
     }
 } // END class ActionRouter extends Object

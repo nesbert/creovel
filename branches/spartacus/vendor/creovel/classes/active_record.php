@@ -1198,17 +1198,11 @@ abstract class ActiveRecord extends Object implements Iterator
             
             case 'check_box':
             case 'checkbox':
-                $tag_value = $arguments[0];
-                $text = $arguments[1];
-                $html_options = $arguments[2];
-                $html = check_box($field_name, $value, $html_options, $tag_value, $text);
-                break;
-            
             case 'radio_button':
-                $tag_value = $arguments[0];
-                $text = $arguments[1];
-                $html_options = $arguments[2];
-                $html = radio_button($field_name, $value, $html_options, $tag_value, $text);
+                $tag_value = isset($arguments[1]) ? $arguments[1] : $value;
+                $text = isset($arguments[2]) ? $arguments[2] : '';
+                $func = $type == 'radio_button' ? 'radio_button' : 'check_box';
+                $html = $func($field_name, $value, $html_options, $tag_value, $text);
                 break;
             
             case 'text_area':

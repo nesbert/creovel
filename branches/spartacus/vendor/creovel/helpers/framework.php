@@ -31,7 +31,7 @@ function __autoload($class)
         
         switch (true) {
             
-            case (in_string('Controller', $class)):
+            case (ends_with('controller', strtolower($class))):
                 $type = 'Controller';
                 $path = CONTROLLERS_PATH . $class . '.php';
                 break;

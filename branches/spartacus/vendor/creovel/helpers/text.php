@@ -84,6 +84,18 @@ function underscore($word)
 }
 
 /**
+ * Transforms text to 'ClassName'.
+ *
+ * @param string $word
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function classify($word)
+{
+    return Inflector::classify($word);
+}
+
+/**
  * Helpful for alternating between between two values during a loop.
  *
  * <code>

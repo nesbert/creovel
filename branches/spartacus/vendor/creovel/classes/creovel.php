@@ -173,6 +173,9 @@ class Creovel
         $events = is_array($events) ? $events : self::events();
         $params = is_array($params) ? $params : self::params();
         
+        // handle dashed controller names
+        $events['controller'] = underscore($events['controller']);
+        
         if (isset($params['nested_controller'])
             && $params['nested_controller']) {
             $events['nested_controller_path'] = $params['nested_controller'];
@@ -188,7 +191,7 @@ class Creovel
         self::include_controller($controller_path);
         
         // create controller object and build the framework
-        $controller = humanize($events['controller']) . 'Controller';
+        $controller = camelize($events['controller']) . 'Controller';
         $controller = new $controller();
         
         // set controller properties
@@ -237,7 +240,6 @@ class Creovel
     public function include_controller($controller_path)
     {
         try {
-            
             // include application controller
             $controllers = array_merge(array('application'),
                                         explode(DS, $controller_path));

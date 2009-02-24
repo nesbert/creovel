@@ -1,92 +1,59 @@
 <?php
 /**
- * General server/networking functions.
+ * Copyright (c) 2005-2006, creovel.org
  *
- * @package     Creovel
- * @subpackage  Helpers
- * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.2.0
- **/
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions
+ * of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * Licensed under The MIT License. Redistributions of files must retain the above copyright notice.
+ */
+
+/*
+ * General server/networking functions.
+ */
 
 /**
  * Returns browser's IP address.
  *
- * @return string
  * @author Nesbert Hidalgo
- **/
+ * @access global
+ */
 function ip()
 {
-    return $_SERVER['REMOTE_ADDR'];
-}
+	return $_SERVER['REMOTE_ADDR'];
+} 
 
 /**
  * Return the http: or https: depending on environment.
  *
- * @return string
  * @author Nesbert Hidalgo
- **/
+ * @access public
+ */
 function http()
 {
-    return 'http'.(getenv('HTTPS') == 'on' ? 's' : '').'://';
-}
-
-/**
- * Returns the current server host.
- *
- * @return string
- * @author Nesbert Hidalgo
- **/
-function host()
-{
-    return $_SERVER['HTTP_HOST'];
+	return 'http'.( getenv('HTTPS') == 'on' ? 's' : '' ).'://';
 }
 
 /**
  * Returns the current server host's URL.
  *
- * @return string
  * @author Nesbert Hidalgo
- **/
+ * @access public
+ * @return string
+ */
 function http_host()
 {
-    return http() . host();
+	return http() . $_SERVER['HTTP_HOST'];
 }
-
-/**
- * Returns the current server host's URL.
- *
- * @return string
- * @author Nesbert Hidalgo
- **/
-function url()
-{
-    return http_host() . $_SERVER['REQUEST_URI'];
-}
-
-/**
- * Returns the current server domain.
- *
- * @return string
- * @author Nesbert Hidalgo
- **/
-function domain()
-{
-    $url = explode('.', host());
-    $tld = explode(':', $url[count($url) - 1]);
-    return $url[count($url) - 2] . '.' . $tld[0];
-}
-
-/**
- * A top-level domain (TLD), sometimes referred to as a top-level domain name
- * (TLDN), is the last part of an Internet domain name; that is, the letters
- * that follow the final dot of any domain name. For example, in the domain
- * name www.example.com, the top-level domain is "com".
- *
- * @return string
- * @author Nesbert Hidalgo
- **/
-function tld()
-{
-    $url = explode('.', domain());
-    return isset($url[1]) ? $url[1] : '';
-}
+?>

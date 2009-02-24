@@ -1,276 +1,168 @@
 <?php
-/**
- * The main class where the model, view and controller interact.
- *
- * @package     Creovel
- * @subpackage  Core
- * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.1.0
- * @author      Nesbert Hidalgo
- **/
-class Creovel
+
+/*
+	Class: creovel
+	
+	The main class where the model, view and controller interact.
+*/
+
+class creovel
 {
-    /**
-     * Set constants, include helpers, configuration files & core classes,
-     * amp default routes and set CREOVEL & environment variables.
-     *
-     * @return boolean
-     * @author Nesbert Hidalgo
-     **/
-    public static function initialize()
-    {
-        // only run once
-        static $initialized;
-        if ($initialized) return $initialized;
-        
-        // If not PHP 5 stop.
-        if (PHP_VERSION <= 5) {
-            die('Creovel requires PHP >= 5!');
-        }
-        
-        // Define creovel constants.
-        define('CREOVEL_VERSION', '0.4.0');
-        define('CREOVEL_RELEASE_DATE', '2008-07-02 22:55:55');
-        
-        // Define environment constants.
-        define('PHP', PHP_VERSION);
-        
-        // Define time constants.
-        define('SECOND',  1);
-        define('MINUTE', 60 * SECOND);
-        define('HOUR',   60 * MINUTE);
-        define('DAY',    24 * HOUR);
-        define('WEEK',    7 * DAY);
-        define('MONTH',  30 * DAY);
-        define('YEAR',  365 * DAY);
-        
-        // Include base helper libraries.
-        require_once CREOVEL_PATH . 'helpers/datetime.php';
-        require_once CREOVEL_PATH . 'helpers/form.php';
-        require_once CREOVEL_PATH . 'helpers/framework.php';
-        require_once CREOVEL_PATH . 'helpers/general.php';
-        require_once CREOVEL_PATH . 'helpers/html.php';
-        require_once CREOVEL_PATH . 'helpers/locale.php';
-        require_once CREOVEL_PATH . 'helpers/server.php';
-        require_once CREOVEL_PATH . 'helpers/text.php';
-        require_once CREOVEL_PATH . 'helpers/validation.php';
-        
-        // Include application_helper
-        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
-            require_once $helper;
-        }
-        
-        // Include minimum base classes.
-        require_once CREOVEL_PATH . 'classes/object.php';
-        require_once CREOVEL_PATH . 'classes/inflector.php';
-        
-        return $initialized = true;
-    }
-    
-    /**
-     * Prepare framework for web applications by setting default routes and
-     * set CREOVEL environment variables for web applications.
-     *
-     * @return void
-     **/
-    public function initialize_for_web()
-    {
-        // only run once
-        static $initialized;
-        if ($initialized) return $initialized;
-        
-        // Include framework base classes.
-        require_once CREOVEL_PATH . 'classes/action_controller.php';
-        require_once CREOVEL_PATH . 'classes/action_view.php';
-        require_once CREOVEL_PATH . 'classes/action_error_handler.php';
-        require_once CREOVEL_PATH . 'classes/action_router.php';
-        
-        // Set default creovel global vars.
-        $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
-        $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
-        $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
-        $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
-        $GLOBALS['CREOVEL']['ERROR_CODE'] = '';
-        $GLOBALS['CREOVEL']['HTML_APPEND'] = false;
-        $GLOBALS['CREOVEL']['MODE'] = 'production';
-        $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
-        $GLOBALS['CREOVEL']['SESSION'] = true;
-        $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'sessions';
-        $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
-        
-        // Set routing defaults
-        $GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());
-        $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
-        $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
-        
-        // set configuration settings
-        self::config();
-        
-        // Set session handler
-        if ($GLOBALS['CREOVEL']['SESSION']) {
-            
-            if ($GLOBALS['CREOVEL']['SESSION'] == 'table') {
-                // include/create session db object
-                require_once CREOVEL_PATH . 'classes/session.php';
-                $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new Session;
-            }
-            
-            // Fix for PHP 5.05
-            // http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
-            register_shutdown_function('session_write_close');
-            
-            // start session
-            if (session_id() == '') session_start();
-        }
-        
-        // Set default route
-        ActionRouter::map('default', '/:controller/:action/*', array(
-                    'controller' => 'index',
-                    'action' => 'index'
-                    ));
-        
-        // Set default error route
-        ActionRouter::map('errors', '/errors/:action/*', array(
-                    'controller' => 'errors',
-                    'action' => 'general'
-                    ));
-        
-        // Include custom routes
-        require_once CONFIG_PATH . 'routes.php';
-        
-        return $initialized = true;
-    }
-    
-    /**
-     * Read and set environment and databases files .
-     *
-     * @return void
-     **/
-    public function config()
-    {
-        // Include application config files
-        require_once CONFIG_PATH . 'environment.php';
-        require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
-        
-        // Include application config files
-        require_once CONFIG_PATH.'databases.php';
-    }
-    
-    /**
-     * Set frame events and params. Build controller execution environment.
-     *
-     * @return void
-     **/
-    public function run($events = null, $params = null, $return_as_str = false, $skip_init = false)
-    {
-        // initialize framework
-        self::initialize();
-        
-        // initialize web for web appliocations
-        self::initialize_for_web();
-        
-        // set event and params
-        $events = is_array($events) ? $events : self::events();
-        $params = is_array($params) ? $params : self::params();
-        
-        // handle dashed controller names
-        $events['controller'] = underscore($events['controller']);
-        
-        if (isset($params['nested_controller'])
-            && $params['nested_controller']) {
-            $events['nested_controller_path'] = $params['nested_controller'];
-            $controller_path =  $events['nested_controller_path'] . DS .
-                $events['controller'];
-            // remove from params
-            unset($params['nested_controller']);
-        } else {
-            $controller_path = $events['controller'];
-        }
-        
-        // include controller
-        self::include_controller($controller_path);
-        
-        // create controller object and build the framework
-        $controller = camelize($events['controller']) . 'Controller';
-        $controller = new $controller();
-        
-        // set controller properties
-        $controller->__set_events($events);
-        $controller->__set_params($params);
-        
-        // execute action
-        $controller->__execute_action();
-        
-        // output to user
-        return $controller->__output($return_as_str);
-    }
-    
-    /**
-     * Return the an associative array of events or a particular event value.
-     *
-     * @param string $event_to_return Name of event to return.
-     * @param string $uri
-     * @return mixed 
-     **/
-    public function events($event_to_return = null, $uri = null)
-    {
-        $events = ActionRouter::which($uri);
-        return $event_to_return ? $events[$event_to_return] : $events;
-    }
-    
-    /**
-     * Return the an associative array of params or a particular param value.
-     *
-     * @param string $param_to_return Name of param to return.
-     * @param string $uri
-     * @return mixed 
-     **/
-    public function params($param_to_return = null, $uri = null)
-    {
-        $params = array_merge($_GET, $_POST, ActionRouter::which($uri, true));
-        return $param_to_return ? $params[$param_to_return] : $params;
-    }
-    
-    /**
-     * Includes the required files for a controller and the controller helpers.
-     *
-     * @param string $controller_path Server path of controller to include.
-     * @return void 
-     **/
-    public function include_controller($controller_path)
-    {
-        try {
-            // include application controller
-            $controllers = array_merge(array('application'),
-                                        explode(DS, $controller_path));
-            
-            $path = '';
-            
-            foreach ($controllers as $controller) {
-                $class = $controller . '_controller';
-                $controller_path = CONTROLLERS_PATH . $path . $class . '.php';
-                $helper_path = HELPERS_PATH . $path . $controller .
-                                '_helper.php';
-                
-                if (file_exists($controller_path)) {
-                    require_once $controller_path;
-                } else {
-                    $controller_path = str_replace($class . '.php', '',
-                                            $controller_path);
-                    throw new Exception(str_replace(' ', '', humanize($class)) .
-                    " not found in <strong>" . str_replace('_controller' .
-                    '.php', '', $controller_path) . "</strong>");
-                }
-                
-                // include helper
-                if (file_exists($helper_path)) require_once $helper_path;
-                
-                // append to path if a nested controller
-                $path .= str_replace('application' . DS, '', $controller . DS);
-            }
-        } catch (Exception $e) {
-            CREO('error_code', 404);
-            CREO('application_error', $e);
-        }
-    }
-} // END class Creovel
+
+	const VERSION = '0.04';
+	const RELEASE_DATE = 'Jul 02 2008 19:01:55';
+	
+	// Section: Public
+	
+	/*
+		Function: run
+		
+		Runs the framework.
+		
+		Parameters:
+		
+			events - Assoc. array of controller, action & id.
+			params - Assoc. array of params.
+			return_as_str - *Optional* Returns controller as string.
+		
+		Returns:
+		
+			<controller> object or string.
+	*/
+	
+	public function run($events = null, $params = null, $return_as_str = false)
+	{
+		// set event and params
+		$events = $events ? $events : creovel::get_events();
+		$params = $params ? $params : creovel::get_params();
+		
+		// include controller
+		self::_include_controller( ( isset($events['nested_controller_path']) && $events['nested_controller_path'] ? $events['nested_controller_path'].DS : '' ) . $events['controller'] );
+		
+		// create controller object and build the framework
+		$controller = $events['controller'].'_controller';
+		$controller = new $controller();
+		
+		// set controller properties
+		$controller->_set_events($events);
+		$controller->_set_params($params);
+		
+		// execute action
+		$controller->_execute_action();
+
+		// output to user
+		return $controller->_output($return_as_str);
+	}
+	
+	/*
+		Function: get_events
+		
+		Returns the framework events (controller, action & id).
+		
+		Parameters:
+		
+			event_to_return - Name of event to return.
+			uri - *Optional* url routing path.
+		
+		Returns:
+		
+			Events array.
+	*/
+	
+	public function get_events($event_to_return = null, $uri = null, $route_name = '')
+	{
+		$events = $_ENV['routing']->events($uri, $route_name);
+		return $event_to_return ? $events[$event_to_return] : $events;
+	}
+	
+	/*
+		Function get_params
+		
+		Returns the framework params.
+		
+		Parameters:
+		
+			param_to_return - Name of param to return.
+			
+		Returns:
+		
+			Params array.
+	*/
+	
+	public function get_params($param_to_return = null, $uri = null)
+	{
+		$params = $_ENV['routing']->params($uri);
+		
+		// clean controller (eg. admin/users)
+		if ( isset($params['controller']) && ( count( $c = explode('/', $params['controller'] ) ) > 1 ) ) {
+			$params['controller'] = $c[ count($c) - 1 ];
+			array_pop($c);
+			$params['nested_controller'] = implode('/', $c);
+		}
+		
+		$params = array_merge($params, $_GET, $_POST);
+		// $GLOBALS['HTTP_RAW_POST_DATA'] used for observer ajax calls
+		// Note: HTTP_RAW_POST_DATA must set to on in php.ini
+		if ( isset($GLOBALS['HTTP_RAW_POST_DATA']) ) {
+			$params =  array_merge( $params, array( 'raw_post' => str_replace('&_=', '', $GLOBALS['HTTP_RAW_POST_DATA']) ) );
+		}
+		unset($params['_']);
+		return $param_to_return ? $params[$param_to_return] : $params;
+	}
+	
+	// Section: Private
+	
+	/*
+		Function: _include_controller
+		
+		Includes the required files for a controller and the controller helpers.
+		
+		Parameters:	
+		
+			controller_path - Server path of controller to include.
+	*/
+	
+	private function _include_controller($controller_path)
+	{
+		// include application controller
+		$controllers = array_merge(array('application'), explode(DS, $controller_path));
+		
+		$path = '';
+		
+		foreach ( $controllers as $controller ) {
+		
+			$class = $controller . '_controller';
+			$controller_path = CONTROLLERS_PATH . $path . $class . '.php';
+			$helper_path = HELPERS_PATH . $path . $controller . '_helper.php';
+			
+			try {
+				
+				if ( $class == '_controller' ) {
+					$_ENV['error']->add("Looking for an 'Unknown Controller' in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
+				}
+				
+				if ( file_exists($controller_path) ) {
+					require_once $controller_path;
+				} else {
+					$controller_path = str_replace($class . '.php', '', $controller_path);
+					throw new Exception("404: Controller '{$class}' not found in <strong>".str_replace('_controller'.'.php', '', $controller_path)."</strong>");
+				}
+			
+			} catch ( Exception $e ) {
+			
+				// add to errors
+				$_ENV['error']->add($e->getMessage(), $e);
+			
+			}
+			
+			// include helper
+			if ( file_exists($helper_path) ) require_once $helper_path;
+			
+			// append to path if a nested controller
+			$path .= str_replace('application'.DS, '', $controller.DS);
+		}
+	
+	}
+
+}
+?>

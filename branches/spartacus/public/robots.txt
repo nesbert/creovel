@@ -1,0 +1,10 @@
+# robots.txt specifies an access policy for robots.
+
+# Specifies that "botname" should not visit any URL starting with "/dir/sub/" or /foo.html
+#User-agent: botname
+#Disallow: /dir/sub/
+#Disallow: /foo.html
+
+# Uncomment to disallow all bots
+#User-agent: *
+#Disallow: /

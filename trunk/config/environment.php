@@ -1,27 +1,33 @@
 <?php
-/**
- * Set environment variables.
- *
- * @package     Application
- * @subpackage  Config
- **/
 
-/**
- * Set application mode: 'development', 'test' or 'production'.
- */
-CREO('mode', 'development');
+/*
 
-/**
- * Set session handler: false, true, or 'table'.
- */
-CREO('session', false);
+	Scripts: environment
+	
+	This is used set framework configuration settings.
+	
+	See Also:
+	
+		<link to environment documentation>
 
-/**
- * Show source in debugger for all files.
- */
-CREO('show_source', false);
+*/
 
-/**
- * Set error reporting level.
- */
-error_reporting(CREO('mode') == 'development' ? E_ALL : 0);
+// Set application mode.
+$_ENV['mode'] = 'development'; // development, test, production
+
+// Email application errors when not in development mode (set to enable).
+$_ENV['email_errors'] = 'youremail@yourdomain.com'; // use commas for multiple email addresses
+
+// Set session handler.
+$_ENV['sessions'] = true; // false, true, 'table'
+
+// show source in debugger for all files
+$_ENV['view_source'] = false;
+
+// Include application paths.
+require_once 'paths.php';
+
+// Initialize framework and include core libraries.
+require_once CREOVEL_PATH.'initialize.php';
+
+?>

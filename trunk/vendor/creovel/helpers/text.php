@@ -1,245 +1,362 @@
 <?php
-/**
- * Text & String functions.
- *
- * @package     Creovel
- * @subpackage  Helpers
- * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.1.0
- **/
+/*
 
-/**
- * Returns a pluralized version of a $word.
- *
- * @param string $word
- * @param integer $count
- * @return string
- * @author Nesbert Hidalgo
- **/
+Script: text
+
+*/
+
+/*
+
+Function: pluralize
+	Returns a pluralized verision of a word.
+
+Parameters:
+	word - string
+	count - number of items
+
+Returns:
+	string
+
+*/	
+
 function pluralize($word, $count = null)
 {
-    if ($count == 1) return $word;
-    return Inflector::pluralize($word);
+	if ( $count == 1 ) return $word;
+	return inflector::pluralize($word);
 }
 
-/**
- * Returns a singularized verision of a $word.
- *
- * @param string $word
- * @return string
- * @author Nesbert Hidalgo
- **/
+/*
+
+Function: singularize
+	Returns a singularized verision of a word.
+
+Parameters:
+	word - string
+
+Returns:
+	string
+
+*/	
+
 function singularize($word)
 {
-    return Inflector::singularize($word);
+	return inflector::singularize($word);
 }
 
-/**
- * Transform text like 'programmers_field' to 'Programmers Field'.
- *
- * @param string $word
- * @return string
- * @author Nesbert Hidalgo
- **/
+/*
+
+Function: humanize
+	Transform text like 'programmers_field' to 'Programmers Field'
+
+Parameters:
+	word - string
+
+Returns:
+	string
+
+*/	
+
 function humanize($word)
 {
-    return Inflector::titleize($word);
-}
+	return inflector::titleize($word);
+} 
 
-/**
- * Transform text like 'programmers_field' to 'ProgrammersField'.
- *
- * @param string $word
- * @return string
- * @author Nesbert Hidalgo
- **/
+/*
+
+Function: camelize
+	Transform text like 'programmers_field' to 'ProgrammersField'
+
+Parameters:
+	word - string
+
+Returns:
+	string
+
+*/	
+
 function camelize($word)
 {
-    return Inflector::camelize($word);
-}
+	return inflector::camelize($word);
+}    
 
-/**
- * Replaces every instance of the underscore ("_") or space (" ")
- * character by a dash ("-").
- *
- * @param string $word
- * @return string
- * @author Nesbert Hidalgo
- **/
-function dasherize($word)
-{
-    return Inflector::underscore($word, '-');
-}
+/*
 
-/**
- * Transforms text like 'ProgrammersField' to 'programmers_field'.
- *
- * @param string $word
- * @return string
- * @author Nesbert Hidalgo
- **/
+Function: underscore
+	Transforms text like 'ProgrammersField' to 'programmers_field'
+
+Parameters:
+	word - string
+
+Returns:
+	string
+
+*/	
+
 function underscore($word)
 {
-    return Inflector::underscore($word);
+	return inflector::underscore($word);
 }
 
-/**
- * Transforms text to 'ClassName'.
- *
- * @param string $word
- * @return string
- * @author Nesbert Hidalgo
- **/
-function classify($word)
+/*
+
+Function: cycle
+	Helpful for alternating between between two values during a loop.
+
+	(start code)
+ 		<tr class="<?=cycle('data_alt1', 'data_alt2')?>">
+ 		<tr class="data_alt<?=cycle()?>">
+	(end)
+
+Returns:
+	int/string
+
+*/
+ 
+function cycle($var1 = null, $var2 = null)
 {
-    return Inflector::classify($word);
+	static $return;
+	//$var1 = $var1 ? $var1 : 1;
+	//$var2 = $var2 ? $var2 : 2;
+	$return = ( $return == $var2 ? $var1 : $var2 );
+	return $return;
 }
 
-/**
- * Helpful for alternating between between two values during a loop.
- *
- * <code>
- * <tr class="<?=cycle('data_alt1', 'data_alt2')?>">
- * <tr class="data_alt<?=cycle()?>">
- * </code>
- *
- * @param string $var1
- * @param string $var2
- * @return mixed Returns 1 & 2 in to strings passed
- * @author Nesbert Hidalgo
- **/
-function cycle($var1 = '', $var2 = '')
-{
-    static $return;
-    $var1 = $var1 ? $var1 : 1;
-    $var2 = $var2 ? $var2 : 2;
-    $return = $return == $var2 || !$return ? $var1 : $var2;
-    return $return;
-}
+/*
 
-/**
- * Replace every " (quote) with its html equevelant.
- *
- * @param string $str
- * @return string
- * @author Nesbert Hidalgo
- **/
+Function: quote2string
+	Replace every " (quote) with its html equevelant
+
+Paremeters:
+	str - required
+
+Returns:
+	string
+*/
+
 function quote2string($str)
 {
-    return str_replace("\"", "&quot;", $str);
+	return str_replace("\"", "&quot;", $str);
 }
 
-/**
- * Replace every charactor of a string with $mask
- *
- * @param string $str
- * @param string $mask Optional default set to '*'
- * @return string
- * @author Nesbert Hidalgo
- **/
+/*
+
+Function: mask
+	Replace every charactor of a string with $mask
+
+Parmeters:
+	str - required
+	mask - optional default set to '*'
+
+Returns:
+	string
+
+*/
+
 function mask($str, $mask = '*')
 {
-    $return = '';
-    for ($i = 0; $i <= (strlen($str) - 1); $i++) $return .= $mask;
-    return $return;
+	for ( $i = 0; $i <= ( strlen($str) - 1 ); $i++ ) $return .= $mask;
+	return $return;
 }
 
-/**
- * Truncates a string and adds trailing periods to it. Now handles
- * words better thank you Mel Cruz for the suggestion. By default
- * trucates at end of words.
- *
- * @param string $str
- * @param integer $length Optional default set to 100 characters
- * @param string $tail Optional default set to '...'
- * @param boolean $strict Optional default false truncate at exact $length
- * @return string
- * @author Nesbert Hidalgo
- **/
+/*
+
+Function: truncate
+	Truncates a string and adds trailing periods to it. Now handles words better thank you Mel Cruz for the suggestion. By default trucates at end of words.
+
+Parameters:
+	str - required
+	length - optional default set to 100 characters
+	tail - optional default set to '...'
+	strict - optional default false truncate at exact $length
+
+Returns:
+	string
+
+*/
+
 function truncate($str, $length = 100, $tail = '...', $strict = false)
-{
-    if (!$strict) $str = trim($str);
-    
-    if ( strlen($str) >= $length ) {
-        if ($strict) {
-            $str = trim(substr_replace($str, '', ($length - strlen($tail))));
-        } else {
-            if ( $length > 1 ) $offset = strpos($str, " ", $length - 1);
-            $str = substr_replace($str, '', ( $offset ? $offset : $length) );
-        }
-        $str .= $tail;
-    }
-    
-    return $str;
+{	
+	if (!$strict) $str = trim($str);
+	
+	if ( strlen($str) >= $length ) {
+		if ($strict) {
+			$str = trim(substr_replace($str, '', ($length - strlen($tail))));
+		} else {
+			if ( $length > 1 ) $offset = strpos($str, " ", $length - 1);
+			$str = substr_replace($str, '', ( $offset ? $offset : $length) );
+		}
+		$str .= $tail;
+	}
+		
+	return $str;
 }
 
-/**
- * Reformats a string to fit within a display with a certain
- * number of columns.  Words are moved between the lines as
- * necessary.  Particularly useful for formatting text to
- * be sent via email (prevents nasty wrap-around problems).
- *
- * Credit: syneryder@namesuppressed.com
- *
- * @param string $s The string to be formatted
- * @param integer $l The maximum length of a line
- * @return string
- * @author Russ Smith
- **/
+/*
+
+Function: truncate
+	Reformats a string to fit within a display with a certain
+	number of columns.  Words are moved between the lines as
+	necessary.  Particularly useful for formatting text to
+	be sent via email (prevents nasty wrap-around problems).
+
+Parameters:
+	s - the string to be formatted
+	l - the maximum length of a line
+
+Credit:
+	syneryder@namesuppressed.com
+
+Returns:
+	string
+
+*/
+
 function wordwrap_line($s, $l)
 {
-    $tok = strtok($s, " ");
-    $formatted = '';
-    
-    while (strlen($tok) != 0) {
-        if (strlen($line) + strlen($tok) < ($l + 2) ) {
-            $line .= " $tok";
-        } else {
-            $formatted .= "$line\n";
-            $line = $tok;
-        }
-        $tok = strtok(" ");
-    }
-    
-    $formatted .= $line;
-    
-    return trim($formatted);
+	$tok = strtok($s, " ");
+
+	while (strlen($tok) != 0)
+	{
+		if (strlen($line) + strlen($tok) < ($l + 2) ) {
+			$line .= " $tok";
+		} else {
+			$formatted .= "$line\n";
+			$line = $tok;
+		}
+		$tok = strtok(" ");
+	}
+
+	$formatted .= $line;
+	$formatted = trim($formatted);
+
+	return $formatted;
 }
 
-/**
- * Retrieve a number from a string.
- *
- * @param string $str
- * @return float
- * @author Nesbert Hidalgo
- **/
-function retrieve_number($str)
+/*
+	Function: amphersand_encode
+	
+	Reformats every charater of a string to their ampersand equevilant.
+	
+	Parameters:
+		
+		str - the string to be formatted
+	
+	Returns:
+	
+		String.
+*/
+
+function amphersand_encode($str)
 {
-    return floatval(preg_replace('/[^0-9.-]/', '', $str));
+	$ampersand = array(
+		' ' => '&#32;',
+		'!' => '&#33;',
+		'"' => '&#34;',
+		'#' => '&#35;',
+		'$' => '&#36;',
+		'%' => '&#37;',
+		'&' => '&#38;',
+		"'" => '&#39;',
+		'(' => '&#40;',
+		')' => '&#41;',
+		'*' => '&#42;',
+		'+' => '&#43;',
+		',' => '&#44;',
+		'-' => '&#45;',
+		'.' => '&#46;',
+		'/' => '&#47;',
+		'0' => '&#48;',
+		'1' => '&#49;',
+		'2' => '&#50;',
+		'3' => '&#51;',
+		'4' => '&#52;',
+		'5' => '&#53;',
+		'6' => '&#54;',
+		'7' => '&#55;',
+		'8' => '&#56;',
+		'9' => '&#57;',
+		':' => '&#58;',
+		';' => '&#59;',
+		'<' => '&#60;',
+		'=' => '&#61;',
+		'>' => '&#62;',
+		'?' => '&#63;',
+		'@' => '&#64;',
+		'A' => '&#65;',
+		'B' => '&#66;',
+		'C' => '&#67;',
+		'D' => '&#68;',
+		'E' => '&#69;',
+		'F' => '&#70;',
+		'G' => '&#71;',
+		'H' => '&#72;',
+		'I' => '&#73;',
+		'J' => '&#74;',
+		'K' => '&#75;',
+		'L' => '&#76;',
+		'M' => '&#77;',
+		'N' => '&#78;',
+		'O' => '&#79;',
+		'P' => '&#80;',
+		'Q' => '&#81;',
+		'R' => '&#82;',
+		'S' => '&#83;',
+		'T' => '&#84;',
+		'U' => '&#85;',
+		'V' => '&#86;',
+		'W' => '&#87;',
+		'X' => '&#88;',
+		'Y' => '&#89;',
+		'Z' => '&#90;',
+		'[' => '&#91;',
+		'\' => '&#92;',
+		']' => '&#93;',
+		'^' => '&#94;',
+		'_' => '&#95;',
+		'`' => '&#96;',
+		'a' => '&#97;',
+		'b' => '&#98;',
+		'c' => '&#99;',
+		'd' => '&#100;',
+		'e' => '&#101;',
+		'f' => '&#102;',
+		'g' => '&#103;',
+		'h' => '&#104;',
+		'i' => '&#105;',
+		'j' => '&#106;',
+		'k' => '&#107;',
+		'l' => '&#108;',
+		'm' => '&#109;',
+		'n' => '&#110;',
+		'o' => '&#111;',
+		'p' => '&#112;',
+		'q' => '&#113;',
+		'r' => '&#114;',
+		's' => '&#115;',
+		't' => '&#116;',
+		'u' => '&#117;',
+		'v' => '&#118;',
+		'w' => '&#119;',
+		'x' => '&#120;',
+		'y' => '&#121;',
+		'z' => '&#122;',
+		'{' => '&#123;',
+		'|' => '&#124;',
+		'}' => '&#125;',
+		'~' => '&#126;',
+		'™' => '&#153;',
+		'©' => '&#169;',
+		'®' => '&#174;'
+	);
+	
+	$str = str_split($str);
+	$ampersand_str = '';
+	
+	foreach ($str as $char) {
+		$ampersand_str .= $ampersand[$char];
+	}
+	
+	return $ampersand_str;
 }
 
-/**
- * Checks if the string starts with $needle.
- *
- * @param string $needle
- * @param string $haystack
- * @return string
- * @author Nesbert Hidalgo
- **/
-function starts_with($needle, $haystack)
-{
-    return substr($haystack, 0, strlen($needle)) == $needle;
-}
-
-/**
- * Checks if the string ends with $needle.
- *
- * @param string $needle
- * @param string $haystack
- * @return string
- * @author Nesbert Hidalgo
- **/
-function ends_with($needle, $haystack)
-{
-    return substr($haystack, -strlen($needle)) == $needle;
-}
+?>

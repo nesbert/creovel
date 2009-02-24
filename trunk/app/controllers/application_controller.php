@@ -1,17 +1,14 @@
 <?php
-/**
- * Application controller class.
- *
- * @package     Application
- * @subpackage  Controllers
- **/
-class ApplicationController extends ActionController
+/*
+
+	Script: application_controller
+	
+	Place Application wide code here.
+
+*/
+
+class application_controller extends controller
 {
-    /**
-     * Initialize global controller.
-     *
-     * @return void
-     **/
-    public function initialize_application_controller()
-    {}
-} // END class ApplicationController
+
+}
+?>

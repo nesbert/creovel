@@ -1,7 +1,9 @@
 <?php
-/**
- * Global application functions.
- *
- * @package     Application
- * @subpackage  Helpers
- **/
+/*
+
+	Script: application_helper
+	
+	Global controller functions here.
+
+*/
+?>

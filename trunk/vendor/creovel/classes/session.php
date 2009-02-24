@@ -1,153 +1,210 @@
 <?php
-/**
- * Table session class and helpers functions.
- *
- * @package     Creovel
- * @subpackage  Core
- * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.1.0 
- **/
-class Session extends Object
+/*
+
+	Class: session
+	
+	Table session class.
+
+	Todo:
+	
+		* Storing class/object bug.
+ 
+*/
+
+class session extends model
 {
-    /**
-     * Storage resource.
-     *
-     * @var object
-     **/
-    private $r;
-    
-    /**
-     * Storage type.
-     *
-     * @var string
-     **/
-    private $type = 'table';
-    
-    /**
-     * undocumented function
-     *
-     * @return void
-     * @author Nesbert Hidalgo
-     **/
-    public function __construct()
-    {
-        ini_set('session.save_handler', 'user');
-        
-        session_set_save_handler(
-            array(&$this, 'open'),
-            array(&$this, 'close'),
-            array(&$this, 'read'),
-            array(&$this, 'write'),
-            array(&$this, 'destroy'),
-            array(&$this, 'gc')
-            );
-    }
-    
-    /**
-     * Open the session.
-     *
-     * @return void
-     **/
-    public function open()
-    {
-        return is_object($this->r = ActiveRecord::table_object());
-    }
-    
-    /**
-     * Close the session.
-     *
-     * @return void
-     **/
-    public function close()
-    {
-        //self::gc(ini_get('session.gc_maxlifetime'));
-        return $this->r->disconnect();
-    }
-    
-    /**
-     * Get session data.
-     *
-     * @param string $id Session ID.
-     * @return string
-     **/
-    public function read($id)
-    {
-        if (!$id) return false;
-        
-        $this->r->query(sprintf("SELECT * FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `id` = '%s';", $this->r->escape($id)));
-        $result = $this->r->next();
-        
-        if ($this->r->total_rows() == 1) {
-            return $result['data'];
-        } else {
-            return "";
-        }
-    }
-    
-    /**
-     * Sets session data.
-     *
-     * @param string $id Session ID.
-     * @param string $val Session value.
-     * @return integer
-     **/
-    public function write($id = false, $val = '')
-    {
-        if (!$id) return false;
-        
-        $this->r->query(sprintf(
-            "REPLACE INTO `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` VALUES('%s', '%s', '%s');",
-            $this->r->escape($id),
-            datetime(time() + get_cfg_var("session.gc_maxlifetime")),
-            $this->r->escape($val)
-            ));
-        
-        return $this->r->affected_rows();
-    }
-    
-    /**
-     * Deletes session data.
-     *
-     * @param string $id Session ID.
-     * @return integer
-     **/
-    public function destroy($id)
-    {
-        $this->r->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `id` = '" . $this->r->escape($id) . "'");
-        return $this->r->affected_rows();
-    }
-    
-    /**
-     * Delete all expired rows from session table.
-     *
-     * @param maxlifetime Session max life time.
-     * @return integer
-     **/
-    public function gc($maxlifetime)
-    {
-        $this->r->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `expires_at` < '" . datetime() . "';");
-        return $this->r->affected_rows();
-    }
-    
-    /**
-     * Create sessions table if it doesn't exists.
-     *
-     * @param boolean $query_only
-     * @return boolean
-     **/
-    public function create_table($query_only = false)
-    {
-        $sql = "CREATE TABLE IF NOT EXISTS {$GLOBALS['CREOVEL']['SESSIONS_TABLE']}
-                (
-                    id VARCHAR (255) NOT NULL,
-                    expires_at datetime NOT NULL,
-                    data TEXT NOT NULL,
-                    PRIMARY KEY (id)
-                );";
-        if ($query_only) {
-            return $sql;
-        } else {
-            return $this->r->query($sql);
-        }
-    }
-} // END class Session extends Object
+
+	/*
+	
+		Function: __construct
+		
+		Constructor for session model
+		
+		Paramters:
+		
+		mixed - Array of connection arguments.
+
+	*/
+
+	public function __construct($args = null)
+	{
+		if ($_ENV['sessions_table_name']) {
+			$this->_table_name = $_ENV['sessions_table_name'];
+		}
+		parent::__construct($args);
+	}
+
+	/*
+	
+		Function: clean_data
+		
+		Cleans data.
+		
+		Parameters:	
+		
+			data - Mixed.
+			
+		Returns:
+		
+			Mixed
+	
+	*/
+
+	private function clean_data($data)
+	{
+		return addslashes($data);
+	}
+	
+	/*
+	
+		Function: table_check
+		
+		Create sessions table if it doesn't exists
+	
+	*/
+
+	private function table_check()
+	{
+		$this->query("CREATE TABLE IF NOT EXISTS {$this->_table_name}
+						(
+						id VARCHAR (255) NOT NULL,
+						started_at datetime default NULL,
+						updated_at datetime default NULL,
+						expires_at datetime default NULL,
+						data TEXT NOT NULL,
+						PRIMARY KEY (id)
+						)");
+	}
+	
+	/*
+	
+		Function: get_session_data
+		
+		Get session data.
+		
+		Parameters:
+		
+			id - Optional session ID.
+		
+		Returns:
+		
+			Mixed.
+	
+	*/
+
+	public function get_session_data($id = false)
+	{
+		if ( !$id ) return false;
+		
+		$this->table_check();
+		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."' AND expires_at > '".datetime()."'");
+		$this->next();
+
+		if ( $this->row_count() == 1 ) {
+			return $this->get_data();
+		} else {
+			return "";
+		}
+	}
+	
+	/*
+	
+		Function: set_session_data
+		
+		Sets session data.
+		
+		Parameters:	
+		
+			id - Session ID
+			val - Optional session value.
+			
+		Returns:
+		
+			Integer
+	
+	*/
+
+	public function set_session_data($id = false, $val = '')
+	{
+		if ( !$id ) return false;
+		$expires = time() + get_cfg_var("session.gc_maxlifetime");
+
+		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
+		$this->next();
+
+		if ( $this->row_count() ) {
+			$this->query("UPDATE {$this->_table_name} SET expires_at = '".datetime($expires)."', updated_at = '".datetime()."', data = '".$this->clean_data($val)."' WHERE id = '".$this->clean_data($id)."'");
+		} else {		
+			$this->query("INSERT INTO {$this->_table_name} (id, started_at, updated_at, expires_at, data) VALUES ('".$this->clean_data($id)."', '".datetime()."', '', '".datetime($expires)."', '".$this->clean_data($val)."')");
+		}
+		
+	    return $this->get_affected_rows();
+	}
+
+	/*
+	
+		Function: destroy_session_data
+		
+		Deletes session data.
+		
+		Parameters:
+		
+			id - Session ID.
+			
+		Returns:
+		
+			Boolean
+	
+	*/
+
+	public function destroy_session_data($id)
+	{
+		$this->query("DELETE FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
+	    return $this->get_affected_rows();
+	}
+	
+	/*
+	
+		Function: clean_sesssion_data
+		
+		Delete all expired rows from session table.
+		
+		Parameters:
+		
+			maxlifetime - Session max life time.
+			
+		Returns:
+		
+			Boolean.
+
+	*/
+
+	public function clean_session_data($maxlifetime)
+	{
+		$this->query("DELETE FROM {$this->_table_name} WHERE expires_at < '".datetime()."'");
+	    return $this->get_affected_rows();
+	}
+	
+	/*
+	
+		Function: load_sesesion_by_id
+		
+		Load seesion by id.
+
+	Parameters:	
+		id - session id
+
+	Returns:
+		session object
+
+	*/
+
+	public function load_session_by_id($id)
+	{
+		if (!$id) return false;
+		$this->query("SELECT * FROM {$this->_table_name} WHERE id = '".$this->clean_data($id)."'");
+		return $this->next();
+	}
+
+}
+?>

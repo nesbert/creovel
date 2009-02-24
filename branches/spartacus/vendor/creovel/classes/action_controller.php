@@ -246,7 +246,7 @@ abstract class ActionController extends Object
                     break;
                 
                 default:
-                    if (!$options['no_error']) {
+                    if (empty($options['no_error'])) {
                         throw new Exception("Unable to render <em>" .
                         ($view{0} == '_' ? 'partial' : 'view') .
                         "</em> not found in <strong>{$view_path}</strong>.");

@@ -49,17 +49,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
     }
     
     /**
-     * Disconnect from MySQl Server on destruct.
-     *
-     * @return void
-     **/
-    public function __destruct()
-    {
-        // free memory and close database connection
-        $this->disconnect();
-    }
-    
-    /**
      * Opens a connection to the MySQL Server with $db_properties an
      * array of database settings.
      *
@@ -79,9 +68,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
             );
         
         if (mysqli_connect_error()) {
-            self::throw_error('Could not connect to database (' .
-                $db_properties['host'] . '.' . $db_properties['default'] .
-                '). ' . mysqli_connect_error() . '.');
+            self::throw_error(mysqli_connect_error() . '.');
             exit();
         }
     }

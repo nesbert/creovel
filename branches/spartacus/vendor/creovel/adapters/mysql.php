@@ -82,8 +82,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         
         if (!empty($db_properties['default'])
             && !mysql_select_db($db_properties['default'], $this->db)) {
-            self::throw_error("Could not connect to database " .
-                "({$db_properties['default']}). " . mysql_error() . '.');
+            self::throw_error(mysql_error() . '.');
             exit();
         }
     }

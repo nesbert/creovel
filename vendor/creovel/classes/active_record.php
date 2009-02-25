@@ -850,10 +850,18 @@ abstract class ActiveRecord extends Object implements Iterator
         if (isset($temp['offset'])) unset($temp['offset']);
         if (isset($temp['order'])) unset($temp['order']);
         if (isset($temp['limit'])) unset($temp['limit']);
-        $temp['select'] = "COUNT(*)";
         $qry = $this->build_query($temp, $type);
-        // use select object to reduce connections
-        $temp['total_records'] = current($this->select_query($qry)->get_row());
+        
+        // count rows on joins
+        if (in_string(' join ', strtolower($qry))) {
+            $temp['select'] = "*";
+            // use select object to reduce connections
+            $temp['total_records'] = $this->select_query($qry)->total_rows();
+        } else {
+            $temp['select'] = "COUNT(*)";
+            // use select object to reduce connections
+            $temp['total_records'] = current($this->select_query($qry)->get_row());
+        }
         
         // create page object
         $this->_paging_ = new ActivePager((object) $temp);

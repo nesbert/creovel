@@ -368,13 +368,13 @@ abstract class ActionMailer extends Object
         
         $html = $this->get_include_contents(
             VIEWS_PATH . underscore($this->to_string()) . DS .
-            $this->_action . '.html'
+            $this->_action . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION']
             );
         
         // insert html into layout (template) for html verison of the message
         if (!empty($this->layout)) {
             $template_path = VIEWS_PATH . 'layouts' . DS .
-                $this->layout . '.html';
+                $this->layout . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
             $html = str_replace(
                         '@@page_contents@@',
                         $html, 

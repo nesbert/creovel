@@ -66,8 +66,10 @@ abstract class ActiveRecord extends Object implements Iterator
             $this->load($data);
         }
         
-        // initialize_ class vars
-        $this->__initialize_vars();
+        // initialize class vars if no record loaded
+        if (!$this->id()) {
+            $this->initialize_class_vars();
+        }
         
         // load connection if passed
         if (is_array($connection_properties)) {
@@ -114,7 +116,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    final public function __initialize_vars()
+    final public function initialize_class_vars()
     {
         $vars = get_class_vars($this);
         
@@ -128,7 +130,11 @@ abstract class ActiveRecord extends Object implements Iterator
                 case 'has_many' == $var:
                 case 'has_one' == $var:
                     if (is_array($vals)) foreach ($vals as $val) {
-                        $this->{$var}($val);
+                        if (is_array($val)) {
+                            $this->{$var}($val['name'], $val);
+                        } else {
+                            $this->{$var}($val);
+                        }
                     } else {
                         $this->{$var}($vals);
                     }
@@ -962,6 +968,10 @@ abstract class ActiveRecord extends Object implements Iterator
                     return $this->_columns_[$attribute]->value = $value;
                     break;
                     
+                case isset($this->_associations_[$attribute]):
+                    return $this->{$attribute} = $value;
+                    break;
+                    
                 default:
                     throw new Exception("Attribute <em>{$attribute}</em> not" .
                     " found in <strong>{$this->class_name()}</strong> model.");
@@ -1409,7 +1419,10 @@ abstract class ActiveRecord extends Object implements Iterator
                 break;
         }
         
-        return $obj;
+        // create association property
+        $this->{$options['association_id']} = $obj;
+        
+        return $this->{$options['association_id']};
     }
     
     /**
@@ -1489,7 +1502,7 @@ abstract class ActiveRecord extends Object implements Iterator
         $this->attributes($this->select_query()->current());
         
         // initialize class vars for each record
-        $this->__initialize_vars();
+        $this->initialize_class_vars();
         
         return clone $this;
     }

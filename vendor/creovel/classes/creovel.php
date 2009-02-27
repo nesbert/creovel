@@ -89,6 +89,7 @@ class Creovel
         $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
         $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
         $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
+        $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
         $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
         $GLOBALS['CREOVEL']['ERROR_CODE'] = '';
         $GLOBALS['CREOVEL']['HTML_APPEND'] = false;

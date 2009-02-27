@@ -143,12 +143,16 @@ abstract class ActionController extends Object
      **/
     public function __output($return_as_str)
     {
+        // set execute routines then kill and render text
+        if (isset($this->render_text)) {
+            die($this->render_text);
+        }
+        
         // set options for view
         $options['controller'] = $this->_controller;
         $options['action'] = $this->_action;
         $options['layout'] = $this->layout;
         $options['render'] = $this->render;
-        if (isset($this->render_text)) $options['text'] = $this->render_text;
         $options['to_str'] = $return_as_str;
         return $this->render($options);
     }
@@ -166,20 +170,28 @@ abstract class ActionController extends Object
             if (!is_array($options)) return false;
             
             // set and unset reserved $options
-            if (!empty($options['partial'])) {
+            if (isset($options['partial'])) {
                 $view = '_'.$options['partial'];
                 unset($options['partial']);
             }
             
-            if (!empty($options['action'])) {
+            if (isset($options['action'])) {
                 $view = $options['action'];
                 unset($options['action']);
             }
             
-            if (!empty($options['render'])) {
+            if (isset($options['render'])) {
                 $view = $options['render'];
                 unset($options['render']);
             }
+            
+            if (isset($options['render'])) {
+                $view = $options['render'];
+                unset($options['render']);
+            }
+            
+            // if no view render nothing
+            if (!$view) return false;
             
             if (!empty($options['controller'])) {
                 $controller = $options['controller'];
@@ -204,12 +216,8 @@ abstract class ActionController extends Object
             $view_path = @$this->__view_path($view, $controller);
             
             switch (true) {
-                // if view equaqls false render nothing
-                case ($view === false):
-                    return;
-                    break;
                 // if layout get page content with layout
-                case ($layout):
+                case $layout:
                     if ($return_as_str) {
                         return ActionView::to_str(
                                             $view_path,
@@ -223,7 +231,7 @@ abstract class ActionController extends Object
                     }
                     break;
                 // if same layout include files and set variables
-                case (file_exists($view_path)):
+                case file_exists($view_path):
                     // create a variable foreach other option, using its
                     // key as the variable name
                     if (count($options)) {
@@ -396,17 +404,6 @@ abstract class ActionController extends Object
     }
     
     /**
-     * Don't render layout or view. Useful for AJAX calls.
-     *
-     * @return void
-     **/
-    public function no_view()
-    {
-        $this->layout = false;
-        $this->render = false;
-    }
-    
-    /**
      * Check if current page has posted values.
      *
      * @return boolean
@@ -446,10 +443,10 @@ abstract class ActionController extends Object
         if (isset($this->_nested_controller_path)) {
             return VIEWS_PATH . $this->_nested_controller_path .
                 DS . ($controller ? $controller : $this->_controller) .
-                DS . $view . '.html';
+                DS . $view . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
         } else {
             return VIEWS_PATH . ($controller ? $controller : $this->_controller)
-                . DS . $view . '.html';
+                . DS . $view . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
         }
     }
     
@@ -462,6 +459,6 @@ abstract class ActionController extends Object
     private function __layout_path($layout = null)
     {
         return VIEWS_PATH . 'layouts' . DS .
-                ($layout ? $layout : $this->layout) . '.html';
+                ($layout ? $layout : $this->layout) . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
     }
 } // END abstract class ActionController

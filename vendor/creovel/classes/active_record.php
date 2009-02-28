@@ -860,11 +860,12 @@ abstract class ActiveRecord extends Object implements Iterator
         $qry = $this->build_query($temp, $type);
         
         // use select object to reduce connections
-        if ($this->select_query($qry)->total_rows() == 1) {
-            $temp['total_records'] = current($this->select_query($qry)->get_row());
+        $q = $this->select_query($qry);
+        if ($q->total_rows() == 1) {
+            $temp['total_records'] = current($q->get_row());
         } else {
             // return row count on joins
-            $temp['total_records'] = $this->select_query($qry)->total_rows();
+            $temp['total_records'] = $q->total_rows();
         }
         
         // create page object

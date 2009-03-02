@@ -29,7 +29,7 @@ class Creovel
         }
         
         // Define creovel constants.
-        define('CREOVEL_VERSION', '0.4.0');
+        define('CREOVEL_VERSION', '0.4.1');
         define('CREOVEL_RELEASE_DATE', '2009-03-01 20:30:55');
         
         // Define environment constants.

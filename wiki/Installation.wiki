@@ -1,5 +1,4 @@
 #summary A quick guide to get Creovel up and running.
-#labels Featured
 
 =Installation=
 

@@ -7,7 +7,7 @@
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0 
  **/
-class Session extends Object
+class ActiveSession extends Object
 {
     /**
      * Storage resource.
@@ -137,17 +137,17 @@ class Session extends Object
      **/
     public function create_table($query_only = false)
     {
-        $sql = "CREATE TABLE IF NOT EXISTS {$GLOBALS['CREOVEL']['SESSIONS_TABLE']}
+        $sql = "CREATE TABLE IF NOT EXISTS `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}`
                 (
-                    id VARCHAR (255) NOT NULL,
-                    expires_at datetime NOT NULL,
-                    data TEXT NOT NULL,
-                    PRIMARY KEY (id)
+                    `id` VARCHAR (255) NOT NULL,
+                    `expires_at` datetime NOT NULL,
+                    `data` TEXT NOT NULL,
+                    PRIMARY KEY (`id`)
                 );";
         if ($query_only) {
             return $sql;
         } else {
-            return $this->r->query($sql);
+            return ActiveRecord::table_object()->query($sql);
         }
     }
 } // END class Session extends Object

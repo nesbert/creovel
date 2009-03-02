@@ -96,7 +96,6 @@ class Creovel
         $GLOBALS['CREOVEL']['MODE'] = 'production';
         $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
         $GLOBALS['CREOVEL']['SESSION'] = true;
-        $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'sessions';
         $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
         
         // Set routing defaults
@@ -112,8 +111,9 @@ class Creovel
             
             if ($GLOBALS['CREOVEL']['SESSION'] == 'table') {
                 // include/create session db object
-                require_once CREOVEL_PATH . 'classes/session.php';
-                $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new Session;
+                require_once CREOVEL_PATH . 'classes/active_session.php';
+                $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'active_sessions';
+                $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new ActiveSession;
             }
             
             // Fix for PHP 5.05

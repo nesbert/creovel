@@ -132,9 +132,9 @@ class ActionErrorHandler extends Object
      **/
     private function __custom_errors()
     {
-        if (in_string(".sessions' doesn't exist", $this->message)) {
-            Session::create_table();
-            $this->message .= " The following Query has been executed: \"". Session::create_table(1) ."\". You should not see this message again.";
+        if (in_string(".active_sessions' doesn't exist", $this->message)) {
+            ActiveSession::create_table();
+            $this->message .= " The following Query has been executed: \"". ActiveSession::create_table(1) ."\". You should not see this message again.";
         }
     }
 } // END class ActionErrorHandler extends Object

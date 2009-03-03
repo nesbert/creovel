@@ -106,6 +106,21 @@ class Creovel
         // set configuration settings
         self::config();
         
+        // Set default route
+        ActionRouter::map('default', '/:controller/:action/*', array(
+                    'controller' => 'index',
+                    'action' => 'index'
+                    ));
+        
+        // Set default error route
+        ActionRouter::map('errors', '/errors/:action/*', array(
+                    'controller' => 'errors',
+                    'action' => 'general'
+                    ));
+        
+        // Include custom routes
+        require_once CONFIG_PATH . 'routes.php';
+        
         // Set session handler
         if ($GLOBALS['CREOVEL']['SESSION']) {
             
@@ -123,21 +138,6 @@ class Creovel
             // start session
             if (session_id() == '') session_start();
         }
-        
-        // Set default route
-        ActionRouter::map('default', '/:controller/:action/*', array(
-                    'controller' => 'index',
-                    'action' => 'index'
-                    ));
-        
-        // Set default error route
-        ActionRouter::map('errors', '/errors/:action/*', array(
-                    'controller' => 'errors',
-                    'action' => 'general'
-                    ));
-        
-        // Include custom routes
-        require_once CONFIG_PATH . 'routes.php';
         
         return $initialized = true;
     }

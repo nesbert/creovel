@@ -96,7 +96,7 @@ function get_ancestors($class)
 function get_filesize($file_or_size)
 {
     $iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
-    $size = is_numeric($file_or_size) ? $file_or_size : filesize($file_or_size);
+    $size = is_numeric($file_or_size) ? $file_or_size : @filesize($file_or_size);
     $i = 0;
     while ( ($size/1024) > 1 ) {
         $size = $size / 1024;

@@ -35,7 +35,8 @@ function datetime($datetime = null)
                                 ? $datetime['second']
                                 : 0;
             if (!empty($datetime['ampm'])
-                && strtoupper($datetime['ampm']) == 'PM') {
+                && strtoupper($datetime['ampm']) == 'PM'
+                && $datetime['hour'] < 12) {
                 $datetime['hour'] += 12;
             }
             return date('Y-m-d H:i:s', mktime(

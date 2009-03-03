@@ -60,8 +60,7 @@ class ActiveSession extends Object
      **/
     public function close()
     {
-        //self::gc(ini_get('session.gc_maxlifetime'));
-        return $this->r->disconnect();
+        return @$this->r->disconnect();
     }
     
     /**

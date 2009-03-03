@@ -55,6 +55,8 @@ class ActionErrorHandler extends Object
      **/
     private function __process(&$error)
     {
+        static $has_errored;
+        
         if (is_object($error)) {
             $this->exception = $error;
             $this->message = $this->exception->getMessage();
@@ -79,21 +81,29 @@ class ActionErrorHandler extends Object
                 break;
         }
         
-        // grace fully handle errors in none devlopment mode
-        if (CREO('mode') != 'development') {
-            // get default error events
-            $events = ActionRouter::error();
-            if (isset($action)) $events['action'] = $action;
-            // set params
-            $params = array('error' => $this->message, 'exception' => $this->exception);
-            // clean output buffer for application errors
-            @ob_end_clean();
-            Creovel::run($events, $params);
+        // prevent error from looping
+        if (!$has_errored) {
+            $has_errored = true;
+            // grace fully handle errors in none devlopment mode
+            if (CREO('mode') != 'development') {
+                // get default error events
+                $events = ActionRouter::error();
+                if (isset($action)) $events['action'] = $action;
+                // set params
+                $params = array('error' => $this->message, 'exception' => $this->exception);
+                // clean output buffer for application errors
+                @ob_end_clean();
+                Creovel::run($events, $params);
+            } else {
+                // show debugger
+                $this->__debug();
+            }
             die;
         }
         
-        // show debugger
-        $this->__debug();
+        // show internal server error
+        include_once(CREOVEL_PATH . 'views' . DS . 'layouts' . DS . 'apache_500_error.php');
+        die;
     }
     
     /**
@@ -121,7 +131,6 @@ class ActionErrorHandler extends Object
                             CREOVEL_PATH . 'views' . DS . 'layouts' . DS .
                             'debugger.php');
         }
-        die;
     }
     
     /**

@@ -246,9 +246,9 @@ function flash_success($message = null)
 function application_error($message, $thow_exception = false)
 {
     if ($thow_exception) {
-        $e = new Exception($message);
+        $thow_exception = new Exception($message);
     }
-    $_ENV['error']->add($message, $e);
+    $GLOBALS['CREOVEL']['ERROR']->add($message, $thow_exception);
 }
 
 /**

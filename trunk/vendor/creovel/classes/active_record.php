@@ -314,6 +314,12 @@ abstract class ActiveRecord extends Object implements Iterator
             $options['conditions'] = '';
         }
         
+        if (isset($options['join'])) {
+            $join = $options['join'];
+        } else {
+            $join = '';
+        }
+        
         if (isset($options['order']) &&
                 preg_match($regex, $options['order'])) {
             $order = $options['order'];
@@ -367,11 +373,12 @@ abstract class ActiveRecord extends Object implements Iterator
         
         // Prepare conditions array.
         if ($options['conditions']) {
-            $where[] = $this->build_where($options['conditions']);
+            $where[] = $this->build_query_from_conditions($options['conditions']);
         }
         
         // create sql query
-        $sql  = "SELECT {$select} FROM {$from}";
+        $sql = "SELECT {$select} FROM {$from}";
+        if ($join) $sql .= " " . $this->build_query_from_conditions($join, false);
         if (count($where)) {
             $sql .= " WHERE " . implode(' AND ', $where);
         }
@@ -386,43 +393,59 @@ abstract class ActiveRecord extends Object implements Iterator
     /**
      * Builds where SQL string by the conditions array passed.
      *
-     * @param mixed $where_conditions
+     * @param mixed $conditions
      * @return void
      **/
-    final public function build_where($where_conditions)
+    final public function build_query_from_conditions($conditions, $isolate = true)
     {
-        $where = '';
+        $sql = '';
         
         // 1. hash condidtions
-        if (is_hash($where_conditions)) {
-            $conditions = array();
-            foreach ($where_conditions as $k => $v) {
-                $conditions[] = "`{$this->table_name()}`.`{$k}` = {$this->quote_value($v)}";
+        if (is_hash($conditions)) {
+            $cs = array();
+            foreach ($conditions as $k => $v) {
+                $cs[] = "`{$this->table_name()}`.`{$k}` = {$this->quote_value($v)}";
             }
-            $where = '(' . implode(' AND ', $conditions) . ')';
+            if ($isolate) {
+                $sql = '(' . implode(' AND ', $cs) . ')';
+            } else {
+                $sql = implode(' AND ', $cs);
+            }
             
         // 2. array condidtions
-        } elseif (is_array($where_conditions) && in_string('?', $where_conditions[0])) {
-            $str = array_shift($where_conditions);
-            foreach ($where_conditions as $v) {
+        } elseif (is_array($conditions) && in_string('?', $conditions[0])) {
+            $str = array_shift($conditions);
+            foreach ($conditions as $v) {
                 $str = preg_replace('/\?/', $this->quote_value($v), $str, 1);
             }
-            $where = "({$str})";
+            if ($isolate) {
+                $sql = "({$str})";
+            } else {
+                $sql = "{$str}";
+            }
         
         // 3. array with symbols
-        } elseif (is_array($where_conditions) && in_string(':', $where_conditions[0])) {
-            $str = $where_conditions[0];
-            foreach ($where_conditions[1] as $k => $v) {
+        } elseif (is_array($conditions) && in_string(':', $conditions[0])) {
+            $str = $conditions[0];
+            foreach ($conditions[1] as $k => $v) {
                 $str = str_replace(':' . $k, $this->quote_value($v), $str);
             }
-            $where = "({$str})";
+            if ($isolate) {
+                $sql = "({$str})";
+            } else {
+                $sql = "{$str}";
+            }
             
         // 4. string conditions UNSAFE!
-        } elseif ($where_conditions) {
-            $where = "({$where_conditions})";
+        } elseif ($conditions) {
+            if ($isolate) {
+                $sql = "({$conditions})";
+            } else {
+                $sql = "{$conditions}";
+            }
         }
         
-        return $where;
+        return $sql;
     }
     
     /**
@@ -802,7 +825,7 @@ abstract class ActiveRecord extends Object implements Iterator
     final public function destroy($conditions = '')
     {
         if ($conditions) {
-            $where = $this->build_where($conditions);
+            $where = $this->build_query_from_conditions($conditions);
         } else {
             $where = "`{$this->table_name()}`.`{$this->primary_key()}` = '{$this->id()}' LIMIT 1";
         }

@@ -1,4 +1,14 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<?php
+/**
+ * View used for errors when the error handler fails to exit gracefully.
+ *
+ * @access      private
+ * @package     Creovel
+ * @subpackage  Views
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.4.1
+ **/
+?><!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head>
 <title>500 Internal Server Error</title>
 </head><body>

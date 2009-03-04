@@ -350,7 +350,7 @@ function countries($us_first = false, $show_abbr = false)
             'US' => 'United States',
             'CA' => 'Canada',
             'MX' => 'Mexico',
-            '' => '-----------------'
+            '   ' => '-----------------'
         );
     }
     foreach (countries_array() as $k => $v) {

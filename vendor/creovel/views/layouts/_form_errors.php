@@ -6,7 +6,7 @@
  * @package     Creovel
  * @subpackage  Views
  * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.1.0 
+ * @since       Class available since Release 0.1.0
  * @see         error_messages_for()
  **/
 ?><div class="errors">

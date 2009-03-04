@@ -1047,6 +1047,13 @@ abstract class ActiveRecord extends Object implements Iterator
                             return $this->html_field($type, $name, $this->{$name}, $arguments);
                             break;
                         
+                        // set options for TINYINT types
+                        case !isset($this->_columns_[$name]->options)
+                            && in_string('tinyint(1)', $this->_columns_[$name]->type):
+                            $type = 'select';
+                            return $this->html_field($type, $name, $this->{$name}, array_merge($arguments, array('options' => array(1 => 'Yes', 0 => 'No'))));
+                            break;
+                        
                         // options_for_* called for existing field
                         case isset($this->_columns_[$name]) && is_array($arguments[0]):
                             return $this->_columns_[$name]->options = $arguments[0];
@@ -1232,6 +1239,9 @@ abstract class ActiveRecord extends Object implements Iterator
                     $options = $this->{'options_for_' . $name};
                 } else if (isset($this->_columns_[$name]->options)) {
                     $options = $this->_columns_[$name]->options;
+                } else if (isset($arguments['options'])) {
+                    $options = $arguments['options'];
+                    unset($arguments['options']);
                 } else {
                     $options = $this->enum_options($name);
                 }

@@ -81,8 +81,6 @@ function form_errors_count()
  * #errors p {} // description
  * #errors ul {} // errors list
  * #errors li {} // errors list items
- * #errors a {} // errors list items links
- * .errors_field {} // html element with the error
  * </code>
  *
  * @param mixed $errors
@@ -95,12 +93,8 @@ function form_errors_count()
  **/
 function error_messages_for($errors = null, $title = null, $description = null)
 {
-    if (is_string($errors)) {
-        $title = $errors;
-    }
-    
     $errors_count = 0;
-    $errors = array();
+    $errors_array = array();
     
     if (!$description
         && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION'])) {
@@ -108,28 +102,25 @@ function error_messages_for($errors = null, $title = null, $description = null)
                         ? $GLOBALS['CREOVEL']['VALIDATION_ERRORS_DESCRIPTION']
                         : 'There were problems with the following fields.';
     }
-    // if no errors check global variable
-    if (!$errors && isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'])) {
-        $errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
+    
+    if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'])) {
+        $errors_count = count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
+        $errors_array = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
     }
     
-    if (is_object($errors)) {
+    if (is_string($errors)) {
+        $title = $errors;
+    } else if (is_object($errors)) {
         $model = get_class($errors);
-        if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'])) {
-            $errors_count = count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
-            $errors = $GLOBALS['CREOVEL']['VALIDATION_ERRORS'];
-        }
-    } else {
-        $errors_count = count($errors);
+    } else if (is_array($errors)) {
+        $errors_array = $errors;
     }
     
     $li_str = '';
     
-    if ($errors_count) foreach ( $errors as $field => $message ) {
+    if ($errors_count) foreach ($errors_array as $field => $message) {
         if ( $message == 'no_message') continue;
-        $li_str .= create_html_element('li', null,
-                        create_html_element('a',
-                        array('href' => "#error_{$field}"), $message)) . "\n";
+        $li_str .= create_html_element('li', null, $message) . "\n";
     }
     
     if ($errors_count) {
@@ -150,21 +141,6 @@ function error_messages_for($errors = null, $title = null, $description = null)
         include_once(CREOVEL_PATH . 'views' . DS . 'layouts' . DS .
                     '_form_errors.php');
     }
-}
-
-/**
- * Wrap error fields with span and put an anchor next to element.
- *
- * @param string $field_name
- * @param string $html_str
- * @return string
- * @author Nesbert Hidalgo
- **/
-function error_wrapper($field_name, $html_str)
-{
-    return '<a name="error_' . name_to_id($field_name) .
-            '"></a><span class="fieldWithErrors">' .
-            str_replace("\n", '', $html_str) . "</span>\n";
 }
 
 /**
@@ -210,7 +186,7 @@ function start_form_tag($event_options,
         $event_options['id'] = $event_arr['id'];
     }
     
-    if ( $event_options['id'] ) {
+    if ($event_options['id']) {
         $obj_id_str .= hidden_field('id', $event_options['id'])."\n";
     }
     

@@ -219,6 +219,8 @@ abstract class ActiveRecord extends Object implements Iterator
     /**
      * Loads/execute SQL query using the select_query object.
      *
+     * @param string $sql
+     * @param boolean $action_query Set to true to use action query
      * @return object
      **/
     final public function query($sql, $action_query = false)
@@ -231,8 +233,11 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Loads/execute SQL query.
+     * Loads/execute SQL query. When $type is set to 'first' will
+     * auto-load first record if found.
      *
+     * @param string $sql
+     * @param boolean $type 'all', 'first'
      * @return void
      **/
     final public function find_by_sql($sql, $type = 'all')
@@ -241,7 +246,42 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Execute a query by $type and $options.
+     * Execute a query by $type and $options. You can use "where" instead of
+     * "conditions" as well.
+     *
+     * <code>
+     * $sample_options = array(
+     *   'select'       => "`column`, `column2`",
+     *   'from'         => "`table`, `table2`",
+     *   'join'         => "JOIN STATEMENT",
+     *   'conditions'   => "WHERE CLAUSE OR ARRAY OF OPTIONS",
+     *   'group'        => "`column`",
+     *   'order'        => "`column` DESC, `column2` ASC",
+     *   'limit'        => "100",
+     *   'offset'       => "30"
+     *    );
+     *
+     * $model->find();
+     * SELECT * FROM `users`;
+     *
+     * $model->find('all', array('conditions' => array('state' => 'NV', 'zip' => 89107)));
+     * SELECT * FROM `users` WHERE (`users`.`state` = 'NV' AND `users`.`zip` = '89107');
+     *
+     * $model->find('all', array('conditions' => array(
+     *     '(state = ? OR other_state = ?) AND zip = ?',
+     *     'NV', 'NV', 89107
+     *     )));
+     * SELECT * FROM `users` WHERE ((state = 'NV' OR other_state = 'NV') AND zip = '89107');
+     *
+     * $model->find('all', array('conditions' => array(
+     *   '(state = :state OR other_state = :state) AND zip = :zip',
+     *   array(
+     *       'state' => 'NV',
+     *       'zip' => 89107
+     *       )
+     *   )));
+     * SELECT * FROM `users` WHERE ((state = 'NV' OR other_state = 'NV') AND zip = '89107');
+     * </code>
      *
      * @param mixed $type 'all', 'first', ID or array of IDs
      * @param array $options
@@ -272,6 +312,7 @@ abstract class ActiveRecord extends Object implements Iterator
     /**
      * Alias for find('all', array());
      *
+     * @param array $options
      * @see ActiveRecord::find()
      * @return object
      **/
@@ -795,7 +836,7 @@ abstract class ActiveRecord extends Object implements Iterator
     /**
      * Deletes current object loaded or records that match the $conditions
      * passed. Returns the number of records affected.
-     
+     *
      * <code>
      * $model->destroy();
      * DELETE FROM `users` WHERE `users`.`id` = '2' LIMIT 1;
@@ -1072,6 +1113,7 @@ abstract class ActiveRecord extends Object implements Iterator
                         
                         // set options for TINYINT types
                         case !isset($this->_columns_[$name]->options)
+                            && property_exists($this, 'options_for_' . $name)
                             && in_string('tinyint(1)', $this->_columns_[$name]->type):
                             $type = 'select';
                             return $this->html_field($type, $name, $this->{$name}, array_merge($arguments, array('options' => array(1 => 'Yes', 0 => 'No'))));
@@ -1117,8 +1159,7 @@ abstract class ActiveRecord extends Object implements Iterator
                     if (method_exists($this->_paging_, $method)) {
                         return call_user_func_array(array($this->_paging_, $method), $arguments);
                     } else {
-                        throw new Exception("Undefined method " .
-                "<em>{$method}</em> in <strong>ActivePager</strong> class.");
+                        throw new Exception("Undefined method <em>{$method}</em> in <strong>ActivePager</strong> class.");
                     }
                     break;
             }

@@ -65,7 +65,13 @@ class ActionErrorHandler extends Object
             $this->message = $error;
         }
         
-        // hcek for custom errors
+        // if command line show text errors
+        if (!empty($GLOBALS['CREOVEL']['CMD'])) {
+            include_once(CREOVEL_PATH . 'views' . DS . 'debugger' . DS . 'error_cli.php');
+            die;
+        }
+        
+        // check for custom errors
         $this->__custom_errors();
         
         // set header for error pages

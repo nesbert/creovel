@@ -1,0 +1,79 @@
+<?php
+/**
+ * This file includes framework paths and starts Creovel for CLI apps.
+ *
+ * @package     Creovel
+ * @subpackage  Misc
+ * @license     http://creovel.org/license MIT License
+ * @since       Class available since Release 0.4.2
+ **/
+ 
+// Include application constant paths.
+require_once '../config/paths.php';
+
+// Initialize framework and include core libraries.
+require_once CREOVEL_PATH . 'classes' . DS . 'creovel.php';
+Creovel::cmd();
+
+// create local variables
+if ($argc > 1) {
+    
+    // set controller always second argument
+    if (!empty($argv[1])) {
+        $controller = $argv[1];
+    }
+    
+    // set action always third argument
+    if (!empty($argv[2])) {
+        $action = $argv[2];
+    }
+    
+    // set params & flagsforth argument and on
+    // flags start with "-"
+    $params = array();
+    $flags = array();
+    foreach ($argv as $__k => $__v) {
+        if ($__k < 3) continue;
+        if (in_string(':', $__v)) {
+            $__v  = explode(':', $__v);
+            $params[$__v[0]] = $__v[1];
+        } else if (starts_with('-', $__v)) {
+            // double dash mean whole words
+            if (starts_with('--', $__v)) {
+                $flags[] = substr($__v, 2);
+            } else {
+                // split each single dash char into a flag
+                foreach (str_split(substr($__v, 1)) as $___) {
+                    $flags[] = $___;
+                }
+            }
+        } else {
+            $params[] = $__v;
+        }
+    }
+    
+}
+
+/**
+ * Sample:
+ *
+ * ./generate model user key:value apple macbook --test -rfv
+ *
+ * $controller = 'model';
+ * $action = 'user';
+ *
+ * $params = Array
+ *     (
+ *        [key] => value
+ *        [0] => apple
+ *        [1] => macbook
+ *     )
+ *
+ * $flags = Array
+ *     (
+ *        [0] => test
+ *        [1] => r
+ *        [2] => f
+ *        [3] => v
+ *    )
+ */

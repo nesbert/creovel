@@ -932,12 +932,16 @@ abstract class ActiveRecord extends Object implements Iterator
             $temp['total_records'] = $q->total_rows();
         }
         
+        // set limt for paging
+        $temp['limit'] = $args['limit'];
+        
         // create page object
         $this->_paging_ = new ActivePager((object) $temp);
         
         // update agrs with paging data
         $args['offset'] = $this->_paging_->offset;
         $args['limit'] = $this->_paging_->limit;
+        
         // execute query
         return $this->find($type, $args);
     }
@@ -1033,7 +1037,7 @@ abstract class ActiveRecord extends Object implements Iterator
                     return $this->_columns_[$attribute]->value = $value;
                     break;
                     
-                case isset($this->_associations_[$attribute]):
+                case isset($this->_associations_) && isset($this->_associations_[$attribute]):
                     return $this->{$attribute} = $value;
                     break;
                     
@@ -1114,7 +1118,7 @@ abstract class ActiveRecord extends Object implements Iterator
                         // set options for TINYINT types
                         case !isset($this->_columns_[$name]->options)
                             && property_exists($this, 'options_for_' . $name)
-                            && in_string('tinyint(1)', $this->_columns_[$name]->type):
+                            && in_string('tinyint(1)', @$this->_columns_[$name]->type):
                             $type = 'select';
                             return $this->html_field($type, $name, $this->{$name}, array_merge($arguments, array('options' => array(1 => 'Yes', 0 => 'No'))));
                             break;

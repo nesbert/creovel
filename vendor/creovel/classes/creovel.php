@@ -29,7 +29,7 @@ class Creovel
         }
         
         // Define creovel constants.
-        define('CREOVEL_VERSION', '0.4.0');
+        define('CREOVEL_VERSION', '0.4.1');
         define('CREOVEL_RELEASE_DATE', '2009-03-01 20:30:55');
         
         // Define environment constants.
@@ -204,6 +204,23 @@ class Creovel
         
         // output to user
         return $controller->__output($return_as_str);
+    }
+    
+    /**
+     * Initialize framework for command line support.
+     *
+     * @return void
+     **/
+    public function cmd()
+    {
+        // initialize framework
+        self::initialize();
+        // set flag for command line
+        $GLOBALS['CREOVEL']['CMD'] = true;
+        // set error handler
+        $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
+        // set configuration settings
+        self::config();
     }
     
     /**

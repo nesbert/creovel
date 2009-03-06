@@ -17,3 +17,11 @@ Release Log
     * Near full REWRITE 80% new code.
     * New ActiveRecord (Model) class.
     * Code optimization and clean up.
+
+0.4.1 - Mar 01 2009 20:30:55
+    * Maintenance release.
+
+0.4.2 - Mar 05 2009 22:26:55
+    * Maintenance release.
+    * Logging added.
+    * Script support added.

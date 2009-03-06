@@ -14,4 +14,4 @@ class ApplicationController extends ActionController
      **/
     public function initialize_application_controller()
     {}
-} // END class ApplicationController
+} // END class ApplicationController extends ActionController

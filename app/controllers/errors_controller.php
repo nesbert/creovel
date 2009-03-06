@@ -30,4 +30,4 @@ class ErrorsController extends ApplicationController
      **/
     public function not_found()
     {}
-} // END class ErrorsController
+} // END class ErrorsController extends ApplicationController

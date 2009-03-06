@@ -933,7 +933,7 @@ abstract class ActiveRecord extends Object implements Iterator
         }
         
         // set limt for paging
-        $temp['limit'] = $args['limit'];
+        if (isset($args['limit'])) $temp['limit'] = $args['limit'];
         
         // create page object
         $this->_paging_ = new ActivePager((object) $temp);

@@ -1,0 +1,6 @@
+#!/usr/bin/php -q
+<?php
+// Include Creovel Base.
+require_once('base');
+
+// code here...

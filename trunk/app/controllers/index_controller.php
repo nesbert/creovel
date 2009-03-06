@@ -22,4 +22,4 @@ class IndexController extends ApplicationController
      **/
     public function index()
     {}
-} // END class IndexController
+} // END class IndexController extends ApplicationController

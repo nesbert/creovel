@@ -29,8 +29,8 @@ class Creovel
         }
         
         // Define creovel constants.
-        define('CREOVEL_VERSION', '0.4.1');
-        define('CREOVEL_RELEASE_DATE', '2009-03-01 20:30:55');
+        define('CREOVEL_VERSION', '0.4.2');
+        define('CREOVEL_RELEASE_DATE', '2009-03-05 22:26:55');
         
         // Define environment constants.
         define('PHP', PHP_VERSION);
@@ -64,6 +64,10 @@ class Creovel
         require_once CREOVEL_PATH . 'classes/object.php';
         require_once CREOVEL_PATH . 'classes/inflector.php';
         
+        // Set default creovel global vars.
+        $GLOBALS['CREOVEL']['MODE'] = 'production';
+        $GLOBALS['CREOVEL']['LOG_ERRORS'] = true;
+        
         return $initialized = true;
     }
     
@@ -93,7 +97,6 @@ class Creovel
         $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
         $GLOBALS['CREOVEL']['ERROR_CODE'] = '';
         $GLOBALS['CREOVEL']['HTML_APPEND'] = false;
-        $GLOBALS['CREOVEL']['MODE'] = 'production';
         $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
         $GLOBALS['CREOVEL']['SESSION'] = true;
         $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;

@@ -192,3 +192,14 @@ function is_odd($var)
 {
     return $var & 1;
 }
+
+/**
+ * Check is request is using AJAX by checking headers.
+ *
+ * @return boolean
+ * @author Nesbert Hidalgo
+ **/
+function is_ajax()
+{
+    return @$_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
+}

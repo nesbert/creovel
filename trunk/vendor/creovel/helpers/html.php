@@ -88,18 +88,23 @@ function html_options_str($html_options)
  **/
 function stylesheet_include_tag($url, $media = 'screen')
 {
-    if (is_array($url)) foreach ($url as $path) {
-        $return .= stylesheet_include_tag(CSS_URL . $path . '.css', $media) . "\n";
+    $html_options = array(
+        'rel' => 'stylesheet',
+        'type' => 'text/css',
+        'media' => $media,
+        'href' => $url
+        );
+    if (is_array($media)) {
+        $html_options = array_merge($html_options, $media);
+        $html_options['media'] = isset($media['media']) ? $media['media'] : 'screen';
     }
-    return $return
-            ? $return
-            : create_html_element('link',
-                                    array(
-                                        'rel' => 'stylesheet',
-                                        'type' => 'text/css',
-                                        'media' => $media,
-                                        'href' => $url)
-                                        );
+    
+    $return = '';
+    if (is_array($url)) foreach ($url as $path) {
+        $file = in_string('.css', $path) ? $path : CSS_URL . $path . '.css';
+        $return .= stylesheet_include_tag($file, $media) . "\n";
+    }
+    return $return ? $return : create_html_element('link', $html_options);
 }
 
 /**

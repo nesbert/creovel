@@ -49,10 +49,24 @@ class ActionView extends Object
             if ($options['layout'] !== false) {
                 
                 if (is_file($layout_path)) {
+                    $layout = self::include_contents($layout_path, $options);
+                    // allow inline head decalarations with <!--HEADSPLIT-->
+                    // in views
+                    $parts = explode('<!--HEADSPLIT-->', $content);
+                    if (count($parts) == 2) {
+                        $layout = str_replace_array(
+                                $layout,
+                                array(
+                                    '</head>' => $parts[0] . '</head>'
+                                    )
+                            );
+                        $content = $parts[1];
+                    }
                     $page = str_replace(
-                            $GLOBALS['CREOVEL']['PAGE_CONTENTS'],
-                            $content,
-                            self::include_contents($layout_path, $options));
+                                $GLOBALS['CREOVEL']['PAGE_CONTENTS'],
+                                $content,
+                                $layout
+                                );
                 } else {
                     throw new Exception('Unable to render <em>layout</em> '.
                         "not found in <strong>{$layout_path}</strong>.");

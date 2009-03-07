@@ -167,46 +167,58 @@ class Creovel
      **/
     public function run($events = null, $params = null, $return_as_str = false, $skip_init = false)
     {
-        // initialize framework
-        self::initialize();
-        
-        // initialize web for web appliocations
-        self::initialize_for_web();
-        
-        // set event and params
-        $events = is_array($events) ? $events : self::events();
-        $params = is_array($params) ? $params : self::params();
-        
-        // handle dashed controller names
-        $events['controller'] = underscore($events['controller']);
-        
-        if (isset($params['nested_controller'])
-            && $params['nested_controller']) {
-            $events['nested_controller_path'] = $params['nested_controller'];
-            $controller_path =  $events['nested_controller_path'] . DS .
-                $events['controller'];
-            // remove from params
-            unset($params['nested_controller']);
-        } else {
-            $controller_path = $events['controller'];
+        try {
+            // initialize framework
+            self::initialize();
+            
+            // initialize web for web appliocations
+            self::initialize_for_web();
+            
+            // set event and params
+            $events = is_array($events) ? $events : self::events();
+            $params = is_array($params) ? $params : self::params();
+            
+            // handle dashed controller names
+            $events['controller'] = underscore($events['controller']);
+            
+            if (isset($params['nested_controller'])
+                && $params['nested_controller']) {
+                $events['nested_controller_path'] = $params['nested_controller'];
+                $controller_path =  $events['nested_controller_path'] . DS .
+                    $events['controller'];
+                // remove from params
+                unset($params['nested_controller']);
+            } else {
+                $controller_path = $events['controller'];
+            }
+            
+            // include controller
+            self::include_controller($controller_path);
+            
+            // create controller object and build the framework
+            $controller = camelize($events['controller']) . 'Controller';
+            
+            if (class_exists($controller)) {
+                $controller = new $controller();
+            } else {
+                throw new Exception("Class " . str_replace('Controller', '', $controller) .
+                " not found in <strong>" . classify($controller) . "</strong>");
+            }
+            
+            // set controller properties
+            $controller->__set_events($events);
+            $controller->__set_params($params);
+            
+            // execute action
+            $controller->__execute_action();
+            
+            // output to user
+            return $controller->__output($return_as_str);
+            
+        } catch (Exception $e) {
+            CREO('error_code', 404);
+            CREO('application_error', $e);
         }
-        
-        // include controller
-        self::include_controller($controller_path);
-        
-        // create controller object and build the framework
-        $controller = camelize($events['controller']) . 'Controller';
-        $controller = new $controller();
-        
-        // set controller properties
-        $controller->__set_events($events);
-        $controller->__set_params($params);
-        
-        // execute action
-        $controller->__execute_action();
-        
-        // output to user
-        return $controller->__output($return_as_str);
     }
     
     /**

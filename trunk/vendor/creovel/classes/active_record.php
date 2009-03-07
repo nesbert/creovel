@@ -63,7 +63,7 @@ abstract class ActiveRecord extends Object implements Iterator
         
         // load data if passed
         if ($data) {
-            $this->load($data);
+            $this->load_model_data($data);
         }
         
         // initialize class vars if no record loaded
@@ -86,7 +86,7 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    final public function load($data)
+    final public function load_model_data($data)
     {
         if (is_hash($data)) {
             if (isset($data[$this->primary_key()])) {
@@ -1026,8 +1026,13 @@ abstract class ActiveRecord extends Object implements Iterator
     public function __set($attribute, $value)
     {
         try {
-            
             switch (true) {
+                // set id calling primary key
+                case $attribute == $this->primary_key():
+                    return $this->set_id($value);
+                    break;
+                    
+                // allow hidden properties
                 case $attribute == '_paging_':
                 case $attribute == '_associations_':
                     return $this->{$attribute} = $value;
@@ -1117,7 +1122,7 @@ abstract class ActiveRecord extends Object implements Iterator
                         
                         // set options for TINYINT types
                         case !isset($this->_columns_[$name]->options)
-                            && property_exists($this, 'options_for_' . $name)
+                            && !property_exists($this, 'options_for_' . $name)
                             && in_string('tinyint(1)', @$this->_columns_[$name]->type):
                             $type = 'select';
                             return $this->html_field($type, $name, $this->{$name}, array_merge($arguments, array('options' => array(1 => 'Yes', 0 => 'No'))));

@@ -118,3 +118,34 @@ function time_ago($time)
     
     return pluralize($return, $time);
 }
+
+/**
+ * Get an array of dates with key as date (Y-m-d) and value as day (D).
+ *
+ * @param mixed $start
+ * @param mixed $end
+ * @param string $key_date_format
+ * @param string $value_date_format
+ * @param mixed $end
+ * @return Array
+ * @author Nesbert Hidalgo
+ **/
+function date_range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
+{
+    $start = strtotime(datetime($start));
+    $end = strtotime(datetime($end));
+    $end = mktime(0, 0, 0, date('m', $end), date('d', $end), date('Y', $end));
+    $range = array();
+    
+    if ($end >= $start) {
+        $range[date($key_date_format, $start)] = date($value_date_format, $start);
+        $next_day = $start;
+        while ($next_day < $end) {
+            $next_day_time = strtotime(date('Y-m-d', $next_day) . ' +1day'); // add a day
+            $range[date($key_date_format, $next_day_time)] = date($value_date_format, $next_day_time);
+            $next_day += DAY; // add a day
+        }
+    }
+    
+    return $range;
+}

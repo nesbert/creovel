@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-abstract class ActiveRecord extends Object implements Iterator
+class ActiveRecord extends Object implements Iterator
 {
     /**
      * Table name.
@@ -51,34 +51,38 @@ abstract class ActiveRecord extends Object implements Iterator
      *
      * @param mixed $data ID, array of IDs or array of column name/value pair.
      * @param array $connection_properties
+     * @param boolean $initialize Model table and initialize magic properties
      * @return void
      **/
-    public function __construct($data = null, $connection_properties = null)
+    public function __construct($data = null, $connection_properties = null, $initialize = true)
     {
-        // model table and set columns
-        $this->columns();
-        
-        // call parent
-        $this->initialize_parents();
-        
-        // load data if passed
-        if ($data) {
-            $this->load_model_data($data);
-        }
-        
-        // initialize class vars if no record loaded
-        if (!$this->id()) {
-            $this->initialize_class_vars();
+        if ($initialize) {
+            // model table and set columns
+            $this->columns();
+            
+            // call parent
+            $this->initialize_parents();
+            
+            // load data if passed
+            if ($data) {
+                $this->load_model_data($data);
+            }
+            
+            // initialize class vars if no record loaded
+            if (!$this->id()) {
+                $this->initialize_class_vars();
+            }
         }
         
         // load connection if passed
         if (is_array($connection_properties)) {
-            $this->_select_query_ = $this->establish_connection($connection_properties);
-            $this->_action_query_ = $this->establish_connection($connection_properties);
+            $this->connection_properties = $connection_properties;
         }
         
-        // set table name
-        $this->table_name();
+        if ($initialize) {
+            // set table name
+            $this->table_name();
+        }
     }
     
     /**
@@ -150,6 +154,11 @@ abstract class ActiveRecord extends Object implements Iterator
      **/
     final public function connection_properties()
     {
+        // if $this->connection_properties use
+        if (isset($this) && !empty($this->connection_properties)) {
+            return $this->connection_properties;
+        }
+        
         switch (strtoupper(CREO('mode'))) {
             case 'PRODUCTION':
                 return $GLOBALS['CREOVEL']['DATABASES']['PRODUCTION'];
@@ -654,6 +663,16 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Return an object attributes.
+     *
+     * @return object
+     **/
+    final public function attributes_object()
+    {
+        return (object) $this->attributes();
+    }
+    
+    /**
      * Returns true if the passed attribute is a column of the class.
      *
      * @return void
@@ -961,6 +980,24 @@ abstract class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Return an ActiveRecord object. Useful accessing tables without creating
+     * models, like for standalone scripts.
+     *
+     * @param string $table_name
+     * @param mixed $data
+     * @param array $db array of DB connecting settings
+     * @return object
+     **/
+    final public function object($table_name = '', $data = '', $db = null)
+    {
+        if (!is_array($db)) $db = self::connection_properties();
+        $o = new ActiveRecord(null, $db, false);
+        if ($table_name) $o->table_name($table_name);
+        if ($data) $o->load_model_data($data);
+        return $o;
+    }
+    
+    /**
      * Get a count of total rows from a query if paginating will return
      * total number of records found from query.
      *
@@ -982,6 +1019,16 @@ abstract class ActiveRecord extends Object implements Iterator
     final public function get_row()
     {
         return $this->select_query()->get_row();
+    }
+    
+    /**
+     * Get insert ID for last query.
+     *
+     * @return array
+     **/
+    final public function get_insert_id()
+    {
+        return $this->select_query()->insert_id();
     }
     
     // Section: Magic Functions
@@ -1035,6 +1082,7 @@ abstract class ActiveRecord extends Object implements Iterator
                 // allow hidden properties
                 case $attribute == '_paging_':
                 case $attribute == '_associations_':
+                case $attribute == 'connection_properties':
                     return $this->{$attribute} = $value;
                     break;
                     
@@ -1691,4 +1739,4 @@ abstract class ActiveRecord extends Object implements Iterator
     public function validate_on_create() {}
     public function validate_on_update() {}
     /**#@-*/
-} // END abstract class ActiveRecord extends Object implements Iterator
+} // END class ActiveRecord extends Object implements Iterator

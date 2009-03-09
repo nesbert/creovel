@@ -148,7 +148,7 @@ function add_slashes($data)
         case is_object($data):
             $clean_values = get_object_vars($data);
             foreach ($clean_values as $name => $value) {
-                $data->{$name} = add_slashes(trim($value));
+                $data->{$name} = add_slashes($value);
             }
             $clean_values = $data;
             break;
@@ -186,7 +186,7 @@ function strip_slashes($data)
         case is_object($data):
             $clean_values = get_object_vars($data);
             foreach ($clean_values as $name => $value) {
-                $data->{$name} = strip_slashes(trim($value));
+                $data->{$name} = strip_slashes($value);
             }
             $clean_values = $data;
             break;

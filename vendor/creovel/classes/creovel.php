@@ -127,7 +127,7 @@ class Creovel
         // Set session handler
         if ($GLOBALS['CREOVEL']['SESSION']) {
             
-            if ($GLOBALS['CREOVEL']['SESSION'] == 'table') {
+            if ($GLOBALS['CREOVEL']['SESSION'] === 'table') {
                 // include/create session db object
                 require_once CREOVEL_PATH . 'classes/active_session.php';
                 $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'active_sessions';

@@ -3,12 +3,12 @@
  * Logging class.
  *
  * @package     Creovel
- * @subpackage  Core
+ * @subpackage  Modules
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.2
  * @author      Nesbert Hidalgo
  **/
-class Log extends Object
+class Logger extends ModuleBase
 {
     /**
      * Filename and path to log file.
@@ -74,4 +74,4 @@ class Log extends Object
     {
         return rename($this->filename, $this->filename . '.' . date('YmdHis'));
     }
-}
+} // END class Logger extends ModuleBase

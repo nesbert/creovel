@@ -12,11 +12,11 @@
  * Copyright (c) 2002-2006, Akelos Media, S.L. http://www.akelos.com/
  *
  * @package     Creovel
- * @subpackage  Core
+ * @subpackage  Modules
  * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.1.0 
+ * @since       Class available since Release 0.1.0
  **/
-class Inflector extends Object
+class Inflector extends ModuleBase
 {
     /**
      * Pluralizes English nouns.
@@ -347,4 +347,4 @@ class Inflector extends Object
             }
         }
     }
-} // END class Inflector extends Object
+} // END class Inflector extends ModuleBase

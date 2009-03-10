@@ -62,7 +62,8 @@ class Creovel
         
         // Include minimum base classes.
         require_once CREOVEL_PATH . 'classes/object.php';
-        require_once CREOVEL_PATH . 'classes/inflector.php';
+        require_once CREOVEL_PATH . 'modules/module_base.php';
+        require_once CREOVEL_PATH . 'modules/inflector.php';
         
         // Set default creovel global vars.
         $GLOBALS['CREOVEL']['MODE'] = 'production';

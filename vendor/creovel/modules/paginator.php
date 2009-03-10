@@ -1,14 +1,14 @@
 <?php
 /**
- * Paging class for model and arrays.
+ * Paging class for model result set and arrays.
  *
  * @package     Creovel
- * @subpackage  Core
+ * @subpackage  Modules
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActivePager extends Object
+class Paginator extends ModuleBase
 {
     /**
      * Total number of records to paged.
@@ -432,4 +432,4 @@ class ActivePager extends Object
             return "{$this->url}?" . http_build_query($params);
         }
     }
-} // END class ActivePager extends Object
+} // END class Paginator extends ModuleBase

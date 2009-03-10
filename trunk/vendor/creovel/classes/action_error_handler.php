@@ -67,14 +67,8 @@ class ActionErrorHandler extends Object
         
         // log errors
         if (!empty($GLOBALS['CREOVEL']['LOG_ERRORS'])) {
-            $log = new Log(@LOG_PATH . CREO('mode') . '.log');
+            $log = new Logger(@LOG_PATH . CREO('mode') . '.log');
             $log->write(strip_tags(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $this->message)));
-        }
-        
-        // if command line show text errors
-        if (!empty($GLOBALS['CREOVEL']['CMD'])) {
-            include_once(CREOVEL_PATH . 'views' . DS . 'debugger' . DS . 'error_cli.php');
-            die;
         }
         
         // check for custom errors
@@ -96,8 +90,15 @@ class ActionErrorHandler extends Object
         // prevent error from looping
         if (!$has_errored) {
             $has_errored = true;
+            // if command line show text errors
+            if (!empty($GLOBALS['CREOVEL']['CMD'])) {
+                // only show erros in dev mode
+                if (CREO('mode') == 'development') {
+                    header('Content-Type: text/plain; charset=utf-8');
+                    include_once(CREOVEL_PATH . 'views' . DS . 'debugger' . DS . 'error_cli.php');
+                }
             // grace fully handle errors in none devlopment mode
-            if (CREO('mode') != 'development') {
+            } else if (CREO('mode') != 'development') {
                 // get default error events
                 $events = ActionRouter::error();
                 if (isset($action)) $events['action'] = $action;

@@ -955,7 +955,7 @@ class ActiveRecord extends Object implements Iterator
         if (isset($args['limit'])) $temp['limit'] = $args['limit'];
         
         // create page object
-        $this->_paging_ = new ActivePager((object) $temp);
+        $this->_paging_ = new Paginator((object) $temp);
         
         // update agrs with paging data
         $args['offset'] = $this->_paging_->offset;
@@ -1216,7 +1216,7 @@ class ActiveRecord extends Object implements Iterator
                     if (method_exists($this->_paging_, $method)) {
                         return call_user_func_array(array($this->_paging_, $method), $arguments);
                     } else {
-                        throw new Exception("Undefined method <em>{$method}</em> in <strong>ActivePager</strong> class.");
+                        throw new Exception("Undefined method <em>{$method}</em> in <strong>Paginator</strong> class.");
                     }
                     break;
             }

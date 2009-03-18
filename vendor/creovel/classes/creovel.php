@@ -69,6 +69,11 @@ class Creovel
         $GLOBALS['CREOVEL']['MODE'] = 'production';
         $GLOBALS['CREOVEL']['LOG_ERRORS'] = true;
         
+        // set error handler
+        require_once CREOVEL_PATH . 'classes/action_error_handler.php';
+        $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
+        $GLOBALS['CREOVEL']['ERROR_CODE'] = '';
+        
         return $initialized = true;
     }
     
@@ -87,7 +92,6 @@ class Creovel
         // Include framework base classes.
         require_once CREOVEL_PATH . 'classes/action_controller.php';
         require_once CREOVEL_PATH . 'classes/action_view.php';
-        require_once CREOVEL_PATH . 'classes/action_error_handler.php';
         require_once CREOVEL_PATH . 'classes/action_router.php';
         
         // Set default creovel global vars.
@@ -95,8 +99,6 @@ class Creovel
         $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
         $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
         $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
-        $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
-        $GLOBALS['CREOVEL']['ERROR_CODE'] = '';
         $GLOBALS['CREOVEL']['HTML_APPEND'] = false;
         $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
         $GLOBALS['CREOVEL']['SESSION'] = true;
@@ -233,8 +235,6 @@ class Creovel
         self::initialize();
         // set flag for command line
         $GLOBALS['CREOVEL']['CMD'] = true;
-        // set error handler
-        $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
         // set configuration settings
         self::config();
     }

@@ -537,6 +537,17 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Escape using current adapter.
+     *
+     * @param string $string Prep for SQL query
+     * @return string
+     **/
+    final public function escape($string)
+    {
+        return $this->select_query()->escape((string) $string);
+    }
+    
+    /**
      * Escape using current adapter and single quote $string.
      *
      * @param string $string Prep for SQL query
@@ -544,7 +555,7 @@ class ActiveRecord extends Object implements Iterator
      **/
     final public function quote_value($string)
     {
-        return "'" . $this->select_query()->escape((string) $string) . "'";
+        return "'" . $this->escape($string) . "'";
     }
     
     /**

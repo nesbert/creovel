@@ -201,7 +201,7 @@ function link_to_url($link_title = 'Goto', $url = '#', $html_options = null)
 function link_to_google_maps($link_title = 'Google Maps&trade;', $address, $html_options = null)
 {
     $url = urlencode(strip_tags(str_replace(array(',', '.', '<br>', '<br />', '<br/>'), array('', '', ' ', ' ', ' '), $address)));
-    $url .= ( $html_options['title'] ? '+('.urlencode($html_options['title']).')' : '' );
+    $url .= isset($html_options['title']) ? '+('.urlencode($html_options['title']).')' : '';
     return link_to_url($link_title, 'http://maps.google.com/maps?q=' . $url, $html_options);
 }
 

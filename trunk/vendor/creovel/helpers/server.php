@@ -90,3 +90,17 @@ function tld()
     $url = explode('.', domain());
     return isset($url[1]) ? $url[1] : '';
 }
+
+/**
+ * Converts a string IP to and integer and vice versa. If no $ip is passed
+ * will convert $_SERVER['REMOTE_ADDR'] to an integer.
+ *
+ * @return mixed $ip
+ * @return integer
+ * @author Nesbert Hidalgo
+ **/
+function int_ip($ip = '')
+{
+    if (is_numeric($ip)) return long2ip($ip);
+    return ip2long($ip ? $ip : ip());
+}

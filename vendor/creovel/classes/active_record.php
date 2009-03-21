@@ -127,7 +127,7 @@ class ActiveRecord extends Object implements Iterator
         if (count($vars)) foreach ($vars as $var => $vals) {
             switch (true) {
                 case in_string('options_for_', $var):
-                    $this->{$var}($vals);
+                    $this->{'set_' . $var}($vals);
                     break;
                     
                 case 'belongs_to' == $var:
@@ -1139,6 +1139,7 @@ class ActiveRecord extends Object implements Iterator
                             'select_states_tag_for_',
                             'hidden_field_for_',
                             'password_field_for_',
+                            'set_options_for_',
                             'options_for_',
                             '_has_error',
                             'find_by_',
@@ -1168,6 +1169,13 @@ class ActiveRecord extends Object implements Iterator
                     return $this->html_field($type, $name, $this->{$name}, $arguments);
                     break;
                 
+                // options_for_* called for existing field
+                case in_string('set_options_for_', $method)
+                    && isset($this->_columns_[$name])
+                    && is_array($arguments[0]):
+                    return $this->_columns_[$name]->options = $arguments[0];
+                    break;
+                
                 case in_string('options_for_', $method):
                     switch (true) {
                         // set options for ENUM field types
@@ -1179,19 +1187,6 @@ class ActiveRecord extends Object implements Iterator
                             return $this->html_field($type, $name, $this->{$name}, $arguments);
                             break;
                         
-                        // set options for TINYINT types
-                        case !isset($this->_columns_[$name]->options)
-                            && !property_exists($this, 'options_for_' . $name)
-                            && in_string('tinyint(1)', @$this->_columns_[$name]->type):
-                            $type = 'select';
-                            return $this->html_field($type, $name, $this->{$name}, array_merge($arguments, array('options' => array(1 => 'Yes', 0 => 'No'))));
-                            break;
-                        
-                        // options_for_* called for existing field
-                        case isset($this->_columns_[$name]) && is_array($arguments[0]):
-                            return $this->_columns_[$name]->options = $arguments[0];
-                            break;
-                            
                         default:
                             throw new Exception("Unable to set options for {$name}." .
                                 " Property <em>{$name}</em> not found in" .
@@ -1550,13 +1545,21 @@ class ActiveRecord extends Object implements Iterator
                 break;
                 
             case 'has_one':
-                $args['conditions'] = array($options['foreign_key'] => $this->id());
+                if ($args['conditions']) {
+                    $args['conditions'] = "({$args['conditions']}) AND (`{$options['foreign_key']}` = '{$this->id()}')";
+                } else {
+                    $args['conditions'] = array($options['foreign_key'] => $this->id());
+                }
                 $obj = new $options['class_name'];
                 $obj->find('first', $args);
                 break;
                 
             case 'has_many':
-                $args['conditions'] = array($options['foreign_key'] => $this->id());
+                if ($args['conditions']) {
+                    $args['conditions'] = "({$args['conditions']}) AND (`{$options['foreign_key']}` = '{$this->id()}')";
+                } else {
+                    $args['conditions'] = array($options['foreign_key'] => $this->id());
+                }
                 $obj = new $options['class_name'];
                 $obj->find('all', $args);
                 break;

@@ -155,10 +155,10 @@ class Creovel
      **/
     public function config()
     {
-        // Include application config file
-        require_once CONFIG_PATH . 'environment.php';
         // Include database setting filee
         require_once CONFIG_PATH.'databases.php';
+        // Include application config file
+        require_once CONFIG_PATH . 'environment.php';
         // Include environment specific config file
         require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
     }

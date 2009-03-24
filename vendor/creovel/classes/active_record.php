@@ -591,6 +591,13 @@ class ActiveRecord extends Object implements Iterator
         if (empty($this->_columns_)) {
             $this->_columns_ =
                 $this->select_query()->columns($this->table_name());
+            // do some magic
+            foreach ($this->_columns_ as $k => $v) {
+                // set default options for enum types
+                if (!isset($this->{'options_for_' . $k}) && in_string('enum(', $v->type)) {
+                    $v->options = $this->enum_options($k);
+                }
+            }
         }
         
         return $this->_columns_;
@@ -950,15 +957,15 @@ class ActiveRecord extends Object implements Iterator
         if (isset($temp['offset'])) unset($temp['offset']);
         if (isset($temp['order'])) unset($temp['order']);
         if (isset($temp['limit'])) unset($temp['limit']);
-        $temp['select'] = "COUNT(*)";
+        $temp['select'] = "COUNT(DISTINCT `{$this->table_name()}`.`id`)";
         $qry = $this->build_query($temp, $type);
         
         // use select object to reduce connections
         $q = $this->select_query($qry);
-        if ($q->total_rows() == 1) {
+        
+        if ($this->total_rows() == 1) {
             $temp['total_records'] = current($q->get_row());
         } else {
-            // return row count on joins
             $temp['total_records'] = $q->total_rows();
         }
         
@@ -1053,7 +1060,6 @@ class ActiveRecord extends Object implements Iterator
     public function __get($attribute)
     {
         try {
-            
             switch (true) {
                 case isset($this->_columns_[$attribute]):
                     return $this->return_value($this->clean_column_value($attribute));
@@ -1061,6 +1067,10 @@ class ActiveRecord extends Object implements Iterator
                     
                 case isset($this->_associations_) && isset($this->_associations_[$attribute]):
                     return $this->return_value($this->association($this->_associations_[$attribute]));
+                    break;
+                    
+                case in_string('options_for_', $attribute) && isset($this->_columns_[$this->field_name_from_str($attribute)]->options):
+                    return $this->return_value($this->_columns_[$this->field_name_from_str($attribute)]->options);
                     break;
                     
                 default:
@@ -1127,25 +1137,7 @@ class ActiveRecord extends Object implements Iterator
         try {
             
             // get property name
-            $name = str_replace(array(
-                            'text_field_for_',
-                            'select_for_',
-                            'text_area_for_',
-                            'textarea_for_',
-                            'radio_button_for_',
-                            'check_box_for_',
-                            'checkbox_for_',
-                            'select_countries_tag_for_',
-                            'select_states_tag_for_',
-                            'hidden_field_for_',
-                            'password_field_for_',
-                            'set_options_for_',
-                            'options_for_',
-                            '_has_error',
-                            'find_by_',
-                            'date_',
-                            'time_'
-                            ), '', $method);
+            $name = $this->field_name_from_str($method);
             $arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
             
             switch (true) {
@@ -1235,6 +1227,34 @@ class ActiveRecord extends Object implements Iterator
             // add to errors
             CREO('application_error', $e);
         }
+    }
+    
+    /**
+     * Return field name from string for magic calls.
+     *
+     * @return string
+     **/
+    public function field_name_from_str($str)
+    {
+        return str_replace(array(
+                        'text_field_for_',
+                        'select_for_',
+                        'text_area_for_',
+                        'textarea_for_',
+                        'radio_button_for_',
+                        'check_box_for_',
+                        'checkbox_for_',
+                        'select_countries_tag_for_',
+                        'select_states_tag_for_',
+                        'hidden_field_for_',
+                        'password_field_for_',
+                        'set_options_for_',
+                        'options_for_',
+                        '_has_error',
+                        'find_by_',
+                        'date_',
+                        'time_'
+                        ), '', $str);
     }
     
     /**

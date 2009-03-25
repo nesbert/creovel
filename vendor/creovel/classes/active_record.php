@@ -1180,8 +1180,8 @@ class ActiveRecord extends Object implements Iterator
                             break;
                         
                         default:
-                            throw new Exception("Unable to set options for {$name}." .
-                                " Property <em>{$name}</em> not found in" .
+                            throw new Exception("Unable to create options for {$name}." .
+                                " Options for <em>{$name}</em> not set" .
                                 " <strong>{$this->class_name()}</strong> model.");
                             break;
                     }
@@ -1192,10 +1192,9 @@ class ActiveRecord extends Object implements Iterator
                     break;
                 
                 case in_string('find_by_', $method):
-                    $return = $this->find('all', array('conditions' => array(
-                        $name => $arguments[0]
-                        )));
-                    
+                    $args = isset($arguments[1]) && is_hash($arguments[1]) ? $arguments[1] : array();
+                    $args['conditions'] = array($name => $arguments[0]);
+                    $return = $this->find('all', $args);
                     // if one record load the first
                     if ($this->total_rows() == 1) {
                         $this->current();

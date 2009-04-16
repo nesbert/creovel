@@ -22,10 +22,6 @@ function create_html_element($name, $html_options = null, $content = null)
     $name = strtolower(trim($name));
     $no_end_tag = false;
     
-    if ($name == 'state') {
-        print_obj($html_options, 1);
-    }
-    
     // set flag for tags with no ends
     switch ($name) {
         case 'meta':
@@ -61,10 +57,11 @@ function html_options_str($html_options)
         // add confirm pop up
         if (isset($html_options['confirm'])) {
             $msg = str_replace("'", "\'", htmlentities($html_options['confirm']));
+            $onclick = "if (!window.confirm('{$msg}')) return false;";
             if (isset($html_options['onclick'])) {
-                $html_options['onclick'] =
-                    "if ( !window.confirm('{$msg}') ) return false; " .
-                    $html_options['onclick'];
+                $html_options['onclick'] = $onclick . " " .$html_options['onclick'];
+            } else {
+                $html_options['onclick'] = $onclick;
             }
             unset($html_options['confirm']);
         }
@@ -158,9 +155,9 @@ function javascript_include_tag($url, $html_options = array())
 function link_to($link_title = 'Goto', $controller = '', $action = '', $id = '', $html_options = null)
 {
     // set href
-    $html_options['href'] = $html_options['href']
+    $html_options['href'] = @$html_options['href']
                             ? $html_options['href']
-                            : url_for($controller, $action, $id, $html_options['https']);
+                            : url_for($controller, $action, $id, @$html_options['https']);
     // if action is array merge it with html_options
     if (is_array($action)) $html_options = array_merge((array) $action, (array) $html_options);
     return create_html_element('a', $html_options, $link_title);

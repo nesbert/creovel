@@ -9,7 +9,8 @@
  **/
 
 // Include application constant paths.
-require_once '../config/paths.php';
+define('BASE_PATH', dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
+require_once BASE_PATH . 'config/paths.php';
 
 // Initialize framework and include core libraries.
 require_once CREOVEL_PATH . 'classes' . DS . 'creovel.php';

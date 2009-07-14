@@ -73,6 +73,7 @@ class Creovel
         require_once CREOVEL_PATH . 'classes/action_error_handler.php';
         $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
         $GLOBALS['CREOVEL']['ERROR_CODE'] = '';
+        $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
         
         return $initialized = true;
     }

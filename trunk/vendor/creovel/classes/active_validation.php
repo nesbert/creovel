@@ -56,7 +56,7 @@ class ActiveValidation extends Object
      **/
     public function has_errors()
     {
-        return count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
+        return count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']) >= 1;
     }
     
     /**
@@ -214,6 +214,8 @@ class ActiveValidation extends Object
         
         if (isset($options['in'])) $options['range'] = $options['in'];
         if (isset($options['within'])) $options['range'] = $options['within'];
+        $d = '';
+        $message = '';
         
         switch (true) {
             
@@ -247,7 +249,6 @@ class ActiveValidation extends Object
         
         // set message and replace %d with minimum, maximum or exact length
         $options['message'] = str_replace('%d', $d, ( $options['message'] ? $options['message'] : $message ));
-        //print_obj($options, 1);
         
         return self::validate_field_by_bool(is_between(strlen($value), $options['minimum'], $options['maximum']), $field, $value, self::format_message($field, $value, $options['message'], self::FIELD_NAME." is not a number."), $options['required']);
     }
@@ -276,7 +277,7 @@ class ActiveValidation extends Object
      * @param boolean $required - optional default is false
      * @return boolean
      **/
-    private function validate_field_by_bool($bool, $field, $value, $message = null, $required = false)
+    public function validate_field_by_bool($bool, $field, $value, $message = null, $required = false)
     {
         switch ( true ) {
             case ( $required && $value && $bool ):

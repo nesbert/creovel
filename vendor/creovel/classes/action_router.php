@@ -55,7 +55,7 @@ class ActionRouter extends Object
                 );
         }
         
-        $uri_path = explode('/', $GLOBALS['CREOVEL']['ROUTING']['path']);
+        $uri_path = explode('/', $GLOBALS['CREOVEL']['ROUTING']['base_path']);
         
         // remove first and last if empty
         if (@!$uri_path[0]) array_shift($uri_path);
@@ -172,7 +172,7 @@ class ActionRouter extends Object
      **/
     public function which($uri = null, $return_params = false)
     {
-        $uri = $uri ? $uri : $GLOBALS['CREOVEL']['ROUTING']['path'];
+        $uri = $uri ? $uri : $GLOBALS['CREOVEL']['ROUTING']['base_path'];
         
         // return default route
         if ($uri == '/') {

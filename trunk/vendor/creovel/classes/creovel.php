@@ -154,10 +154,8 @@ class Creovel
         
         // Set routing defaults
         $GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());
-        $pattern = str_replace(array('\\', '/'), array('/', '\/'), $_SERVER['SCRIPT_NAME']);
-        $GLOBALS['CREOVEL']['ROUTING']['path'] = preg_replace('/^'.$pattern.'/', '', $GLOBALS['CREOVEL']['ROUTING']['path']); // no mod_rewrite & subfolder fix
-        $pattern = http_host() . str_replace(array('\\'), array('/'), $_SERVER['SCRIPT_NAME']);
-        $GLOBALS['CREOVEL']['ROUTING']['base'] = (in_string($pattern, url()) ? $pattern : '') . '/'; // base used for url_for()
+        $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
+        $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
         $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
         $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
         
@@ -330,6 +328,41 @@ class Creovel
         } catch (Exception $e) {
             CREO('error_code', 404);
             CREO('application_error', $e);
+        }
+    }
+    
+    /**
+     * Get framework base path. No mod_rewrite & subfolder fix.
+     *
+     * @return string
+     **/
+    public function base_path()
+    {
+        $pattern = str_replace(
+                    array('\\', '/public/index.php', '/'),
+                    array('/', '', '\/'),
+                    $_SERVER['SCRIPT_NAME']
+                    );
+        return preg_replace('/^'.$pattern.'/', '', str_replace('/public/index.php', '', $GLOBALS['CREOVEL']['ROUTING']['path']));
+    }
+    
+    /**
+     * Get framework base url. Used for url_for().
+     *
+     * @return string
+     **/
+    public function base_url()
+    {
+        $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+        if ( (!$GLOBALS['CREOVEL']['ROUTING']['base_path'] || $GLOBALS['CREOVEL']['ROUTING']['base_path'] == '/') && in_string($script, url()) ) {
+            return http_host() . $script . '/';
+        } else {
+            if (in_string($script, url())) {
+                $p = explode($GLOBALS['CREOVEL']['ROUTING']['base_path'], url());
+                return $p[0] . '/';
+            } else {
+                return http_host() . str_replace(array('/public/index.php', '/index.php'), '', $script) . '/';
+            }
         }
     }
 } // END class Creovel

@@ -338,7 +338,7 @@ function url_for()
         $https = true;
     }
     // build url
-    $uri = $GLOBALS['CREOVEL']['ROUTING']['base'] . (!$controller && $action
+    $uri = $GLOBALS['CREOVEL']['ROUTING']['base_url'] . (!$controller && $action
                 ? get_controller()
                 : $controller ) . ($action ? "/{$action}" : '');
     

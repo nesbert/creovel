@@ -1,5 +1,62 @@
 <?php
 /**
+ * Set constants, include helpers, configuration files & core classes,
+ * amp default routes and set CREOVEL & environment variables.
+ **/
+
+// If not PHP 5 stop.
+if (PHP_VERSION <= 5) {
+    die('Creovel requires PHP >= 5!');
+}
+
+// Define creovel constants.
+define('CREOVEL_VERSION', '0.4.2');
+define('CREOVEL_RELEASE_DATE', '2009-03-05 22:26:55');
+
+// Define environment constants.
+define('PHP', PHP_VERSION);
+
+// Define time constants.
+define('SECOND',  1);
+define('MINUTE', 60 * SECOND);
+define('HOUR',   60 * MINUTE);
+define('DAY',    24 * HOUR);
+define('WEEK',    7 * DAY);
+define('MONTH',  30 * DAY);
+define('YEAR',  365 * DAY);
+
+// Include base helper libraries.
+require_once CREOVEL_PATH . 'helpers/datetime.php';
+require_once CREOVEL_PATH . 'helpers/form.php';
+require_once CREOVEL_PATH . 'helpers/framework.php';
+require_once CREOVEL_PATH . 'helpers/general.php';
+require_once CREOVEL_PATH . 'helpers/html.php';
+require_once CREOVEL_PATH . 'helpers/locale.php';
+require_once CREOVEL_PATH . 'helpers/server.php';
+require_once CREOVEL_PATH . 'helpers/text.php';
+require_once CREOVEL_PATH . 'helpers/validation.php';
+
+// Include application_helper
+if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
+    require_once $helper;
+}
+
+// Include minimum base classes.
+require_once CREOVEL_PATH . 'classes/object.php';
+require_once CREOVEL_PATH . 'modules/module_base.php';
+require_once CREOVEL_PATH . 'modules/inflector.php';
+
+// Set default creovel global vars.
+$GLOBALS['CREOVEL']['MODE'] = 'production';
+$GLOBALS['CREOVEL']['LOG_ERRORS'] = false;
+
+// set error handler
+require_once CREOVEL_PATH . 'classes/action_error_handler.php';
+$GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
+$GLOBALS['CREOVEL']['ERROR_CODE'] = '';
+$GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
+
+/**
  * The main class where the model, view and controller interact.
  *
  * @package     Creovel
@@ -11,160 +68,6 @@
 class Creovel
 {
     /**
-     * Set constants, include helpers, configuration files & core classes,
-     * amp default routes and set CREOVEL & environment variables.
-     *
-     * @return boolean
-     * @author Nesbert Hidalgo
-     **/
-    public static function initialize()
-    {
-        // only run once
-        static $initialized;
-        if ($initialized) return $initialized;
-        
-        // If not PHP 5 stop.
-        if (PHP_VERSION <= 5) {
-            die('Creovel requires PHP >= 5!');
-        }
-        
-        // Define creovel constants.
-        define('CREOVEL_VERSION', '0.4.2');
-        define('CREOVEL_RELEASE_DATE', '2009-03-05 22:26:55');
-        
-        // Define environment constants.
-        define('PHP', PHP_VERSION);
-        
-        // Define time constants.
-        define('SECOND',  1);
-        define('MINUTE', 60 * SECOND);
-        define('HOUR',   60 * MINUTE);
-        define('DAY',    24 * HOUR);
-        define('WEEK',    7 * DAY);
-        define('MONTH',  30 * DAY);
-        define('YEAR',  365 * DAY);
-        
-        // Include base helper libraries.
-        require_once CREOVEL_PATH . 'helpers/datetime.php';
-        require_once CREOVEL_PATH . 'helpers/form.php';
-        require_once CREOVEL_PATH . 'helpers/framework.php';
-        require_once CREOVEL_PATH . 'helpers/general.php';
-        require_once CREOVEL_PATH . 'helpers/html.php';
-        require_once CREOVEL_PATH . 'helpers/locale.php';
-        require_once CREOVEL_PATH . 'helpers/server.php';
-        require_once CREOVEL_PATH . 'helpers/text.php';
-        require_once CREOVEL_PATH . 'helpers/validation.php';
-        
-        // Include application_helper
-        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
-            require_once $helper;
-        }
-        
-        // Include minimum base classes.
-        require_once CREOVEL_PATH . 'classes/object.php';
-        require_once CREOVEL_PATH . 'modules/module_base.php';
-        require_once CREOVEL_PATH . 'modules/inflector.php';
-        
-        // Set default creovel global vars.
-        $GLOBALS['CREOVEL']['MODE'] = 'production';
-        $GLOBALS['CREOVEL']['LOG_ERRORS'] = true;
-        
-        // set error handler
-        require_once CREOVEL_PATH . 'classes/action_error_handler.php';
-        $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
-        $GLOBALS['CREOVEL']['ERROR_CODE'] = '';
-        $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
-        
-        return $initialized = true;
-    }
-    
-    /**
-     * Prepare framework for web applications by setting default routes and
-     * set CREOVEL environment variables for web applications.
-     *
-     * @return void
-     **/
-    public function initialize_for_web()
-    {
-        // only run once
-        static $initialized;
-        if ($initialized) return $initialized;
-        
-        // Include framework base classes.
-        require_once CREOVEL_PATH . 'classes/action_controller.php';
-        require_once CREOVEL_PATH . 'classes/action_view.php';
-        require_once CREOVEL_PATH . 'classes/action_router.php';
-        
-        // Set default creovel global vars.
-        $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
-        $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
-        $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
-        $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
-        $GLOBALS['CREOVEL']['HTML_APPEND'] = false;
-        $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
-        $GLOBALS['CREOVEL']['SESSION'] = true;
-        $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
-        
-        // Set routing defaults
-        $GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());
-        $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
-        $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
-        
-        // set configuration settings
-        self::config();
-        
-        // Set default route
-        ActionRouter::map('default', '/:controller/:action/*', array(
-                    'controller' => 'index',
-                    'action' => 'index'
-                    ));
-        
-        // Set default error route
-        ActionRouter::map('errors', '/errors/:action/*', array(
-                    'controller' => 'errors',
-                    'action' => 'general'
-                    ));
-        
-        // Include custom routes
-        require_once CONFIG_PATH . 'routes.php';
-        
-        // Set session handler
-        if ($GLOBALS['CREOVEL']['SESSION']) {
-            
-            if ($GLOBALS['CREOVEL']['SESSION'] === 'table') {
-                // include/create session db object
-                require_once CREOVEL_PATH . 'classes/active_session.php';
-                $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'active_sessions';
-                $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new ActiveSession;
-            }
-            
-            // Fix for PHP 5.05
-            // http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
-            register_shutdown_function('session_write_close');
-            
-            // start session
-            if (session_id() == '') session_start();
-        }
-        
-        return $initialized = true;
-    }
-    
-    /**
-     * Read and set environment and databases files .
-     *
-     * @return void
-     **/
-    public function config()
-    {
-        // Include database setting filee
-        require_once CONFIG_PATH.'databases.php';
-        // Include application config file
-        require_once CONFIG_PATH . 'environment.php';
-        // Include environment specific config file
-        require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
-    }
-    
-    /**
      * Set frame events and params. Build controller execution environment.
      *
      * @return void
@@ -172,11 +75,8 @@ class Creovel
     public function run($events = null, $params = null, $return_as_str = false, $skip_init = false)
     {
         try {
-            // initialize framework
-            self::initialize();
-            
             // initialize web for web appliocations
-            self::initialize_for_web();
+            self::web();
             
             // set event and params
             $events = is_array($events) ? $events : self::events();
@@ -226,18 +126,142 @@ class Creovel
     }
     
     /**
+     * Prepare framework for web applications by setting default routes and
+     * set CREOVEL environment variables for web applications.
+     *
+     * @return void
+     **/
+    public function web()
+    {
+        // only run once
+        static $initialized;
+        if ($initialized) return $initialized;
+        
+        // Include framework base classes.
+        require_once CREOVEL_PATH . 'classes/action_controller.php';
+        require_once CREOVEL_PATH . 'classes/action_view.php';
+        require_once CREOVEL_PATH . 'classes/action_router.php';
+        
+        // Set default creovel global vars.
+        $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
+        $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
+        $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
+        $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
+        $GLOBALS['CREOVEL']['HTML_APPEND'] = false;
+        $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
+        $GLOBALS['CREOVEL']['SESSION'] = true;
+        $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
+        
+        // Set routing defaults
+        $GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());
+        $pattern = str_replace(array('\\', '/'), array('/', '\/'), $_SERVER['SCRIPT_NAME']);
+        $GLOBALS['CREOVEL']['ROUTING']['path'] = preg_replace('/^'.$pattern.'/', '', $GLOBALS['CREOVEL']['ROUTING']['path']); // no mod_rewrite & subfolder fix
+        $pattern = http_host() . str_replace(array('\\'), array('/'), $_SERVER['SCRIPT_NAME']);
+        $GLOBALS['CREOVEL']['ROUTING']['base'] = (in_string($pattern, url()) ? $pattern : '') . '/'; // base used for url_for()
+        $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
+        $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
+        
+        // set configuration settings
+        self::config();
+        
+        // Set default route
+        ActionRouter::map('default', '/:controller/:action/*', array(
+                    'controller' => 'index',
+                    'action' => 'index'
+                    ));
+        
+        // Set default error route
+        ActionRouter::map('errors', '/errors/:action/*', array(
+                    'controller' => 'errors',
+                    'action' => 'general'
+                    ));
+        
+        // Include custom routes
+        require_once CONFIG_PATH . 'routes.php';
+        
+        // Set session handler
+        if ($GLOBALS['CREOVEL']['SESSION']) {
+            
+            if ($GLOBALS['CREOVEL']['SESSION'] === 'table') {
+                // include/create session db object
+                require_once CREOVEL_PATH . 'classes/active_session.php';
+                $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'active_sessions';
+                $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new ActiveSession;
+            }
+            
+            // Fix for PHP 5.05
+            // http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
+            register_shutdown_function('session_write_close');
+            
+            // start session
+            if (session_id() == '') session_start();
+        }
+        
+        return $initialized = true;
+    }
+    
+    /**
      * Initialize framework for command line support.
      *
      * @return void
      **/
     public function cmd()
     {
-        // initialize framework
-        self::initialize();
+        global $argc;
+        global $argv;
+        global $args;
+        global $flags;
+        global $params;
+        
         // set flag for command line
         $GLOBALS['CREOVEL']['CMD'] = true;
+        
         // set configuration settings
         self::config();
+        
+        // create local variables
+        if ($argc > 1) {
+            // set params & flagsforth argument and on
+            // flags start with "-"
+            $args = array();
+            $flags = array();
+            $params = array();
+            foreach ($argv as $k => $v) {
+                if (!$k) continue;
+                if (in_string(':', $v)) {
+                    $v  = explode(':', $v);
+                    $params[$v[0]] = $v[1];
+                } else if (starts_with('-', $v)) {
+                    // double dash mean whole words
+                    if (starts_with('--', $v)) {
+                        $flags[] = substr($v, 2);
+                    } else {
+                        // split each single dash char into a flag
+                        foreach (str_split(substr($v, 1)) as $___) {
+                            $flags[] = $___;
+                        }
+                    }
+                } else {
+                    $args[] = $v;
+                }
+            }
+            
+        }
+    }
+    
+    /**
+     * Read and set environment and databases files .
+     *
+     * @return void
+     **/
+    public function config()
+    {
+        // Include database setting filee
+        require_once CONFIG_PATH.'databases.php';
+        // Include application config file
+        require_once CONFIG_PATH . 'environment.php';
+        // Include environment specific config file
+        require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
     }
     
     /**

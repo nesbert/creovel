@@ -10,64 +10,23 @@
  
 // Include application constant paths.
 define('BASE_PATH', dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
-require_once BASE_PATH . 'config/paths.php';
+require_once BASE_PATH . 'config' . DIRECTORY_SEPARATOR . 'paths.php';
 
 // Initialize framework and include core libraries.
-require_once CREOVEL_PATH . 'classes' . DS . 'creovel.php';
+require_once CREOVEL_PATH . 'classes' . DIRECTORY_SEPARATOR . 'creovel.php';
 Creovel::cmd();
-
-// create local variables
-if ($argc > 1) {
-    
-    // set controller always second argument
-    if (!empty($argv[1])) {
-        $controller = $argv[1];
-    }
-    
-    // set action always third argument
-    if (!empty($argv[2])) {
-        $action = $argv[2];
-    }
-    
-    // set params & flagsforth argument and on
-    // flags start with "-"
-    $params = array();
-    $flags = array();
-    foreach ($argv as $__k => $__v) {
-        if ($__k < 3) continue;
-        if (in_string(':', $__v)) {
-            $__v  = explode(':', $__v);
-            $params[$__v[0]] = $__v[1];
-        } else if (starts_with('-', $__v)) {
-            // double dash mean whole words
-            if (starts_with('--', $__v)) {
-                $flags[] = substr($__v, 2);
-            } else {
-                // split each single dash char into a flag
-                foreach (str_split(substr($__v, 1)) as $___) {
-                    $flags[] = $___;
-                }
-            }
-        } else {
-            $params[] = $__v;
-        }
-    }
-    
-}
 
 /**
  * Sample:
  *
- * ./generate model user key:value apple macbook --test -rfv
+ * ./generate model user key:value name:nes apple macbook --test -rfv
  *
- * $controller = 'model';
- * $action = 'user';
- *
- * $params = Array
+ * $args = Array
  *     (
- *        [key] => value
- *        [0] => apple
- *        [1] => macbook
+ *        [0] => model
+ *        [1] => user
+ *        [2] => apple
+ *        [3] => macbook
  *     )
  *
  * $flags = Array
@@ -77,4 +36,10 @@ if ($argc > 1) {
  *        [2] => f
  *        [3] => v
  *    )
+ *
+ * $params = Array
+ *     (
+ *        [key] => value
+ *        [name] => nes
+ *     )
  */

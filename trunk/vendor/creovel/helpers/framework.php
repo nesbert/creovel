@@ -348,7 +348,8 @@ function url_for()
         $uri .= "/{$id}";
     }
     
-    return ($https ? str_replace('http://', 'https://', BASE_URL) : '').$uri;
+    return ($https ? str_replace('http://', 'https://', BASE_URL) : '') .
+        (($uri != '/') && ($uri{strlen($uri)-1} == '/') ? substr($uri, 0, -1) : $uri);
 }
 
 /**

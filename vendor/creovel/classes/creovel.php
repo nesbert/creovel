@@ -355,13 +355,13 @@ class Creovel
     {
         $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
         if ( (!$GLOBALS['CREOVEL']['ROUTING']['base_path'] || $GLOBALS['CREOVEL']['ROUTING']['base_path'] == '/') && in_string($script, url()) ) {
-            return http_host() . $script . '/';
+            return $script . '/';
         } else {
             if (in_string($script, url())) {
                 $p = explode($GLOBALS['CREOVEL']['ROUTING']['base_path'], url());
-                return $p[0] . '/';
+                return str_replace(http_host(), '', $p[0] . '/');
             } else {
-                return http_host() . str_replace(array('/public/index.php', '/index.php'), '', $script) . '/';
+                return str_replace(array('/public/index.php', '/index.php'), '', $script) . '/';
             }
         }
     }

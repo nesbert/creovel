@@ -780,7 +780,7 @@ class ActiveRecord extends Object implements Iterator
         // sanitize values
         $values = array();
         foreach ($this->prepare_attributes() as $k => $v) {
-            $values[$k] = $this->quote_value($v);
+            $values[$k] = $v == 'NULL' ? 'NULL' : $this->quote_value($v);
         }
         
         // build query
@@ -789,7 +789,7 @@ class ActiveRecord extends Object implements Iterator
                 "VALUES " .
                 "(" . implode(', ', $values) . ");";
         
-        return $this->id = $this->action_query($qry)->insert_id();
+        return $this->{$this->primary_key()} = $this->action_query($qry)->insert_id();
     }
     
     /**
@@ -808,7 +808,7 @@ class ActiveRecord extends Object implements Iterator
         $set = array();
         foreach ($this->prepare_attributes() as $k => $v) {
             if ($this->primary_key() == $k) continue;
-            $set[] = "`$k` = {$this->quote_value($v)}";
+            $set[] = "`{$k}` = " . ($v == 'NULL' ? 'NULL' : $this->quote_value($v));
         }
         
         // build query
@@ -831,6 +831,7 @@ class ActiveRecord extends Object implements Iterator
         $return = array();
         foreach ($this->_columns_ as $name => $field) {
             switch (true) {
+                // set array types
                 case is_array($field->value):
                     if ($field->type == 'datetime') {
                         $return[$name] = datetime($field->value);
@@ -838,9 +839,9 @@ class ActiveRecord extends Object implements Iterator
                         $return[$name] = serialize($field->value);
                     }
                     break;
-                    
-                case isset($field->null) && $field->null == 'YES':
-                    $return[$name] = $field->value === '' || $field->value === null ? 'NULL' : '';
+                // set NULL values blank
+                case empty($field->value) && $field->null == 'YES':
+                    $return[$name] = 'NULL';
                     break;
                     
                 default:

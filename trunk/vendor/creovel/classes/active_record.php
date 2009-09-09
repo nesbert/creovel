@@ -12,6 +12,13 @@
 class ActiveRecord extends Object implements Iterator
 {
     /**
+     * Database name.
+     *
+     * @var string
+     **/
+    public $_database_ = '';
+    
+    /**
      * Table name.
      *
      * @var string
@@ -159,20 +166,13 @@ class ActiveRecord extends Object implements Iterator
             return $this->connection_properties;
         }
         
-        switch (strtoupper(CREO('mode'))) {
-            case 'PRODUCTION':
-                return $GLOBALS['CREOVEL']['DATABASES']['PRODUCTION'];
-                break;
-            
-            case 'TEST':
-                return $GLOBALS['CREOVEL']['DATABASES']['TEST'];
-                break;
-            
-            case 'DEVELOPMENT':
-            default:
-                return $GLOBALS['CREOVEL']['DATABASES']['DEVELOPMENT'];
-                break;
+        // override default database
+        if (!empty($this->_database_)) {
+            $GLOBALS['CREOVEL']['DATABASES'][strtoupper(CREO('mode'))]['default'] =
+                $this->_database_;
         }
+        
+        return $GLOBALS['CREOVEL']['DATABASES'][strtoupper(CREO('mode'))];
     }
     
     /**

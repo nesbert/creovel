@@ -154,13 +154,16 @@ class Creovel
         
         // Set routing defaults
         $GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());
-        $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
-        $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
         $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
         $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
         
         // set configuration settings
         self::config();
+        
+        // set additional routing options
+        if (empty($GLOBALS['CREOVEL']['dispatcher'])) $GLOBALS['CREOVEL']['dispatcher'] = 'creovel.php';
+        $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
+        $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
         
         // Set default route
         ActionRouter::map('default', '/:controller/:action/*', array(
@@ -339,11 +342,11 @@ class Creovel
     public function base_path()
     {
         $pattern = str_replace(
-                    array('\\', '/public/index.php', '/'),
+                    array('\\', '/public/' . $GLOBALS['CREOVEL']['dispatcher'], '/'),
                     array('/', '', '\/'),
                     $_SERVER['SCRIPT_NAME']
                     );
-        return preg_replace('/^'.$pattern.'/', '', str_replace('/public/index.php', '', $GLOBALS['CREOVEL']['ROUTING']['path']));
+        return preg_replace('/^'.$pattern.'/', '', str_replace('/public/'. $GLOBALS['CREOVEL']['dispatcher'], '', $GLOBALS['CREOVEL']['ROUTING']['path']));
     }
     
     /**
@@ -361,7 +364,7 @@ class Creovel
                 $p = explode($GLOBALS['CREOVEL']['ROUTING']['base_path'], url());
                 return str_replace(http_host(), '', $p[0] . '/');
             } else {
-                return str_replace(array('/public/index.php', '/index.php'), '', $script) . '/';
+                return str_replace(array('/public/' . $GLOBALS['CREOVEL']['dispatcher'], '/' . $GLOBALS['CREOVEL']['dispatcher']), '', $script) . '/';
             }
         }
     }

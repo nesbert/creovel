@@ -318,15 +318,15 @@ function url_for()
         $controller = $args[0];
         
         // set action
-        $action = $args[1] . (CREO('html_append') ? '.html' : '');
+        $action = @$args[1] . (CREO('html_append') ? '.html' : '');
         
         // set id and misc
-        if (is_array($args[2])) {
+        if (@is_array($args[2])) {
             $id = @$args[2]['id'];
             unset($args[2]['id']);
             $misc = http_build_query($args[2]);
         } else {
-            $id = $args[2];
+            $id = @$args[2];
         }
         
         // secure mode

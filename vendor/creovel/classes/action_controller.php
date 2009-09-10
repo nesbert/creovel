@@ -215,6 +215,11 @@ abstract class ActionController extends Object
             // set view path
             $view_path = @$this->__view_path($view, $controller);
             
+            // set non nested path
+            if (!empty($this->_nested_controller_path)) {
+                $non_nested_path = str_replace($this->_nested_controller_path.DS, '', $view_path);
+            }
+            
             switch (true) {
                 // if layout get page content with layout
                 case $layout:
@@ -231,13 +236,17 @@ abstract class ActionController extends Object
                     }
                     break;
                 // if same layout include files and set variables
-                case file_exists($view_path):
+                case file_exists($view_path) || file_exists($non_nested_path):
                     // create a variable foreach other option, using its
                     // key as the variable name
                     if (count($options)) {
                         foreach ( $options as $key => $values ) {
                             $$key = $values;
                         }
+                    }
+                    
+                    if (!file_exists($view_path)) {
+                        $view_path = $non_nested_path;
                     }
                     
                     if ($return_as_str) {

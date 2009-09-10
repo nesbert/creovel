@@ -166,13 +166,15 @@ class ActiveRecord extends Object implements Iterator
             return $this->connection_properties;
         }
         
+        // set properties depending on mode
+        $db_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper(CREO('mode'))];
+        
         // override default database
         if (!empty($this->_database_)) {
-            $GLOBALS['CREOVEL']['DATABASES'][strtoupper(CREO('mode'))]['default'] =
-                $this->_database_;
+            $db_properties['default'] = $this->_database_;
         }
         
-        return $GLOBALS['CREOVEL']['DATABASES'][strtoupper(CREO('mode'))];
+        return $db_properties;
     }
     
     /**

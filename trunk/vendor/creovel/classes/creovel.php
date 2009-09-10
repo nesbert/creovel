@@ -75,6 +75,9 @@ class Creovel
     public function run($events = null, $params = null, $return_as_str = false, $skip_init = false)
     {
         try {
+            // ignore certain requests
+            self::ignore_check();
+            
             // initialize web for web appliocations
             self::web();
             
@@ -161,7 +164,7 @@ class Creovel
         self::config();
         
         // set additional routing options
-        if (empty($GLOBALS['CREOVEL']['dispatcher'])) $GLOBALS['CREOVEL']['dispatcher'] = 'creovel.php';
+        if (empty($GLOBALS['CREOVEL']['DISPATCHER'])) $GLOBALS['CREOVEL']['DISPATCHER'] = 'index.php';
         $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
         $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
         
@@ -258,7 +261,7 @@ class Creovel
     public function config()
     {
         // Include database setting filee
-        require_once CONFIG_PATH.'databases.php';
+        require_once CONFIG_PATH . 'databases.php';
         // Include application config file
         require_once CONFIG_PATH . 'environment.php';
         // Include environment specific config file
@@ -342,11 +345,11 @@ class Creovel
     public function base_path()
     {
         $pattern = str_replace(
-                    array('\\', '/public/' . $GLOBALS['CREOVEL']['dispatcher'], '/'),
+                    array('\\', '/public/' . $GLOBALS['CREOVEL']['DISPATCHER'], '/'),
                     array('/', '', '\/'),
                     $_SERVER['SCRIPT_NAME']
                     );
-        return preg_replace('/^'.$pattern.'/', '', str_replace('/public/'. $GLOBALS['CREOVEL']['dispatcher'], '', $GLOBALS['CREOVEL']['ROUTING']['path']));
+        return preg_replace('/^'.$pattern.'/', '', str_replace('/public/'. $GLOBALS['CREOVEL']['DISPATCHER'], '', $GLOBALS['CREOVEL']['ROUTING']['path']));
     }
     
     /**
@@ -364,8 +367,23 @@ class Creovel
                 $p = explode($GLOBALS['CREOVEL']['ROUTING']['base_path'], url());
                 return str_replace(http_host(), '', $p[0] . '/');
             } else {
-                return str_replace(array('/public/' . $GLOBALS['CREOVEL']['dispatcher'], '/' . $GLOBALS['CREOVEL']['dispatcher']), '', $script) . '/';
+                return str_replace(array('/public/' . $GLOBALS['CREOVEL']['DISPATCHER'], '/' . $GLOBALS['CREOVEL']['DISPATCHER']), '', $script) . '/';
             }
+        }
+    }
+    
+    /**
+     * Do not process certain requests.
+     *
+     * @return void
+     **/
+    public function ignore_check()
+    {
+        switch (true) {
+            case in_string('favicon.ico', $_SERVER['REQUEST_URI']):
+            case in_string('robots.txt', $_SERVER['REQUEST_URI']):
+                exit(0);
+                break;
         }
     }
 } // END class Creovel

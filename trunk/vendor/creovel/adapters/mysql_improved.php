@@ -90,6 +90,23 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
     }
     
     /**
+     * Execute query and return result object/resource or false. Option to log
+     * log queries if $GLOBALS['CREOVEL']['LOG_QUERIES'] is set to true. All
+     * queries should pass through this function.
+     *
+     * @param string $query SQL string
+     * @return object/false
+     **/
+    public function execute($query)
+    {
+        // log queries
+        if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
+            CREO('log', 'Query: ' . $query);
+        }
+        return $this->db->query($query);
+    }
+    
+    /**
      * Performs a query on the database and sets result resources.
      *
      * @param string $query SQL string
@@ -104,7 +121,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         $this->query = $query;
         
         // send a MySQL query and set query_link resource on success
-        $this->result = $this->db->query($query);
+        $this->result = $this->execute($query);
         
         if (!$this->result) {
             self::throw_error("{$this->db->error} Query \"" .
@@ -146,7 +163,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
     {
         // send a DESCRIBE query and set result on success
         $sql = "DESCRIBE `{$table_name}`;";
-        $result = $this->db->query($sql);
+        $result = $this->execute($sql);
         
         // no result throw error
         if (!$result) {

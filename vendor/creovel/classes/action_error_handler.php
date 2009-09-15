@@ -67,8 +67,7 @@ class ActionErrorHandler extends Object
         
         // log errors
         if (!empty($GLOBALS['CREOVEL']['LOG_ERRORS'])) {
-            $log = new Logger(@LOG_PATH . CREO('mode') . '.log');
-            $log->write(strip_tags(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $this->message)));
+            CREO('log', 'Error: ' . $this->message);
         }
         
         // check for custom errors

@@ -35,6 +35,16 @@ interface AdapterInterface
     public function disconnect();
     
     /**
+     * Execute query and return result object/resource or false. Option to log
+     * log queries if $GLOBALS['CREOVEL']['LOG_QUERIES'] is set to true. All
+     * queries should pass through this function.
+     *
+     * @param string $query SQL string
+     * @return object/false
+     **/
+    public function execute($query);
+    
+    /**
      * Performs a query on the database and sets result resources.
      *
      * @param string $query SQL string

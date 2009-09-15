@@ -88,7 +88,7 @@ function __autoload($class)
 }
 
 /**
- * Set and get $GLOBALS['CREOVEL'] variables.
+ * Set & get $GLOBALS['CREOVEL'] variables and other magical goodness.
  *
  * @param string $key
  * @param mixed $val
@@ -104,11 +104,11 @@ function CREO($key = null, $val = null)
     
     // get or set values
     switch (true) {
-        case ($key == 'APPLICATION_ERROR'):
+        case $key == 'APPLICATION_ERROR':
             $GLOBALS['CREOVEL']['ERROR']->add($val);
             break;
             
-        case ($key == 'DATABASE'):
+        case $key == 'DATABASE':
             $mode = strtoupper($val['mode']);
             $GLOBALS['CREOVEL']['DATABASES'][$mode] = array(
                 'adapter'	=> $val['adapter'],
@@ -126,8 +126,13 @@ function CREO($key = null, $val = null)
                     array('socket' => $val['socket']);
             }
             break;
+        
+        case $key == 'LOG':
+            $log = new Logger(@LOG_PATH . $GLOBALS['CREOVEL']['MODE'] . '.log');
+            $log->write(strip_tags(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $val)));
+            break;
             
-        case ($val !== null):
+        case $val !== null:
             return $GLOBALS['CREOVEL'][$key] = $val;
             break;
             
@@ -290,6 +295,7 @@ function get_creovel_modules()
 function url_for()
 {
     $args = func_get_args();
+    $use_pretty_urls = ends_with('*', $GLOBALS['CREOVEL']['ROUTING']['current']['url']);
     
     if (is_array($args[0])) {
         
@@ -343,9 +349,18 @@ function url_for()
                 : $controller ) . ($action ? "/{$action}" : '');
     
     if (@$misc) {
-        $uri .= "?" . ($id ? "id={$id}&" : '') . $misc;
+        if ($use_pretty_urls) {
+            $uri .= ($id ? '/id/' . urlencode($id) : '') .
+                '/' . str_replace(array('&', '='), '/', $misc);
+        } else {
+            $uri .= "?" . ($id ? "id={$id}&" : '') . $misc;
+        }
     } else if ($id) {
-        $uri .= "/{$id}";
+        if ($use_pretty_urls) {
+            $uri .= '/id/' . urlencode($id);
+        } else {
+            $uri .= "/{$id}";
+        }
     }
     
     return ($https ? str_replace('http://', 'https://', BASE_URL) : '') .

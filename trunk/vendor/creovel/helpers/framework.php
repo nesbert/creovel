@@ -20,14 +20,13 @@
 function __autoload($class)
 {
     try {
-        
-        $folders = split('_', $class);
-        
-        if (count($folders) > 1) array_pop($folders);
-        
-        $path = implode(DS, $folders);
-        
-        $class = Inflector::underscore($class);
+        // check for nested paths
+        if (in_string('_', $class)) {
+            $folders = split('_', strtolower($class));
+            $class = implode(DS, $folders);
+        } else {
+            $class = Inflector::underscore($class);
+        }
         
         switch (true) {
             
@@ -53,10 +52,11 @@ function __autoload($class)
                 
             case (true):
                 $type = 'Vendor';
-                $path = VENDOR_PATH . $class . DS . $class . '.php';
+                $path = VENDOR_PATH . $class . '.php';
                 if (file_exists($path)) break;
                 
             case (true):
+            
                 $type = in_string('Mailer', $class) ? 'Mailer' : 'Model';
                 $path = MODELS_PATH . $class . '.php';
                 // if model found locally

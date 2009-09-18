@@ -20,6 +20,14 @@
     <td>
         <em>
         <?php if ($adapters = get_creovel_adapters()) foreach ($adapters as $name => $file) { ?>
+            <?php
+                // skip these
+                switch ($name) {
+                    case 'adapter_base':
+                    case 'adapter_interface':
+                        continue 2;
+                }
+            ?>
             <?php if (CREO('show_source')) { ?>
             <a href="<?php echo view_source_url($file); ?>"><?php echo $name; ?></a>
             <?php } else { ?>
@@ -36,6 +44,13 @@
     <td>
         <em>
         <?php if ($services = get_creovel_modules()) foreach ($services as $name => $file) { ?>
+            <?php
+                // skip these
+                switch ($name) {
+                    case 'module_base':
+                        continue 2;
+                }
+            ?>
             <?php if (CREO('show_source')) { ?>
             <a href="<?php echo view_source_url($file); ?>"><?php echo $name; ?></a>
             <?php } else { ?>

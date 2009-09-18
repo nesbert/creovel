@@ -164,7 +164,9 @@ class Creovel
         self::config();
         
         // set additional routing options
-        if (empty($GLOBALS['CREOVEL']['DISPATCHER'])) $GLOBALS['CREOVEL']['DISPATCHER'] = 'index.php';
+        if (empty($GLOBALS['CREOVEL']['DISPATCHER'])) {
+            $GLOBALS['CREOVEL']['DISPATCHER'] = basename($_SERVER['PHP_SELF']);
+        }
         $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
         $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
         

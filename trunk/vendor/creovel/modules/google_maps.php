@@ -11,6 +11,7 @@
 /*
     TODO
     
+    - NEEDS to be updated! geocode_http() needs to be switched to use SimpleXML
     - Add support/interface for compressing polylines data
     - http://www.google.com/apis/maps/documentation/#Encoded_Polylines
     - Implement Markers Manager

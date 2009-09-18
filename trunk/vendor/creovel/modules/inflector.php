@@ -225,7 +225,7 @@ class Inflector extends ModuleBase
      *
      * @param string $word
      * @param string $sep Default separator is an underscore ("_").
-     * @return void
+     * @return string
      **/
     public function underscore($word, $sep = '_')
     {
@@ -244,7 +244,7 @@ class Inflector extends ModuleBase
      * @param string $word
      * @param string $uppercase Set to 'all' to uppercase all the words instead
      * of just the first one.
-     * @return void
+     * @return string
      **/
     public function humanize($word, $uppercase = '')
     {
@@ -252,84 +252,58 @@ class Inflector extends ModuleBase
         return $uppercase(str_replace('_',' ',preg_replace('/_id$/', '',$word)));
     }
     
-    /*
-
-	Function: variablize	
-		Same as camelize but first char is underscored
-    	Converts a word like "send_email" to "sendEmail". It will remove non alphanumeric character from the word, so "who's online" will be converted to "whoSOnline"
-   		See <camelize>
-
-	Parameters:
-		word - Word to lowerCamelCase
-
-	Returns:
-    	Returns a lowerCamelCasedWord
-	 
-	*/
-
+    /**
+     * Same as camelize but first char is underscored. Converts a word like
+     * "send_email" to "sendEmail". It will remove non alphanumeric character
+     * from the word, so "who's online" will be converted to "whoSOnline".
+     *
+     * @param string $word
+     * @see camelize()
+     * @return string
+     **/
     public function variablize($word)
     {
         $word = self::camelize($word);
         return strtolower($word[0]).substr($word,1);
     }
 
-    /*
-
-	Function: tabelize	
-		Converts a class name to its table name according to rails naming conventions.
-    	Converts "Person" to "people"
-    	See <classify>
-
-	Parameters:	
-		class_name - Class name for getting related table_name.
-		
-	Returns:	
-		plural_table_name
-
-	*/
-
+    /**
+     * Converts a class name to its table name according to rails naming
+     * conventions. Converts "Person" to "people"
+     *
+     * @param string $class_name
+     * @see classify()
+     * @return string
+     **/
     public function tableize($class_name)
     {
         return self::pluralize(self::underscore($class_name));
     }
 
-    /*
-			
-	Function:	
-		Converts a table name to its class name according to rails naming conventions.
-    	Converts "people" to "Person"
-		See <tableize>
-
-	Parameters:
-    	table_name - Table name for getting related ClassName.
-		
-	Returns:	
-		SingularClassName
-
-	*/
-
+    /**
+     * Converts a table name to its class name according to rails naming
+     * conventions. Converts "people" to "Person"
+     *
+     * @param string $table_name
+     * @see tableize()
+     * @return string
+     **/
     public function classify($table_name)
     {
         return self::camelize(self::singularize($table_name));
     }
 
-    /*
-
-	Function: ordanlize	
-		Converts number to its ordinal English form.
-    	This method converts 13 to 13th, 2 to 2nd ...
-
-	Parameters:	
-		number - Number to get its ordinal value
-
-	Returns:
-		Ordinal representation of given string.
-
-	*/
-
+	/**
+	 * Converts number to its ordinal English form. This method
+	 * converts 13 to 13th, 2 to 2nd, etc.
+	 *
+     * @param string/integer $number
+	 * @return string
+	 * @author Nesbert Hidalgo
+	 **/
     public function ordinalize($number)
     {
-        if (in_array(($number % 100),range(11,13))){
+        if (in_array((intval($number) % 100),range(11,13))){
             return $number.'th';
         }else{
             switch (($number % 10)) {

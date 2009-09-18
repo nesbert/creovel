@@ -277,15 +277,15 @@ function get_raw_post()
  *
  * @param string $str
  * @param string $length
- * @return string
+ * @param string $allowed_tags
  * @author Nesbert Hidalgo
  **/
-function clean_str($str, $allow_tags = false, $length = 0)
+function clean_str($str, $length = 0, $allowed_tags = false)
 {
     // strip or allow only certain tags
-    $str = strip_tags($str, (!$allow_tags ? null : $allow_tags));
+    $str = strip_tags($str, (!$allowed_tags ? null : $allowed_tags));
     // trim, utf-8 and HTML encode
-    $str = htmlentities(utf8_decode(trim($str)), ENT_NOQUOTES);
+    $str = htmlentities(utf8_decode(trim($str)));
     $str = str_replace(array('&', '#', '%'), array('&', '#', '%'), $str);
     // limit length of string
     $length = intval($length);
@@ -303,8 +303,12 @@ function clean_str($str, $allow_tags = false, $length = 0)
  **/
 function clean_array($array)
 {
-    if (is_array($array)) foreach ($array as $k => $v) {
-        $array[$k] = clean_str($v);
+    if (is_array($array)) {
+        foreach ($array as $k => $v) {
+            $array[$k] = is_array($v) ? clean_array($v) : clean_str($v);
+        }
+        return $array;
+    } else {
+        return clean_str($array);
     }
-    return $array;
 }

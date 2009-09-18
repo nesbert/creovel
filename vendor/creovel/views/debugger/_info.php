@@ -107,3 +107,46 @@
 <?php } ?>
 <tr><td class="sub">Total</td><td><?php print($file + 1); ?> Files (<?php echo get_filesize($total_filesize); ?>)</td></tr>
 </table>
+
+<?php if (isset($_GET) && count($_GET)) { ?>
+<h1>$_GET</h1>
+<table cellspacing="0" class="block constants">
+<?php foreach($_GET as $key => $value) { ?>
+<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
+<?php } ?>
+</table>
+<?php } ?>
+
+<?php if (isset($_POST) && count($_POST)) { ?>
+<h1>$_POST</h1>
+<table cellspacing="0" class="block constants">
+<?php foreach($_POST as $key => $value) { ?>
+<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
+<?php } ?>
+</table>
+<?php } ?>
+
+<?php if (isset($_COOKIE) && count($_COOKIE)) { ?>
+<h1>$_COOKIE</h1>
+<table cellspacing="0" class="block constants">
+<?php foreach($_COOKIE as $key => $value) { ?>
+<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
+<?php } ?>
+</table>
+<?php } ?>
+
+<?php if (isset($_SESSION)) { ?>
+<h1>$_SESSION</h1>
+<table cellspacing="0" class="block constants">
+<?php foreach($_SESSION as $key => $value) { ?>
+<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
+<?php } ?>
+</table>
+<?php } ?>
+
+<h1>$_SERVER</h1>
+<table cellspacing="0" class="block constants">
+<?php foreach($_SERVER as $key => $value) { ?>
+<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
+<?php } ?>
+</table>

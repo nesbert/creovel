@@ -203,3 +203,23 @@ function is_ajax()
 {
     return @$_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
 }
+
+/**
+ * Check if an array is an associative array.
+ *
+ * @param array $_array
+ * @link http://us3.php.net/manual/en/function.is-array.php#85324
+ * @return boolean
+ **/
+function is_hash($array)
+{
+    if (is_array($array) == false) {
+        return false;
+    }
+    
+    foreach (array_keys($array) as $k => $v) {
+        if ($k !== $v) return true;
+    }
+    
+    return false;
+}

@@ -23,7 +23,7 @@ function print_obj($obj, $kill = false)
 }
 
 /**
- * Cleans up javascript.
+ * Cleans up javascript and properly escapes quotes.
  *
  * @param string $javascript
  * @return string
@@ -39,26 +39,6 @@ function escape_javascript($javascript)
         "'"     => "\\'"
     );
     return str_replace(array_keys($escape), array_values($escape), $javascript);
-}
-
-/**
- * Check if an array is an associative array.
- *
- * @param array $_array
- * @link http://us3.php.net/manual/en/function.is-array.php#85324
- * @return boolean
- **/
-function is_hash($array)
-{
-    if (is_array($array) == false) {
-        return false;
-    }
-    
-    foreach (array_keys($array) as $k => $v) {
-        if ($k !== $v) return true;
-    }
-    
-    return false;
 }
 
 /**
@@ -290,4 +270,41 @@ function get_files_from_dir($dir_path, $file_type = 'php', $show_invisibles = fa
 function get_raw_post()
 {
     return trim(file_get_contents('php://input'));
+}
+
+/**
+ * Sanitize html that will be outputted to screen.
+ *
+ * @param string $str
+ * @param string $length
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function clean_str($str, $allow_tags = false, $length = 0)
+{
+    // strip or allow only certain tags
+    $str = strip_tags($str, (!$allow_tags ? null : $allow_tags));
+    // trim, utf-8 and HTML encode
+    $str = htmlentities(utf8_decode(trim($str)), ENT_NOQUOTES);
+    $str = str_replace(array('&', '#', '%'), array('&', '#', '%'), $str);
+    // limit length of string
+    $length = intval($length);
+    if ($length) $str = substr($str, 0, $length);
+    return $str;
+}
+
+/**
+ * Sanitize associative array values.
+ *
+ * @param array $array
+ * @return array
+ * @see clean_str()
+ * @author Nesbert Hidalgo
+ **/
+function clean_array($array)
+{
+    if (is_array($array)) foreach ($array as $k => $v) {
+        $array[$k] = clean_str($v);
+    }
+    return $array;
 }

@@ -83,11 +83,11 @@
 </table>
 
 <h1>Constants</h1>
-<table cellspacing="0" class="block constants">
-<?php foreach(get_user_defined_constants() as $key => $value) { ?>
-<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
-<?php } ?>
-</table>
+<?php
+$data = get_user_defined_constants();
+include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
+?>
+
 
 <h1>Files</h1>
 <table cellspacing="0" class="block constants">
@@ -110,43 +110,38 @@
 
 <?php if (isset($_GET) && count($_GET)) { ?>
 <h1>$_GET</h1>
-<table cellspacing="0" class="block constants">
-<?php foreach($_GET as $key => $value) { ?>
-<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
-<?php } ?>
-</table>
+<?php
+$data = $_GET;
+include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
+?>
 <?php } ?>
 
 <?php if (isset($_POST) && count($_POST)) { ?>
 <h1>$_POST</h1>
-<table cellspacing="0" class="block constants">
-<?php foreach($_POST as $key => $value) { ?>
-<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
-<?php } ?>
-</table>
+<?php
+$data = $_POST;
+include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
+?>
 <?php } ?>
 
 <?php if (isset($_COOKIE) && count($_COOKIE)) { ?>
 <h1>$_COOKIE</h1>
-<table cellspacing="0" class="block constants">
-<?php foreach($_COOKIE as $key => $value) { ?>
-<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
-<?php } ?>
-</table>
+<?php
+$data = $_COOKIE;
+include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
+?>
 <?php } ?>
 
 <?php if (isset($_SESSION)) { ?>
 <h1>$_SESSION</h1>
-<table cellspacing="0" class="block constants">
-<?php foreach($_SESSION as $key => $value) { ?>
-<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
-<?php } ?>
-</table>
+<?php
+$data = $_SESSION;
+include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
+?>
 <?php } ?>
 
 <h1>$_SERVER</h1>
-<table cellspacing="0" class="block constants">
-<?php foreach($_SERVER as $key => $value) { ?>
-<tr><td class="sub"><?=$key?></td><td><?=$value?></td></tr>
-<?php } ?>
-</table>
+<?php
+$data = $_SERVER;
+include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
+?>

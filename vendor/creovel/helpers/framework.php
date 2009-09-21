@@ -83,7 +83,14 @@ function __autoload($class)
             throw new Exception("{$class} not found in <strong>{$path}</strong>");
         }
     } catch (Exception $e) {
-        CREO('application_error', $e);
+        // __PHP_Incomplete_Class Object bypass flag 
+        if (empty($GLOBALS['CREOVEL']['INCOMPLETE_CLASS_BYPASS'])) {
+            CREO('application_error', $e);
+        } else {
+            if (!empty($GLOBALS['CREOVEL']['LOG_ERRORS'])) {
+                CREO('log', 'Error: ' . $e->getMessage());
+            }
+        }
     }
 }
 

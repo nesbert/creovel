@@ -75,6 +75,9 @@ class Creovel
     public function run($events = null, $params = null, $return_as_str = false, $skip_init = false)
     {
         try {
+            // gather up any output that occurs before output phase
+            ob_start();
+
             // ignore certain requests
             self::ignore_check();
             
@@ -118,6 +121,15 @@ class Creovel
             
             // execute action
             $controller->__execute_action();
+            
+            // determine if any output has been sent to output buffer
+            $buffer = ob_get_contents();
+            
+            // if buffer store in CREO varialbe
+            if ($buffer) $GLOBALS['CREOVEL']['BUFFER'] = $buffer;
+
+            // clean buffer
+            ob_clean();
             
             // output to user
             return $controller->__output($return_as_str);

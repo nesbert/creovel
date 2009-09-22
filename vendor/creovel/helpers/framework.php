@@ -102,8 +102,14 @@ function __autoload($class)
  * @return mixed
  * @author Nesbert Hidalgo
  **/
-function CREO($key = null, $val = null)
+function CREO()
 {
+    // set args
+    $args = func_get_args();
+    $key = $args[0];
+    $val = isset($args[1]) ? $args[1] : null;
+    
+    // if no key return creovel super global
     if (!$key) return $GLOBALS['CREOVEL'];
     
     // uppercase all keys
@@ -135,7 +141,7 @@ function CREO($key = null, $val = null)
             break;
         
         case $key == 'LOG':
-            $log = new Logger(@LOG_PATH . $GLOBALS['CREOVEL']['MODE'] . '.log');
+            $log = new Logger(empty($args[2]) ? @LOG_PATH . $GLOBALS['CREOVEL']['MODE'] . '.log' : $args[2]);
             $log->write(strip_tags(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $val)));
             break;
             
@@ -311,7 +317,7 @@ function url_for()
         unset($args[0]['controller']);
         
         // set action
-        $action = $args[0]['action'] . (CREO('html_append') ? '.html' : '');
+        $action = $args[0]['action'];
         unset($args[0]['action']);
         
         // set id
@@ -331,7 +337,7 @@ function url_for()
         $controller = $args[0];
         
         // set action
-        $action = @$args[1] . (CREO('html_append') ? '.html' : '');
+        $action = @$args[1];
         
         // set id and misc
         if (@is_array($args[2])) {
@@ -358,13 +364,15 @@ function url_for()
     if (@$misc) {
         if ($use_pretty_urls) {
             $uri .= ($id ? '/id/' . urlencode($id) : '') .
-                '/' . str_replace(array('&', '='), '/', $misc);
+                '/' . str_replace(array('&', '='), '/', $misc) .
+                ($GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] ? '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'] : '');
         } else {
             $uri .= "?" . ($id ? "id={$id}&" : '') . $misc;
         }
     } else if ($id) {
         if ($use_pretty_urls) {
-            $uri .= '/id/' . urlencode($id);
+            $uri .= '/id/' . urlencode($id) .
+            ($GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] ? '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'] : '');
         } else {
             $uri .= "/{$id}";
         }

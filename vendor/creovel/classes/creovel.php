@@ -162,7 +162,7 @@ class Creovel
         $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
         $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
         $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
-        $GLOBALS['CREOVEL']['HTML_APPEND'] = false;
+        $GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
         $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
         $GLOBALS['CREOVEL']['SESSION'] = true;
         $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
@@ -291,7 +291,7 @@ class Creovel
      **/
     public function events($event_to_return = null, $uri = null)
     {
-        $events = ActionRouter::which($uri);
+        $events = ActionRouter::events($uri);
         return $event_to_return ? $events[$event_to_return] : $events;
     }
     
@@ -304,7 +304,7 @@ class Creovel
      **/
     public function params($param_to_return = null, $uri = null)
     {
-        $params = array_merge($_GET, $_POST, ActionRouter::which($uri, true));
+        $params = array_merge($_GET, $_POST, ActionRouter::params($uri));
         return $param_to_return ? $params[$param_to_return] : $params;
     }
     

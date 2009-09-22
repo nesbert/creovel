@@ -116,7 +116,7 @@ class ActionRouter extends Object
     }
     
     /**
-     * Append a route to the routes ($GLOBALS['CREOVEL']['ROUTES']) array.
+     * Append a route to the routes array ($GLOBALS['CREOVEL']['ROUTES']).
      *
      * @param string $name
      * @param object $route Route object
@@ -124,7 +124,8 @@ class ActionRouter extends Object
      **/
     public function add($name, $url, $events, $params = array(), $regex = '')
     {
-        if (CREO('html_append')) $events['action'] = str_replace('.html', '', $events['action']);
+        // clean up any file extension for a action
+        $events['action'] = self::clean_event($events['action']);
         
         // default last in routes array
         $data = array(
@@ -172,74 +173,42 @@ class ActionRouter extends Object
      **/
     public function which($uri = null, $return_params = false)
     {
+        // set uri
         $uri = $uri ? $uri : $GLOBALS['CREOVEL']['ROUTING']['base_path'];
         
-        // return default route
-        if ($uri == '/') {
-            // set current
-            self::set_current_default();
-            
-            if ($return_params) {
-                return self::default_params();
-            } else {
-                return self::default_events();
-            }
-        }
+        // set static vars
+        static $match;
+        static $uri_check;
         
-        // create pattern to match against URI
-        foreach ($GLOBALS['CREOVEL']['ROUTING']['routes'] as $name => $route) {
-            #echo $route['regex'] . " :: $uri<br />";
-            // if match return events
-            if (preg_match($route['regex'], $uri)) {
-                // set current
-                $GLOBALS['CREOVEL']['ROUTING']['current'] = $route;
-                if ($return_params) {
-                    return $route['params'];
-                } else {
-                    return $route['events'];
+        // check if never matched and $uri never checked
+        if (empty($match) && ($uri_check != $uri)) {
+            // 
+            $uri_checked = $uri;
+            // create pattern to match against URI
+            foreach ($GLOBALS['CREOVEL']['ROUTING']['routes'] as $name => $route) {
+                #echo $route['regex'] . " :: $uri<br />";
+                // if match return events
+                if (preg_match($route['regex'], $uri)) {
+                    // set current
+                    $GLOBALS['CREOVEL']['ROUTING']['current'] = $route;
+                    $match = $route;
+                    break;
                 }
             }
         }
         
-        // set current route
-        self::set_current_default();
-        
+        // return params or events
         if ($return_params) {
-            return self::default_params();
+            if (end($match['params'])) {
+                $last = key($match['params']);
+                $match['params'][$last] = self::clean_event($match['params'][$last]);
+            }
+            return $match['params'];
         } else {
-            return self::default_events();
+            $match['events']['controller'] = self::clean_event($match['events']['controller']);
+            $match['events']['action'] = self::clean_event($match['events']['action']);
+            return $match['events'];
         }
-    }
-    
-    /**
-     * Set current route to use the default route.
-     *
-     * @return void
-     **/
-    public function set_current_default()
-    {
-        $GLOBALS['CREOVEL']['ROUTING']['current'] =
-            $GLOBALS['CREOVEL']['ROUTING']['routes']['default'];
-    }
-    
-    /**
-     * Get default events array.
-     *
-     * @return array Events array.
-     **/
-    public function default_events()
-    {
-        return $GLOBALS['CREOVEL']['ROUTING']['routes']['default']['events'];
-    }
-    
-    /**
-     * Get default params array.
-     *
-     * @return array Params array.
-     **/
-    public function default_params()
-    {
-        return $GLOBALS['CREOVEL']['ROUTING']['routes']['default']['params'];
     }
     
     /**
@@ -275,6 +244,22 @@ class ActionRouter extends Object
      **/
     public function error()
     {
-        return $GLOBALS['CREOVEL']['ROUTING']['routes']['errors']['events'];
+        return self::events('', 'errors');
+    }
+    
+    /**
+     * Clean event string by removing current file extension.
+     *
+     * @param string $event
+     * @return string
+     **/
+    public function clean_event($event)
+    {
+        // clean up any file extension for a action
+        return preg_replace(
+                '/.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'] . '$/',
+                '',
+                $event
+                );
     }
 } // END class ActionRouter extends Object

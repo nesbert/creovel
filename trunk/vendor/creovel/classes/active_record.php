@@ -12,13 +12,6 @@
 class ActiveRecord extends Object implements Iterator
 {
     /**
-     * Database name.
-     *
-     * @var string
-     **/
-    public $_database_ = '';
-    
-    /**
      * Table name.
      *
      * @var string
@@ -28,9 +21,9 @@ class ActiveRecord extends Object implements Iterator
     /**
      * Primary key column name.
      *
-     * @var string
+     * @var array
      **/
-    public $_primary_key_ = 'id';
+    public $_primary_key_ = array();
     
     /**
      * Array of object columns.
@@ -76,7 +69,7 @@ class ActiveRecord extends Object implements Iterator
             }
             
             // initialize class vars if no record loaded
-            if (!$this->id()) {
+            if (!$this->is_primary_keys_and_values_set()) {
                 $this->initialize_class_vars();
             }
         }
@@ -93,32 +86,79 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Load an array of parameters into object or an ID.
+     * Load an array of parameters OR an ID OR an array of IDs into
+     * the model and update attributes if an array of params is passed.
      *
+     * @param mixed $data
+     * @see mixed ActiveRecord::load_by_primary_key()
      * @return void
      **/
     final public function load_model_data($data)
     {
+        // if data contains primary key data load record first
+        $this->load_by_primary_key($data);
+        
+        // $data hash load
         if (is_hash($data)) {
-            if (isset($data[$this->primary_key()])) {
-                $this->set_id($data[$this->primary_key()]);
-            }
+            // load data into object
             $this->attributes($data);
-        } else if ($data) {
-            $this->set_id($data);
         }
     }
     
     /**
-     * Find $id result and load into object.
-     *
+     * Load an array of parameters OR an ID OR an array of IDs into
+     * the model.
+     * @param mixed $data
      * @return void
      **/
-    final public function set_id($id)
+    final public function load_by_primary_key($data)
     {
-        $this->find('first', array(
-                'conditions' => array("`{$this->primary_key()}` = ?", $id)
-            ));
+        static $checked;
+        static $found;
+        
+        if (empty($checked)) {
+            $keys = $this->primary_key();
+            $search_type = 'first';
+            
+            // if assc array
+            if (is_hash($data)) {
+                // do nothing $data already in correct format
+            } elseif (count($keys) == 1) {
+                if (is_array($data)) {
+                    $search_type = 'all';
+                } else {
+                    $data = array($keys[0] => $data);
+                }
+            } else {
+                $keys = implode(', ', $keys);
+                throw new Exception("Primary keys <em>{$keys}</em> are not" .
+                " set in <strong>{$this->class_name()}</strong> model.");
+                break;
+            }
+
+            $this->find($search_type, array(
+                    'conditions' => array($this->build_query_from_primary_keys(), $data)
+                ));
+            $found = $this->total_rows() ? true : false;
+            $checked = true;
+        }
+            
+        return $found;
+    }
+    
+    /**
+     * Load a record by primary keys and values if all primary keys
+     * are set with values. Returns true if it was able to load a record.
+     *
+     * @return boolean
+     **/
+    final public function load_by_primary_keys_and_values()
+    {
+        if ($this->is_primary_keys_and_values_set()) {
+            return $this->load_by_primary_key($this->primary_keys_and_values());
+        } else {
+            return false;
+        }
     }
     
     /**
@@ -142,7 +182,14 @@ class ActiveRecord extends Object implements Iterator
                 case 'has_one' == $var:
                     if (is_array($vals)) foreach ($vals as $val) {
                         if (is_array($val)) {
-                            $this->{$var}($val['name'], $val);
+                            if (isset($val['association_id'])) {
+                                $association_id = $val['association_id'];
+                            } elseif (isset($val['name'])) {
+                                $association_id = $val['name'];
+                            } else {
+                                $association_id = $var;
+                            }
+                            $this->{$var}($association_id, $val);
                         } else {
                             $this->{$var}($val);
                         }
@@ -169,10 +216,11 @@ class ActiveRecord extends Object implements Iterator
         // set properties depending on mode
         $db_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper(CREO('mode'))];
         
-        // override default database
-        if (!empty($this->_database_)) {
-            $db_properties['default'] = $this->_database_;
-        }
+        // override default database settings
+        if (!empty($this->_host_)) $db_properties['host'] = $this->_host_;
+        if (!empty($this->_port_)) $db_properties['port'] = $this->_port_;
+        if (!empty($this->_socket_)) $db_properties['socket'] = $this->_socket_;
+        if (!empty($this->_database_)) $db_properties['default'] = $this->_database_;
         
         return $db_properties;
     }
@@ -443,9 +491,11 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Builds where SQL string by the conditions array passed.
+     * Builds where SQL string by the conditions array passed. $isolate query
+     * with parentheses ($string).
      *
      * @param mixed $conditions
+     * @param boolean $isolate
      * @return void
      **/
     final public function build_query_from_conditions($conditions, $isolate = true)
@@ -501,8 +551,24 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Build query string from primary keys.
+     *
+     * @return string
+     **/
+    final public function build_query_from_primary_keys()
+    {
+        $sql = array();
+        foreach ($this->primary_key() as $key) {
+            $sql[] = "`{$key}` = :{$key}";
+        }
+        return implode(' AND ', $sql);
+    }
+    
+    /**
      * Create select query object for SELECTS.
      *
+     * @param string $query
+     * @param array $connection_properties
      * @return object
      **/
     final public function select_query($query = '', $connection_properties = array())
@@ -522,6 +588,8 @@ class ActiveRecord extends Object implements Iterator
     /**
      * Create action query object for INSERT, UPDATE, DELETE, COUNT, etc.
      *
+     * @param string $query
+     * @param array $connection_properties
      * @return object
      **/
     final public function action_query($query = '', $connection_properties = array())
@@ -650,11 +718,13 @@ class ActiveRecord extends Object implements Iterator
     /**
      * Checks if $attribute is a valid table column.
      *
+     * @param string $attribute
+     * @see ActiveRecord::has_attribute();
      * @return void
      **/
     final public function attribute_exists($attribute)
     {
-        return isset($this->_columns_[$attribute]);
+        return $this->has_attribute($attribute);
     }
     
     /**
@@ -695,6 +765,7 @@ class ActiveRecord extends Object implements Iterator
     /**
      * Returns true if the passed attribute is a column of the class.
      *
+     * @param string $attribute
      * @return void
      **/
     final public function has_attribute($attribute)
@@ -703,13 +774,69 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Get column name of the primary key.
+     * Check if an attribute is a primary key.
      *
-     * @return void
+     * @param string $attribute
+     * @return boolean
+     **/
+    final public function is_primary_key($attribute)
+    {
+        return in_array($attribute, $this->primary_key());
+    }
+    
+    /**
+     * Check if primary key(s) are set and have values. If using multiple
+     * columns as primary key check all keys are set and have values.
+     *
+     * @return boolean
+     **/
+    final public function is_primary_keys_and_values_set()
+    {
+        foreach ($this->primary_key() as $key) {
+            if (empty($this->_columns_[$key]->value)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Get column name of the primary key(s).
+     *
+     * @return array()
      **/
     final public function primary_key()
     {
+        if (empty($this->_primary_key_)) {
+            // find primary keys
+            foreach ($this->columns() as $column => $attr) {
+                if ($attr->key == 'PRI') {
+                    $this->_primary_key_[] = $column;
+                }
+            }
+        }
+        
+        if (!is_array($this->_primary_key_)) {
+            throw new Exception("Primary key <em>{$this->_primary_key_}</em> not" .
+            " is not an array in  <strong>{$this->class_name()}</strong> model.");
+            break;
+        }
+        
         return $this->_primary_key_;
+    }
+    
+    /**
+     * Get an associative array or primary keys and values.
+     *
+     * @return void
+     **/
+    final public function primary_keys_and_values()
+    {
+        $keys  = array();
+        foreach ($this->primary_key() as $key) {
+            $keys[$key] = $this->_columns_[$key]->value;
+        }
+        return $keys;
     }
     
     /**
@@ -719,7 +846,7 @@ class ActiveRecord extends Object implements Iterator
      **/
     final public function id()
     {
-        return $this->{$this->primary_key()};
+        return $this->{current($this->primary_key())};
     }
     
     /**
@@ -738,8 +865,8 @@ class ActiveRecord extends Object implements Iterator
         // if error return false
         if ($this->has_errors()) return false;
         
-        // if id update
-        if ($this->id()) {
+        // if record found update
+        if ($this->load_by_primary_keys_and_values()) {
         
             // validate model on every update
             $this->validate_on_update();
@@ -786,12 +913,12 @@ class ActiveRecord extends Object implements Iterator
         }
         
         // build query
-        $qry =    "INSERT INTO `{$this->table_name()}` " .
+        $qry =  "INSERT INTO `{$this->table_name()}` " .
                 "(`" . implode('`, `', array_keys($values)) . "`) " .
                 "VALUES " .
                 "(" . implode(', ', $values) . ");";
         
-        return $this->{$this->primary_key()} = $this->action_query($qry)->insert_id();
+        return $this->action_query($qry)->affected_rows();
     }
     
     /**
@@ -809,18 +936,20 @@ class ActiveRecord extends Object implements Iterator
         // sanitize values and prep set string
         $set = array();
         foreach ($this->prepare_attributes() as $k => $v) {
-            if ($this->primary_key() == $k) continue;
+            if ($this->is_primary_key($k)) continue;
             $set[] = "`{$k}` = " . ($v == 'NULL' ? 'NULL' : $this->quote_value($v));
         }
         
         // build query
         $qry = "UPDATE `{$this->table_name()}` " .
                 "SET " . implode(', ', $set) . " " .
-                "WHERE `{$this->primary_key()}` = '{$this->id()}'";
+                "WHERE " .
+                $this->build_query_from_conditions(array(
+                    $this->build_query_from_primary_keys(),
+                    $this->primary_keys_and_values()
+                )) . ';';
         
-        $this->action_query($qry);
-        
-        return $this->id();
+        return $this->action_query($qry)->affected_rows();
     }
     
     /**
@@ -908,14 +1037,17 @@ class ActiveRecord extends Object implements Iterator
         if ($conditions) {
             $where = $this->build_query_from_conditions($conditions);
         } else {
-            $where = "`{$this->table_name()}`.`{$this->primary_key()}` = '{$this->id()}' LIMIT 1";
+            $where = $this->build_query_from_conditions(array(
+                        $this->build_query_from_primary_keys(),
+                        $this->primary_keys_and_values()
+                    )) . ' LIMIT 1';
         }
         
-        // delete record(s) and return affected rows
-        $this->action_query("DELETE FROM `{$this->table_name()}` WHERE {$where};");
-        $affected_rows = $this->action_query()->affected_rows();
+        // build delete statement
+        $q = "DELETE FROM `{$this->table_name()}` WHERE {$where};";
         
-        return $affected_rows;
+        // delete record(s) and return affected rows
+        return $this->action_query($q)->affected_rows();
     }
     
     /**
@@ -1099,11 +1231,19 @@ class ActiveRecord extends Object implements Iterator
         try {
             switch (true) {
                 // set id calling primary key
-                case $attribute == $this->primary_key():
-                    return $this->set_id($value);
+                case $this->is_primary_key($attribute):
+                    // set value
+                    $this->_columns_[$attribute]->value = $value;
+                    // if all primary keys loaded try to load a record
+                    $this->load_by_primary_keys_and_values();
+                    return $this->_columns_[$attribute]->value;
                     break;
                     
                 // allow hidden properties
+                case $attribute == '_host_':
+                case $attribute == '_port_':
+                case $attribute == '_socket_':
+                case $attribute == '_database_':
                 case $attribute == '_paging_':
                 case $attribute == '_associations_':
                 case $attribute == 'connection_properties':
@@ -1524,7 +1664,7 @@ class ActiveRecord extends Object implements Iterator
         if (!isset($this->_associations_)) $this->_associations_ = array();
         
         // set foreign key
-        if (empty($options['foreign_key'])) {
+        if (!isset($options['foreign_key']) && empty($options['foreign_key'])) {
             if ($options['type'] == 'has_one' || $options['type'] == 'has_many') {
                  $options['foreign_key'] = strtolower($this->to_string()) . '_id';
             } else {
@@ -1556,33 +1696,22 @@ class ActiveRecord extends Object implements Iterator
         } else {
             $args['conditions'] = '';
         }
+        if (!$args['conditions']) {
+            $args['conditions'] = $this->foreign_keys_and_values($options['foreign_key']);
+        }
         if (!empty($options['order'])) $args['order'] = $options['order'];
         if (!empty($options['limit'])) $args['limit'] = $options['limit'];
         
+        // set for linking class
+        $obj = new $options['class_name'];
+        
         switch ($options['type']) {
             case 'belongs_to':
-                $args['conditions'] = array('id' => $this->{$options['foreign_key']});
-                $obj = new $options['class_name'];
-                $obj->find('first', $args);
-                break;
-                
             case 'has_one':
-                if ($args['conditions']) {
-                    $args['conditions'] = "({$args['conditions']}) AND (`{$options['foreign_key']}` = '{$this->id()}')";
-                } else {
-                    $args['conditions'] = array($options['foreign_key'] => $this->id());
-                }
-                $obj = new $options['class_name'];
                 $obj->find('first', $args);
                 break;
                 
             case 'has_many':
-                if ($args['conditions']) {
-                    $args['conditions'] = "({$args['conditions']}) AND (`{$options['foreign_key']}` = '{$this->id()}')";
-                } else {
-                    $args['conditions'] = array($options['foreign_key'] => $this->id());
-                }
-                $obj = new $options['class_name'];
                 $obj->find('all', $args);
                 break;
         }
@@ -1591,6 +1720,25 @@ class ActiveRecord extends Object implements Iterator
         $this->{$options['association_id']} = $obj;
         
         return $this->{$options['association_id']};
+    }
+    
+    /**
+     * Build an array of foreign keys and values from keys passed.
+     *
+     * @param array/string $foreign_key
+     * @return array
+     **/
+    final public function foreign_keys_and_values($foreign_key)
+    {
+        if (is_array($foreign_key)) {
+            $vals = array();
+            foreach ($foreign_key as $key) {
+                $vals[$key] = $this->{$key};
+            }
+        } else {
+            $vals = array($foreign_key => $this->{$foreign_key});
+        }
+        return $vals;
     }
     
     /**

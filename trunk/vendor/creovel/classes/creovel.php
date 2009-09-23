@@ -175,6 +175,20 @@ class Creovel
         // set configuration settings
         self::config();
         
+        // if global_xss_filtering is enabled
+        if (!empty($GLOBALS['CREOVEL']['GLOBAL_XSS_FILTERING'])) {
+            if (empty($GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'])) {
+                $xss_func = 'clean_array';
+            } else {
+                $xss_func = $GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'];
+            }
+            // filer COOKIE, GET, POST, SERVER
+            $_COOKIE = $xss_func($_COOKIE);
+            $_GET = $xss_func($_GET);
+            $_POST = $xss_func($_POST);
+            $_SERVER = $xss_func($_SERVER);
+        }
+        
         // set additional routing options
         if (empty($GLOBALS['CREOVEL']['DISPATCHER'])) {
             $GLOBALS['CREOVEL']['DISPATCHER'] = basename($_SERVER['PHP_SELF']);

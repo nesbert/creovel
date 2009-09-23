@@ -273,7 +273,8 @@ function get_raw_post()
 }
 
 /**
- * Sanitize html that will be outputted to screen.
+ * Sanitize a string by not allowing HTML, encoding and using HTML Special
+ * characters for certain tags. Basic layer for XSS prevention.
  *
  * @param string $str
  * @param string $length
@@ -285,8 +286,7 @@ function clean_str($str, $length = 0, $allowed_tags = false)
     // strip or allow only certain tags
     $str = strip_tags($str, (!$allowed_tags ? null : $allowed_tags));
     // trim, utf-8 and HTML encode
-    $str = htmlentities(utf8_decode(trim($str)));
-    $str = str_replace(array('&', '#', '%'), array('&', '#', '%'), $str);
+    $str = htmlspecialchars(utf8_encode(trim($str)), ENT_QUOTES);
     // limit length of string
     $length = intval($length);
     if ($length) $str = substr($str, 0, $length);

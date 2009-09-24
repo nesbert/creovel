@@ -110,4 +110,29 @@ interface AdapterInterface
      * @return void
      **/
     public function reset();
+    
+    /**
+     * Transaction methods.
+     */
+    
+    /**
+     * BEGIN transaction.
+     *
+     * @return void
+     **/
+    public function begin();
+    
+    /**
+     * ROLLBACK transaction.
+     *
+     * @return void
+     **/
+    public function rollback();
+
+    /**
+     * COMMIT transaction.
+     *
+     * @return void
+     **/
+    public function commit();
 } // END interface AdapterInterface

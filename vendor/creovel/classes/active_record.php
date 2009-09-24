@@ -1876,6 +1876,40 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
+     * Iterator methods.
+     */
+    
+    /**
+     * BEGIN transaction.
+     *
+     * @return void
+     **/
+    final public function begin()
+    {
+        return $this->action_query()->begin();
+    }
+    
+    /**
+     * ROLLBACK transaction.
+     *
+     * @return void
+     **/
+    final public function rollback()
+    {
+        return $this->action_query()->rollback();
+    }
+    
+    /**
+     * COMMIT transaction.
+     *
+     * @return void
+     **/
+    final public function commit()
+    {
+        return $this->action_query()->commit();
+    }
+    
+    /**
      * Check if this object's results is paged.
      *
      * @return boolean

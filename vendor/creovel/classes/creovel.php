@@ -48,7 +48,6 @@ require_once CREOVEL_PATH . 'modules/inflector.php';
 
 // Set default creovel global vars.
 $GLOBALS['CREOVEL']['MODE'] = 'production';
-$GLOBALS['CREOVEL']['LOG_ERRORS'] = false;
 
 // set error handler
 require_once CREOVEL_PATH . 'classes/action_error_handler.php';
@@ -182,7 +181,7 @@ class Creovel
             } else {
                 $xss_func = $GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'];
             }
-            // filer COOKIE, GET, POST, SERVER
+            // filter COOKIE, GET, POST, SERVER
             $_COOKIE = $xss_func($_COOKIE);
             $_GET = $xss_func($_GET);
             $_POST = $xss_func($_POST);

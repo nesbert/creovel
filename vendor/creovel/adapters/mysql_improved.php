@@ -103,7 +103,15 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
             CREO('log', 'Query: ' . $query);
         }
-        return $this->db->query($query);
+        
+        $result = $this->db->query($query);
+        
+        if (!$result) {
+            self::throw_error("{$this->db->error} Query \"" .
+            str_replace(', ', ",\n", $this->query) . "\" failed.");
+        }
+        
+        return $result;
     }
     
     /**
@@ -122,12 +130,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         
         // send a MySQL query and set query_link resource on success
         $this->result = $this->execute($query);
-        
-        if (!$this->result) {
-            self::throw_error("{$this->db->error} Query \"" .
-            str_replace(', ', ",\n", $this->query) . "\" failed.");
-            exit();
-        }
     }
     
     /**
@@ -164,13 +166,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         // send a DESCRIBE query and set result on success
         $sql = "DESCRIBE `{$table_name}`;";
         $result = $this->execute($sql);
-        
-        // no result throw error
-        if (!$result) {
-            self::throw_error("{$this->db->error} Query \"" .
-            str_replace(', ', ",\n", $sql) . "\" failed.");
-            exit();
-        }
         
         // set fields object to return
         $fields = array();
@@ -328,5 +323,42 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
     public function valid()
     {
         return $this->result->data_seek($this->offset);
+    }
+    
+    /**
+     * Transaction methods.
+     */
+    
+    /**
+     * BEGIN transaction.
+     *
+     * @return void
+     **/
+    public function begin()
+    {
+        $this->db->autocommit(FALSE);
+        $this->execute('START TRANSACTION;');
+    }
+    
+    /**
+     * ROLLBACK transaction.
+     *
+     * @return void
+     **/
+    public function rollback()
+    {
+        #$this->db->rollback();
+        $this->execute('ROLLBACK;');
+    }
+
+    /**
+     * COMMIT transaction.
+     *
+     * @return void
+     **/
+    public function commit()
+    {
+        #$this->db->commit();
+        $this->execute('COMMIT;');
     }
 } // END class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator

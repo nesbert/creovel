@@ -117,7 +117,16 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
             CREO('log', 'Query: ' . $query);
         }
-        return mysql_query($query, $this->db);
+        
+        $result = mysql_query($query, $this->db);
+        
+        if (!$result) {
+            self::throw_error(mysql_error() . " Query \"" .
+            str_replace(', ', ",\n", $this->query) . "\" failed.");
+            exit();
+        }
+        
+        return $result;
     }
     
     /**
@@ -141,12 +150,6 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         
         // send a MySQL query and set query_link resource on success
         $this->result = $this->execute($query);
-        
-        if (!$this->result) {
-            self::throw_error(mysql_error() . " Query \"" .
-            str_replace(', ', ",\n", $this->query) . "\" failed.");
-            exit();
-        }
     }
     
     /**
@@ -183,13 +186,6 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         // send a DESCRIBE query and set result on success
         $sql = "DESCRIBE `{$table_name}`;";
         $result = $this->execute($sql);
-        
-        // no result throw error
-        if (!$result) {
-            self::throw_error(mysql_error() . " Query \"" .
-            str_replace(', ', ",\n", $sql) . "\" failed.");
-            exit();
-        }
         
         // set fields object to return
         $fields = array();
@@ -351,5 +347,39 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Transaction methods.
+     */
+    
+    /**
+     * BEGIN transaction.
+     *
+     * @return void
+     **/
+    public function begin()
+    {
+        $this->execute('BEGIN;');
+    }
+    
+    /**
+     * ROLLBACK transaction.
+     *
+     * @return void
+     **/
+    public function rollback()
+    {
+        $this->execute('ROLLBACK;');
+    }
+
+    /**
+     * COMMIT transaction.
+     *
+     * @return void
+     **/
+    public function commit()
+    {
+        $this->execute('COMMIT;');
     }
 } // END class Mysql extends AdapterBase implements AdapterInterface, Iterator

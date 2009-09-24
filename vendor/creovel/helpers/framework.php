@@ -109,7 +109,7 @@ function CREO()
 {
     // set args
     $args = func_get_args();
-    $key = $args[0];
+    $key = isset($args[0]) ? $args[0] : null;
     $val = isset($args[1]) ? $args[1] : null;
     
     // if no key return creovel super global

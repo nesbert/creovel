@@ -61,7 +61,7 @@ class Logger extends ModuleBase
                     $message . ($auto_break ? "\n" : '');
                     
         if (!@file_put_contents($this->filename, $message, FILE_APPEND)) {
-            error_log("Creovel The file {$this->filename} is not writable!");
+            error_log("Creovel: The file {$this->filename} is not writable!");
         }
     }
     

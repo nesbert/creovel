@@ -284,6 +284,11 @@ class ActiveRecord extends Object implements Iterator
      **/
     final public function query($sql, $action_query = false)
     {
+        // check query to see which resource to use
+        if (preg_match('/^(UPDATE|INSERT|DELETE|CREATE|DROP) */i', trim($sql))) {
+            $action_query = true;
+        }
+        
         if ($action_query) {
             return $this->action_query($sql);
         } else {
@@ -1880,13 +1885,13 @@ class ActiveRecord extends Object implements Iterator
      */
     
     /**
-     * BEGIN transaction.
+     * START transaction.
      *
      * @return void
      **/
-    final public function begin()
+    final public function start_tran()
     {
-        return $this->action_query()->begin();
+        return $this->action_query()->start_tran();
     }
     
     /**

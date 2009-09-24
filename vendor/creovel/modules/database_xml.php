@@ -12,36 +12,38 @@
 class DatabaseXML extends ModuleBase
 {
     /**
-     * Table name.
+     * Class name.
      *
      * @var string
      **/
-    private $_table_name_ = '';
+    private $_class_name_ = '';
     
     
     /**
-     * Table name.
+     * Table columns array.
      *
-     * @var string
+     * @var array
      **/
-    private $_columns_ = '';
+    private $_columns_ = array();
     
     /**
-     * Table name.
+     * Schema file path.
      *
      * @var string
      **/
     private $_schema_file_ = '';
     
     /**
-     * undocumented function
+     * Class construct.
      *
+     * @param string $table_name
+     * @return string $file
      * @return void
      **/
-    public function __construct($table_name = null, $file = null)
+    public function __construct($name = null, $file = null)
     {
-        $this->set_table($table_name);
-        $this->load_file($file);
+        $this->set_class_name($name);
+        if ($file) $this->load_file($file);
     }
     
     /**
@@ -50,9 +52,9 @@ class DatabaseXML extends ModuleBase
      * @param string $table_name
      * @return void
      **/
-    public function set_table($table_name)
+    public function set_class_name($name)
     {
-        $this->_table_name_ = $table_name;
+        $this->_class_name_ = $name;
     }
     
     /**
@@ -66,15 +68,191 @@ class DatabaseXML extends ModuleBase
         if ($file) {
             $this->_schema_file_ = $file;
         } else {
-            $file = Inflector::underscore($this->_table_name_);
-            $file = Inflector::singularize($this->_table_name_);
+            $file = Inflector::underscore($this->_class_name_);
+            $file = Inflector::singularize($file);
             $this->_schema_file_ = SCHEMAS_PATH . strtolower($file) . '.xml';
         }
         
         if (file_exists($this->_schema_file_)) {
+            if (!class_exists('SimpleXMLElement')) {
+                $this->throw_error("SimpleXMLElement module needed for <strong>DatabaseXML</strong>");
+            }
             $this->xml = simplexml_load_file($this->_schema_file_);
         } else {
             $this->throw_error("Schema not found in <strong>{$this->_schema_file_}</strong>");
+        }
+    }
+    
+    /**
+     * Create XML file.
+     *
+     * //model/table
+     * //model/table/columns
+     * //model/table/columns/column
+     * //model/table/indexes
+     * //model/table/indexes/index
+     *
+     * @param array $options
+     * @return void
+     **/
+    public function create_file($options)
+    {
+        //  set class name
+        $class_name = empty($options['class_name']) ? '' : $options['class_name'];
+        
+        // if class use model to get columns
+        if ($class_name) {
+            // load class without initializing
+            $obj = new $class_name(null, null, false);
+            $cols = $obj->columns(true);
+            
+            // if table not set use model
+            if (empty($options['table_name'])) {
+                $options['table_name'] = $obj->table_name();
+            }
+        }
+        
+        //  set table name
+        $table_name = empty($options['table_name']) ? '' : $options['table_name'];
+        
+        if (empty($options['table_name'])) {
+            self::throw_error("Table name needed for <strong>DatabaseXML</strong>.");
+        }
+        
+        // if class use model to get columns
+        if (empty($cols)) {
+            // get columns info from DB
+            $db = ActiveRecord::table_object($options['table_name']);
+            $cols = $db->columns($options['table_name']);
+        }
+        
+        //  set file path
+        $file = empty($options['file']) ? '' : $options['file'];
+        if (!$file) {
+            // use default path dir for schemas
+            $file = SCHEMAS_PATH . singularize(strtolower($table_name)) . '.xml';
+        }
+        
+        // create DOM
+        if (!class_exists('DomDocument')) {
+            self::throw_error("DomDocument module needed for <strong>DatabaseXML</strong>.");
+        }
+        $doc = new DomDocument('1.0', 'utf-8');
+        $doc->formatOutput = true;
+        
+        // root element
+        $model = $doc->createElement('model');
+        $model = $doc->appendChild($model);
+        
+        // root child element
+        $table = $doc->createElement('table');
+        $table = $model->appendChild($table);
+        $table->setAttribute('name', $options['table_name']);
+        
+        // table child element
+        $columns = $doc->createElement('columns');
+        $columns = $table->appendChild($columns);
+        
+        // index holder
+        $idxs = array();
+        
+        if (count($cols)) foreach ($cols as $name => $col) {
+            
+            // columns child element
+            $column = $doc->createElement('column');
+            $column = $columns->appendChild($column);
+            
+            // set name
+            $column->setAttribute('name', $name);
+            
+            // set type
+            $remove_from_type = array('unsigned');
+            preg_match('/\((.*)\)/', $col->type, $matches); // find size values
+            if (isset($matches[0])) {
+                $remove_from_type[] = $matches[0];
+            }
+            $type = trim(str_replace($remove_from_type, '', $col->type));
+            $column->setAttribute('type', $type);
+            
+            // set size
+            if (isset($matches[1])) {
+                $column->setAttribute('size', $matches[1]);
+            }
+            
+            // set default
+            if ($col->default) $column->setAttribute('default', $col->default);
+            
+            // set auto_increment
+            if (preg_match('/(YES|1)/i', $col->null)) {
+                $column->setAttribute('null', 'yes');
+            }
+            
+            if (preg_match('/(auto_increment)/i', $col->extra)) {
+                $column->setAttribute('auto_increment', 'yes');
+            }
+            
+            if (preg_match('/(unsigned)/i', $col->type)) {
+                $column->setAttribute('unsigned', 'yes');
+            }
+            
+            // check for index
+            if (!empty($col->key)) {
+                switch ($col->key) {
+                    case 'PRI':
+                        $idxs['primary'][] = $name;
+                        break;
+                        
+                    case 'UNI':
+                        $idxs['unique'][] = $name;
+                        break;
+                        
+                    default:
+                        $idxs[$name][] = $name;
+                        break;
+                }
+            }
+        } else {
+            self::throw_error("Unable to load columns from table <em>{$options['table_name']}</em> for <strong>DatabaseXML</strong>.");
+        }
+        
+        // check indexes
+        if ($idxs) {
+            
+            // sort
+            ksort($idxs);
+            
+            // table child element
+            $indexes = $doc->createElement('indexes');
+            $indexes = $table->appendChild($indexes);
+            
+            foreach ($idxs as $type => $idx) {
+            
+                $index = $doc->createElement('index');
+                $index = $indexes->appendChild($index);
+                
+                switch ($type) {
+                    case 'primary':
+                    case 'unique':
+                        $index->setAttribute('name', strtoupper($type));
+                        $index->setAttribute('type', $type);
+                        break;
+                    
+                    default:
+                        $index->setAttribute('name', 'index_' . $type);
+                        $index->setAttribute('type', 'index');
+                        break;
+                    
+                }
+            
+                $index->setAttribute('column', implode(',', $idx));
+            }
+        }
+        
+        $xml = $doc->saveXML();
+        if (!@file_put_contents($file, $xml)) {
+            self::throw_error("Unable to create <em>{$file}</em> for <strong>DatabaseXML</strong>.");
+        } else {
+            return true;
         }
     }
     
@@ -103,7 +281,7 @@ class DatabaseXML extends ModuleBase
             }
             return $this->_columns_;            
         } else {
-            $this->throw_error("Unable to load <em>table/columns</em> from <strong>{$this->_schema_file_}</strong>");
+            $this->throw_error("Unable to load <em>//model/table/columns</em> from <strong>{$this->_schema_file_}</strong>");
         }
     }
     

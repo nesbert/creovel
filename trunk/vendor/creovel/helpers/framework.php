@@ -28,6 +28,9 @@ function __autoload($class)
             $class = Inflector::underscore($class);
         }
         
+        // make all file names under score
+        $class = strtolower($class);
+        
         switch (true) {
             
             case (ends_with('controller', strtolower($class))):

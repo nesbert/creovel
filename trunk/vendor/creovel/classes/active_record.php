@@ -659,8 +659,14 @@ class ActiveRecord extends Object implements Iterator
     {
         // only describe table once
         if (empty($this->_columns_)) {
-            $this->_columns_ =
-                $this->select_query()->columns($this->table_name());
+            
+            if ($this->use_schema) {
+                $db2xml = new DatabaseXML($this->table_name());
+                $this->_columns_ = $db2xml->columns();
+            } else {
+                $this->_columns_ = $this->select_query()->columns($this->table_name());
+            }
+            
             // do some magic
             foreach ($this->_columns_ as $k => $v) {
                 // set default options for enum types
@@ -1196,6 +1202,9 @@ class ActiveRecord extends Object implements Iterator
     {
         try {
             switch (true) {
+                // skip these special cases
+                case $attribute == 'use_schema':
+                    break;
                 case isset($this->_columns_[$attribute]):
                     return $this->return_value($this->clean_column_value($attribute));
                     break;

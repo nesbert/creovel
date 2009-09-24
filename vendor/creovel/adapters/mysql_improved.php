@@ -69,7 +69,6 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         
         if (mysqli_connect_error()) {
             self::throw_error(mysqli_connect_error() . '.');
-            exit();
         }
     }
     
@@ -99,16 +98,17 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      **/
     public function execute($query)
     {
-        // log queries
-        if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
-            CREO('log', 'Query: ' . $query);
-        }
-        
         $result = $this->db->query($query);
         
+        // log queries
+        if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
+            $info = $this->db->info;
+            CREO('log', 'Query: ' . $query . ($info ? " ({$info})" : ''));
+        }
+        
         if (!$result) {
-            self::throw_error("{$this->db->error} Query \"" .
-            str_replace(', ', ",\n", $this->query) . "\" failed.");
+            self::throw_error("{$this->db->error} Query \"" . $this->db->errno .
+            ': ' . str_replace(', ', ",\n", $query) . "\" failed.");
         }
         
         return $result;
@@ -326,39 +326,42 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
     }
     
     /**
-     * Transaction methods.
+     * Transaction methods. Will revisit later base methods still work
+     * as usual with MySQLi.
      */
     
-    /**
-     * BEGIN transaction.
-     *
-     * @return void
-     **/
-    public function begin()
-    {
-        $this->db->autocommit(FALSE);
-        $this->execute('START TRANSACTION;');
-    }
-    
-    /**
-     * ROLLBACK transaction.
-     *
-     * @return void
-     **/
-    public function rollback()
-    {
-        #$this->db->rollback();
-        $this->execute('ROLLBACK;');
-    }
-
-    /**
-     * COMMIT transaction.
-     *
-     * @return void
-     **/
-    public function commit()
-    {
-        #$this->db->commit();
-        $this->execute('COMMIT;');
-    }
+    // /**
+    //  * BEGIN transaction.
+    //  *
+    //  * @return void
+    //  **/
+    // public function start_tran()
+    // {
+    //     $this->db->autocommit(false);
+    //     #$this->execute('START TRANSACTION;');
+    // }
+    // 
+    // /**
+    //  * ROLLBACK transaction.
+    //  *
+    //  * @return void
+    //  **/
+    // public function rollback()
+    // {
+    //     $this->db->rollback();
+    //     #$this->execute('ROLLBACK;');
+    //     $this->db->autocommit(true);
+    // }
+    // 
+    // /**
+    //  * COMMIT transaction.
+    //  *
+    //  * @return void
+    //  **/
+    // public function commit()
+    // {
+    //     $this->db->commit();
+    //     #$this->execute('COMMIT;');
+    //     $this->db->autocommit(true);
+    // }
 } // END class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator

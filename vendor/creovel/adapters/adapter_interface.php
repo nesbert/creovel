@@ -116,11 +116,11 @@ interface AdapterInterface
      */
     
     /**
-     * BEGIN transaction.
+     * START transaction.
      *
      * @return void
      **/
-    public function begin();
+    public function start_tran();
     
     /**
      * ROLLBACK transaction.

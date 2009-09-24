@@ -77,13 +77,11 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         if (!$this->db) {
             self::throw_error("Could not connect to server ({$server}). " .
                                 mysql_error() . '.');
-            exit();
         }
         
         if (!empty($db_properties['default'])
             && !mysql_select_db($db_properties['default'], $this->db)) {
             self::throw_error(mysql_error() . '.');
-            exit();
         }
     }
     
@@ -113,17 +111,17 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      **/
     public function execute($query)
     {
-        // log queries
-        if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
-            CREO('log', 'Query: ' . $query);
-        }
-        
         $result = mysql_query($query, $this->db);
         
+        // log queries
+        if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
+            $info = mysql_info($this->db);
+            CREO('log', 'Query: ' . $query . ($info ? " ({$info})" : ''));
+        }
+        
         if (!$result) {
-            self::throw_error(mysql_error() . " Query \"" .
-            str_replace(', ', ",\n", $this->query) . "\" failed.");
-            exit();
+            self::throw_error(mysql_error() . " Query \"" .  mysql_errno($this->db) .
+            ': ' . str_replace(', ', ",\n", $query) . "\" failed.");
         }
         
         return $result;
@@ -347,39 +345,5 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         } else {
             return false;
         }
-    }
-    
-    /**
-     * Transaction methods.
-     */
-    
-    /**
-     * BEGIN transaction.
-     *
-     * @return void
-     **/
-    public function begin()
-    {
-        $this->execute('BEGIN;');
-    }
-    
-    /**
-     * ROLLBACK transaction.
-     *
-     * @return void
-     **/
-    public function rollback()
-    {
-        $this->execute('ROLLBACK;');
-    }
-
-    /**
-     * COMMIT transaction.
-     *
-     * @return void
-     **/
-    public function commit()
-    {
-        $this->execute('COMMIT;');
-    }
+    } 
 } // END class Mysql extends AdapterBase implements AdapterInterface, Iterator

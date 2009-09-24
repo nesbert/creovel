@@ -28,4 +28,38 @@ abstract class AdapterBase extends Object
         CREO('error_code', 500);
         CREO('application_error', $msg);
     }
+    
+    /**
+     * Transaction methods. Override if necessary to support adapter syntax.
+     */
+    
+    /**
+     * START transaction.
+     *
+     * @return void
+     **/
+    public function start_tran()
+    {
+        $this->execute('START TRANSACTION;');
+    }
+    
+    /**
+     * ROLLBACK transaction.
+     *
+     * @return void
+     **/
+    public function rollback()
+    {
+        $this->execute('ROLLBACK;');
+    }
+
+    /**
+     * COMMIT transaction.
+     *
+     * @return void
+     **/
+    public function commit()
+    {
+        $this->execute('COMMIT;');
+    }
 } // END abstract class AdapterBase extends Object

@@ -658,15 +658,17 @@ class ActiveRecord extends Object implements Iterator
     /**
      * Returns an array of column objects for the table associated with class.
      *
+     * @param boolean $force_table_look_up
      * @return void
      **/
-    final public function columns()
+    final public function columns($force_table_look_up = false)
     {
         // only describe table once
         if (empty($this->_columns_)) {
             
-            if ($this->use_schema) {
-                $db2xml = new DatabaseXML($this->table_name());
+            if ($this->use_schema && !$force_table_look_up) {
+                $db2xml = new DatabaseXML($this->class_name());
+                $db2xml->load_file();
                 $this->_columns_ = $db2xml->columns();
             } else {
                 $this->_columns_ = $this->select_query()->columns($this->table_name());

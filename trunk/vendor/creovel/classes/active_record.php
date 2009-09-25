@@ -745,19 +745,23 @@ class ActiveRecord extends Object implements Iterator
      * if an array is passed
      *
      * @param array $data
+     * @param boolean $set_original_value
      * @return array
      **/
-    final public function attributes($data = null)
+    final public function attributes($data = null, $set_original_value = false)
     {
         // set column properties
         if (is_hash($data)) {
             // insert new vals
             foreach ($data as $k => $v) {
+                if ($set_original_value) {
+                    $this->_columns_[$k]->original_value = $v;
+                }
                 $this->_columns_[$k]->value = $v;
             }
+        // get column properties
         } else {
             $attribites = array();
-            // get column properties
             foreach($this->_columns_ as $k => $v) {
                 $attribites[$k] = $v->value;
             }
@@ -953,14 +957,19 @@ class ActiveRecord extends Object implements Iterator
             $set[] = "`{$k}` = " . ($v == 'NULL' ? 'NULL' : $this->quote_value($v));
         }
         
+        $where = $this->build_query_from_conditions(array(
+            $this->build_query_from_primary_keys(),
+            $this->primary_keys_and_values()
+            ), false);
+            
+        if (count($set)) {
+            $set = implode(', ', $set);
+        } else {
+            $set = str_replace('AND', ',', $where);
+        }
+        
         // build query
-        $qry = "UPDATE `{$this->table_name()}` " .
-                "SET " . implode(', ', $set) . " " .
-                "WHERE " .
-                $this->build_query_from_conditions(array(
-                    $this->build_query_from_primary_keys(),
-                    $this->primary_keys_and_values()
-                )) . ';';
+        $qry = "UPDATE `{$this->table_name()}` SET {$set} WHERE {$where};";
         
         return $this->action_query($qry)->affected_rows();
     }
@@ -975,6 +984,10 @@ class ActiveRecord extends Object implements Iterator
         $return = array();
         foreach ($this->_columns_ as $name => $field) {
             switch (true) {
+                // orginal has not been modified skip
+                case isset($field->original_value)
+                    && $field->original_value == $field->value:
+                    break;
                 // set array types
                 case is_array($field->value):
                     if ($field->type == 'datetime') {
@@ -987,7 +1000,10 @@ class ActiveRecord extends Object implements Iterator
                 case empty($field->value) && $field->null == 'YES':
                     $return[$name] = 'NULL';
                     break;
-                    
+                // if empty don't set
+                case empty($field->value):
+                    break;
+                // set name and val
                 default:
                     $return[$name] = $field->value;
                     break;
@@ -1831,7 +1847,7 @@ class ActiveRecord extends Object implements Iterator
     final public function current()
     {
         // set attributes with current row
-        $this->attributes($this->select_query()->current());
+        $this->attributes($this->select_query()->current(), true);
         
         // initialize class vars for each record
         $this->initialize_class_vars();

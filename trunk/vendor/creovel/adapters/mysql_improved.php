@@ -117,7 +117,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      * Performs a query on the database and sets result resources.
      *
      * @param string $query SQL string
-     * @return void
+     * @return object/resource Result
      **/
     public function query($query)
     {
@@ -128,7 +128,7 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         $this->query = $query;
         
         // send a MySQL query and set query_link resource on success
-        $this->result = $this->execute($query);
+        return $this->result = $this->execute($query);
     }
     
     /**
@@ -147,11 +147,11 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
      * Returns an associative array that corresponds to the fetched row
      * or NULL if there are no more rows.
      *
-     * @return array
+     * @return object
      **/
     public function get_row()
     {
-        return $this->result->fetch_assoc();
+        return $this->result->fetch_object();
     }
     
     /**

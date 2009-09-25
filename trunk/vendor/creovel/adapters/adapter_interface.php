@@ -48,7 +48,7 @@ interface AdapterInterface
      * Performs a query on the database and sets result resources.
      *
      * @param string $query SQL string
-     * @return void
+     * @return object/resource Result
      **/
     public function query($query);
     
@@ -63,7 +63,7 @@ interface AdapterInterface
      * Returns an associative array that corresponds to the fetched row
      * or NULL if there are no more rows.
      *
-     * @return array
+     * @return object
      **/
     public function get_row();
     

@@ -99,7 +99,7 @@ class ActiveRecord extends Object implements Iterator
         $this->load_by_primary_key($data);
         
         // $data hash load
-        if (is_hash($data)) {
+        if (is_hash($data) || is_object($data)) {
             // load data into object
             $this->attributes($data);
         }
@@ -115,6 +115,7 @@ class ActiveRecord extends Object implements Iterator
     {
         $keys = $this->primary_key();
         $search_type = 'first';
+        if (is_object($data)) $data = (array) $data;
         
         // if assc array
         if (is_hash($data)) {
@@ -499,8 +500,8 @@ class ActiveRecord extends Object implements Iterator
     {
         $sql = '';
         
-        // 1. hash condidtions
-        if (is_hash($conditions)) {
+        // 1. hash or object condidtions
+        if (is_hash($conditions) || is_object($conditions)) {
             $cs = array();
             foreach ($conditions as $k => $v) {
                 $cs[] = "`{$this->table_name()}`.`{$k}` = {$this->quote_value($v)}";
@@ -743,7 +744,7 @@ class ActiveRecord extends Object implements Iterator
     final public function attributes($data = null, $set_original_value = false)
     {
         // set column properties
-        if (is_hash($data)) {
+        if (is_object($data)) {
             // insert new vals
             foreach ($data as $k => $v) {
                 if ($set_original_value) {
@@ -1173,10 +1174,10 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Returns an associative array that corresponds to the fetched row
+     * Returns an object that corresponds to the fetched row
      * or NULL if there are no more rows.
      *
-     * @return array
+     * @return object
      **/
     final public function get_row()
     {

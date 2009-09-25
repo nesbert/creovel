@@ -926,6 +926,7 @@ class ActiveRecord extends Object implements Iterator
         // sanitize values
         $values = array();
         foreach ($this->prepare_attributes() as $k => $v) {
+            if (!$v) continue;
             $values[$k] = $v == 'NULL' ? 'NULL' : $this->quote_value($v);
         }
         
@@ -999,9 +1000,6 @@ class ActiveRecord extends Object implements Iterator
                 // set NULL values blank
                 case empty($field->value) && $field->null == 'YES':
                     $return[$name] = 'NULL';
-                    break;
-                // if empty don't set
-                case empty($field->value):
                     break;
                 // set name and val
                 default:

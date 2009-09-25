@@ -130,7 +130,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      * Performs a query on the database and sets result resources.
      *
      * @param string $query SQL string
-     * @return void
+     * @return object/resource Result
      **/
     public function query($query)
     {
@@ -146,7 +146,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         }
         
         // send a MySQL query and set query_link resource on success
-        $this->result = $this->execute($query);
+        return $this->result = $this->execute($query);
     }
     
     /**
@@ -165,11 +165,11 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      * Returns an associative array that corresponds to the fetched row
      * or NULL if there are no more rows.
      *
-     * @return array
+     * @return object
      **/
     public function get_row()
     {
-        return mysql_fetch_assoc($this->result);
+        return mysql_fetch_object($this->result);
     }
     
     /**

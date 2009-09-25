@@ -849,16 +849,6 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Get value of the primary key.
-     *
-     * @return integer
-     **/
-    final public function id()
-    {
-        return $this->{current($this->primary_key())};
-    }
-    
-    /**
      * Save current object to database. If id set update else insert.
      *
      * @return void
@@ -1079,7 +1069,7 @@ class ActiveRecord extends Object implements Iterator
      * @return integer
      * @see ActiveRecord::destroy()
      **/
-    final public function delete($conditions = '')
+    public function delete($conditions = '')
     {
         // before delete call-back
         $this->before_delete();
@@ -1203,6 +1193,28 @@ class ActiveRecord extends Object implements Iterator
         return $this->select_query()->insert_id();
     }
     
+    /**
+     * Reload object from current select query.
+     *
+     * @return void
+     **/
+    final public function reload()
+    {
+        return $this->query($this->select_query()->query);
+    }
+        
+    /**
+     * Reset values to there defaults.
+     *
+     * @return void
+     **/
+    final public function reset_values()
+    {
+        foreach($this->_columns_ as $k => $v) {
+            $this->_columns_[$k]->value = $v->default;
+        }
+    }
+        
     // Section: Magic Functions
     
     /**

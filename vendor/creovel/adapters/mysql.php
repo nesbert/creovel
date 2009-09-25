@@ -120,8 +120,8 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         }
         
         if (!$result) {
-            self::throw_error(mysql_error() . " Query \"" .  mysql_errno($this->db) .
-            ': ' . str_replace(', ', ",\n", $query) . "\" failed.");
+            self::throw_error(mysql_error() . " Query \"" .
+            str_replace(', ', ",\n", $query) . "\" failed. #" . mysql_errno($this->db));
         }
         
         return $result;

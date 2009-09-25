@@ -319,7 +319,7 @@ class DatabaseXML extends ModuleBase
      **/
     public function column_type(SimpleXMLElement $attrs)
     {
-        return (string) $attrs->type . '(' . (string) $attrs->size . ')';
+        return (string) $attrs->type . (empty($attrs->size) ? '' : '(' . (string) $attrs->size . ')');
     }
     
     /**

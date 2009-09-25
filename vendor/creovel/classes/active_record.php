@@ -113,37 +113,29 @@ class ActiveRecord extends Object implements Iterator
      **/
     final public function load_by_primary_key($data)
     {
-        static $checked;
-        static $found;
+        $keys = $this->primary_key();
+        $search_type = 'first';
         
-        if (empty($checked)) {
-            $keys = $this->primary_key();
-            $search_type = 'first';
-            
-            // if assc array
-            if (is_hash($data)) {
-                // do nothing $data already in correct format
-            } elseif (count($keys) == 1) {
-                if (is_array($data)) {
-                    $search_type = 'all';
-                } else {
-                    $data = array($keys[0] => $data);
-                }
+        // if assc array
+        if (is_hash($data)) {
+            // do nothing $data already in correct format
+        } elseif (count($keys) == 1) {
+            if (is_array($data)) {
+                $search_type = 'all';
             } else {
-                $keys = implode(', ', $keys);
-                throw new Exception("Primary keys <em>{$keys}</em> are not" .
-                " set in <strong>{$this->class_name()}</strong> model.");
-                break;
+                $data = array($keys[0] => $data);
             }
-
-            $this->find($search_type, array(
-                    'conditions' => array($this->build_query_from_primary_keys(), $data)
-                ));
-            $found = $this->total_rows() ? true : false;
-            $checked = true;
+        } else {
+            $keys = implode(', ', $keys);
+            throw new Exception("Primary keys <em>{$keys}</em> are not" .
+            " set in <strong>{$this->class_name()}</strong> model.");
+            break;
         }
-            
-        return $found;
+
+        $this->find($search_type, array(
+                'conditions' => array($this->build_query_from_primary_keys(), $data)
+            ));
+        return $this->total_rows() ? true : false;
     }
     
     /**
@@ -883,7 +875,7 @@ class ActiveRecord extends Object implements Iterator
         if ($this->has_errors()) return false;
         
         // if record found update
-        if ($this->load_by_primary_keys_and_values()) {
+        if ($this->total_rows()) {
         
             // validate model on every update
             $this->validate_on_update();

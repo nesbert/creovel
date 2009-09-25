@@ -115,8 +115,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         
         // log queries
         if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
-            $info = mysql_info($this->db);
-            CREO('log', 'Query: ' . $query . ($info ? " ({$info})" : ''));
+            CREO('log', "Query: {$query}");
         }
         
         if (!$result) {
@@ -220,7 +219,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      */
     public function total_rows()
     {
-        return mysql_num_rows($this->result);
+        return @mysql_num_rows($this->result);
     }
     
     /**
@@ -230,7 +229,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      */
     public function affected_rows()
     {
-        return mysql_affected_rows($this->db);
+        return @mysql_affected_rows($this->db);
     }
     
     /**
@@ -240,7 +239,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      */
     public function insert_id()
     {
-        return mysql_insert_id($this->db);
+        return @mysql_insert_id($this->db);
     }
     
     /**
@@ -251,7 +250,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      */
     public function escape($string)
     {
-        return mysql_real_escape_string($string);
+        return @mysql_real_escape_string($string);
     }
     
     /**

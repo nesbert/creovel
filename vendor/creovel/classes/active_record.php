@@ -854,7 +854,7 @@ class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    final public function save($validation_routine = 'validate')
+    public function save($validation_routine = 'validate')
     {
         // call back
         $this->before_save();
@@ -1136,7 +1136,8 @@ class ActiveRecord extends Object implements Iterator
         if (isset($temp['offset'])) unset($temp['offset']);
         if (isset($temp['order'])) unset($temp['order']);
         if (isset($temp['limit'])) unset($temp['limit']);
-        $temp['select'] = "COUNT(DISTINCT `{$this->table_name()}`.`id`)";
+        $key = '`' . implode('`,`', $this->primary_key()) . '`';
+        $temp['select'] = "COUNT(DISTINCT {$key})";
         $qry = $this->build_query($temp, $type);
         
         // use select object to reduce connections
@@ -1216,16 +1217,6 @@ class ActiveRecord extends Object implements Iterator
     final public function get_row()
     {
         return $this->select_query()->get_row();
-    }
-    
-    /**
-     * Get insert ID for last query.
-     *
-     * @return array
-     **/
-    final public function get_insert_id()
-    {
-        return $this->select_query()->insert_id();
     }
     
     /**
@@ -1514,10 +1505,15 @@ class ActiveRecord extends Object implements Iterator
                         }
                         // check if a column with that value exists in the
                         // current table and is not the currentlly loaded row
-                        $this->action_query(
-                            "SELECT * FROM `{$this->table_name()}`
-                            WHERE `{$params[0]}` = '{$params[1]}'
-                                AND `{$this->primary_key()}` != '{$this->id}' AND (".$where_ext.")");
+                        
+                        // build key to support multipule rows
+                        $key = array();
+                        foreach ($this->primary_keys_and_values() as $k => $v) {
+                            $key[] = "`{$k}` = " . $this->quote_value($v);
+                        }
+                        $key = implode(' AND ', $key);
+                        
+                        $this->action_query("SELECT * FROM `{$this->table_name()}` WHERE `{$params[0]}` = '{$params[1]}' AND ({$key}) AND ({$where_ext})");
                         
                         // if record found add error
                         if ($this->action_query()->total_rows()) {
@@ -1950,7 +1946,7 @@ class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    final public function start_tran()
+    public function start_tran()
     {
         return $this->action_query()->start_tran();
     }
@@ -1960,7 +1956,7 @@ class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    final public function rollback()
+    public function rollback()
     {
         return $this->action_query()->rollback();
     }
@@ -1970,7 +1966,7 @@ class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    final public function commit()
+    public function commit()
     {
         return $this->action_query()->commit();
     }

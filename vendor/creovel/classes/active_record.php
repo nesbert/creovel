@@ -659,7 +659,7 @@ class ActiveRecord extends Object implements Iterator
         // only describe table once
         if (empty($this->_columns_)) {
             
-            if ($this->use_schema && !$force_table_look_up) {
+            if ($this->has_schema && !$force_table_look_up) {
                 $db2xml = new DatabaseXML($this->class_name());
                 $db2xml->load_file();
                 $this->_columns_ = $db2xml->columns();
@@ -671,7 +671,7 @@ class ActiveRecord extends Object implements Iterator
             foreach ($this->_columns_ as $k => $v) {
                 // set default options for enum types
                 if (!isset($this->{'options_for_' . $k}) && in_string('enum(', $v->type)) {
-                    $v->options = $this->enum_options($k);
+                    $v->options = $this->field_options($k);
                 }
             }
         }
@@ -735,16 +735,16 @@ class ActiveRecord extends Object implements Iterator
     
     /**
      * Return an array of column and values or sets the column and values
-     * if an array is passed
+     * if an array|object is passed
      *
-     * @param array $data
+     * @param array/object $data
      * @param boolean $set_original_value
      * @return array
      **/
     final public function attributes($data = null, $set_original_value = false)
     {
         // set column properties
-        if (is_object($data)) {
+        if (is_hash($data) || is_object($data)) {
             // insert new vals
             foreach ($data as $k => $v) {
                 if ($set_original_value) {
@@ -919,7 +919,20 @@ class ActiveRecord extends Object implements Iterator
                 "VALUES " .
                 "(" . implode(', ', $values) . ");";
         
-        return $this->action_query($qry)->affected_rows();
+        // insert record
+        $this->action_query($qry);
+        
+        // if insert id... loaded auto increament field
+        if ($id = $this->insert_id()) {
+            // find auto increment field and set ID
+            foreach ($this->_columns_ as $k => $v) {
+                if (in_string('auto_increment', $v->extra)) {
+                    $this->_columns_[$k]->value = $id;
+                }
+            }
+        }
+        
+        return $this->affected_rows();
     }
     
     /**
@@ -956,6 +969,26 @@ class ActiveRecord extends Object implements Iterator
         $qry = "UPDATE `{$this->table_name()}` SET {$set} WHERE {$where};";
         
         return $this->action_query($qry)->affected_rows();
+    }
+    
+    /**
+     * Get the last insert id.
+     *
+     * @return integer
+     **/
+    public function insert_id()
+    {
+        return $this->action_query()->insert_id();
+    }
+    
+    /**
+     * Get the number of affected rows.
+     *
+     * @return integer
+     **/
+    public function affected_rows()
+    {
+        return $this->action_query()->affected_rows();
     }
     
     /**
@@ -1229,7 +1262,7 @@ class ActiveRecord extends Object implements Iterator
         try {
             switch (true) {
                 // skip these special cases
-                case $attribute == 'use_schema':
+                case $attribute == 'has_schema':
                     break;
                 case isset($this->_columns_[$attribute]):
                     return $this->return_value($this->clean_column_value($attribute));
@@ -1351,6 +1384,9 @@ class ActiveRecord extends Object implements Iterator
                         // set options for ENUM field types
                         case isset($this->_columns_[$name]->type)
                             && in_string('enum(', $this->_columns_[$name]->type):
+                        // set options for ENUM field types
+                        case isset($this->_columns_[$name]->type)
+                            && in_string('tinyint(1)', $this->_columns_[$name]->type):
                         // if options for property is set
                         case isset($this->_columns_[$name]->options):
                             $type = 'select';
@@ -1526,7 +1562,7 @@ class ActiveRecord extends Object implements Iterator
     {
         // set form vars
         $html = '';
-        $field_name = strtolower($this->class_name() . "[{$name}]");
+        $field_name = underscore($this->class_name()) . "[{$name}]";
         $arguments[0] = isset($arguments[0]) ? $arguments[0] : null;
         @$html_options = $arguments[0];
         
@@ -1567,7 +1603,7 @@ class ActiveRecord extends Object implements Iterator
                     $options = $arguments['options'];
                     unset($arguments['options']);
                 } else {
-                    $options = $this->enum_options($name);
+                    $options = $this->field_options($name);
                 }
                 $html_options = $arguments[0];
                 $arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
@@ -1667,7 +1703,7 @@ class ActiveRecord extends Object implements Iterator
      *
      * @return void
      **/
-    final public function enum_options($property)
+    final public function field_options($property)
     {
         if (in_string('enum(', $this->_columns_[$property]->type)) {
             $options = explode("','", str_replace(
@@ -1680,6 +1716,9 @@ class ActiveRecord extends Object implements Iterator
                 $return[$value] = humanize($value);
             }
             return $return;
+        }
+        if (in_string('tinyint(1)', $this->_columns_[$property]->type)) {
+            return array('1' => 'Yes', '0' => 'No');
         }
     }
     

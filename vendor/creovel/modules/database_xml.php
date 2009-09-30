@@ -275,7 +275,7 @@ class DatabaseXML extends ModuleBase
                         'key'       => $this->column_key($col->attributes()),
                         'default'   => $this->column_default($col->attributes()),
                         'extra'     => $this->column_extra($col->attributes()),
-                        'value'     => null
+                        'value'     => $this->column_default($col->attributes())
                         );
                 
             }

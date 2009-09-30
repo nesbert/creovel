@@ -909,7 +909,8 @@ class ActiveRecord extends Object implements Iterator
         // sanitize values
         $values = array();
         foreach ($this->prepare_attributes() as $k => $v) {
-            if (!$v) continue;
+            // if same as default value skip
+            if ($v === $this->_columns_[$k]->default) continue;
             $values[$k] = $v == 'NULL' ? 'NULL' : $this->quote_value($v);
         }
         
@@ -950,7 +951,11 @@ class ActiveRecord extends Object implements Iterator
         // sanitize values and prep set string
         $set = array();
         foreach ($this->prepare_attributes() as $k => $v) {
+            // if primary skip
             if ($this->is_primary_key($k)) continue;
+            // orginal has not been modified skip
+            if (isset($this->_columns_[$k]->original_value) && $this->_columns_[$k]->original_value == $v) continue;
+            
             $set[] = "`{$k}` = " . ($v == 'NULL' ? 'NULL' : $this->quote_value($v));
         }
         
@@ -1001,10 +1006,6 @@ class ActiveRecord extends Object implements Iterator
         $return = array();
         foreach ($this->_columns_ as $name => $field) {
             switch (true) {
-                // orginal has not been modified skip
-                case isset($field->original_value)
-                    && $field->original_value == $field->value:
-                    break;
                 // set array types
                 case is_array($field->value):
                     if ($field->type == 'datetime') {

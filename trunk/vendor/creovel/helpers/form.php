@@ -502,9 +502,9 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
     }
     
     if ($select_all) {
-        $choices = ( isset($choices) ? $choices : array( 'all' => 'All States...' ) );
+        $choices = $choices ? $choices : array('all' => 'All States...');
     } else {
-        $choices = ( isset($choices) ? $choices : array( '' => 'Please select...' ) );
+        $choices = $choices ? $choices : array('' => 'Please select...');
     }
     
     // intialize states array

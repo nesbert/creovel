@@ -21,7 +21,7 @@ define('HELPERS_PATH',      APP_PATH . 'helpers' . DS);
 define('SCHEMAS_PATH',      APP_PATH . 'schemas' . DS);
 define('SCRIPT_PATH',       BASE_PATH . 'script' . DS);
 define('VENDOR_PATH',       BASE_PATH . 'vendor' . DS);
-define('SHARED_PATH',       BASE_PATH . 'shared' . DS); // use when needed
+#define('SHARED_PATH',       BASE_PATH . 'shared' . DS); // use when needed
 define('CREOVEL_PATH',      VENDOR_PATH . 'creovel' . DS);
 
 /*

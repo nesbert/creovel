@@ -12,11 +12,11 @@
 class DatabaseXML extends ModuleBase
 {
     /**
-     * Class name.
+     * Table name.
      *
      * @var string
      **/
-    private $_class_name_ = '';
+    private $_table_name_ = '';
     
     
     /**
@@ -42,7 +42,7 @@ class DatabaseXML extends ModuleBase
      **/
     public function __construct($name = null, $file = null)
     {
-        $this->set_class_name($name);
+        $this->set_table_name($name);
         if ($file) $this->load_file($file);
     }
     
@@ -52,9 +52,9 @@ class DatabaseXML extends ModuleBase
      * @param string $table_name
      * @return void
      **/
-    public function set_class_name($name)
+    public function set_table_name($name)
     {
-        $this->_class_name_ = $name;
+        $this->_table_name_ = $name;
     }
     
     /**
@@ -68,7 +68,7 @@ class DatabaseXML extends ModuleBase
         if ($file) {
             $this->_schema_file_ = $file;
         } else {
-            $file = Inflector::underscore($this->_class_name_);
+            $file = Inflector::underscore($this->_table_name_);
             $file = Inflector::singularize($file);
             $this->_schema_file_ = SCHEMAS_PATH . strtolower($file) . '.xml';
         }
@@ -249,6 +249,7 @@ class DatabaseXML extends ModuleBase
         }
         
         $xml = $doc->saveXML();
+        
         if (!@file_put_contents($file, $xml)) {
             self::throw_error("Unable to create <em>{$file}</em> for <strong>DatabaseXML</strong>.");
         } else {

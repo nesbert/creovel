@@ -144,7 +144,8 @@ class Inflector extends ModuleBase
                 '/(vert|ind)ices$/i' => '\1ex',
                 '/(matr)ices$/i' => '\1ix',
                 '/(quiz)zes$/i' => '\1',
-                '/s$/i' => '',
+                '/(a)ss$/i' => '\1ss',
+                '/s$/i' => ''
                 );
         
         $uncountable = array('data', 'equipment', 'information', 'rice',
@@ -166,7 +167,7 @@ class Inflector extends ModuleBase
             }
         }
         
-        foreach ($irregular as $_plural=> $_singular) {
+        foreach ($irregular as $_plural => $_singular) {
             if (preg_match('/('.$_singular.')$/i', $word, $arr)) {
                 return preg_replace('/('.$_singular.')$/i', substr($arr[0],0,1).substr($_plural,1), $word);
             }

@@ -67,7 +67,7 @@ function __autoload($class)
                     break;
                 } else  {
                     // check shared
-                    @$shared_path = SHARED_PATH . 'Models' . DS . $class . '.php';
+                    @$shared_path = SHARED_PATH . $class . '.php';
                     if (file_exists($shared_path)) {
                         $path = $shared_path;
                         break;

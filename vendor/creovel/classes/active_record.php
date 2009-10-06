@@ -660,7 +660,7 @@ class ActiveRecord extends Object implements Iterator
         if (empty($this->_columns_)) {
             
             if ($this->has_schema && !$force_table_look_up) {
-                $db2xml = new DatabaseXML($this->class_name());
+                $db2xml = new DatabaseXML($this->table_name());
                 $db2xml->load_file();
                 $this->_columns_ = $db2xml->columns();
             } else {

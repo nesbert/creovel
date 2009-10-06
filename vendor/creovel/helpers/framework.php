@@ -22,7 +22,10 @@ function __autoload($class)
     try {
         // check for nested paths
         if (in_string('_', $class)) {
-            $folders = split('_', strtolower($class));
+            $folders = split('_', $class);
+            foreach ($folders as $k => $v) {
+                $folders[$k] = Inflector::underscore($v);
+            }
             $class = implode(DS, $folders);
         } else {
             $class = Inflector::underscore($class);

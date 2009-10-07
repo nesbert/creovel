@@ -3,4 +3,29 @@
 // Include Creovel Base.
 require_once('base');
 
-// code here...
+// Genrate routine.
+
+switch (true) {
+	// create schema
+	case $args[0] == 'schema':
+		__create_schema($params, $flags);
+		break;
+}
+
+
+/**
+ * Create DB schema routine.
+ *
+ * @return void
+ **/
+function __create_schema($params, $flags = null)
+{
+	@$options = array(
+        'class_name'    => $params['class_name'],
+        'table_name'    => $params['table_name'],
+        'file'          => $params['file']
+		);
+    if (DatabaseXML::create_file($options)) {
+        echo "Schema created!\n";
+    }
+}

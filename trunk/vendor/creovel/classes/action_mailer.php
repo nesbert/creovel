@@ -33,6 +33,8 @@ abstract class ActionMailer extends Object
     public $text;
     public $html;
     
+    protected $_action = '';
+    
     private $__content_type = 'text/plain';
     private $__content_transfer_encoding = '7bit';
     private $__attachments;

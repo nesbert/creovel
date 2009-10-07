@@ -90,7 +90,7 @@ function __autoload($class)
         }
     } catch (Exception $e) {
         // __PHP_Incomplete_Class Object bypass flag 
-        if (empty($GLOBALS['CREOVEL']['INCOMPLETE_CLASS_BYPASS'])) {
+        if (empty($GLOBALS['CREOVEL']['SKIP_AUTOLOAD_ERRORS'])) {
             CREO('application_error', $e);
         } else {
             if (!empty($GLOBALS['CREOVEL']['LOG_ERRORS'])) {

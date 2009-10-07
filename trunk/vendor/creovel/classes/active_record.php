@@ -206,8 +206,11 @@ class ActiveRecord extends Object implements Iterator
             return $this->connection_properties;
         }
         
+        // set which settings mode to use
+        $mode = strtoupper(!empty($this->_mode_) ? $this->_mode_ : CREO('mode'));
+        
         // set properties depending on mode
-        $db_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper(CREO('mode'))];
+        $db_properties = $GLOBALS['CREOVEL']['DATABASES'][$mode];
         
         // override default database settings
         if (!empty($this->_host_)) $db_properties['host'] = $this->_host_;
@@ -1300,6 +1303,7 @@ class ActiveRecord extends Object implements Iterator
                     break;
                     
                 // allow hidden properties
+                case $attribute == '_mode_':
                 case $attribute == '_host_':
                 case $attribute == '_port_':
                 case $attribute == '_socket_':

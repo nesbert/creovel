@@ -106,6 +106,9 @@ class DatabaseXML extends ModuleBase
             $obj = new $class_name(null, null, false);
             $cols = $obj->columns(true);
             
+            // set db settings
+            $settings = $obj->connection_properties();
+            
             // if table not set use model
             if (empty($options['table_name'])) {
                 $options['table_name'] = $obj->table_name();
@@ -124,13 +127,18 @@ class DatabaseXML extends ModuleBase
             // get columns info from DB
             $db = ActiveRecord::table_object($options['table_name']);
             $cols = $db->columns($options['table_name']);
+            // set db settings
+            $settings = $db->connection_properties();
         }
         
         //  set file path
         $file = empty($options['file']) ? '' : $options['file'];
         if (!$file) {
+            $table_name = Inflector::underscore($table_name);
+            $table_name = Inflector::singularize($table_name);
+            
             // use default path dir for schemas
-            $file = SCHEMAS_PATH . singularize(strtolower($table_name)) . '.xml';
+            $file = SCHEMAS_PATH . $table_name . '.xml';
         }
         
         // create DOM
@@ -148,6 +156,7 @@ class DatabaseXML extends ModuleBase
         $table = $doc->createElement('table');
         $table = $model->appendChild($table);
         $table->setAttribute('name', $options['table_name']);
+        $table->setAttribute('db', $settings['default']);
         
         // table child element
         $columns = $doc->createElement('columns');

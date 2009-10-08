@@ -1515,7 +1515,7 @@ class ActiveRecord extends Object implements Iterator
                         // build key to support multipule rows
                         $key = array();
                         foreach ($this->primary_keys_and_values() as $k => $v) {
-                            $key[] = "`{$k}` = " . $this->quote_value($v);
+                            $key[] = "`{$k}` != " . $this->quote_value($v);
                         }
                         $key = implode(' AND ', $key);
                         

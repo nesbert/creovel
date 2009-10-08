@@ -207,16 +207,18 @@ class ActiveRecord extends Object implements Iterator
         }
         
         // set which settings mode to use
-        $mode = strtoupper(!empty($this->_mode_) ? $this->_mode_ : CREO('mode'));
+        $mode = strtoupper(isset($this) && !empty($this->_mode_) ? $this->_mode_ : CREO('mode'));
         
         // set properties depending on mode
         $db_properties = $GLOBALS['CREOVEL']['DATABASES'][$mode];
         
-        // override default database settings
-        if (!empty($this->_host_)) $db_properties['host'] = $this->_host_;
-        if (!empty($this->_port_)) $db_properties['port'] = $this->_port_;
-        if (!empty($this->_socket_)) $db_properties['socket'] = $this->_socket_;
-        if (!empty($this->_database_)) $db_properties['default'] = $this->_database_;
+        if (isset($this)) {
+            // override default database settings
+            if (!empty($this->_host_)) $db_properties['host'] = $this->_host_;
+            if (!empty($this->_port_)) $db_properties['port'] = $this->_port_;
+            if (!empty($this->_socket_)) $db_properties['socket'] = $this->_socket_;
+            if (!empty($this->_database_)) $db_properties['default'] = $this->_database_;
+        }
         
         return $db_properties;
     }
@@ -560,7 +562,7 @@ class ActiveRecord extends Object implements Iterator
     {
         $sql = array();
         foreach ($this->primary_key() as $key) {
-            $sql[] = "`{$key}` = :{$key}";
+            $sql[] = "`{$this->table_name()}`.`{$key}` = :{$key}";
         }
         return implode(' AND ', $sql);
     }
@@ -1139,7 +1141,7 @@ class ActiveRecord extends Object implements Iterator
         if (isset($temp['offset'])) unset($temp['offset']);
         if (isset($temp['order'])) unset($temp['order']);
         if (isset($temp['limit'])) unset($temp['limit']);
-        $key = '`' . implode('`,`', $this->primary_key()) . '`';
+        $key = "`{$this->table_name()}`.`" . implode("`, `{$this->table_name()}`.`", $this->primary_key()) . '`';
         $temp['select'] = "COUNT(DISTINCT {$key})";
         $qry = $this->build_query($temp, $type);
         
@@ -1738,15 +1740,6 @@ class ActiveRecord extends Object implements Iterator
         // set associations property
         if (!isset($this->_associations_)) $this->_associations_ = array();
         
-        // set foreign key
-        if (!isset($options['foreign_key']) && empty($options['foreign_key'])) {
-            if ($options['type'] == 'has_one' || $options['type'] == 'has_many') {
-                 $options['foreign_key'] = strtolower($this->to_string()) . '_id';
-            } else {
-                $options['foreign_key'] = $options['association_id'] . '_id';
-            }
-        }
-        
         $this->_associations_[$options['association_id']] = $options;
     }
     
@@ -1761,9 +1754,12 @@ class ActiveRecord extends Object implements Iterator
         // set class name
         $options['class_name'] = Inflector::classify(empty($options['class_name'])
                         ? $options['association_id'] : $options['class_name']);
+
+        // set for linking class
+        $obj = new $options['class_name'];
         
         // set args
-        $args = array();
+        $args = array('select' => "`{$obj->table_name()}`.*");
         if (!empty($options['where'])) {
             $args['conditions'] = $options['where'];
         } elseif (!empty($options['conditions'])) {
@@ -1772,13 +1768,35 @@ class ActiveRecord extends Object implements Iterator
             $args['conditions'] = '';
         }
         if (!$args['conditions']) {
-            $args['conditions'] = $this->foreign_keys_and_values($options['foreign_key']);
+            
+            switch (true) {
+                case !empty($options['foreign_key']):
+                    $args['conditions'] = $this->foreign_keys_and_values($options['foreign_key']);
+                    break;
+                
+                case $options['type'] == 'belongs_to':
+                    $fk = singularize($obj->table_name()) . '_id';
+                    $args['join'] = "INNER JOIN `{$this->table_name()}` ON `{$this->table_name()}`.`{$fk}` = `{$obj->table_name()}`.`id`";
+                    $args['conditions'] = array(
+                        $this->build_query_from_primary_keys(),
+                        $this->primary_keys_and_values()
+                        );
+                    break;
+                
+                case $options['type'] == 'has_many':
+                case $options['type'] == 'has_one':
+                    $fk = singularize($this->table_name()) . '_id';
+                    $args['join'] = "INNER JOIN `{$this->table_name()}` ON `{$this->table_name()}`.`id` = `{$obj->table_name()}`.`{$fk}`";
+                    $args['conditions'] = array(
+                        $this->build_query_from_primary_keys(),
+                        $this->primary_keys_and_values()
+                        );
+                    break;
+            }
+            
         }
         if (!empty($options['order'])) $args['order'] = $options['order'];
         if (!empty($options['limit'])) $args['limit'] = $options['limit'];
-        
-        // set for linking class
-        $obj = new $options['class_name'];
         
         switch ($options['type']) {
             case 'belongs_to':

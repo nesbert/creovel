@@ -77,7 +77,7 @@ class ActiveSession extends Object
         $result = $this->r->next();
         
         if ($this->r->total_rows() == 1) {
-            return $result['data'];
+            return $result->data;
         } else {
             return "";
         }

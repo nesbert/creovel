@@ -148,7 +148,7 @@ function CREO()
         
         case $key == 'LOG':
             $log = new Logger(empty($args[2]) ? @LOG_PATH . $GLOBALS['CREOVEL']['MODE'] . '.log' : $args[2]);
-            $log->write(strip_tags(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $val)));
+            $log->write(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $val));
             break;
             
         case $val !== null:

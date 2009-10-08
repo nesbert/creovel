@@ -480,8 +480,24 @@ class ActiveRecord extends Object implements Iterator
         }
         
         // create sql query
-        $sql = "SELECT {$select} FROM {$from}";
+        if (empty($options['update'])) {
+            $sql = "SELECT {$select} FROM {$from}";
+        } else {
+            $sql = "UPDATE {$from}";
+        }
+        
         if ($join) $sql .= " " . $this->build_query_from_conditions($join, false);
+        
+        if (!empty($options['update'])) {
+            $set = array();
+            foreach ($options['update'] as $k => $v) {
+                // if primary skip and stribut exists
+                if ($this->is_primary_key($k) || !$this->attribute_exists($k)) continue;
+                $set[] = "`{$this->table_name()}`.`{$k}` = " . ($v == 'NULL' ? 'NULL' : $this->quote_value($v));
+            }
+            $sql .= ' SET ' . implode(', ', $set);
+        }
+        
         if (count($where)) {
             $sql .= " WHERE " . implode(' AND ', $where);
         }
@@ -565,6 +581,25 @@ class ActiveRecord extends Object implements Iterator
             $sql[] = "`{$this->table_name()}`.`{$key}` = :{$key}";
         }
         return implode(' AND ', $sql);
+    }
+    
+    /**
+     * Build a string for using with WHERE statement.
+     *
+     * @param mixed $conditions
+     * @param boolean $isolate
+     * @return string
+     **/
+    final function build_where($conditions = null, $isolate = true)
+    {
+        if ($conditions) {
+            return $this->build_query_from_conditions($conditions, $isolate);
+        } else {
+            return $this->build_query_from_conditions(array(
+                        $this->build_query_from_primary_keys(),
+                        $this->primary_keys_and_values()
+                    ), $isolate);
+        }
     }
     
     /**
@@ -964,7 +999,7 @@ class ActiveRecord extends Object implements Iterator
             $set[] = "`{$k}` = " . ($v == 'NULL' ? 'NULL' : $this->quote_value($v));
         }
         
-        $where = $this->build_query_from_conditions(array(
+        $where = $this->build_where(array(
             $this->build_query_from_primary_keys(),
             $this->primary_keys_and_values()
             ), false);
@@ -1083,17 +1118,8 @@ class ActiveRecord extends Object implements Iterator
      **/
     final public function destroy($conditions = '')
     {
-        if ($conditions) {
-            $where = $this->build_query_from_conditions($conditions);
-        } else {
-            $where = $this->build_query_from_conditions(array(
-                        $this->build_query_from_primary_keys(),
-                        $this->primary_keys_and_values()
-                    )) . ' LIMIT 1';
-        }
-        
         // build delete statement
-        $q = "DELETE FROM `{$this->table_name()}` WHERE {$where};";
+        $q = "DELETE FROM `{$this->table_name()}` WHERE {$this->build_where($conditions)};";
         
         // delete record(s) and return affected rows
         return $this->action_query($q)->affected_rows();
@@ -1118,6 +1144,39 @@ class ActiveRecord extends Object implements Iterator
         
         // after delete call-back
         $this->after_delete();
+        
+        return $affected_rows;
+    }
+    
+    /**
+     * Updates current object loaded or records that match the $conditions
+     * passed. Similar to find() except expects $options['update'] to set
+     * field and values.
+     *
+     * @param mixed $type 'all', 'first', ID or array of IDs
+     * @param array $options 'update 
+     * @return integer
+     * @see ActiveRecord::find()
+     **/
+    public function update($type = 'all', $options = array())
+    {
+        if (!isset($options['update'])) {
+            throw new Exception('Missing argument <em>update</em> not set' .
+            " in options array for <strong>{$this->class_name()}::update</strong>.");
+        } elseif (!is_hash($options['update']) && !is_object($options['update'])) {
+            throw new Exception('Argument <em>update</em> must be an array' .
+            " or object of attributes for <strong>{$this->class_name()}::update</strong>.");
+        }
+        
+        // before update call-back
+        $this->before_update();
+        
+        $sql = $this->build_query($options, $type);
+        
+        $affected_rows = $this->action_query($sql)->affected_rows();
+        
+        // after update call-back
+        $this->after_update();
         
         return $affected_rows;
     }
@@ -1752,8 +1811,8 @@ class ActiveRecord extends Object implements Iterator
     final private function association($options)
     {
         // set class name
-        $options['class_name'] = Inflector::classify(empty($options['class_name'])
-                        ? $options['association_id'] : $options['class_name']);
+        $options['class_name'] = empty($options['class_name'])
+                        ? Inflector::classify($options['association_id']) : $options['class_name'];
 
         // set for linking class
         $obj = new $options['class_name'];
@@ -1795,6 +1854,7 @@ class ActiveRecord extends Object implements Iterator
             }
             
         }
+        
         if (!empty($options['order'])) $args['order'] = $options['order'];
         if (!empty($options['limit'])) $args['limit'] = $options['limit'];
         
@@ -2046,6 +2106,8 @@ class ActiveRecord extends Object implements Iterator
     public function before_create() {}
     public function after_delete() {}
     public function before_delete() {}
+    public function after_update() {}
+    public function before_update() {}
     public function validate() {}
     public function validate_on_create() {}
     public function validate_on_update() {}

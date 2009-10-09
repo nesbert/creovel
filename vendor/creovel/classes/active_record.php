@@ -906,7 +906,7 @@ class ActiveRecord extends Object implements Iterator
         if ($this->has_errors()) return false;
         
         // if record found update
-        if ($this->total_rows()) {
+        if ($this->total_rows() || $this->_was_inserted_) {
         
             // validate model on every update
             $this->validate_on_update();
@@ -972,6 +972,8 @@ class ActiveRecord extends Object implements Iterator
                 }
             }
         }
+        
+        $this->_was_inserted_ = 1;
         
         return $this->affected_rows();
     }
@@ -1319,6 +1321,7 @@ class ActiveRecord extends Object implements Iterator
             switch (true) {
                 // skip these special cases
                 case $attribute == 'has_schema':
+                case $attribute == '_was_inserted_':
                     break;
                 case isset($this->_columns_[$attribute]):
                     return $this->return_value($this->clean_column_value($attribute));
@@ -1371,6 +1374,7 @@ class ActiveRecord extends Object implements Iterator
                 case $attribute == '_database_':
                 case $attribute == '_paging_':
                 case $attribute == '_associations_':
+                case $attribute == '_was_inserted_':
                 case $attribute == 'connection_properties':
                     return $this->{$attribute} = $value;
                     break;

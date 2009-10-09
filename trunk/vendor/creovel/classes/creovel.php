@@ -48,6 +48,10 @@ require_once CREOVEL_PATH . 'modules/inflector.php';
 
 // Set default creovel global vars.
 $GLOBALS['CREOVEL']['MODE'] = 'production';
+$GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
+$GLOBALS['CREOVEL']['SESSION'] = true;
+$GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
+$GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
 
 // set error handler
 require_once CREOVEL_PATH . 'classes/action_error_handler.php';
@@ -160,10 +164,6 @@ class Creovel
         $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
         $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
         $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
-        $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
-        $GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
-        $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
-        $GLOBALS['CREOVEL']['SESSION'] = true;
         $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
         
         // Set routing defaults

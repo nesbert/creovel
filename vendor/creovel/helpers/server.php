@@ -16,7 +16,7 @@
  **/
 function ip()
 {
-    return $_SERVER['REMOTE_ADDR'];
+    return @$_SERVER['REMOTE_ADDR'];
 }
 
 /**
@@ -38,7 +38,7 @@ function http()
  **/
 function host()
 {
-    return $_SERVER['HTTP_HOST'];
+    return @$_SERVER['HTTP_HOST'];
 }
 
 /**

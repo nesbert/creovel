@@ -18,7 +18,7 @@
  **/
 function print_obj($obj, $kill = false)
 {
-    echo create_html_element('pre', array('class' => 'print_obj'), "\n".print_r($obj, 1));
+    echo create_html_element('pre', array('class' => 'print_obj'), "\n".print_r($obj, 1)). "\n";
     if ($kill) die;
 }
 
@@ -231,6 +231,77 @@ function get_type($var)
         (is_resource($var) ? 'resource' :
         (is_string($var) ? 'string' :
         'unknown' )))))))));
+}
+
+/**
+ * Get an array of directory listings with $options for flexibility.
+ * Options for $options array are as follows:
+ *
+ * 'recursive': default false
+ * 'show_dirs': default false, add directory to array
+ * 'show_invisibles': default false, add .* files to array
+ * 'group': default false, Group files by directory
+ * 'filter': default '', use a regex to filter array, example '/.php$/'
+ *
+ * @param string $dir
+ * @param array Assoctive array of options
+ * @return array
+ * @author Nesbert Hidalgo
+ * @link http://snippets.dzone.com/posts/show/155
+ **/
+function dir_to_array($dir, $options = array())
+{
+	// set default options
+	if (!is_array($options)) $options = array();
+	if (!isset($options['recursive'])) $options['recursive'] = false;
+	if (!isset($options['show_dirs'])) $options['show_dirs'] = false;
+	if (!isset($options['show_invisibles'])) $options['show_invisibles'] = false;
+	if (!isset($options['group'])) $options['group'] = false;
+	if (!isset($options['filter'])) $options['filter'] = '';
+	
+	$array_items = array();
+	if ($handle = opendir($dir)) {
+		while (false !== ($file = readdir($handle))) {
+			
+			if (!$options['show_invisibles'] && $file{0} == '.') continue;
+			
+			if ($file != '.' && $file != '..') {
+				
+				$filepath = $dir . DS . $file;
+				
+				// be nice to non *nix machines
+				$dir_regex = DS == '/' ? '/\/\//si' : '/\\\\/si';
+				
+				if (is_dir($filepath)) {
+					
+					if ($options['show_dirs']) {
+						if ($options['group']) {
+							$array_items[dirname($filepath)][] = preg_replace($dir_regex, DS, $filepath);
+						} else {
+							$array_items[] = preg_replace($dir_regex, DS, $filepath);
+						}
+					}
+					if ($options['recursive']) {
+						$array_items = array_merge($array_items, dir_to_array($filepath, $options));
+					}
+					
+				} else {
+				
+					if ($options['filter'] && !preg_match($options['filter'], $file)) continue;
+					
+					if ($options['group']) {
+						$array_items[dirname($filepath)][] = preg_replace($dir_regex, DS, $filepath);
+					} else {
+						$array_items[] = preg_replace($dir_regex, DS, $filepath);
+					}
+					
+				}
+				
+			}
+		}
+		closedir($handle);
+	}
+	return $array_items;
 }
 
 /**

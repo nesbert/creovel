@@ -743,7 +743,8 @@ class ActiveRecord extends Object implements Iterator
      * Execute $qry to get the total number of rows in current table. Must
      * pass a "SELECT COUNT(*)..." for query.
      *
-     * @return void
+     * @param string $qry
+     * @return integer
      **/
     final public function count_by_sql($qry)
     {
@@ -753,11 +754,13 @@ class ActiveRecord extends Object implements Iterator
     /**
      * Execute a query to get the total number of rows in current table.
      *
-     * @return void
+     * @param array $options
+     * @return integer
      **/
-    final public function count()
+    final public function count($options = array())
     {
-        return $this->count_by_sql("SELECT COUNT(*) FROM `{$this->table_name()}`;");
+        $options['select'] = "COUNT(*)";
+        return $this->count_by_sql($this->build_query($options, $type = 'all'));
     }
     
     

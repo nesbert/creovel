@@ -1,0 +1,62 @@
+#!/usr/bin/php -q
+<?php
+// Include Creovel Base.
+require_once('base');
+
+if (!is_file($args[0]) && !is_dir($args[0])) return;
+
+/**
+ * Build file lists.
+ */
+
+$files = array();
+$filter = '/_test.php$/';
+$recursive = true;
+
+foreach ($args as $path) {
+
+	// get test files
+	$files = array_merge($files, dir_to_array($path, array('recursive' => true, 'filter' => $filter)));
+
+}
+
+/**
+ * Foreach file run test.
+ */
+
+$ok = 0;
+$show_title = false;
+
+if (count($files)) foreach ($files as $file) {
+	if (file_exists($file)) {
+		
+		// run phpunit
+		exec("phpunit {$file}", $output, $return_var);
+		
+		if (!$show_title) {
+			echo "{$output[0]}\n\n";
+			$show_title = true;
+		}
+		
+		$result = array_pop($output);
+		
+		if (starts_with('OK ', $result)) $ok++;
+		echo "{$result} -> {$file}\n";
+		
+		if (!starts_with('OK ', $result)) {
+			
+			foreach ($output as $k => $line) {
+				if ($k < 4) continue;
+				echo "---- " . $line . "\n";
+			}
+			
+		}
+		
+	} else {
+		echo "File not found! -> {$file}\n";
+	}
+}
+
+$total = count($files);
+
+echo "\nResults: {$ok} of {$total} Files \"OK\"\n";

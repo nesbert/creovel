@@ -369,12 +369,15 @@ function countries($us_first = false, $show_abbr = false)
  **/
 function states($country = 'US', $show_abbr = false)
 {
+    $states = array();
     $countries = countries_array();
-    $states = $countries[$country]['states'];
-    if ($show_abbr) {
-        foreach ($states as $k => $v) $states[$k] = $k . ' - ' . $v;
-    } else {
-        asort($states);
+    if (!empty($countries[$country]['states'])) {
+        $states = $countries[$country]['states'];
+        if ($show_abbr) {
+            foreach ($states as $k => $v) $states[$k] = $k . ' - ' . $v;
+        } else {
+            asort($states);
+        }
     }
     return $states;
 }

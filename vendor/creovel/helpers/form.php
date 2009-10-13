@@ -511,8 +511,8 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
     $state_arr = states($country ? $country : 'US');
     
     if ($abbr) $state_arr = array_combine(array_keys($state_arr), array_keys($state_arr));
+    if (count($state_arr)) $state_arr = array_merge($choices, $state_arr);
     
-    $state_arr = array_merge($choices, $state_arr);
     return select($name, $selected, $state_arr, $html_options);
 }
 

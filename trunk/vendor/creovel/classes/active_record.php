@@ -1565,18 +1565,16 @@ class ActiveRecord extends Object implements Iterator
                 $params[1] = $this->{$field};
                 $params[2] = isset($params[2]) ? $params[2] : '';
                 
+                // process validation by method name                
                 switch ($method) {
+                    // check if a column with that value exists in the
+                    // current table and is not the currentlly loaded row
                     case 'validates_uniqueness_of':
-                        ActiveValidation::validates_presence_of($params[0], $params[1], $params[2]);
+                        // no value return false
                         if (!$params[1]) return false;
                         
-                        if (isset($params[3])) {
-                            $where_ext = $params[3];
-                        } else {
-                            $where_ext = '1';
-                        }
-                        // check if a column with that value exists in the
-                        // current table and is not the currentlly loaded row
+                        // extend WHERE statement
+                        $where_ext = empty($params[3]) ? '' : " AND ({$this->action_query()->escape($params[3])})";
                         
                         // build key to support multipule rows
                         $key = array();
@@ -1585,25 +1583,27 @@ class ActiveRecord extends Object implements Iterator
                         }
                         $key = implode(' AND ', $key);
                         
-                        $this->action_query("SELECT * FROM `{$this->table_name()}` WHERE `{$params[0]}` = '{$params[1]}' AND ({$key}) AND ({$where_ext})");
+                        // build query
+                        $q = "SELECT * FROM `{$this->table_name()}` WHERE `{$params[0]}` = '{$params[1]}' AND {$key}{$where_ext};";
                         
                         // if record found add error
-                        if ($this->action_query()->total_rows()) {
-                            ActiveValidation::add_error($params[0],
-                                ($params[2] ? $params[2] : humanize($params[0]).' is not unique.' ));
+                        if ($this->action_query($q)->total_rows()) {
+                            ActiveValidation::add_error(
+                                $params[0],
+                                ($params[2] ? $params[2] : humanize($params[0]).' is not unique.')
+                                );
                             return false;
                         } else {
                             return true;
                         }
                         break;
                     
+                    // check that validation method exists
                     default:
-                        if (method_exists('ActiveValidation', $method) ) {
-                            if (count($fields) > 1) {
-                                call_user_func_array(array('ActiveValidation', $method), $params);
-                            } else {
-                                return call_user_func_array(array('ActiveValidation', $method), $params);
-                            }
+                        // if validation method esits in validation class
+                        $c = new ActiveValidation; // inistanciate cause of bug accessing it staticly
+                        if (method_exists($c, $method)) {
+                            return call_user_func_array(array('ActiveValidation', $method), $params);
                         } else {
                             throw new Exception("Undefined validation method <em>{$method}</em> in " .
                                 "<strong>{$this->class_name()}</strong> model.");

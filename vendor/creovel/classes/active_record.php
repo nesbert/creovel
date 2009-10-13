@@ -1061,7 +1061,7 @@ class ActiveRecord extends Object implements Iterator
                     break;
                 // set NULL values blank
                 case empty($field->value) && $field->null == 'YES':
-                    $return[$name] = 'NULL';
+                    $return[$name] = '';
                     break;
                 // set name and val
                 default:
@@ -1309,7 +1309,7 @@ class ActiveRecord extends Object implements Iterator
             $this->_columns_[$k]->value = $v->default;
         }
     }
-        
+    
     // Section: Magic Functions
     
     /**
@@ -1562,13 +1562,13 @@ class ActiveRecord extends Object implements Iterator
             foreach ($fields as $field) {
                 // set field, value, message and extras
                 $params[0] = $field;
-                $params[1] = $this->$field;
+                $params[1] = $this->{$field};
                 $params[2] = isset($params[2]) ? $params[2] : '';
                 
                 switch ($method) {
                     case 'validates_uniqueness_of':
                         ActiveValidation::validates_presence_of($params[0], $params[1], $params[2]);
-                        if (!$params[1]) return;
+                        if (!$params[1]) return false;
                         
                         if (isset($params[3])) {
                             $where_ext = $params[3];
@@ -1591,6 +1591,7 @@ class ActiveRecord extends Object implements Iterator
                         if ($this->action_query()->total_rows()) {
                             ActiveValidation::add_error($params[0],
                                 ($params[2] ? $params[2] : humanize($params[0]).' is not unique.' ));
+                            return false;
                         } else {
                             return true;
                         }
@@ -1753,6 +1754,16 @@ class ActiveRecord extends Object implements Iterator
         return @count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
     }
     
+    /**
+     * Reset validation errors.
+     *
+     * @return void
+     **/
+    final public function reset_errors()
+    {
+        $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
+    }
+        
     /**
      * Check if model passes validation routine.
      *

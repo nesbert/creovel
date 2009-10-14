@@ -15,63 +15,130 @@
  * @return array
  * @author Nesbert Hidalgo
  **/
-function countries_array()
+function countries_array($more_states = false)
 {
     if (isset($GLOBALS['CREOVEL']['COUNTRIES'])) {
         return $GLOBALS['CREOVEL']['COUNTRIES'];
     } else {
-        $usa = array(
-            'AK' => 'Alaska',
-            'AL' => 'Alabama',
-            'AR' => 'Arkansas',
-            'AZ' => 'Arizona',
-            'CA' => 'California',
-            'CO' => 'Colorado',
-            'CT' => 'Connecticut',
-            'DE' => 'Delaware',
-            'FL' => 'Florida',
-            'GA' => 'Georgia',
-            'HI' => 'Hawaii',
-            'IA' => 'Iowa',
-            'ID' => 'Idaho',
-            'IL' => 'Illinois',
-            'IN' => 'Indiana',
-            'KS' => 'Kansas',
-            'KY' => 'Kentucky',
-            'LA' => 'Louisiana',
-            'MA' => 'Massachusetts',
-            'MD' => 'Maryland',
-            'ME' => 'Maine',
-            'MI' => 'Michigan',
-            'MN' => 'Minnesota',
-            'MO' => 'Missouri',
-            'MS' => 'Mississippi',
-            'MT' => 'Montana',
-            'NC' => 'North Carolina',
-            'ND' => 'North Dakota',
-            'NE' => 'Nebraska',
-            'NH' => 'New Hampshire',
-            'NJ' => 'New Jersey',
-            'NM' => 'New Mexico',
-            'NV' => 'Nevada',
-            'NY' => 'New York',
-            'OH' => 'Ohio',
-            'OK' => 'Oklahoma',
-            'OR' => 'Oregon',
-            'PA' => 'Pennsylvania',
-            'RI' => 'Rhode Island',
-            'SC' => 'South Carolina',
-            'SD' => 'South Dakota',
-            'TN' => 'Tennessee',
-            'TX' => 'Texas',
-            'UT' => 'Utah',
-            'VA' => 'Virginia',
-            'VT' => 'Vermont',
-            'WA' => 'Washington',
-            'WI' => 'Wisconsin',
-            'WV' => 'West Virginia',
-            'WY' => 'Wyoming',
-            );
+        if ($more_states) {
+            $usa = array(
+                'AK' => 'Alaska',
+                'AL' => 'Alabama',
+                'AR' => 'Arkansas',
+                'AS' => 'American Samoa',
+                'AZ' => 'Arizona',
+                'CA' => 'California',
+                'CO' => 'Colorado',
+                'CT' => 'Connecticut',
+                'DC' => 'D.C.',
+                'DE' => 'Delaware',
+                'FL' => 'Florida',
+                'FM' => 'Micronesia',
+                'GA' => 'Georgia',
+                'GU' => 'Guam',
+                'HI' => 'Hawaii',
+                'IA' => 'Iowa',
+                'ID' => 'Idaho',
+                'IL' => 'Illinois',
+                'IN' => 'Indiana',
+                'KS' => 'Kansas',
+                'KY' => 'Kentucky',
+                'LA' => 'Louisiana',
+                'MA' => 'Massachusetts',
+                'MD' => 'Maryland',
+                'ME' => 'Maine',
+                'MH' => 'Marshall Islands',
+                'MI' => 'Michigan',
+                'MN' => 'Minnesota',
+                'MO' => 'Missouri',
+                'MP' => 'Marianas',
+                'MS' => 'Mississippi',
+                'MT' => 'Montana',
+                'NC' => 'North Carolina',
+                'ND' => 'North Dakota',
+                'NE' => 'Nebraska',
+                'NH' => 'New Hampshire',
+                'NJ' => 'New Jersey',
+                'NM' => 'New Mexico',
+                'NV' => 'Nevada',
+                'NY' => 'New York',
+                'OH' => 'Ohio',
+                'OK' => 'Oklahoma',
+                'OR' => 'Oregon',
+                'PA' => 'Pennsylvania',
+                'PR' => 'Puerto Rico',
+                'PW' => 'Palau',
+                'RI' => 'Rhode Island',
+                'SC' => 'South Carolina',
+                'SD' => 'South Dakota',
+                'TN' => 'Tennessee',
+                'TX' => 'Texas',
+                'UT' => 'Utah',
+                'VA' => 'Virginia',
+                'VI' => 'Virgin Islands',
+                'VT' => 'Vermont',
+                'WA' => 'Washington',
+                'WI' => 'Wisconsin',
+                'WV' => 'West Virginia',
+                'WY' => 'Wyoming',
+                'AA' => 'Military Americas',
+                'AE' => 'Military Europe/ME/Canada',
+                'AP' => 'Military Pacific'
+                );
+        } else {
+            $usa = array(
+                'AK' => 'Alaska',
+                'AL' => 'Alabama',
+                'AR' => 'Arkansas',
+                'AZ' => 'Arizona',
+                'CA' => 'California',
+                'CO' => 'Colorado',
+                'CT' => 'Connecticut',
+                'DE' => 'Delaware',
+                'FL' => 'Florida',
+                'GA' => 'Georgia',
+                'HI' => 'Hawaii',
+                'IA' => 'Iowa',
+                'ID' => 'Idaho',
+                'IL' => 'Illinois',
+                'IN' => 'Indiana',
+                'KS' => 'Kansas',
+                'KY' => 'Kentucky',
+                'LA' => 'Louisiana',
+                'MA' => 'Massachusetts',
+                'MD' => 'Maryland',
+                'ME' => 'Maine',
+                'MI' => 'Michigan',
+                'MN' => 'Minnesota',
+                'MO' => 'Missouri',
+                'MS' => 'Mississippi',
+                'MT' => 'Montana',
+                'NC' => 'North Carolina',
+                'ND' => 'North Dakota',
+                'NE' => 'Nebraska',
+                'NH' => 'New Hampshire',
+                'NJ' => 'New Jersey',
+                'NM' => 'New Mexico',
+                'NV' => 'Nevada',
+                'NY' => 'New York',
+                'OH' => 'Ohio',
+                'OK' => 'Oklahoma',
+                'OR' => 'Oregon',
+                'PA' => 'Pennsylvania',
+                'RI' => 'Rhode Island',
+                'SC' => 'South Carolina',
+                'SD' => 'South Dakota',
+                'TN' => 'Tennessee',
+                'TX' => 'Texas',
+                'UT' => 'Utah',
+                'VA' => 'Virginia',
+                'VT' => 'Vermont',
+                'WA' => 'Washington',
+                'WI' => 'Wisconsin',
+                'WV' => 'West Virginia',
+                'WY' => 'Wyoming',
+                );
+        }
         
         $canada = array(
             'AB' => 'Alberta',
@@ -364,19 +431,23 @@ function countries($us_first = false, $show_abbr = false)
  *
  * @param boolean $country Default is 'US'
  * @param boolean $show_abbr
+ * @param boolean $more_states
  * @return array
  * @author Nesbert Hidalgo
  **/
-function states($country = 'US', $show_abbr = false)
+function states($country = 'US', $show_abbr = false, $more_states = false)
 {
-    $states = array();
-    $countries = countries_array();
-    if (!empty($countries[$country]['states'])) {
-        $states = $countries[$country]['states'];
-        if ($show_abbr) {
-            foreach ($states as $k => $v) $states[$k] = $k . ' - ' . $v;
-        } else {
-            asort($states);
+    static $states;
+    if (empty($states)) {
+        $states = array();
+        $countries = countries_array($more_states);
+        if (!empty($countries[$country]['states'])) {
+            $states = $countries[$country]['states'];
+            if ($show_abbr) {
+                foreach ($states as $k => $v) $states[$k] = $k . ' - ' . $v;
+            } else {
+                if (!$more_states) asort($states);
+            }
         }
     }
     return $states;

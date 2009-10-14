@@ -480,40 +480,49 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
  * @param string $choices
  * @param string $html_options
  * @param string $country Default set to "US"
- * @param boolean $select_all
+ * @param boolean $state_input
  * @return string
  * @author Nesbert Hidalgo
  **/
-function select_states_tag($name = 'state', $selected = null, $choices = null, $html_options = null, $country = 'US', $select_all = false)
+function select_states_tag($name = 'state', $selected = null, $choices = null, $html_options = null, $country = 'US', $state_input = false)
 {
-    
-    if (isset($choices['abbr'])) {
-        $abbr = true;
-        unset($choices['abbr']);
-    } else {
-        $abbr = false;
+    if ($state_input && ($country != 'US' && $country != 'CA')) {
+        $html = create_input_tag('text', $name, $selected, $html_options);
     }
     
-    if (isset($choices['select_all'])) {
-        $select_all = true;
-        unset($choices['select_all']);
-    } else {
-        $select_all = false;
+    if (empty($html)) {
+        if (isset($choices['abbr'])) {
+            $abbr = true;
+            unset($choices['abbr']);
+        } else {
+            $abbr = false;
+        }
+    
+        if (isset($choices['select_all'])) {
+            $select_all = true;
+            unset($choices['select_all']);
+        } else {
+            $select_all = false;
+        }
+    
+        if ($select_all) {
+            $choices = $choices ? $choices : array('all' => 'All States...');
+        } else {
+            $choices = $choices ? $choices : array('' => 'Please select...');
+        }
+    
+        // intialize states array
+        $state_arr = states($country ? $country : 'US', @$html_options['show_abbr'], @$html_options['more_states']);
+        unset($html_options['show_abbr']);
+        unset($html_options['more_states']);
+    
+        if ($abbr) $state_arr = array_combine(array_keys($state_arr), array_keys($state_arr));
+        if (count($state_arr)) $state_arr = array_merge($choices, $state_arr);
+    
+        $html = select($name, $selected, $state_arr, $html_options);
     }
     
-    if ($select_all) {
-        $choices = $choices ? $choices : array('all' => 'All States...');
-    } else {
-        $choices = $choices ? $choices : array('' => 'Please select...');
-    }
-    
-    // intialize states array
-    $state_arr = states($country ? $country : 'US');
-    
-    if ($abbr) $state_arr = array_combine(array_keys($state_arr), array_keys($state_arr));
-    if (count($state_arr)) $state_arr = array_merge($choices, $state_arr);
-    
-    return select($name, $selected, $state_arr, $html_options);
+    return create_html_element('span', array('id' => $name . '-wrap'), $html);
 }
 
 /**
@@ -525,17 +534,14 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
  * @param string $choices
  * @param string $html_options
  * @param string $state_id
- * @return string
+ * @return boolean $state_input
  * @author Nesbert Hidalgo
  **/
-function select_countries_tag($name = 'country', $selected = null, $choices = null, $html_options = null, $state_id = null)
+function select_countries_tag($name = 'country', $selected = null, $choices = null, $html_options = null, $state_id = null, $state_input = false)
 {
-    $html_options['us_first'] = isset($html_options['us_first']) ? $html_options['us_first'] : false;
-    $html_options['show_abbr'] = isset($html_options['show_abbr']) ? $html_options['show_abbr'] : false;
-    
     $choices = $choices ? $choices : array('' => 'Please select...');
     
-    $country_arr = countries($html_options['us_first'], $html_options['show_abbr']);
+    $country_arr = countries(@$html_options['us_first'], @$html_options['show_abbr']);
     
     // unset country function vars
     unset($html_options['us_first']);
@@ -543,22 +549,27 @@ function select_countries_tag($name = 'country', $selected = null, $choices = nu
 
     if ($state_id) {
         $state_id = name_to_id($state_id);
-        $html_options['onchange'] = (isset($html_options['onchange']) ? trim($html_options['onchange']) : '') . ' set_'.$state_id.'();';
+        $func = underscore($state_id) . '_func';
+        $html_options['onchange'] = (isset($html_options['onchange']) ? trim($html_options['onchange']) : '') . "updateState(this.options[this.selectedIndex].value, '" . $state_id . "');";
     }
     
     $return = select($name, $selected, array_merge($choices, $country_arr), $html_options);
     
     // automatic state dropdown update
     if ($state_id) {
-        $us_states = states('US');
-        $ca_states = states('CA');
-        
-        // include JS view
-        include(CREOVEL_PATH . 'views' . DS . 'layouts' . DS . '_states_dropdown_js.php');
+        // Only include JS once
+        static $included;
+        if (empty($included)) {
+            // include JS view
+            $return .= "\n" . ActionView::include_contents(
+                CREOVEL_PATH . 'views' . DS . 'layouts' . DS . '_states_dropdown_js.php',
+                array('name' => $name, 'state_id' => $state_id, 'func' => @$func, 'state_input' => $state_input)
+                );
+             $included = true;
+        }
     }
     
     return $return;
-    
 }
 
 /**

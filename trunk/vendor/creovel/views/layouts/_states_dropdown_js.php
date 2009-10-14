@@ -9,50 +9,66 @@
  * @since       Class available since Release 0.1.0 
  * @see         error_messages_for()
  **/
+
+// create JS objects
+$countries = array('US' => states('US'), 'CA' => states('CA'));
+$objects = array();
+foreach ($countries as $country => $states) {
+    $temp = array();
+    foreach ($states as $k => $v) {
+        $temp[] = "'{$k}': '{$v}'";
+    }
+    $objects[$country] = implode(', ', $temp);
+}
 ?><script language="javascript" type="text/javascript">
 <!--
-function set_<?=$state_id?>() {
+<?php foreach ($objects as $country => $object) { ?>
+var <?=$country?> = {<?=trim($object)?>}
+<?php } ?>
+function updateState(country, state_id, default_value) {
+    var state = document.getElementById(state_id);
+    var o = '';
     
-    var usaVals = new Array("<?=implode('", "', $us_states)?>");
-    var usaIDs = new Array("<?=implode('", "', array_keys($us_states))?>");
-    var canadaVals = new Array("<?=implode('", "', $ca_states)?>");
-    var canadaIDs = new Array("<?=implode('", "', array_keys($ca_states))?>");
-    var countryDrop = document.getElementById("<?=name_to_id($name)?>");
-    var selectedCountry = countryDrop.options[countryDrop.selectedIndex].value;
-    
-    switch ( selectedCountry ) {
-        case "United States":
-        case "USA":
-        case "US":
-            update_<?=$state_id?>(usaVals, usaIDs);
-        break;
-        case "Canada":
-        case "CA":
-            update_<?=$state_id?>(canadaVals, canadaIDs);
-        break;
-        default:
-            update_<?=$state_id?>();
-        break;
+    if (country == 'US' || country == 'CA') {
+        o = eval(country);
     }
-}
-
-function update_<?=$state_id?>(stateVals, stateIDs) {
     
-    var stateDrop = document.getElementById("<?=$state_id?>");
-    stateDrop.options.length = 0;
-    stateDrop.options[stateDrop.options.length] = new Option("Please select...", "");
+    if (state.tagName == 'SELECT') {
+        state.options.length = 0;
+    }
     
-    if ( stateVals ) {
-        for(var i=0; i<stateVals.length; i++) {
-            stateDrop.options[stateDrop.options.length] = new Option(stateVals[i], stateIDs[i]);
-            stateDrop.options[0].selected = true;
+    <?php if ($state_input) { ?>var name = state.getAttribute('name');
+    var css = state.getAttribute('class');
+    var title = state.getAttribute('title');
+    var span = document.getElementById('<?=$state_id?>-wrap');
+    // remove current element
+    span.removeChild(state);
+    <?php } ?>
+    
+    if (o) {
+        <?php if ($state_input) { ?>var input = document.createElement('select');
+        input.setAttribute('name', name);
+        input.setAttribute('id', state_id);
+        if (css) input.setAttribute('class', css);
+        if (title) input.setAttribute('title', title);
+        span.appendChild(input);
+        state = document.getElementById(state_id);
+        <?php } ?>state.options[state.options.length] = new Option('Please select...', '');
+        for (var k in o) {
+            state.options[state.options.length] = new Option(o[k], k);
         }
     } else {
-        stateDrop.options.length = 0;
-        stateDrop.options[stateDrop.options.length] = new Option("None Available", "");
-        stateDrop.options.selected = true;
+        <?php if ($state_input) { ?>var input = document.createElement('input');
+        input.setAttribute('type', 'text');
+        input.setAttribute('name', name);
+        input.setAttribute('id', state_id);
+        if (css) input.setAttribute('class', css);
+        if (title) input.setAttribute('title', title);
+        span.appendChild(input);
+        <?php } else { ?>
+        state.options[state.options.length] = new Option("None Available", "");
+        <?php } ?>
     }
-    
-};
+}
 -->
 </script>

@@ -144,7 +144,7 @@ class Inflector extends ModuleBase
                 '/(vert|ind)ices$/i' => '\1ex',
                 '/(matr)ices$/i' => '\1ix',
                 '/(quiz)zes$/i' => '\1',
-                '/(a)ss$/i' => '\1ss',
+                '/ss$/i' => '\1ss',
                 '/s$/i' => ''
                 );
         

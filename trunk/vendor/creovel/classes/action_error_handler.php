@@ -94,7 +94,7 @@ class ActionErrorHandler extends Object
                 // only show erros in dev mode
                 if (CREO('mode') == 'development') {
                     header('Content-Type: text/plain; charset=utf-8');
-                    include_once(CREOVEL_PATH . 'views' . DS . 'debugger' . DS . 'error_cli.php');
+                    include_once CREOVEL_PATH . 'views' . DS . 'debugger' . DS . 'error_cli.php';
                 }
             // grace fully handle errors in none devlopment mode
             } else if (CREO('mode') != 'development') {
@@ -110,11 +110,16 @@ class ActionErrorHandler extends Object
                 // show debugger
                 $this->__debug();
             }
+            exit(1);
             die;
         }
         
-        // show internal server error
-        include_once(CREOVEL_PATH . 'views' . DS . 'layouts' . DS . 'apache_500_error.php');
+        if (empty($GLOBALS['CREOVEL']['CMD'])) {
+            // show internal server error
+            include_once CREOVEL_PATH . 'views' . DS . 'layouts' . DS . 'apache_500_error.php';
+        }
+        
+        exit(2);
         die;
     }
     

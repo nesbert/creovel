@@ -1724,7 +1724,18 @@ class ActiveRecord extends Object implements Iterator
      **/
     final public function add_error($property, $msg)
     {
-        $GLOBALS['CREOVEL']['VALIDATION_ERRORS'][$property] = $msg;
+        @$GLOBALS['CREOVEL']['VALIDATION_ERRORS'][$property] = $msg;
+    }
+    
+    /**
+     * Get property error from $GLOBALS['CREOVEL']['VALIDATION_ERRORS'].
+     *
+     * @param string $property
+     * @return string
+     **/
+    final public function get_error($property)
+    {
+        return @$GLOBALS['CREOVEL']['VALIDATION_ERRORS'][$property];
     }
     
     /**

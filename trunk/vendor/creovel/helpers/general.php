@@ -383,3 +383,19 @@ function clean_array($array)
         return clean_str($array);
     }
 }
+
+/**
+ * Search a multidimensional array for a certain value and return the
+ * array with the match.
+ *
+ * @return array
+ * @author Nesbert Hidalgo
+ **/
+function search_array($i, $val, $array)
+{
+    if (is_array($array)) foreach ($array as $row) {
+        if (@$row[$i] == $val) return $row;
+    } else {
+        return null;
+    }
+}

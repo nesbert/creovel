@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActiveRecord extends Object implements Iterator
+class ActiveRecord extends Object
 {
     /**
      * Table name.
@@ -2049,7 +2049,7 @@ class ActiveRecord extends Object implements Iterator
     }
     
     /**
-     * Iterator methods.
+     * Transaction methods.
      */
     
     /**

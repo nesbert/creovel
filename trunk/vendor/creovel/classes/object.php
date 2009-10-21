@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class Object
+class Object implements Iterator
 {
     /**
      * Initialize parents. Override accordingly.
@@ -112,4 +112,135 @@ class Object
         }
         CREO('application_error', $msg);
     }
-} // END class Object
+    
+    /**
+     * General iterator methods using $_items_.
+     */
+    
+    /**
+     * Resets DB properties and frees result resources.
+     *
+     * @return void
+     **/
+    public function reset()
+    {
+        $this->rewind();
+    }
+    
+    /**
+     * Set the index to its first element in $_items_.
+     *
+     * @return void
+     **/
+    public function rewind()
+    {
+        $this->_index_ = 0;
+    }
+    
+    /**
+     * Return the current item in $_items_.
+     *
+     * @return mixed
+     **/
+    public function current()
+    {
+        $class = $this->to_string();
+        $o = new $class;
+        $o->load_item((object) $this->_items_[$this->_index_]);
+        return $o;
+    }
+    
+    /**
+     * Returns the index element of $_items_.
+     *
+     * @return integer
+     **/
+    public function key()
+    {
+        return $this->_index_;
+    }
+    
+    /**
+     * Advance the $_index_ pointer by one.
+     *
+     * @return void
+     **/
+    public function next()
+    {
+        ++$this->_index_;
+        return $this->current();
+    }
+    
+    /**
+     * Rewind the $_index_ pointer by one.
+     *
+     * @return object
+     **/
+    public function prev()
+    {
+        --$this->_index_;
+        return $this->current();
+    }
+    
+    /**
+     * Check if current $_index_ is set in $_items_
+     *
+     * @return boolean
+     **/
+    public function valid()
+    {
+        return isset($this->_items_[$this->_index_]);
+    }
+    
+    /**
+     * Initialize iterator properties.
+     *
+     * @return void
+     **/
+    public function initialize_iterator()
+    {
+        $this->_index_ = 0;
+        $this->_items_ = array();
+    }
+    
+    /**
+     * Add an item to $_items_.
+     *
+     * @return void
+     **/
+    public function load_item($item)
+    {
+        if (!isset($this->_index_)) $this->initialize_iterator();
+        $this->_items_[] = $item;
+    }
+    
+    /**
+     * Add an array items to $_items_.
+     *
+     * @return void
+     **/
+    public function load_items($items)
+    {
+        if (!is_array($items)) return;
+        if (!isset($this->_index_)) $this->initialize_iterator();
+        $this->_items_ += $items;
+    }
+    
+    /**
+     * General magic methods.
+     */
+    
+    /**
+     * General __get routine.
+     *
+     * @return void
+     **/
+    public function __get($property)
+    {
+        if (isset($this->_items_) &&
+            isset($this->_items_[$this->_index_]->{$property})) {
+            return $this->_items_[$this->_index_]->{$property};
+        }
+    }
+    
+} // END class Object implements Iterator

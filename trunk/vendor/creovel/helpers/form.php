@@ -416,6 +416,7 @@ function label($name, $title = null, $html_options = null)
 function select($name, $selected = '', $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
 {
     $og_options = array('name' => $name, 'id' => name_to_id($name)) + (array) $html_options;
+    $selected = (string) $selected;
     $content = "\n";
     
     if (count($choices)) {
@@ -431,7 +432,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
                 if (is_array($selected)) {
                     $select_options = in_array($value, $selected) ? array('selected' => 'selected') : '';
                 } else {
-                    $select_options = $selected == $value ? array('selected' => 'selected') : '';
+                    $select_options = $selected === (string) $value ? array('selected' => 'selected') : '';
                 }
                 
                 $html_options = is_array($select_options) ? array('value' => $value) + (array) $select_options : array('value' => $value);
@@ -447,7 +448,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
                         if (is_array($selected)) {
                             $select_options = in_array($value2, $selected) ? array('selected' => 'selected') : '';
                         } else {
-                            $select_options = $selected == $value2 ? array('selected' => 'selected') : '';
+                            $select_options = $selected === (string) $value2 ? array('selected' => 'selected') : '';
                         }
                         
                         $html_options = is_array($select_options) ? array('value' => $value2) + (array) $select_options : array('value' => $value2);

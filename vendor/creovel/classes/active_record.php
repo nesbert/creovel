@@ -2141,4 +2141,4 @@ class ActiveRecord extends Object
     public function validate_on_create() {}
     public function validate_on_update() {}
     /**#@-*/
-} // END class ActiveRecord extends Object implements Iterator
+} // END class ActiveRecord extends Object

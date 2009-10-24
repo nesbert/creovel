@@ -197,10 +197,30 @@ class Object implements Iterator
      *
      * @return void
      **/
-    public function initialize_iterator()
+    final public function initialize_iterator()
     {
         $this->_index_ = 0;
         $this->_items_ = array();
+    }
+    
+    /**
+     * Check if this object has $_items_.
+     *
+     * @return boolean
+     **/
+    final public function has_items()
+    {
+        return isset($this->_items_) && is_array($this->_items_);
+    }
+    
+    /**
+     * Get object $_items_.
+     *
+     * @return array
+     **/
+    final public function get_items()
+    {
+        return $this->has_items() ? $this->_items_ : array();
     }
     
     /**
@@ -208,7 +228,7 @@ class Object implements Iterator
      *
      * @return void
      **/
-    public function load_item($item)
+    final public function load_item($item)
     {
         if (!isset($this->_index_)) $this->initialize_iterator();
         $this->_items_[] = $item;
@@ -219,7 +239,7 @@ class Object implements Iterator
      *
      * @return void
      **/
-    public function load_items($items)
+    final public function load_items($items)
     {
         if (!is_array($items)) return;
         if (!isset($this->_index_)) $this->initialize_iterator();
@@ -237,9 +257,16 @@ class Object implements Iterator
      **/
     public function __get($property)
     {
-        if (isset($this->_items_) &&
-            isset($this->_items_[$this->_index_]->{$property})) {
-            return $this->_items_[$this->_index_]->{$property};
+        // make sure items is set
+        if (isset($this->_items_)) {
+            // check for property
+            if (isset($this->_items_[$this->_index_]->{$property})) {
+                if (is_object($this->_items_[$this->_index_])) {
+                    return $this->_items_[$this->_index_]->{$property};
+                } else {
+                    return $this->_items_[$this->_index_][$property];
+                }
+            }
         }
     }
     

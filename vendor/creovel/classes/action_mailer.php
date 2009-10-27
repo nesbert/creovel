@@ -16,7 +16,7 @@
     * smtp support
     * receiving emails
 */
-abstract class ActionMailer extends Object
+class ActionMailer extends ActionController
 {
     public $delivery_method = 'sendmail';
     public $bcc;
@@ -32,8 +32,6 @@ abstract class ActionMailer extends Object
     public $body;
     public $text;
     public $html;
-    
-    protected $_action = '';
     
     private $__content_type = 'text/plain';
     private $__content_transfer_encoding = '7bit';
@@ -56,22 +54,6 @@ abstract class ActionMailer extends Object
     }
     
     /**
-     * Stop the application at the controller level during an error.
-     *
-     * @return void
-     **/
-    public function throw_error($msg = null)
-    {
-        if (!$msg) {
-            $msg = 'An error occurred while executing the action ' .
-            "<em>{$this->_action}</em> in the <strong> " . $this->to_string() .
-            '</strong>.';
-        }
-        CREO('error_code', 404);
-        CREO('application_error', $msg);
-    }
-    
-    /**
      * Magic functions.
      *
      * @param string $method
@@ -83,6 +65,7 @@ abstract class ActionMailer extends Object
         switch (true) {
             case preg_match('/^create_(.+)$/', $method, $regs):
             case preg_match('/^deliver_(.+)$/', $method, $regs):
+            case preg_match('/^encode_(.+)$/', $method, $regs):
                 // set action
                 $this->_action = $regs[1];
                 
@@ -94,6 +77,10 @@ abstract class ActionMailer extends Object
                 if (preg_match('/^deliver_(.+)$/', $method)) {
                     return $this->send();
                 }
+                // if deliver_XXX send message
+                if (preg_match('/^encode_(.+)$/', $method)) {
+                    return $this->encoded();
+                }
             break;
             
             default:
@@ -103,19 +90,31 @@ abstract class ActionMailer extends Object
     }
     
     /**
-     * Sets $_controller & $_action and call child method
+     * Execute action and call backs.
      *
      * @return array $args
      * @return void
      **/
     private function __call_action($args)
     {
+        // initialize callback
+        $this->initialize();
+        
+        // initialize scope fix
+        $this->initialize_parents();
+        
+        // call before filter
+        $this->before_filter();
+        
         if (method_exists($this, $this->_action)) {
             call_user_func_array(array($this, $this->_action), $args);
         } else {
             $this->throw_error("Undefined action '{$this->_action}' in " .
                 "<strong>{$this->to_string()}</strong>.");
         }
+        
+        // call before filter
+        $this->after_filter();
     }
     
     /**
@@ -516,4 +515,4 @@ abstract class ActionMailer extends Object
             return false;
         }
     }
-} // END class ActionMailer extends Object
+} // END class ActionMailer extends ActionController

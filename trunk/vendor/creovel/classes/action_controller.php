@@ -49,7 +49,7 @@ abstract class ActionController extends Object
     public $params;
     
     /**
-     * undocumented function
+     * Keep to override default Object construct.
      *
      * @return void
      **/
@@ -470,4 +470,4 @@ abstract class ActionController extends Object
         return VIEWS_PATH . 'layouts' . DS .
                 ($layout ? $layout : $this->layout) . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
     }
-} // END abstract class ActionController
+} // END abstract class ActionController extends Object

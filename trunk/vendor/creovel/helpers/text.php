@@ -243,3 +243,99 @@ function ends_with($needle, $haystack)
 {
     return substr($haystack, -strlen($needle)) == $needle;
 }
+
+/**
+ * Convert a number to word representation.
+ *
+ * @param integer $num 
+ * @return string
+ * @author Nesbert Hidalgo
+ * @link http://marc.info/?l=php-general&m=99928281523866&w=2
+ **/
+function num2word($num, $caps = true, $tri = 0)
+{
+    $num = (int) $num;
+    
+    // if negative
+    if ($num < 0) return 'negative ' . num2word(-$num);
+    // if zero
+    if ($num == 0) return 'zero';
+    
+    // number words
+    $words = array(
+        0 => '',
+        1 => 'one',
+        2 => 'two',
+        3 => 'three',
+        4 => 'four',
+        5 => 'five',
+        6 => 'six',
+        7 => 'seven',
+        8 => 'eight',
+        9 => 'nine',
+        10 => 'ten',
+        11 => 'eleven',
+        12 => 'twelve',
+        13 => 'thirteen',
+        14 => 'fourteen',
+        15 => 'fifteen',
+        16 => 'sixteen',
+        17 => 'seventeen',
+        18 => 'eighteen',
+        19 => 'nineteen',
+        20 => 'twenty',
+        30 => 'thirty',
+        40 => 'forty',
+        50 => 'fifty',
+        60 => 'sixty',
+        70 => 'seventy',
+        80 => 'eighty',
+        90 => 'ninety',
+        100 => 'hundred'
+        );
+    
+    $triplets = array(
+         '',
+         'thousand',
+         'million',
+         'billion',
+         'trillion',
+         'quadrillion',
+         'quintillion',
+         'sextillion',
+         'septillion',
+         'octillion',
+         'nonillion'
+          );
+    
+    // chunk the number, ...rxyy
+    $r = (int) ($num / 1000);
+    $x = ($num / 100) % 10;
+    $y = $num % 100;
+    
+    // init the output string
+    $str = '';
+
+    if ($x) {
+        $str = $words[$x] . ' ' . $words[100];
+    }
+
+    // do ones and tens
+    if ($y < 20) {
+        $str .= ' ' . $words[$y];
+    } else {
+        $str .= ' ' . $words[floor($y/10)*10] . ' ' . $words[$y % 10];
+    }
+
+    // add triplet modifier only if there
+    if ($str) $str .= ' ' . $triplets[$tri];
+    
+    // check caps
+    $str = $caps ? ucwords($str) : $str;
+    
+    if ($r) {
+        return num2word($r, $caps, $tri + 1) . ' ' . $str;
+    } else {
+        return $str;
+    }
+}

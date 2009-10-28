@@ -45,6 +45,8 @@ if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
 require_once CREOVEL_PATH . 'classes/object.php';
 require_once CREOVEL_PATH . 'modules/module_base.php';
 require_once CREOVEL_PATH . 'modules/inflector.php';
+require_once CREOVEL_PATH . 'classes/action_view.php';
+require_once CREOVEL_PATH . 'classes/action_controller.php';
 
 // Set default creovel global vars.
 $GLOBALS['CREOVEL']['MODE'] = 'production';
@@ -52,6 +54,10 @@ $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
 $GLOBALS['CREOVEL']['SESSION'] = true;
 $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
 $GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
+$GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
+$GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
+$GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
+$GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
 
 // set error handler
 require_once CREOVEL_PATH . 'classes/action_error_handler.php';
@@ -156,15 +162,7 @@ class Creovel
         if ($initialized) return $initialized;
         
         // Include framework base classes.
-        require_once CREOVEL_PATH . 'classes/action_controller.php';
-        require_once CREOVEL_PATH . 'classes/action_view.php';
         require_once CREOVEL_PATH . 'classes/action_router.php';
-        
-        // Set default creovel global vars.
-        $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
-        $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
-        $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
-        $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
         
         // Set routing defaults
         $GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());

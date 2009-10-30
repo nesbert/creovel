@@ -295,18 +295,18 @@ function num2word($num, $caps = true, $tri = 0)
         );
     
     $triplets = array(
-         '',
-         'thousand',
-         'million',
-         'billion',
-         'trillion',
-         'quadrillion',
-         'quintillion',
-         'sextillion',
-         'septillion',
-         'octillion',
-         'nonillion'
-          );
+        '',
+        'thousand',
+        'million',
+        'billion',
+        'trillion',
+        'quadrillion',
+        'quintillion',
+        'sextillion',
+        'septillion',
+        'octillion',
+        'nonillion'
+        );
     
     // chunk the number, ...rxyy
     $r = (int) ($num / 1000);
@@ -338,4 +338,25 @@ function num2word($num, $caps = true, $tri = 0)
     } else {
         return $str;
     }
+}
+
+/**
+ * Escape a string without connecting to a DB.
+ *
+ * @return string
+ * @link http://www.gamedev.net/community/forums/topic.asp?topic_id=448909
+ **/
+function escape_string($str)
+{
+    $search = array("\x00",	"\n", "\r", "\\", "'", "\"", "\x1a");
+    $replace = array("\\x00", "\\n", "\\r", "\\\\" ,"\'", "\\\"", "\\\x1a");
+    return strtr(str_replace($search, $replace, $str), array(
+        "\x00" => '\x00',
+        "\n" => '\n', 
+        "\r" => '\r', 
+        '\\' => '\\\\',
+        "'" => "\'", 
+        '"' => '\"', 
+        "\x1a" => '\x1a'
+        ));
 }

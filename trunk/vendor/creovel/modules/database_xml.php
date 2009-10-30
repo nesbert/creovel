@@ -12,11 +12,11 @@
 class DatabaseXML extends ModuleBase
 {
     /**
-     * Table name.
+     * Class name.
      *
      * @var string
      **/
-    private $_table_name_ = '';
+    private $_model_ = '';
     
     
     /**
@@ -36,25 +36,14 @@ class DatabaseXML extends ModuleBase
     /**
      * Class construct.
      *
-     * @param string $table_name
+     * @param string $model ActiveRecord object
      * @return string $file
      * @return void
      **/
-    public function __construct($name = null, $file = null)
+    public function __construct($model = null, $file = null)
     {
-        $this->set_table_name($name);
+        $this->_model_ = $model;
         if ($file) $this->load_file($file);
-    }
-    
-    /**
-     * Set table name.
-     *
-     * @param string $table_name
-     * @return void
-     **/
-    public function set_table_name($name)
-    {
-        $this->_table_name_ = $name;
     }
     
     /**
@@ -68,9 +57,7 @@ class DatabaseXML extends ModuleBase
         if ($file) {
             $this->_schema_file_ = $file;
         } else {
-            $file = Inflector::underscore($this->_table_name_);
-            $file = Inflector::singularize($file);
-            $this->_schema_file_ = SCHEMAS_PATH . strtolower($file) . '.xml';
+            $this->_schema_file_ = SCHEMAS_PATH . Inflector::underscore($this->_model_) . '.xml';
         }
         
         if (file_exists($this->_schema_file_)) {
@@ -100,45 +87,25 @@ class DatabaseXML extends ModuleBase
         //  set class name
         $class_name = empty($options['class_name']) ? '' : $options['class_name'];
         
-        // if class use model to get columns
-        if ($class_name) {
-            // load class without initializing
-            $obj = new $class_name(null, null, false);
-            $cols = $obj->columns(true);
-            
-            // set db settings
-            $settings = $obj->connection_properties();
-            
-            // if table not set use model
-            if (empty($options['table_name'])) {
-                $options['table_name'] = $obj->table_name();
-            }
+        if (empty($class_name)) {
+            self::throw_error("Model name needed for <strong>DatabaseXML</strong>.");
         }
         
-        //  set table name
-        $table_name = empty($options['table_name']) ? '' : $options['table_name'];
+        // load class without initializing
+        $obj = new $class_name(null, null, false);
+        $cols = $obj->columns(true);
         
-        if (empty($options['table_name'])) {
-            self::throw_error("Table name needed for <strong>DatabaseXML</strong>.");
-        }
+        // set db settings
+        $settings = $obj->connection_properties();
         
-        // if class use model to get columns
-        if (empty($cols)) {
-            // get columns info from DB
-            $db = ActiveRecord::table_object($options['table_name']);
-            $cols = $db->columns($options['table_name']);
-            // set db settings
-            $settings = $db->connection_properties();
-        }
+        // if table not set use model
+        $options['table_name'] = $obj->table_name();
         
         //  set file path
         $file = empty($options['file']) ? '' : $options['file'];
         if (!$file) {
-            $table_name = Inflector::underscore($table_name);
-            $table_name = Inflector::singularize($table_name);
-            
             // use default path dir for schemas
-            $file = SCHEMAS_PATH . $table_name . '.xml';
+            $file = SCHEMAS_PATH . Inflector::underscore($class_name) . '.xml';
         }
         
         // create DOM

@@ -112,6 +112,13 @@ interface AdapterInterface
     public function reset();
     
     /**
+     * Free results resource.
+     *
+     * @return boolean
+     **/
+    public function free_result();
+    
+    /**
      * Transaction methods.
      */
     

@@ -247,6 +247,19 @@ class Object implements Iterator
     }
     
     /**
+     * Count how many items are set.
+     *
+     * @return integer
+     **/
+    public function count()
+    {
+        if (isset($this->_items_)) {
+            return count($this->_items_);
+        }
+        return 0;
+    }
+    
+    /**
      * General magic methods.
      */
     

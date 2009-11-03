@@ -1310,6 +1310,20 @@ class ActiveRecord extends Object
         }
     }
     
+    /**
+     * Free result object.
+     *
+     * @return void
+     **/
+    public function free_result()
+    {
+        if (!empty($this->_select_query_->result)) {
+            return $this->_select_query_->free_result();
+        }
+        
+        return false;
+    }
+    
     // Section: Magic Functions
     
     /**

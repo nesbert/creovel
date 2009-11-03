@@ -248,8 +248,18 @@ class MysqlImproved extends AdapterBase implements AdapterInterface, Iterator
         
         // release result resource
         if (is_resource($this->db) && is_resource($this->result)) {
-            $this->result->close();
+            $this->free_result();
         }
+    }
+    
+    /**
+     * Free results resource.
+     *
+     * @return boolean
+     **/
+    public function free_result()
+    {
+        return $this->result->close();
     }
     
     /**

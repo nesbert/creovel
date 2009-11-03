@@ -266,8 +266,18 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         
         // release result resource
         if (is_resource($this->db) && !empty($this->result) && is_resource($this->result)) {
-            mysql_free_result($this->result);
+            $this->free_result();
         }
+    }
+    
+    /**
+     * Free results resource.
+     *
+     * @return boolean
+     **/
+    public function free_result()
+    {
+        return mysql_free_result($this->result);
     }
     
     /**

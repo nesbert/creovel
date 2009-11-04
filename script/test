@@ -48,11 +48,11 @@ if (count($files)) foreach ($files as $file) {
 		
 		if (starts_with('OK ', $result)) {
 			$ok++;
-			if (preg_match('/([0-9]+) tests/', $result, $match1)) {
+			if (preg_match('/([0-9]+) test/', $result, $match1)) {
 				$tests += $match1[1];
 			}
 
-			if (preg_match('/([0-9]+) assertions/', $result, $match2)) {
+			if (preg_match('/([0-9]+) assertion/', $result, $match2)) {
 				$assertions += $match2[1];
 			}
 		} else {

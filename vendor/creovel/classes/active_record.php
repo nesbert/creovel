@@ -548,7 +548,7 @@ class ActiveRecord extends Object
         // 3. array with symbols
         } elseif (is_array($conditions) && in_string(':', $conditions[0])) {
             $str = $conditions[0];
-            foreach ($conditions[1] as $k => $v) {
+            if (is_array($conditions[1])) foreach ($conditions[1] as $k => $v) {
                 $str = str_replace(':' . $k, $this->quote_value($v), $str);
             }
             if ($isolate) {
@@ -610,9 +610,9 @@ class ActiveRecord extends Object
      * @param array $params
      * @return string
      **/
-    public function prepare($sql, $params)
+    public function prepare()
     {
-        return $this->_prepared_query_ = $this->build_query_from_conditions(array($sql, $params), false);
+        return $this->_prepared_query_ = $this->build_query_from_conditions(func_get_args(), false);
     }
     
     /**

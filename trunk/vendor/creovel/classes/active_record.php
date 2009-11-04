@@ -300,7 +300,7 @@ class ActiveRecord extends Object
      *
      * @param string $sql
      * @param boolean $type 'all', 'first'
-     * @return void
+     * @return object
      **/
     final public function find_by_sql($sql, $type = 'all')
     {
@@ -600,6 +600,31 @@ class ActiveRecord extends Object
                         $this->primary_keys_and_values()
                     ), $isolate);
         }
+    }
+    
+    /**
+     * Prepare a SQL statement for execution. Accepts a conditions array
+     * argument array.
+     *
+     * @param string $sql
+     * @param array $params
+     * @return string
+     **/
+    public function prepare($sql, $params)
+    {
+        return $this->_prepared_query_ = $this->build_query_from_conditions(array($sql, $params), false);
+    }
+    
+    /**
+     * Execute prepared SQL statement.
+     *
+     * @param boolean $load_first
+     * @return object/false
+     **/
+    public function execute($load_first = false)
+    {
+        if (empty($this->_prepared_query_)) return false;
+        return $this->find_by_sql($this->_prepared_query_, $load_first ? 'first' : 'all');
     }
     
     /**
@@ -1384,6 +1409,7 @@ class ActiveRecord extends Object
                     break;
                     
                 // allow hidden properties
+                case $attribute == '_prepared_query_':
                 case $attribute == '_mode_':
                 case $attribute == '_host_':
                 case $attribute == '_port_':

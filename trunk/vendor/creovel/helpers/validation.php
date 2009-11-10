@@ -85,9 +85,11 @@ function is_alpha_numeric($var)
  * @return boolean
  * @author Nesbert Hidalgo
  **/
-function is_number($var)
-{
-    return preg_match('/^[0-9]+?[.]?[0-9]*$/', $var) ? true : false;
+if (!function_exists('is_number')) {
+    function is_number($var)
+    {
+        return preg_match('/^[0-9]+?[.]?[0-9]*$/', $var) ? true : false;
+    }
 }
 
 /**

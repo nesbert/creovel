@@ -1324,6 +1324,16 @@ class ActiveRecord extends Object
     }
         
     /**
+     * Reload object from current select query.
+     *
+     * @return void
+     **/
+    final public function reload_record()
+    {
+        return  $this->load_by_primary_key($this->primary_keys_and_values());
+    }    
+    
+    /**
      * Reset values to there defaults.
      *
      * @return void

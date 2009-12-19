@@ -298,11 +298,12 @@ class Creovel
      *
      * @param string $event_to_return Name of event to return.
      * @param string $uri
+     * @param string $route_name Get events for specific route.
      * @return mixed 
      **/
-    public function events($event_to_return = null, $uri = null)
+    public function events($event_to_return = null, $uri = null, $route_name = '')
     {
-        $events = ActionRouter::events($uri);
+        $events = ActionRouter::events($uri, $route_name);
         return $event_to_return ? $events[$event_to_return] : $events;
     }
     

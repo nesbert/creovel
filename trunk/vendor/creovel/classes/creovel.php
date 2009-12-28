@@ -316,7 +316,7 @@ class Creovel
      **/
     public function params($param_to_return = null, $uri = null)
     {
-        $params = array_merge($_GET, $_POST, ActionRouter::params($uri));
+        $params = array_merge($_GET, $_POST, (array) ActionRouter::params($uri));
         return $param_to_return ? $params[$param_to_return] : $params;
     }
     

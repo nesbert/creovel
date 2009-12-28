@@ -95,7 +95,7 @@ class ActionRouter extends Object
         if (@!$events['action']) $events['action'] = $options['action'];
         
         // ceate regex
-        $regex_all = '([A-Za-z0-9_\-\+.\/]+|$)';
+        $regex_all = '([A-Za-z0-9_\-\+.:\/]+|$)';
         $pattern = '/^';
         foreach ($segments as $segment) {
             if ($segment->name == '*') {

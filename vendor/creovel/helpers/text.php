@@ -247,97 +247,101 @@ function ends_with($needle, $haystack)
 /**
  * Convert a number to word representation.
  *
- * @param integer $num 
+ * @param integer $num
+ * @param boolean $money
+ * @param boolean $caps
  * @return string
- * @author Nesbert Hidalgo
- * @link http://marc.info/?l=php-general&m=99928281523866&w=2
+ * @link http://us.php.net/manual/en/function.number-format.php#66895
  **/
-function num2word($num, $caps = true, $tri = 0)
+function num2words($num, $money = false, $caps = false, $c = 1)
 {
-    $num = (int) $num;
-    
-    // if negative
-    if ($num < 0) return 'negative ' . num2word(-$num);
-    // if zero
-    if ($num == 0) return 'zero';
-    
-    // number words
-    $words = array(
-        0 => '',
-        1 => 'one',
-        2 => 'two',
-        3 => 'three',
-        4 => 'four',
-        5 => 'five',
-        6 => 'six',
-        7 => 'seven',
-        8 => 'eight',
-        9 => 'nine',
-        10 => 'ten',
-        11 => 'eleven',
-        12 => 'twelve',
-        13 => 'thirteen',
-        14 => 'fourteen',
-        15 => 'fifteen',
-        16 => 'sixteen',
-        17 => 'seventeen',
-        18 => 'eighteen',
-        19 => 'nineteen',
-        20 => 'twenty',
-        30 => 'thirty',
-        40 => 'forty',
-        50 => 'fifty',
-        60 => 'sixty',
-        70 => 'seventy',
-        80 => 'eighty',
-        90 => 'ninety',
-        100 => 'hundred'
-        );
-    
-    $triplets = array(
-        '',
-        'thousand',
-        'million',
-        'billion',
-        'trillion',
-        'quadrillion',
-        'quintillion',
-        'sextillion',
-        'septillion',
-        'octillion',
-        'nonillion'
-        );
-    
-    // chunk the number, ...rxyy
-    $r = (int) ($num / 1000);
-    $x = ($num / 100) % 10;
-    $y = $num % 100;
-    
-    // init the output string
-    $str = '';
+    $ZERO = 'zero';
+    $MINUS = 'minus';
+    $lowName = array(
+        /* zero is shown as "" since it is never used in combined forms */
+        /* 0 .. 19 */
+        "", "one", "two", "three", "four", "five",
+        "six", "seven", "eight", "nine", "ten",
+        "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+        "sixteen", "seventeen", "eighteen", "nineteen");
 
-    if ($x) {
-        $str = $words[$x] . ' ' . $words[100];
+    $tys = array(
+        /* 0, 10, 20, 30 ... 90 */
+        "", "", "twenty", "thirty", "forty", "fifty",
+        "sixty", "seventy", "eighty", "ninety");
+
+    $groupName = array(
+        /* We only need up to a quintillion, since a long is about 9 * 10 ^ 18 */
+        /* American: unit, hundred, thousand, million, billion, trillion, quadrillion, quintillion */
+        "", "hundred", "thousand", "million", "billion",
+        "trillion", "quadrillion", "quintillion");
+
+    $divisor = array(
+        /* How many of this group is needed to form one of the succeeding group. */
+        /* American: unit, hundred, thousand, million, billion, trillion, quadrillion, quintillion */
+        100, 10, 1000, 1000, 1000, 1000, 1000, 1000) ;
+
+    $num = str_replace(",","",$num);
+    $num = number_format($num,2,'.','');
+    $cents = substr($num,strlen($num)-2,strlen($num)-1);
+    $num = (int)$num;
+
+    $s = "";
+
+    if ( $num == 0 ) $s = $ZERO;
+    $negative = ($num < 0 );
+    if ( $negative ) $num = -$num;
+    
+    // Work least significant digit to most, right to left.
+    // until high order part is all 0s.
+    for ( $i=0; $num>0; $i++ ) {
+        $remdr = (int)($num % $divisor[$i]);
+        $num = $num / $divisor[$i];
+    
+        // check for 1100 .. 1999, 2100..2999, ... 5200..5999
+        // but not 1000..1099,  2000..2099, ...
+        // Special case written as fifty-nine hundred.
+        // e.g. thousands digit is 1..5 and hundreds digit is 1..9
+        // Only when no further higher order.
+        if ( $i == 1 /* doing hundreds */ && 1 <= $num && $num <= 5 ) {
+            if ( $remdr > 0 ) {
+                $remdr = ($num * 10);
+                $num = 0;
+            } // end if
+        } // end if
+        if ( $remdr == 0 ){
+            continue;
+        }
+        $t = "";
+        if ( $remdr < 20 ){
+            $t = $lowName[$remdr];
+        } else if ( $remdr < 100 ) {
+            $units = (int)$remdr % 10;
+            $tens = (int)$remdr / 10;
+            $t = $tys [$tens];
+            if ( $units != 0 ) {
+                $t .= "-" . $lowName[$units];
+            }
+        } else {
+            $t = num2words($remdr, $money, $caps, 0);
+        }
+        $s = $t." ".$groupName[$i]." ".$s;
+        $num = (int)$num;
+    } // end for
+    $s = trim($s);
+    if ( $negative ) {
+        $s = $MINUS . " " . $s;
     }
 
-    // do ones and tens
-    if ($y < 20) {
-        $str .= ' ' . $words[$y];
-    } else {
-        $str .= ' ' . $words[floor($y/10)*10] . ' ' . $words[$y % 10];
+    if ($c == 1) {
+        if ($money) {
+            $s .= " dollars and $cents cents";
+        } else {
+            $s .= " and $cents/100";
+        }
     }
 
-    // add triplet modifier only if there
-    if ($str) $str .= ' ' . $triplets[$tri];
-    
-    // check caps
-    $str = $caps ? ucwords($str) : $str;
-    
-    if ($r) {
-        return num2word($r, $caps, $tri + 1) . ' ' . $str;
-    } else {
-        return $str;
-    }
+    return $caps ? ucwords($s) : $s;
 }
 
 /**
@@ -359,4 +363,37 @@ function escape_string($str)
         '"' => '\"', 
         "\x1a" => '\x1a'
         ));
+}
+
+/** 
+ * Split a string into groups of words with a line no longer than $max 
+ * characters. 
+ * 
+ * @param string $string 
+ * @param integer $max 
+ * @return array 
+ * @author Nesbert Hidalgo
+ * @link http://us.php.net/manual/en/function.preg-split.php#95924
+ **/ 
+function split_words($string, $max = 1) 
+{ 
+    $words = preg_split('/\s/', $string); 
+    $lines = array(); 
+    $line = ''; 
+    
+    foreach ($words as $k => $word) { 
+        $length = strlen($line . ' ' . $word); 
+        if ($length <= $max) { 
+            $line .= ' ' . $word; 
+        } else if ($length > $max) { 
+            if (!empty($line)) $lines[] = trim($line); 
+            $line = $word; 
+        } else { 
+            $lines[] = trim($line) . ' ' . $word; 
+            $line = ''; 
+        } 
+    } 
+    $lines[] = ($line = trim($line)) ? $line : $word; 
+
+    return $lines; 
 }

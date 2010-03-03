@@ -438,7 +438,9 @@ function countries($us_first = false, $show_abbr = false)
 function states($country = 'US', $show_abbr = false, $more_states = false)
 {
     static $states;
-    if (empty($states)) {
+    static $selected;
+    if ($selected != $country) {
+        $selected = $country;
         $states = array();
         $countries = countries_array($more_states);
         if (!empty($countries[$country]['states'])) {

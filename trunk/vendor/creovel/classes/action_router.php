@@ -94,6 +94,9 @@ class ActionRouter extends Object
         if (@!$events['controller']) $events['controller'] = $options['controller'];
         if (@!$events['action']) $events['action'] = $options['action'];
         
+        // controller index.php fix
+        $events['controller'] = basename($events['controller'], '.php');
+        
         // ceate regex
         $regex_all = '([A-Za-z0-9_\-\+.:\/]+|$)';
         $pattern = '/^';

@@ -90,7 +90,7 @@ class ActionErrorHandler extends Object
         if (!$has_errored) {
             $has_errored = true;
             // if command line show text errors
-            if (!empty($GLOBALS['CREOVEL']['CMD'])) {
+            if (!empty($GLOBALS['CREOVEL']['CMD']) || @AJAX_REQUEST) {
                 // only show erros in dev mode
                 if (CREO('mode') == 'development') {
                     header('Content-Type: text/plain; charset=utf-8');

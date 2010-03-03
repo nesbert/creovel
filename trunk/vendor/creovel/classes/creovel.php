@@ -15,6 +15,7 @@ define('CREOVEL_RELEASE_DATE', '2009-03-05 22:26:55');
 
 // Define environment constants.
 define('PHP', PHP_VERSION);
+define('AJAX_REQUEST', ((!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') || @$_REQUEST['_AJAX_']));
 
 // Define time constants.
 define('SECOND',  1);

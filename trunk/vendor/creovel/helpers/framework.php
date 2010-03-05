@@ -8,16 +8,22 @@
  * @since       Class available since Release 0.1.0
  **/
 
+// be kind to existing __autoload routines
+if ((int) str_replace('.', '', PHP) <= 512) {
+    function __autoload($class) { __autoload_creovel($class); }
+} else {
+    spl_autoload_register('__autoload_creovel');
+}
+
 /**
  * Autoload routine for controllers, interfaces, adapters, services, vendor,
- * mailer and models. Also creates "Virtual Model" if table exists (useful
- * for basic model functions and prototyping).
+ * mailer and models.
  *
  * @access private
  * @param string $class
  * @author Nesbert Hidalgo
  **/
-function __autoload($class)
+function __autoload_creovel($class)
 {
     try {
         // check for nested paths

@@ -37,6 +37,13 @@ require_once CREOVEL_PATH . 'helpers/server.php';
 require_once CREOVEL_PATH . 'helpers/text.php';
 require_once CREOVEL_PATH . 'helpers/validation.php';
 
+// Be kind to existing __autoload routines
+if (PHP <= '5.1.2') {
+    function __autoload($class) { __autoload_creovel($class); }
+} else {
+    spl_autoload_register('__autoload_creovel');
+}
+
 // Include application_helper
 if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
     require_once $helper;

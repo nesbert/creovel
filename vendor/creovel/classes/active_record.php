@@ -238,14 +238,9 @@ class ActiveRecord extends Object
                 $db_properties = self::connection_properties();
             }
             
-            $adapter_path = CREOVEL_PATH . 'adapters' . DS;
-            
-            // set adapter and include
             $adapter = strtolower($db_properties['adapter']);
             
-            if (file_exists($adapter_path . $adapter .'.php')) {
-                require_once $adapter_path . $adapter .'.php';
-                $adapter = Inflector::classify($adapter);
+            if (class_exists($adapter)) {
                 return new $adapter($db_properties);
             } else {
                 throw new Exception("Unknown database adapter '{$adapter}'. " .

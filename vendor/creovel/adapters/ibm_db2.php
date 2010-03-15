@@ -1,6 +1,6 @@
 <?php
 /**
- * ORM MySQLi Adapter.
+ * ORM IbmDb2 Adapter.
  *
  * @package     Creovel
  * @subpackage  Adapters
@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  */
-class MysqlImproved extends AdapterBase
+class IbmDb2 extends AdapterBase
 {
     /**
      * Database resource.
@@ -30,7 +30,7 @@ class MysqlImproved extends AdapterBase
      *
      * @var integer
      **/
-    public $offset = 0;
+    //public $offset = 0;
     
     /**
      * Pass an associative array of database settings to connect
@@ -45,7 +45,7 @@ class MysqlImproved extends AdapterBase
     }
     
     /**
-     * Opens a connection to the MySQL Server with $db_properties an
+     * Opens a connection to the server with $db_properties an
      * array of database settings.
      *
      * @param array $db_properties
@@ -53,23 +53,41 @@ class MysqlImproved extends AdapterBase
      **/
     public function connect($db_properties)
     {
-        // open a connection to a MySQL Server and set db_link
-        $this->db = @new mysqli(
-            $db_properties['host'],
-            $db_properties['username'],
-            $db_properties['password'],
-            $db_properties['default'],
-            isset($db_properties['port']) ? $db_properties['port'] : null,
-            isset($db_properties['socket']) ? $db_properties['socket'] : null
-            );
+        $server = $db_properties['host'];
         
-        if (mysqli_connect_error()) {
-            self::throw_error(mysqli_connect_error() . '.');
+        if (empty($db_properties['port'])) {
+            $db_properties['port'] = 50001;
         }
+        
+        if (!empty($db_properties['socket'])) {
+            $server = $db_properties['socket'];
+        }
+        
+        $conn_string = '';
+        $conn_string .= "DRIVER={IBM DB2 ODBC DRIVER};";
+        $conn_string .= "DATABASE={$db_properties['default']};";
+        $conn_string .= "HOSTNAME={$db_properties['host']};";
+        $conn_string .= "PORT={$db_properties['port']};";
+        $conn_string .= "PROTOCOL=TCPIP;";
+        $conn_string .= "UID={$db_properties['username']};";
+        $conn_string .= "PWD={$db_properties['password']};";
+        $this->db = db2_connect($conn_string, '', '');
+        
+        if (!$this->db) {
+            self::throw_error("Could not connect to server {$server} (" .
+                    db2_conn_errormsg() . ').');
+        }
+        
+        // 
+        // 
+        // if (!empty($db_properties['default'])
+        //     && !mysql_select_db($db_properties['default'], $this->db)) {
+        //     self::throw_error(mysql_error() . '.');
+        // }
     }
     
     /**
-     * Close current connection to the MySQL Server.
+     * Close current connection to the server.
      *
      * @return void
      **/
@@ -78,9 +96,9 @@ class MysqlImproved extends AdapterBase
         // close result resource
         $this->close();
         
-        // close MySQL connection
+        // close server connection
         if (isset($this->db) && is_resource($this->db)) {
-            $this->db->close();
+            return db2_close($this->db);
         }
     }
     
@@ -94,19 +112,31 @@ class MysqlImproved extends AdapterBase
      **/
     public function execute($query)
     {
-        $result = $this->db->query($query);
-        
         // log queries
         if (!empty($GLOBALS['CREOVEL']['LOG_QUERIES'])) {
             CREO('log', "Query: {$query}");
         }
         
-        if (!$result) {
-            self::throw_error("{$this->db->error} Query \"" .
-            str_replace(', ', ",\n", $query) . "\" failed. #{$this->db->errno}");
+        $query = str_replace_array($query, array(
+            'LIMIT 1' => 'OPTIMIZE FOR 1 ROWS'
+            ));
+        $query = str_replace(array('`', ')', '('), '', $query);
+        
+        echo $query;
+        
+        $stmt = db2_prepare($this->db, $query);
+        if (!$stmt) {
+            self::throw_error(db2_stmt_errormsg() . " Query \"" .
+            str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
         }
         
-        return $result;
+        $result = db2_execute($stmt, array());
+        if (!$result) {
+            self::throw_error(db2_stmt_errormsg() . " Query \"" .
+            str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
+        }
+        
+        return $stmt;
     }
     
     /**
@@ -123,7 +153,12 @@ class MysqlImproved extends AdapterBase
         // set database property
         $this->query = $query;
         
-        // send a MySQL query and set query_link resource on success
+        // if connection lost reconnect
+        if (!is_resource($this->db)) {
+            $this->connect(ActiveRecord::connection_properties());
+        }
+        
+        // send a query and set query_link resource on success
         return $this->result = $this->execute($query);
     }
     
@@ -135,7 +170,7 @@ class MysqlImproved extends AdapterBase
     public function close()
     {
         if (isset($this->result) && is_resource($this->result)) {
-            $this->result->close();
+            $this->free_result($this->result);
         }
     }
     
@@ -145,9 +180,9 @@ class MysqlImproved extends AdapterBase
      *
      * @return object
      **/
-    public function get_row()
+    public function get_row($result = null)
     {
-        return $this->result->fetch_object();
+        return db2_fetch_object($result ? $result : $this->result);
     }
     
     /**
@@ -158,34 +193,31 @@ class MysqlImproved extends AdapterBase
      */
     public function columns($table_name)
     {
-        // send a DESCRIBE query and set result on success
-        $sql = "DESCRIBE `{$table_name}`;";
-        $result = $this->execute($sql);
-        
+        $table_name = strtoupper($table_name);
         // set fields object to return
         $fields = array();
         
         // foreach row in results insert into fields object
-        while ($row = @$result->fetch_assoc()) {
-            
-            // set fields into an associative array
-            foreach ($row as $key => $value) {
-                if ($key != 'Field') {
-                    $temp_arr[strtolower($key)] = $value;
-                }
-            }
-            // get default value for field
-            if ($row['Default'] !== 'NULL') {
-                $temp_arr['value'] = $row['Default'];
-            } else {
-                $temp_arr['value'] = null;
-            }
-            
-            // set property in fields object
-            $fields[$row['Field']] = (object) $temp_arr;
+        $result = db2_columns($this->db, null, null, $table_name);
+        while ($row = $this->get_row($result)) {
+            $fields[$row->COLUMN_NAME] = new stdClass;
+            $fields[$row->COLUMN_NAME]->type = strtoupper($row->TYPE_NAME);
+            $fields[$row->COLUMN_NAME]->null = $row->IS_NULLABLE;
+            $fields[$row->COLUMN_NAME]->default = null;
+            $fields[$row->COLUMN_NAME]->extra = null;
+            $fields[$row->COLUMN_NAME]->value = null;
         }
+        $this->free_result($result);
         
-        $result->close();
+        // get and set primary key info
+        $result = db2_primary_keys($this->db, null, null, $table_name);
+        while ($row = $this->get_row($result)) {
+            if (isset($fields[$row->COLUMN_NAME])) {
+                $fields[$row->COLUMN_NAME]->key = 'PRI';
+                $fields[$row->COLUMN_NAME]->key_name = $row->PK_NAME;
+            }
+        }
+        $this->free_result($result);
         
         return $fields;
     }
@@ -195,9 +227,9 @@ class MysqlImproved extends AdapterBase
      *
      * @return integer
      */
-    public function total_rows()
+    public function total_rows($result = null)
     {
-        return @$this->result->num_rows;
+        return @db2_num_rows($result ? $result : $this->result);
     }
     
     /**
@@ -207,7 +239,7 @@ class MysqlImproved extends AdapterBase
      */
     public function affected_rows()
     {
-        return @$this->db->affected_rows;
+        return @db2_num_rows($this->db);
     }
     
     /**
@@ -217,7 +249,7 @@ class MysqlImproved extends AdapterBase
      */
     public function insert_id()
     {
-        return @$this->db->insert_id;
+        return @db2_last_insert_id($this->db);
     }
     
     /**
@@ -228,7 +260,7 @@ class MysqlImproved extends AdapterBase
      */
     public function escape($string)
     {
-        return @$this->db->real_escape_string($string);
+        return @db2_escape_string($string);
     }
     
     /**
@@ -243,7 +275,7 @@ class MysqlImproved extends AdapterBase
         $this->offset = 0;
         
         // release result resource
-        if (is_resource($this->db) && is_resource($this->result)) {
+        if (is_resource($this->db) && !empty($this->result) && is_resource($this->result)) {
             $this->free_result();
         }
     }
@@ -253,9 +285,9 @@ class MysqlImproved extends AdapterBase
      *
      * @return boolean
      **/
-    public function free_result()
+    public function free_result($result = null)
     {
-        return $this->result->close();
+        return @db2_free_result($result ? $result : $this->result);
     }
     
     /**
@@ -270,46 +302,10 @@ class MysqlImproved extends AdapterBase
      **/
     public function valid()
     {
-        return $this->result->data_seek($this->offset);
-    }
-    
-    /**
-     * Transaction methods. Will revisit later base methods still work
-     * as usual with MySQLi.
-     */
-    
-    // /**
-    //  * BEGIN transaction.
-    //  *
-    //  * @return void
-    //  **/
-    // public function start_tran()
-    // {
-    //     $this->db->autocommit(false);
-    //     #$this->execute('START TRANSACTION;');
-    // }
-    // 
-    // /**
-    //  * ROLLBACK transaction.
-    //  *
-    //  * @return void
-    //  **/
-    // public function rollback()
-    // {
-    //     $this->db->rollback();
-    //     #$this->execute('ROLLBACK;');
-    //     $this->db->autocommit(true);
-    // }
-    // 
-    // /**
-    //  * COMMIT transaction.
-    //  *
-    //  * @return void
-    //  **/
-    // public function commit()
-    // {
-    //     $this->db->commit();
-    //     #$this->execute('COMMIT;');
-    //     $this->db->autocommit(true);
-    // }
-} // END class MysqlImproved extends AdapterBase
+        if ($this->offset < $this->total_rows()) {
+            return db2_fetch_row($this->result, $this->offset);
+        } else {
+            return false;
+        }
+    } 
+} // END class IbmDb2 extends AdapterBase

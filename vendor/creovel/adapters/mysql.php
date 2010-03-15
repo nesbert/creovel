@@ -8,11 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  */
-
-// include base and interface classes.
-require_once 'adapter_base.php';
-
-class Mysql extends AdapterBase implements AdapterInterface, Iterator
+class Mysql extends AdapterBase
 {
     /**
      * Database resource.
@@ -157,7 +153,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
     public function close()
     {
         if (isset($this->result) && is_resource($this->result)) {
-            mysql_free_result($this->result);
+            $this->free_result($this->result);
         }
     }
     
@@ -167,9 +163,9 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      *
      * @return object
      **/
-    public function get_row()
+    public function get_row($result = null)
     {
-        return mysql_fetch_object($this->result);
+        return mysql_fetch_object($result ? $result : $this->result);
     }
     
     /**
@@ -188,7 +184,7 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
         $fields = array();
         
         // foreach row in results insert into fields object
-        while ($row = mysql_fetch_assoc($result)) {
+        while ($row = $this->get_row($result)) {
             
             // set fields into an associative array
             foreach ($row as $key => $value) {
@@ -197,17 +193,17 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
                 }
             }
             // get default value for field
-            if ($row['Default'] !== 'NULL') {
-                $temp_arr['value'] = $row['Default'];
+            if ($row->Default !== 'NULL') {
+                $temp_arr['value'] = $row->Default;
             } else {
                 $temp_arr['value'] = null;
             }
             
             // set property in fields object
-            $fields[$row['Field']] = (object) $temp_arr;
+            $fields[$row->Field] = (object) $temp_arr;
         }
         
-        mysql_free_result($result);
+        $this->free_result($result);
         
         return $fields;
     }
@@ -217,9 +213,9 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      *
      * @return integer
      */
-    public function total_rows()
+    public function total_rows($result = null)
     {
-        return @mysql_num_rows($this->result);
+        return @mysql_num_rows($result ? $result : $this->result);
     }
     
     /**
@@ -275,71 +271,14 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
      *
      * @return boolean
      **/
-    public function free_result()
+    public function free_result($result = null)
     {
-        return mysql_free_result($this->result);
+        return mysql_free_result($result ? $result : $this->result);
     }
     
     /**
      * Iterator methods.
      */
-    
-    /**
-     * Set the result object pointer to its first element.
-     *
-     * @return void
-     **/
-    public function rewind()
-    {
-        $this->offset = 0;
-    }
-    
-    /**
-     * Returns an associative array of the current row.
-     * 
-     * @return array
-     * @see function get_row
-     **/
-    public function current()
-    {
-        return $this->get_row();
-    }
-    
-    /**
-     * Returns the index element of the current result object pointer.
-     *
-     * @return integer
-     **/
-    public function key()
-    {
-        return (int) $this->offset;
-    }
-    
-    /**
-     * Advance the result object pointer and return an associative
-     * array of the current row.
-     * 
-     * @return array
-     * @see function current
-     **/
-    public function next()
-    {
-        $this->offset++;
-        return $this->current();
-    }
-    
-    /**
-     * Rewind the result object pointer by one and return an associative
-     * array of the current row.
-     *
-     * @return array
-     * @see function current
-     **/
-    public function prev()
-    {
-        $this->offset--;
-        return $this->current();
-    }
     
     /**
      * Adjusts the result pointer to an arbitrary row in the result
@@ -355,4 +294,4 @@ class Mysql extends AdapterBase implements AdapterInterface, Iterator
             return false;
         }
     } 
-} // END class Mysql extends AdapterBase implements AdapterInterface, Iterator
+} // END class Mysql extends AdapterBase

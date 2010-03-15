@@ -12,7 +12,7 @@
 // include adapter interface.
 require_once 'adapter_interface.php';
 
-abstract class AdapterBase extends Object
+abstract class AdapterBase extends Object implements AdapterInterface, Iterator
 {
     /**
      * Stop the application and display/handle error.
@@ -27,6 +27,67 @@ abstract class AdapterBase extends Object
         }
         CREO('error_code', 500);
         CREO('application_error', $msg);
+    }
+    
+    /**
+     * Iterator methods.
+     */
+    
+    /**
+     * Set the result object pointer to its first element.
+     *
+     * @return void
+     **/
+    public function rewind()
+    {
+        $this->offset = 0;
+    }
+    
+    /**
+     * Returns an associative array of the current row.
+     * 
+     * @return array
+     * @see function get_row
+     **/
+    public function current()
+    {
+        return $this->get_row();
+    }
+    
+    /**
+     * Returns the index element of the current result object pointer.
+     *
+     * @return integer
+     **/
+    public function key()
+    {
+        return (int) $this->offset;
+    }
+    
+    /**
+     * Advance the result object pointer and return an associative
+     * array of the current row.
+     * 
+     * @return array
+     * @see function current
+     **/
+    public function next()
+    {
+        $this->offset++;
+        return $this->current();
+    }
+    
+    /**
+     * Rewind the result object pointer by one and return an associative
+     * array of the current row.
+     *
+     * @return array
+     * @see function current
+     **/
+    public function prev()
+    {
+        $this->offset--;
+        return $this->current();
     }
     
     /**
@@ -62,4 +123,4 @@ abstract class AdapterBase extends Object
     {
         $this->execute('COMMIT;');
     }
-} // END abstract class AdapterBase extends Object
+} // END abstract class AdapterBase extends Object implements AdapterInterface, Iterator

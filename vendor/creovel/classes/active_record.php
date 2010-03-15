@@ -238,7 +238,7 @@ class ActiveRecord extends Object
                 $db_properties = self::connection_properties();
             }
             
-            $adapter = strtolower($db_properties['adapter']);
+            $adapter = $db_properties['adapter'];
             
             if (class_exists($adapter)) {
                 return new $adapter($db_properties);
@@ -704,8 +704,10 @@ class ActiveRecord extends Object
      **/
     final public function table_name($table_name = '')
     {
-        return $this->_table_name_ = $table_name ? $table_name :
-            ($this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name()));
+        $this->_table_name_ = $table_name ? $table_name : $this->_table_name_;
+        $this->_table_name_ = $this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name());
+        if (0) $this->_table_name_ = strtoupper($this->_table_name_);
+        return $this->_table_name_;
     }
     
     /**
@@ -883,7 +885,7 @@ class ActiveRecord extends Object
         if (empty($this->_primary_key_)) {
             // find primary keys
             foreach ($this->columns() as $column => $attr) {
-                if ($attr->key == 'PRI') {
+                if (isset($attr->key) && $attr->key == 'PRI') {
                     $this->_primary_key_[] = $column;
                 }
             }

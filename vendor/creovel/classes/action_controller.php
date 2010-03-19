@@ -413,6 +413,29 @@ abstract class ActionController extends Object
     }
     
     /**
+     * Set $this->layout and $this->render to false.
+     *
+     * @return void
+     **/
+    public function no_view()
+    {
+        $this->layout = false;
+        $this->render = false;
+    }
+    
+    /**
+     * Set $this->render_text with an option to append to it.
+     *
+     * @param string $text
+     * @param boolean $append
+     * @return void
+     **/
+    public function render_text($text, $append = false)
+    {
+        $this->render_text = $append ? $this->render_text . $text : $text;
+    }
+    
+    /**
      * Check if current page has posted values.
      *
      * @return boolean
@@ -425,16 +448,18 @@ abstract class ActionController extends Object
     /**
      * Stop the application at the controller level during an error.
      *
+     * @param string $msg
+     * @param integer $error_code
      * @return void
      **/
-    public function throw_error($msg = null)
+    public function throw_error($msg = null, $error_code = 404)
     {
         if (!$msg) {
             $msg = 'An error occurred while executing the action ' .
             "<em>{$this->_action}</em> in the <strong> " . get_class($this) .
             '</strong>.';
         }
-        CREO('error_code', 404);
+        CREO('error_code', $error_code);
         CREO('application_error', $msg);
     }
     

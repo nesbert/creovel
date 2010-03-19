@@ -75,6 +75,11 @@ class ActionErrorHandler extends Object
         
         // set header for error pages
         switch ($GLOBALS['CREOVEL']['ERROR_CODE']) {
+            case '401':
+                @header('Status: 401 Unauthorized', true, 404);
+                $action = 'unauthorized';
+                break;
+                
             case '404':
                 @header('Status: 404 Not Found', true, 404);
                 $action = 'not_found';

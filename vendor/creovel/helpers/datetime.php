@@ -59,6 +59,18 @@ function datetime($datetime = null)
 }
 
 /**
+ * Returns the current time measured in the number of seconds since the Unix Epoch
+ * (January 1 1970 00:00:00 GMT) in GMT
+ *
+ * @return integer
+ * @author John Faircloth
+ **/
+function gmtime()
+{
+    return strtotime(gmdate('Y-m-d H:i:s'));
+}
+
+/**
  * MySQL Timestamp of from current time in GMT.
  *
  * @param mixed $datetime Accepts either an array, unix timestamp or string.
@@ -66,7 +78,7 @@ function datetime($datetime = null)
  * @return string Date and time stamp.
  * @author Nesbert Hidalgo
  **/
-function gmtime($datetime = null)
+function gmdatetime($datetime = null)
 {
     return gmdate('Y-m-d H:i:s', ($datetime
                                     ? strtotime(datetime($datetime))

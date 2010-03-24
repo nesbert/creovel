@@ -19,7 +19,7 @@
  **/
 function is_hostname($var)
 {
-    return eregi('^[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$', $var)
+    return eregi('^[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', $var)
             && $var{0} != '-' ? true : false;
 }
 

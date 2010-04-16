@@ -32,6 +32,8 @@ class ActionMailer extends ActionController
     public $body;
     public $text;
     public $html;
+    public $layout_path = '';
+    public $view_path = '';
     
     private $__content_type = 'text/plain';
     private $__content_transfer_encoding = '7bit';
@@ -367,15 +369,24 @@ class ActionMailer extends ActionController
     {
         if ($this->html) return $this->html;
         
-        $html = $this->get_include_contents(
-            VIEWS_PATH . underscore($this->to_string()) . DS .
-            $this->_action . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION']
-            );
+        if ($this->view_path) {
+            $view_path = $this->view_path;
+        } else {
+            $view_path = VIEWS_PATH . Inflector::patherize($this->to_string()) . DS;
+        }
+        
+        $html = $this->get_include_contents($view_path . $this->_action . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION']);
         
         // insert html into layout (template) for html verison of the message
         if (!empty($this->layout)) {
-            $template_path = VIEWS_PATH . 'layouts' . DS .
-                $this->layout . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
+            
+            if ($this->layout_path) {
+                $layout_path = $this->layout_path;
+            } else {
+                $layout_path = VIEWS_PATH . 'layouts' . DS;
+            }
+            
+            $template_path =  $layout_path . $this->layout . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
             $html = str_replace(
                         '@@page_contents@@',
                         $html, 

@@ -322,4 +322,24 @@ class Inflector extends ModuleBase
             }
         }
     }
+    
+    /**
+     * Create a path string from class name. This method converts
+     * API_PersonSubclass to api/person_subclass
+     *
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public function patherize($class)
+    {
+        if (in_string('_', $class)) {
+            $folders = explode('_', $class);
+            foreach ($folders as $k => $v) {
+                $folders[$k] = self::underscore($v);
+            }
+            return implode(DS, $folders);
+        } else {
+            return self::underscore($class);
+        }
+    }
 } // END class Inflector extends ModuleBase

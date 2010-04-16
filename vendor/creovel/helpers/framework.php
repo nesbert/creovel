@@ -20,15 +20,7 @@ function __autoload_creovel($class)
 {
     try {
         // check for nested paths
-        if (in_string('_', $class)) {
-            $folders = split('_', $class);
-            foreach ($folders as $k => $v) {
-                $folders[$k] = Inflector::underscore($v);
-            }
-            $class = implode(DS, $folders);
-        } else {
-            $class = Inflector::underscore($class);
-        }
+        $class = Inflector::patherize($class);
         
         // make all file names under score
         $class = strtolower($class);
@@ -83,7 +75,11 @@ function __autoload_creovel($class)
             $file = $class;
             if ($type == 'Controller') CREO('error_code', 404);
             if ($type == 'Controller' || $type == 'Model' || $type == 'Mailer') {
-                $class = Inflector::classify($class);
+                $folders = explode('/', $class);
+                foreach ($folders as $k => $v) {
+                    $folders[$k] = Inflector::classify($v);
+                }
+                $class = implode('_', $folders);
             }
             throw new Exception("{$class} not found in <strong>{$path}</strong>");
         }

@@ -100,6 +100,17 @@ class Object implements Iterator
     }
     
     /**
+     * Convert class name to string path.
+     *
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public function to_string_path()
+    {
+        return Inflector::patherize($this->to_string());
+    }
+    
+    /**
      * Stop the application and display/handle error. Override accordingly.
      *
      * @return void

@@ -106,8 +106,9 @@ class ActionErrorHandler extends Object
                 // get default error events
                 $events = ActionRouter::error();
                 if (isset($action)) $events['action'] = $action;
+                
                 // set params
-                $params = array('error' => $this->message, 'exception' => $this->exception);
+                $params = (array) Creovel::params() + array('error' => $this->message, 'exception' => $this->exception);
                 // clean output buffer for application errors
                 @ob_end_clean();
                 Creovel::run($events, $params);

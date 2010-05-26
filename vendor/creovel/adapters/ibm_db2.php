@@ -18,6 +18,20 @@ class IbmDb2 extends AdapterBase
     public $db;
     
     /**
+     * Database name.
+     *
+     * @var resource
+     **/
+    public $database;
+    
+    /**
+     * Database schema.
+     *
+     * @var resource
+     **/
+    public $schema;
+    
+    /**
      * SQL query string.
      *
      * @var string
@@ -63,27 +77,30 @@ class IbmDb2 extends AdapterBase
             $server = $db_properties['socket'];
         }
         
-        $conn_string = '';
-        $conn_string .= "DRIVER={IBM DB2 ODBC DRIVER};";
-        $conn_string .= "DATABASE={$db_properties['default']};";
-        $conn_string .= "HOSTNAME={$db_properties['host']};";
-        $conn_string .= "PORT={$db_properties['port']};";
-        $conn_string .= "PROTOCOL=TCPIP;";
-        $conn_string .= "UID={$db_properties['username']};";
-        $conn_string .= "PWD={$db_properties['password']};";
+        $conn_string = sprintf(
+                        "DRIVER={IBM DB2 ODBC DRIVER};DATABASE=%s;HOSTNAME=%s;PORT=%d;PROTOCOL=TCPIP;UID=%s;PWD=%s;",
+                        $db_properties['database'],
+                        $db_properties['host'],
+                        $db_properties['port'],
+                        $db_properties['username'],
+                        $db_properties['password']
+                        );
+        
+        $this->database = $db_properties['database'];
+        $this->schema = $db_properties['schema'];
+        
         $this->db = db2_connect($conn_string, '', '');
         
-        if (!$this->db) {
+        if (empty($this->db)) {
             self::throw_error("Could not connect to server {$server} (" .
                     db2_conn_errormsg() . ').');
         }
         
-        // 
-        // 
-        // if (!empty($db_properties['default'])
-        //     && !mysql_select_db($db_properties['default'], $this->db)) {
-        //     self::throw_error(mysql_error() . '.');
-        // }
+        if (empty($this->schema)) {
+            self::throw_error("No schema schema set.");
+        }
+        
+        $this->execute(sprintf("SET SCHEMA \"%s\";", $this->schema));
     }
     
     /**
@@ -122,7 +139,7 @@ class IbmDb2 extends AdapterBase
             ));
         $query = str_replace(array('`', ')', '('), '', $query);
         
-        echo $query;
+        echo $query . __LINE__ . '<br>';
         
         $stmt = db2_prepare($this->db, $query);
         if (!$stmt) {
@@ -198,7 +215,7 @@ class IbmDb2 extends AdapterBase
         $fields = array();
         
         // foreach row in results insert into fields object
-        $result = db2_columns($this->db, null, null, $table_name);
+        $result = db2_columns($this->db, null, $this->schema, $table_name, '%');
         while ($row = $this->get_row($result)) {
             $fields[$row->COLUMN_NAME] = new stdClass;
             $fields[$row->COLUMN_NAME]->type = strtoupper($row->TYPE_NAME);
@@ -210,7 +227,8 @@ class IbmDb2 extends AdapterBase
         $this->free_result($result);
         
         // get and set primary key info
-        $result = db2_primary_keys($this->db, null, null, $table_name);
+        $result = db2_primary_keys($this->db, null, $this->schema, $table_name);
+        
         while ($row = $this->get_row($result)) {
             if (isset($fields[$row->COLUMN_NAME])) {
                 $fields[$row->COLUMN_NAME]->key = 'PRI';

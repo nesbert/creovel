@@ -15,7 +15,7 @@ CREO('database', array(
     'host'      => 'localhost',
     'username'  => '',
     'password'  => '',
-    'default'   => 'creovel_development'
+    'database'  => 'creovel_development'
     ));
 
 /**
@@ -27,7 +27,7 @@ CREO('database', array(
     'host'      => 'localhost',
     'username'  => '',
     'password'  => '',
-    'default'   => 'creovel_test'
+    'database'  => 'creovel_test'
     ));
 
 /**
@@ -39,5 +39,5 @@ CREO('database', array(
     'host'      => 'localhost',
     'username'  => '',
     'password'  => '',
-    'default'   => 'creovel_production'
+    'database'  => 'creovel_production'
     ));

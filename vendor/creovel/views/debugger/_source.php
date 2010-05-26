@@ -8,7 +8,7 @@
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0 
  **/
-?><div class="code" id="source_<?=$trace_count?>" style="display:<?=( isset($_GET['view_source']) ? 'block' : 'none' )?>;">
+?><div class="code" id="source_<?php echo $trace_count; ?>" style="display:<?php echo(isset($_GET['view_source']) ? 'block' : 'none' ); ?>;">
     <table cellspacing="0" class="source">
     <tr>
         <td>
@@ -56,7 +56,7 @@ if ($handle) {
 ?>
             </code>
         </td>
-        <td><?=highlight_file($trace['file'], true)?></td>
+        <td><?php echo highlight_file($trace['file'], true); ?></td>
     </tr>
     </table>
 </div>

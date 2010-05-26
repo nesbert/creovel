@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0 
  **/
 ?><h1 class="top">Application Error</h1>
-<p class="top"><?=$this->message?></p>
+<p class="top"><?php echo $this->message; ?></p>
 
 <?php if ((is_object($this->exception)) && ($error_count = count($this->exception->getTrace()))) { ?>
 <h1>Debug Trace</h1>
@@ -30,10 +30,10 @@ $offset = 0;
     ?>
     <li>
         <?php if (CREO('show_source') && CREO('mode') == 'development' ) { ?>
-        #<?=$num?> <?=(isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '')?> in <strong><a href="javascript:void(0);" onclick="toggle('source_<?=$trace_count?>');"><?=$trace['file']?></a></strong> on line <strong><?=$trace['line']?></strong>
+        #<?php echo $num; ?> <?php echo (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : ''); ?> in <strong><a href="javascript:void(0);" onclick="toggle('source_<?php echo $trace_count; ?>');"><?php echo $trace['file']; ?></a></strong> on line <strong><?php echo $trace['line']; ?></strong>
         <?php include dirname(__FILE__).DS.'_source.php'; ?>
         <?php } else { ?>
-        #<?=$num?> <?=(isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '')?> in <strong><?=$trace['file']?></strong> on line <strong><?=$trace['line']?></strong>
+        #<?php echo $num; ?> <?php echo (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : ''); ?> in <strong><?php echo $trace['file']; ?></strong> on line <strong><?php echo $trace['line']; ?></strong>
         <?php } ?>
     </li>
     <?php $trace_count++; ?>

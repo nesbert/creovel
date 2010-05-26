@@ -58,7 +58,7 @@ class MysqlImproved extends AdapterBase
             $db_properties['host'],
             $db_properties['username'],
             $db_properties['password'],
-            $db_properties['default'],
+            $db_properties['database'],
             isset($db_properties['port']) ? $db_properties['port'] : null,
             isset($db_properties['socket']) ? $db_properties['socket'] : null
             );

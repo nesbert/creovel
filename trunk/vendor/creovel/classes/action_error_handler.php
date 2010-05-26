@@ -98,7 +98,7 @@ class ActionErrorHandler extends Object
             if (!empty($GLOBALS['CREOVEL']['CMD']) || @AJAX_REQUEST) {
                 // only show erros in dev mode
                 if (CREO('mode') == 'development') {
-                    header('Content-Type: text/plain; charset=utf-8');
+                    @header('Content-Type: text/plain; charset=utf-8');
                     include_once CREOVEL_PATH . 'views' . DS . 'debugger' . DS . 'error_cli.php';
                 }
             // grace fully handle errors in none devlopment mode

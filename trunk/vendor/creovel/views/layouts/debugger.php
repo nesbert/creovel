@@ -68,7 +68,7 @@ function toggle(id)
 @@page_contents@@
     </div>
     
-    <div id="footer">creovel <?php echo CREOVEL_VERSION; ?> Copyright &copy; 2005-<?=date('Y')?> <a href="http://creovel.org">creovel.org</a> - A PHP Framework</div>
+    <div id="footer">creovel <?php echo CREOVEL_VERSION; ?> Copyright &copy; 2005-<?php echo date('Y'); ?> <a href="http://creovel.org">creovel.org</a> - A PHP Framework</div>
 
 </div>
 

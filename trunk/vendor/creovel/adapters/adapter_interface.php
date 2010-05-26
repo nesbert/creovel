@@ -15,11 +15,12 @@ interface AdapterInterface
      *
      * <code>
      * $db_properties['host']       = 'localhost';
-     * $db_properties['default']    = 'database';
+     * $db_properties['database']   = 'database';
      * $db_properties['username']   = 'username';
      * $db_properties['password']   = 'password';
      * $db_properties['port']       = 'port';
      * $db_properties['socket']     = 'socket';
+     * $db_properties['schema']     = 'schema';
      * </code>
      *
      * @param array $db_properties array of DB connecting settings

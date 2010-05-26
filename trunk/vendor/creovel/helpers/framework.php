@@ -124,20 +124,24 @@ function CREO()
             
         case $key == 'DATABASE':
             $mode = strtoupper($val['mode']);
-            $GLOBALS['CREOVEL']['DATABASES'][$mode] = array(
-                'adapter'	=> $val['adapter'],
-                'host' 		=> $val['host'],
-                'username'	=> $val['username'],
-                'password'	=> $val['password'],
-                'default'	=> $val['default']
+            $GLOBALS['CREOVEL']['DATABASES'][$mode] = @array(
+                'adapter'   => $val['adapter'],
+                'host'      => $val['host'],
+                'username'  => $val['username'],
+                'password'  => $val['password'],
+                'database'  => $val['database']
                 );
+            if (isset($val['default']) && empty($val['database'])) {
+                $GLOBALS['CREOVEL']['DATABASES'][$mode]['database'] = $val['default'];
+            }
             if (isset($val['port'])) {
-                $GLOBALS['CREOVEL']['DATABASES'][$mode] +=
-                    array('port' => $val['port']);
+                $GLOBALS['CREOVEL']['DATABASES'][$mode]['port'] = $val['port'];
             }
             if (isset($val['socket'])) {
-                $GLOBALS['CREOVEL']['DATABASES'][$mode] +=
-                    array('socket' => $val['socket']);
+                $GLOBALS['CREOVEL']['DATABASES'][$mode]['socket'] = $val['socket'];
+            }
+            if (isset($val['schema'])) {
+                $GLOBALS['CREOVEL']['DATABASES'][$mode]['schema'] = $val['schema'];
             }
             break;
         

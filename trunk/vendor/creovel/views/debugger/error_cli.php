@@ -12,7 +12,7 @@
 
 [Application Error]------------------------------
 
-<?=strip_tags(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $this->message)) . "\n"?>
+<?php echo strip_tags(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $this->message)) . "\n"; ?>
 
 <?php if ((is_object($this->exception)) && ($error_count = count($this->exception->getTrace()))) { ?>
 [Debug Trace]------------------------------------
@@ -31,7 +31,7 @@ $offset = 0;
     
     $num = $error_count - $trace_count - $offset;
     ?>
-# <?=$num?> <?=(isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '')?> in "<?=$trace['file']?>" on line <?=$trace['line']. "\n"?>
+# <?php echo $num; ?> <?php echo (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : ''); ?> in "<?php echo $trace['file']; ?>" on line <?php echo $trace['line']. "\n"; ?>
 <?php $trace_count++;
     }
 }

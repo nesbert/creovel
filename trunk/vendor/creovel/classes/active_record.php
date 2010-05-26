@@ -217,7 +217,7 @@ class ActiveRecord extends Object
             if (!empty($this->_host_)) $db_properties['host'] = $this->_host_;
             if (!empty($this->_port_)) $db_properties['port'] = $this->_port_;
             if (!empty($this->_socket_)) $db_properties['socket'] = $this->_socket_;
-            if (!empty($this->_database_)) $db_properties['default'] = $this->_database_;
+            if (!empty($this->_database_)) $db_properties['database'] = $this->_database_;
         }
         
         return $db_properties;

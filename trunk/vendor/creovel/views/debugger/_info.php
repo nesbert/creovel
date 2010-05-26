@@ -9,12 +9,12 @@
  * @since       Class available since Release 0.1.0 
  **/
 ?><div class="block title">
-    <h1>creovel <?=CREOVEL_VERSION?></h1>
+    <h1>creovel <?php echo CREOVEL_VERSION; ?></h1>
 </div>
 
 <table cellspacing="0" class="block">
-<tr><td class="sub">Version</td><td><?=CREOVEL_VERSION?></td></tr>
-<tr><td class="sub">Release Date</td><td><?=CREOVEL_RELEASE_DATE?></td></tr>
+<tr><td class="sub">Version</td><td><?php echo CREOVEL_VERSION; ?></td></tr>
+<tr><td class="sub">Release Date</td><td><?php echo CREOVEL_RELEASE_DATE; ?></td></tr>
 <tr>
     <td class="sub">Registered Adapters</td>
     <td>
@@ -66,7 +66,7 @@
 
 <h1>Environment</h1>
 <table cellspacing="0" class="block environment">
-<tr><td class="sub">Mode</td><td><?=CREO('mode')?></td></tr>
+<tr><td class="sub">Mode</td><td><?php echo CREO('mode'); ?></td></tr>
 <?php if (count(CREO('routing'))) { ?>
     <?php $routing = CREO('routing'); ?>
 <tr>
@@ -74,7 +74,7 @@
     <td>
         <?php foreach ($routing['routes'] as $name => $route) { ?>
         <dl>
-            <dt><?=$route['name']?> (<?=$route['url']?>)</dt>
+            <dt><?php echo $route['name']; ?> (<?php echo $route['url']; ?>)</dt>
         </dl>
         <?php } ?>
     </td>
@@ -86,9 +86,9 @@
     <td>
         <?php foreach ($GLOBALS['CREOVEL']['DATABASES'] as $mode => $data) { ?>
         <dl>
-            <dt><?=strtolower($mode)?></dt>
+            <dt><?php echo strtolower($mode); ?></dt>
             <?php if (count($data)) foreach($data as $key => $val) { ?>
-            <dd><?=strtolower($key)?> =&gt; <?=(strtoupper($key) == 'PASSWORD' ? mask('hidelength') : $val)?></dd>
+            <dd><?php echo strtolower($key); ?> =&gt; <?php echo (strtoupper($key) == 'PASSWORD' ? mask('hidelength') : $val); ?></dd>
             <?php } ?>
         </dl>
         <?php } ?>
@@ -113,7 +113,7 @@ include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
     <td class="sub"><?php print($file + 1); ?>.</td>
     <td>
         <?php if (CREO('show_source')) { ?>
-        <a href="<?php echo view_source_url($value); ?>"><?=$value?> (<?php echo get_filesize($value); ?>)</a>
+        <a href="<?php echo view_source_url($value); ?>"><?php echo $value; ?> (<?php echo get_filesize($value); ?>)</a>
         <?php } else { ?>
         <?php echo $value; ?> (<?php echo get_filesize($value); ?>)
         <?php } ?>

@@ -23,7 +23,7 @@ foreach ($countries as $country => $states) {
 ?><script language="javascript" type="text/javascript">
 <!--
 <?php foreach ($objects as $country => $object) { ?>
-var <?=$country?> = {<?=trim($object)?>}
+var <?php echo $country; ?> = {<?php echo trim($object); ?>}
 <?php } ?>
 function updateState(country, state_id, default_value) {
     var state = document.getElementById(state_id);
@@ -40,7 +40,7 @@ function updateState(country, state_id, default_value) {
     <?php if ($state_input) { ?>var name = state.getAttribute('name');
     var css = state.getAttribute('class');
     var title = state.getAttribute('title');
-    var span = document.getElementById('<?=$state_id?>-wrap');
+    var span = document.getElementById('<?php echo $state_id; ?>-wrap');
     // remove current element
     span.removeChild(state);
     <?php } ?>

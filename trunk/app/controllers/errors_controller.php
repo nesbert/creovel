@@ -30,4 +30,12 @@ class ErrorsController extends ApplicationController
      **/
     public function not_found()
     {}
+    
+    /**
+     * 401 error page.
+     *
+     * @return void
+     **/
+    public function unauthorized()
+    {}
 } // END class ErrorsController extends ApplicationController

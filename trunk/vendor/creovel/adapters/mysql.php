@@ -75,7 +75,7 @@ class Mysql extends AdapterBase
                                 mysql_error() . '.');
         }
         
-        if (!empty($db_properties['default'])
+        if (!empty($db_properties['database'])
             && !mysql_select_db($db_properties['database'], $this->db)) {
             self::throw_error(mysql_error() . '.');
         }

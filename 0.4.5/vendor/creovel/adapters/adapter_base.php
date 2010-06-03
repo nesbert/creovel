@@ -44,6 +44,8 @@ abstract class AdapterBase extends CreovelObject implements AdapterInterface, It
      **/
     public function  __construct($db_properties = null)
     {
+    	$this->offset = 0;
+    	
         // if properties passed connect to database
         if (is_array($db_properties)) $this->connect($db_properties);
     }
@@ -95,7 +97,7 @@ abstract class AdapterBase extends CreovelObject implements AdapterInterface, It
      **/
     public function key()
     {
-        return (int) $this->offset;
+        return $this->offset;
     }
     
     /**
@@ -107,7 +109,7 @@ abstract class AdapterBase extends CreovelObject implements AdapterInterface, It
      **/
     public function next()
     {
-        $this->offset++;
+        ++$this->offset;
         return $this->current();
     }
     
@@ -120,7 +122,7 @@ abstract class AdapterBase extends CreovelObject implements AdapterInterface, It
      **/
     public function prev()
     {
-        $this->offset--;
+        --$this->offset;
         return $this->current();
     }
     

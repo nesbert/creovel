@@ -81,8 +81,7 @@ class ActiveRecordField extends CreovelObject
      **/
     public function __construct($attributes = stdClass)
     {
-        switch ($attributes->adapter) {
-            
+        switch (strtolower($attributes->adapter)) {
             case 'ibmdb2':
                 $this->type = $attributes->TYPE_NAME;
                 if ($attributes->DATA_TYPE == 3) {
@@ -92,13 +91,20 @@ class ActiveRecordField extends CreovelObject
                 } else {
                     unset($this->size);
                 }
-                if (!empty($attributes->key) && ($attributes->key == 'PRI' || $attributes->key == 'PK')) {
+                if (!empty($attributes->KEY) && ($attributes->KEY == 'PRI' || $attributes->KEY == 'PK')) {
                     $this->key = 'PK';
-                    $this->key_name = $attributes->key_name;
+                    $this->key_name = $attributes->KEY_NAME;
                 } else {
                     unset($this->key);
                     unset($this->key_name);
                 }
+                
+                if (!empty($attributes->IS_IDENTITY)) {
+                    $this->is_identity = true;
+                } else {
+                    unset($this->is_identity);
+                }
+                
                 $this->null = $attributes->IS_NULLABLE;
                 $this->default = $attributes->COLUMN_DEF;
                 if ($this->null == 'NO' && empty($this->default)) {

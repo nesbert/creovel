@@ -113,7 +113,7 @@ class ActiveValidation extends CreovelObject
     public function validates_confirmation_of($field, $value, $message = null, $required = true, $value2 = null)
     {
         // no value2 get from params
-        if ( $value2 === null ) $value2 = get_params($field . '_confirmation');
+        if ( $value2 === null ) $value2 = Creovel::params($field . '_confirmation');
         return self::validate_field_by_bool(is_match($value, $value2), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." doesn't match confirmation."), $required);
     }
     

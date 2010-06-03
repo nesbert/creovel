@@ -74,7 +74,7 @@ class ActiveDatabase
                 $db_properties = self::connection_properties();
             }
             
-            $this->__adapter = $db_properties['adapter'];
+            $this->__adapter = strtolower($db_properties['adapter']);
             
             if ($this->__adapter == 'IbmDb2') {
                 // uppercase properties
@@ -138,9 +138,6 @@ class ActiveDatabase
             
             foreach ($columns as $name => $attr) {
                 $attr->adapter = $this->__adapter;
-                $attr->database = $this->__database;
-                $attr->table = $table;
-                $attr->name = $name;
                 $return[$name] = ActiveRecordField::object($attr);
             }
             

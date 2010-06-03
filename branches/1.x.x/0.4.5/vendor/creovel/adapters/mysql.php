@@ -124,10 +124,10 @@ class Mysql extends AdapterBase
     }
     
     /**
-     * Returns an associative array that corresponds to the fetched row
-     * or NULL if there are no more rows.
+     * Returns an object that corresponds to the fetched row
+     * or false if there are no more rows.
      *
-     * @return object
+     * @return object||false
      **/
     public function get_row($result = null)
     {
@@ -256,7 +256,7 @@ class Mysql extends AdapterBase
      **/
     public function valid()
     {
-        if ($this->offset < $this->total_rows()) {
+        if ($this->offset < $this->total_rows() && $this->offset >= 0) {
             return mysql_data_seek($this->result, $this->offset);
         } else {
             return false;

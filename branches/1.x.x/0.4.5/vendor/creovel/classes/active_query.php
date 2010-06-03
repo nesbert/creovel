@@ -101,6 +101,16 @@ class ActiveQuery
     }
     
     /**
+     * Pass through function to adapter.
+     *
+     * @return void
+     **/
+    public function get_row()
+    {
+        return $this->db()->adapter()->get_row();
+    }
+    
+    /**
      * Iterator methods.
      */
     

@@ -74,9 +74,9 @@ class ActiveDatabase
                 $db_properties = self::connection_properties();
             }
             
-            $this->__adapter = strtolower($db_properties['adapter']);
+            $this->__adapter = $db_properties['adapter'];
             
-            if ($this->__adapter == 'ibmdb2') {
+            if (strtolower($this->__adapter) == 'ibmdb2') {
                 // uppercase properties
                 $db_properties['database'] = strtoupper($db_properties['database']);
                 $db_properties['schema'] = strtoupper($db_properties['schema']);

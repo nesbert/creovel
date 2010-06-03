@@ -758,7 +758,7 @@ class ActiveRecord extends CreovelObject
             return false;
         }
     }
-        
+    
     /**
      * Get the last insert id.
      *
@@ -1035,6 +1035,7 @@ class ActiveRecord extends CreovelObject
     final public function reset_values()
     {
         foreach($this->_columns_ as $k => $v) {
+        	$this->_columns_[$k]->has_changed = false;
             $this->_columns_[$k]->value = $v->default;
         }
     }
@@ -1318,7 +1319,8 @@ class ActiveRecord extends CreovelObject
                         
                         // build key to support multipule rows
                         $ops = array();
-                        $ops['conditions'] = $this->primary_keys_and_values();
+                        $ops['select'] = "COUNT(*)";
+                        //$ops['conditions'] = $this->primary_keys_and_values();
                         $ops['conditions'][$params[0]] = $params[1];
                         $ops['table'] = $this->table_name();
                         // extend WHERE statement
@@ -1328,7 +1330,9 @@ class ActiveRecord extends CreovelObject
                         $q = $this->action_query()->build_query($ops);
                         
                         // if record found add error
-                        if ($this->action_query($q)->total_rows()) {
+                        $this->action_query($q);
+                        
+                        if (current($this->action_query()->current())) {
                             ActiveValidation::add_error(
                                 $params[0],
                                 ($params[2] ? $params[2] : humanize($params[0]).' is not unique.')
@@ -1742,10 +1746,14 @@ class ActiveRecord extends CreovelObject
      **/
     final public function current()
     {
-        // set attributes with current row
-        $this->set_attributes_from_query($this->select_query()->current());
-        
-        // initialize class vars for each record
+    	$attibutes = $this->select_query()->current();
+    	if ($attibutes) {
+	        // set attributes with current row
+	        $this->set_attributes_from_query($attibutes);
+        } else {
+        	$this->reset_values();
+        }
+        // initialize class vars foreach record
         $this->initialize_class_vars();
         
         return clone $this;

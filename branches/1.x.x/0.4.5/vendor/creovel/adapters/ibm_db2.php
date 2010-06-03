@@ -25,6 +25,26 @@ class IbmDb2 extends AdapterBase
     public $schema;
     
     /**
+     * Iterator offset DB2 starts 1.
+     *
+     * @var resource
+     **/
+    public $offset = 1;
+    
+    /**
+     * Pass an associative array of database settings to connect
+     * to database on construction of class.
+     *
+     * @return void
+     **/
+    public function __construct($db_properties = null)
+    {
+    	parent::__construct($db_properties);
+    	
+    	$this->offset = 1;
+    }
+    
+    /**
      * Opens a connection to the server with $db_properties an
      * array of database settings.
      *
@@ -170,12 +190,10 @@ class IbmDb2 extends AdapterBase
     {
         if ($result) {
             return db2_fetch_object($result);
+        } else if ($this->offset >= 1) {
+            return db2_fetch_object($this->result, $this->offset);
         } else {
-            if ($this->valid()) {
-                return db2_fetch_object($this->result);
-            } else {
-                return false;
-            }
+        	return false;
         }
     }
     
@@ -203,9 +221,24 @@ class IbmDb2 extends AdapterBase
         
         while ($row = db2_fetch_object($result)) {
             if (isset($fields[$row->COLUMN_NAME])) {
-                $fields[$row->COLUMN_NAME]->key = 'PK';
-                $fields[$row->COLUMN_NAME]->key_name = $row->PK_NAME;
+                $fields[$row->COLUMN_NAME]->KEY = 'PK';
+                $fields[$row->COLUMN_NAME]->KEY_NAME = $row->PK_NAME;
             }
+        }
+        $this->free_result($result);
+        
+        
+        // get identity solumn for table
+        //$result = db2_statistics($this->db, null, $this->schema, $table_name, 0);
+        $q = "SELECT TABSCHEMA, TABNAME, COLNO, COLNAME, TYPENAME, LENGTH, DEFAULT, IDENTITY, GENERATED " .
+             "FROM SYSCAT.COLUMNS " .
+             "WHERE TABSCHEMA = '{$this->schema}' AND TABNAME = '{$table_name}' AND IDENTITY = 'Y';";
+        $result = $this->execute($q);
+        
+        while ($row = db2_fetch_object($result)) {
+        	if ($row->IDENTITY == 'Y' && $row->GENERATED == true && $row->TYPENAME == 'INTEGER') {
+               $fields[$row->COLNAME]->IS_IDENTITY = true;
+        	}
         }
         $this->free_result($result);
         
@@ -254,6 +287,8 @@ class IbmDb2 extends AdapterBase
         return db2_escape_string($string);
     }
     
+    
+    
     /**
      * Resets DB properties and frees result resources.
      *
@@ -279,6 +314,16 @@ class IbmDb2 extends AdapterBase
      */
     
     /**
+     * Set the result object pointer to its first element.
+     *
+     * @return void
+     **/
+    public function rewind()
+    {
+        $this->offset = 1;
+    }
+    
+    /**
      * Adjusts the result pointer to an arbitrary row in the result
      * and returns TRUE on success or FALSE on failure.
      *
@@ -286,7 +331,7 @@ class IbmDb2 extends AdapterBase
      **/
     public function valid()
     {
-        if ($this->offset < $this->total_rows()) {
+        if ($this->offset <= $this->total_rows()) {
             if ($this->offset) {
                 return db2_fetch_object($this->result, $this->offset) !== false;
             } else {

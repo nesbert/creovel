@@ -56,6 +56,11 @@ class ActiveRecord extends Object
      **/
     public function __construct($data = null, $connection_properties = null, $initialize = true)
     {
+        // load connection if passed
+        if (is_array($connection_properties)) {
+            $this->connection_properties = $connection_properties;
+        }
+        
         if ($initialize) {
             // model table and set columns
             $this->columns();
@@ -72,11 +77,6 @@ class ActiveRecord extends Object
             if (!$this->is_primary_keys_and_values_set()) {
                 $this->initialize_class_vars();
             }
-        }
-        
-        // load connection if passed
-        if (is_array($connection_properties)) {
-            $this->connection_properties = $connection_properties;
         }
         
         if ($initialize) {

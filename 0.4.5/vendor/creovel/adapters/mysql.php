@@ -64,7 +64,7 @@ class Mysql extends AdapterBase
     }
     
     /**
-     * Execute query and return result object/resource or false. Option to log
+     * Execute query and return result object/resource or false. Option to
      * log queries if $GLOBALS['CREOVEL']['LOG_QUERIES'] is set to true. All
      * queries should pass through this function.
      *
@@ -131,15 +131,15 @@ class Mysql extends AdapterBase
      **/
     public function get_row($result = null)
     {
-    	if ($result) {
+        if ($result) {
             return mysql_fetch_object($result);
-    	} else {
-    		if ($this->valid()) {
+        } else {
+            if ($this->valid()) {
                 return mysql_fetch_object($this->result);
-    		} else {
-    			return false;
-    		}
-    	}
+            } else {
+                return false;
+            }
+        }
     }
     
     /**
@@ -231,7 +231,7 @@ class Mysql extends AdapterBase
      **/
     public function reset()
     {
-    	parent::reset();
+        parent::reset();
     }
     
     /**

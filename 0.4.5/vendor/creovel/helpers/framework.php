@@ -27,11 +27,6 @@ function __autoload_creovel($class)
         
         switch (true) {
             
-            case (ends_with('controller', strtolower($class))):
-                $type = 'Controller';
-                $path = CONTROLLERS_PATH . $class . '.php';
-                break;
-                
             case (true):
                 $type = 'Core Class';
                 $path = CREOVEL_PATH . 'classes' . DS . $class.'.php';
@@ -43,9 +38,22 @@ function __autoload_creovel($class)
                 if (file_exists($path)) break;
                 
             case (true):
-                $type = 'Module';
-                $path = CREOVEL_PATH . 'modules' . DS . $class . '.php';
+                $type = 'Controller';
+                $path = CONTROLLERS_PATH . $class . '.php';
                 if (file_exists($path)) break;
+                
+            case (true):
+                $type = in_string('Mailer', $class) ? 'Mailer' : 'Model';
+                $path = MODELS_PATH . $class . '.php';
+                if (file_exists($path)) break;
+                
+            case (true):
+                $type = 'Shared';
+                @$shared_path = SHARED_PATH . $class . '.php';
+                if (file_exists($shared_path)) {
+                    $path = $shared_path;
+                    break;
+                }
                 
             case (true):
                 $type = 'Vendor';
@@ -53,27 +61,16 @@ function __autoload_creovel($class)
                 if (file_exists($path)) break;
                 
             case (true):
-            
-                $type = in_string('Mailer', $class) ? 'Mailer' : 'Model';
-                $path = MODELS_PATH . $class . '.php';
-                // if model found locally
-                if (file_exists($path)) {
-                    break;
-                } else  {
-                    // check shared
-                    @$shared_path = SHARED_PATH . $class . '.php';
-                    if (file_exists($shared_path)) {
-                        $path = $shared_path;
-                        break;
-                    }
-                }
+                $type = 'Module';
+                $path = CREOVEL_PATH . 'modules' . DS . $class . '.php';
+                if (file_exists($path)) break;
         }
         
         if (file_exists($path)) {
             require_once $path;
         } else {
             $file = $class;
-            if ($type == 'Controller') CREO('error_code', 404);
+            if ($type == 'Controller') CREO('application_error_code', 404);
             if ($type == 'Controller' || $type == 'Model' || $type == 'Mailer') {
                 $folders = explode('/', $class);
                 foreach ($folders as $k => $v) {

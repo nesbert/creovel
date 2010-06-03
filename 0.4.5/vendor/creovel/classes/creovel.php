@@ -10,8 +10,8 @@ if (PHP_VERSION <= 5) {
 }
 
 // Define creovel constants.
-define('CREOVEL_VERSION', '0.4.2');
-define('CREOVEL_RELEASE_DATE', '2009-03-05 22:26:55');
+define('CREOVEL_VERSION', '0.4.5');
+define('CREOVEL_RELEASE_DATE', '2010-0?-?? ??:??:??');
 
 // Define environment constants.
 define('PHP', PHP_VERSION);
@@ -50,11 +50,9 @@ if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
 }
 
 // Include minimum base classes.
-require_once CREOVEL_PATH . 'classes/object.php';
+require_once CREOVEL_PATH . 'classes/creovel_object.php';
 require_once CREOVEL_PATH . 'modules/module_base.php';
 require_once CREOVEL_PATH . 'modules/inflector.php';
-require_once CREOVEL_PATH . 'classes/action_view.php';
-require_once CREOVEL_PATH . 'classes/action_controller.php';
 
 // Set default creovel global vars.
 $GLOBALS['CREOVEL']['MODE'] = 'production';
@@ -70,7 +68,7 @@ $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
 // set error handler
 require_once CREOVEL_PATH . 'classes/action_error_handler.php';
 $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
-$GLOBALS['CREOVEL']['ERROR_CODE'] = '';
+$GLOBALS['CREOVEL']['APPLICATION_ERROR_CODE'] = '';
 $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
 
 /**
@@ -152,7 +150,7 @@ class Creovel
             return $controller->__output($return_as_str);
             
         } catch (Exception $e) {
-            CREO('error_code', 404);
+            CREO('application_error_code', 404);
             CREO('application_error', $e);
         }
     }
@@ -366,7 +364,7 @@ class Creovel
                 $path .= str_replace('application' . DS, '', $controller . DS);
             }
         } catch (Exception $e) {
-            CREO('error_code', 404);
+            CREO('application_error_code', 404);
             CREO('application_error', $e);
         }
     }

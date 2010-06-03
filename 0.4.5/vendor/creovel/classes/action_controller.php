@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-abstract class ActionController extends Object
+abstract class ActionController extends CreovelObject
 {
     /**
      * Name of controller to use.
@@ -271,7 +271,7 @@ abstract class ActionController extends Object
                     break;
             }
         } catch (Exception $e) {
-            CREO('error_code', 404);
+            CREO('application_error_code', 404);
             CREO('application_error', $e);
         }
     }
@@ -459,7 +459,7 @@ abstract class ActionController extends Object
             "<em>{$this->_action}</em> in the <strong> " . get_class($this) .
             '</strong>.';
         }
-        CREO('error_code', $error_code);
+        CREO('application_error_code', $error_code);
         CREO('application_error', $msg);
     }
     
@@ -495,4 +495,4 @@ abstract class ActionController extends Object
         return VIEWS_PATH . 'layouts' . DS .
                 ($layout ? $layout : $this->layout) . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
     }
-} // END abstract class ActionController extends Object
+} // END abstract class ActionController extends CreovelObject

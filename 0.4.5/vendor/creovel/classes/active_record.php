@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActiveRecord extends Object
+class ActiveRecord extends CreovelObject
 {
     /**
      * Table name.
@@ -111,10 +111,10 @@ class ActiveRecord extends Object
      * 
      * @return void
      **/
-    final public function load_by_primary_key()
+    final public function load_by_primary_key($data = null)
     {
         $keys = $this->primary_key();
-        $data = $this->primary_keys_and_values();
+        $data = $data ? $data : $this->primary_keys_and_values();
         $search_type = 'first';
         if (is_object($data)) $data = (array) $data;
         
@@ -207,7 +207,7 @@ class ActiveRecord extends Object
             $msg = "An error occurred while executing a method " .
                     "in the <strong>{$this->class_name()}</strong>.";
         }
-        CREO('error_code', 500);
+        CREO('application_error_code', 500);
         CREO('application_error', $msg);
     }
     
@@ -299,7 +299,7 @@ class ActiveRecord extends Object
             $options['columns'] = &$this->_columns_;
             
             if ($type == 'first') {
-            	$options['limit'] = 1;
+                $options['limit'] = 1;
             }
             
             $sql = $this->select_query()->build_query($options);
@@ -371,7 +371,7 @@ class ActiveRecord extends Object
             
             // set which settings mode to use
             if (isset($this) && !empty($this->_mode_)) {
-            	$connection_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)];
+                $connection_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)];
             }
             
             $this->_select_query_ = new ActiveQuery($connection_properties);
@@ -422,7 +422,7 @@ class ActiveRecord extends Object
      **/
     final public function escape($string)
     {
-        return $this->action_query()->escape((string) $string);
+        return $this->select_query()->escape((string) $string);
     }
     
     /**
@@ -433,7 +433,7 @@ class ActiveRecord extends Object
      **/
     final public function quote_value($string)
     {
-        return $this->action_query()->quote_value($string);
+        return $this->select_query()->quote_value($string);
     }
     
     /**
@@ -476,7 +476,7 @@ class ActiveRecord extends Object
                 $db2xml->load_file();
                 $this->_columns_ = $db2xml->columns();
             } else {
-                $this->_columns_ = $this->action_query()->columns($this->table_name());
+                $this->_columns_ = $this->select_query()->columns($this->table_name());
             }
             
             // do some magic
@@ -645,10 +645,10 @@ class ActiveRecord extends Object
     final public function primary_key()
     {
         if (empty($this->_primary_key_)) {
-        	// find primary keys
+            // find primary keys
             foreach ($this->columns() as $column => $attr) {
                 if (isset($attr->key) && $attr->key == 'PK') {
-                	$this->_primary_key_[] = $column;
+                    $this->_primary_key_[] = $column;
                 }
             }
         }
@@ -692,6 +692,9 @@ class ActiveRecord extends Object
         // if error return false
         if ($this->has_errors()) return false;
         
+        // conditions array for record reload
+        $conditions = array();
+        
         // if record found update
         if ($this->total_rows() || $this->_was_inserted_) {
         
@@ -715,25 +718,36 @@ class ActiveRecord extends Object
             $ret_val = $this->action_query()->insert_row($this->table_name(), $this->_columns_);
             
             if (!empty($ret_val)) {
-            	$this->_was_inserted_ = true;
-            	
-            	$conditions = array();
-            	foreach ($this->_columns_ as $col => $field) {
-            		if ($field->has_changed) {
-            			$conditions[$col] = $field->value;
-            		}
-            	}
+                // set inserted flag
+                $this->_was_inserted_ = true;
+                
+                // if insert id... loaded identy increament field
+                if ($id = $this->action_query()->insert_id()) {
+                    // find auto increment field and set ID
+                    foreach ($this->columns() as $col => $field) {
+                        if ($field->is_identity) {
+                            $conditions[$col] = $id;
+                            break;
+                        }
+                    }
+                } else {
+                    foreach ($this->_columns_ as $col => $field) {
+                        if ($field->has_changed) {
+                            $conditions[$col] = $field->value;
+                        }
+                    }
+                }
             }
         }
         
         #foreach ($this->child_objects as $obj) $obj->save();
         
         if ($ret_val) {
-        	// load record to make sure to get most recent info
-        	// from DB for all the columns
-        	$this->find('first', array('conditions' => $conditions));
-        	
-        	// call back
+            // load record to make sure to get most recent info
+            // from DB for all the columns
+            $this->find('first', array('conditions' => $conditions));
+            
+            // call back
             $this->after_save();
             
             return $ret_val;
@@ -809,10 +823,10 @@ class ActiveRecord extends Object
      **/
     final public function destroy($conditions = null)
     {
-    	if (empty($conditions)) {
-    		$conditions = $this->primary_keys_and_values(); 
-    	}
-    	
+        if (empty($conditions)) {
+            $conditions = $this->primary_keys_and_values(); 
+        }
+        
         // delete record(s) and return affected rows
         return $this->action_query()->delete($this->table_name(), $conditions);
     }
@@ -868,7 +882,7 @@ class ActiveRecord extends Object
         foreach ($options['update'] as $k => $v) {
             // if primary and attr doesn exits skip
             if ($this->is_primary_key($k) || !$this->attribute_exists($k)) {
-            	unset($options['update'][$k]);
+                unset($options['update'][$k]);
             }
         }        
         
@@ -915,7 +929,7 @@ class ActiveRecord extends Object
         $q = $this->select_query($qry);
         
         if ($q->total_rows() == 1) {
-        	$temp['total_records'] = current($q->current());
+            $temp['total_records'] = current($q->current());
         } else {
             $temp['total_records'] = $q->total_rows();
         }
@@ -1092,12 +1106,12 @@ class ActiveRecord extends Object
                     if ($this->_columns_[$attribute]->value == $value) {
                         $this->_columns_[$attribute]->has_changed = false;
                     } else {
-                        $this->_columns_[$attribute]->has_changed = true;                    	
+                        $this->_columns_[$attribute]->has_changed = true;                        
                     }
                     return $this->_columns_[$attribute]->value = $value;
                     break;
                     
-            	// allow hidden properties
+                // allow hidden properties
                 case $attribute == '_prepared_query_':
                 case $attribute == '_mode_':
                 case $attribute == '_host_':
@@ -1575,8 +1589,8 @@ class ActiveRecord extends Object
         $fk = singularize($obj->table_name()) . '_' . $id_str;
         
         if ($this->action_query()->get_adapter_type() == 'ibmdb2') {
-        	$id_str = strtoupper($id_str);
-        	$fk = strtoupper($fk);
+            $id_str = strtoupper($id_str);
+            $fk = strtoupper($fk);
         }
         
         // set args
@@ -1596,16 +1610,16 @@ class ActiveRecord extends Object
                     break;
                 
                 case $options['type'] == 'belongs_to':
-                	$link1 = $this->action_query()->build_identifier(array($this->table_name(), $fk));
-                	$link2 = $this->action_query()->build_identifier(array($this->table_name(), $id_str));
+                    $link1 = $this->action_query()->build_identifier(array($this->table_name(), $fk));
+                    $link2 = $this->action_query()->build_identifier(array($this->table_name(), $id_str));
                     $args['join'] = "INNER JOIN {$table_str} ON {$link1} = {$link2}";
                     $args['conditions'] = $this->primary_keys_and_values();
                     break;
                 
                 case $options['type'] == 'has_many':
                 case $options['type'] == 'has_one':
-                	$link1 = $this->action_query()->build_identifier(array($this->table_name(), $id_str));
-                	$link2 = $this->action_query()->build_identifier(array($this->table_name(), $fk));
+                    $link1 = $this->action_query()->build_identifier(array($this->table_name(), $id_str));
+                    $link2 = $this->action_query()->build_identifier(array($this->table_name(), $fk));
                     $args['join'] = "INNER JOIN {$table_str} ON {$link1} = {$link2}";
                     $args['conditions'] = $this->primary_keys_and_values();
                     break;
@@ -1870,5 +1884,5 @@ class ActiveRecord extends Object
     public function validate_on_create() {}
     public function validate_on_update() {}
     /**#@-*/
-} // END class ActiveRecord extends Object
+} // END class ActiveRecord extends CreovelObject
 

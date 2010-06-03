@@ -99,7 +99,7 @@ class ActiveDatabase
             }
             
         } catch (Exception $e) {
-            CREO('error_code', 500);
+            CREO('application_error_code', 500);
             CREO('application_error', $e);
         }
     }
@@ -146,7 +146,7 @@ class ActiveDatabase
             
             return $return;
         } catch (Exception $e) {
-            CREO('error_code', 500);
+            CREO('application_error_code', 500);
             CREO('application_error', $e);
         }
     }

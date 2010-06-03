@@ -223,7 +223,7 @@ class ActiveQuery
      **/
     final public function build_query($options)
     {
-        $q = new Object;
+        $q = new CreovelObject;
         $q->select = null;
         $q->from = null;
         $q->join = null;
@@ -492,13 +492,14 @@ class ActiveQuery
      **/
     final public function insert_row($table, $columns)
     {
-    	// set created at
+        // set created at
         if (isset($columns['created_at'])) {
-            $columns['created_at'] = datetime($columns['created_at']);
+            $columns['created_at']->has_changed = true;
+            $columns['created_at']->value = datetime($columns['created_at']);
         }
         
         // do any special magic for certain columns
-        $this->prepare_columns(&$columns);
+        $this->prepare_columns($columns);
         
         $table_str = $this->build_table_name($table);
         $columns_str = array();
@@ -506,6 +507,7 @@ class ActiveQuery
         
         // sanitize values
         foreach ($columns as $k => $field) {
+            if (empty($field->value)) continue;
             // if same as default value skip
             if ($field->value === $columns[$k]->default) continue;
             // if value has not changed 
@@ -541,11 +543,12 @@ class ActiveQuery
     {
         // set updated at
         if (isset($columns['updated_at'])) {
-            $columns['updated_at'] = datetime();
+            $columns['updated_at']->has_changed = true;
+            $columns['updated_at']->value = datetime();
         }
         
         // do any special magic for certain columns
-        $this->prepare_columns(&$columns);
+        $this->prepare_columns($columns);
         
         $table_str = $this->build_table_name($table);
         $set_str = array();
@@ -585,13 +588,14 @@ class ActiveQuery
      * @param array $colmns ActiveRecordField objects
      * @return array
      **/
-    final public function prepare_columns($columns)
+    final public function prepare_columns(&$columns)
     {
         foreach ($columns as $name => $field) {
+            if (empty($field->value)) continue;
             switch (true) {
                 // set array types
                 case is_array($field->value):
-                    if ($field->type == 'datetime') {
+                    if (strtolower($field->type) == 'datetime') {
                         $columns[$name]->value = datetime($field->value);
                     } else {
                         $columns[$name]->value = serialize($field->value);

@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class Object implements Iterator
+class CreovelObject implements Iterator
 {
     /**
      * Initialize parents. Override accordingly.
@@ -63,7 +63,7 @@ class Object implements Iterator
                     break;
             }
             
-            CREO('error_code', $error_type);
+            CREO('application_error_code', $error_type);
             CREO('application_error', $e);
         }
     }
@@ -294,4 +294,4 @@ class Object implements Iterator
         }
     }
     
-} // END class Object implements Iterator
+} // END class CreovelObject implements Iterator

@@ -76,7 +76,7 @@ class ActiveDatabase
             
             $this->__adapter = strtolower($db_properties['adapter']);
             
-            if ($this->__adapter == 'IbmDb2') {
+            if ($this->__adapter == 'ibmdb2') {
                 // uppercase properties
                 $db_properties['database'] = strtoupper($db_properties['database']);
                 $db_properties['schema'] = strtoupper($db_properties['schema']);

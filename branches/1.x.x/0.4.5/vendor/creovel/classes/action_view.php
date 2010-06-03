@@ -10,7 +10,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  */
-class ActionView extends Object
+class ActionView extends CreovelObject
 {
     /**
      * Creates the page to be displayed and sets it to the page property.
@@ -79,7 +79,7 @@ class ActionView extends Object
             return $page;
             
         } catch ( Exception $e ) {
-            CREO('error_code', 404);
+            CREO('application_error_code', 404);
             CREO('application_error', $e);
         }
     }
@@ -122,4 +122,4 @@ class ActionView extends Object
     {
         print self::to_str($view_path, $layout_path, $options);
     }
-} // END class ActionView extends Object
+} // END class ActionView extends CreovelObject

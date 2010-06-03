@@ -10,7 +10,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class Prototype extends Object
+class Prototype extends CreovelObject
 {
     /**
      * Storage for object values.
@@ -89,7 +89,7 @@ class Prototype extends Object
                     break;
             }
             
-            CREO('error_code', $error_type);
+            CREO('application_error_code', $error_type);
             CREO('application_error', $e);
         }
     }
@@ -196,4 +196,4 @@ class Prototype extends Object
     {
         return is_array($this->value) ? count($this->value) > 0 : trim($this->value);
     }
-} // END class Prototype extends Object
+} // END class Prototype extends CreovelObject

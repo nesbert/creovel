@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  */
-class ActionErrorHandler extends Object
+class ActionErrorHandler extends CreovelObject
 {
     /**
      * Add/process application error.
@@ -74,7 +74,7 @@ class ActionErrorHandler extends Object
         $this->__custom_errors();
         
         // set header for error pages
-        switch ($GLOBALS['CREOVEL']['ERROR_CODE']) {
+        switch ($GLOBALS['CREOVEL']['APPLICATION_ERROR_CODE']) {
             case '401':
                 @header('Status: 401 Unauthorized', true, 404);
                 $action = 'unauthorized';
@@ -169,4 +169,4 @@ class ActionErrorHandler extends Object
             $this->message .= " The following Query has been executed: \"". ActiveSession::create_table(1) ."\". You should not see this message again.";
         }
     }
-} // END class ActionErrorHandler extends Object
+} // END class ActionErrorHandler extends CreovelObject

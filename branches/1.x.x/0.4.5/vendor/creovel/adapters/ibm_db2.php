@@ -219,8 +219,8 @@ class IbmDb2 extends AdapterBase
      */
     public function total_rows($result = null)
     {
-    	$result = $result ? $result : $this->result;
-    	return is_resource($result) ? db2_num_rows($result) : 0;
+        $result = $result ? $result : $this->result;
+        return is_resource($result) ? db2_num_rows($result) : 0;
     }
     
     /**
@@ -287,11 +287,11 @@ class IbmDb2 extends AdapterBase
     public function valid()
     {
         if ($this->offset < $this->total_rows()) {
-        	if ($this->offset) {
+            if ($this->offset) {
                 return db2_fetch_object($this->result, $this->offset) !== false;
-        	} else {
-        		return true;
-        	}
+            } else {
+                return true;
+            }
         } else {
             return false;
         }

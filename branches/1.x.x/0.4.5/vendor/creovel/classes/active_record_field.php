@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.x
  * @author      Nesbert Hidalgo
  **/
-class ActiveRecordField extends Object
+class ActiveRecordField extends CreovelObject
 {
     /**
      * Field database.
@@ -79,6 +79,13 @@ class ActiveRecordField extends Object
      * @var string
      **/
     public $key_name = '';
+    
+    /**
+     * Field is identity flag.
+     *
+     * @var string
+     **/
+    public $is_identity = false;
     
     /**
      * Field default value.
@@ -154,6 +161,11 @@ class ActiveRecordField extends Object
                     unset($this->key);
                     unset($this->key_name);
                 }
+                
+                if ($attributes->extra == 'auto_increment') {
+                    $this->is_identity = true;
+                }
+                
                 $this->null = $attributes->null;
                 $this->default = $attributes->default;
                 break;
@@ -178,4 +190,4 @@ class ActiveRecordField extends Object
     {
         return new ActiveRecordField($attributes);
     }
-} // END class ActiveRecordField extends Object
+} // END class ActiveRecordField extends CreovelObject

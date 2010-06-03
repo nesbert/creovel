@@ -29,9 +29,9 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo view_source_url($file); ?>"><?php echo $name; ?></a>
+            <a href="<?php echo view_source_url($file); ?>"><?php echo classify($name); ?></a>
             <?php } else { ?>
-            <?php echo $name; ?>
+            <?php echo classify($name); ?>
             <?php } ?>
         <?php } else { ?>
             Not Available
@@ -52,9 +52,9 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo view_source_url($file); ?>"><?php echo $name; ?></a>
+            <a href="<?php echo view_source_url($file); ?>"><?php echo classify($name); ?></a>
             <?php } else { ?>
-            <?php echo $name; ?>
+            <?php echo classify($name); ?>
             <?php } ?>
         <?php } else { ?>
             Not Available
@@ -97,32 +97,6 @@
 <?php } ?>
 </table>
 
-<h1>Constants</h1>
-<?php
-$data = get_user_defined_constants();
-include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
-?>
-
-
-<h1>Files</h1>
-<table cellspacing="0" class="block constants">
-<?php $total_filesize = 0; ?>
-<?php foreach(get_included_files() as $file => $value) { ?>
-<?php $total_filesize += filesize($value); ?>
-<tr>
-    <td class="sub"><?php print($file + 1); ?>.</td>
-    <td>
-        <?php if (CREO('show_source')) { ?>
-        <a href="<?php echo view_source_url($value); ?>"><?php echo $value; ?> (<?php echo get_filesize($value); ?>)</a>
-        <?php } else { ?>
-        <?php echo $value; ?> (<?php echo get_filesize($value); ?>)
-        <?php } ?>
-    </td>
-</tr>
-<?php } ?>
-<tr><td class="sub">Total</td><td><?php print($file + 1); ?> Files (<?php echo get_filesize($total_filesize); ?>)</td></tr>
-</table>
-
 <?php if (isset($_GET) && count($_GET)) { ?>
 <h1>$_GET</h1>
 <?php
@@ -160,3 +134,29 @@ include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
 $data = $_SERVER;
 include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
 ?>
+
+<h1>Constants</h1>
+<?php
+$data = get_user_defined_constants();
+include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
+?>
+
+
+<h1>Files</h1>
+<table cellspacing="0" class="block constants">
+<?php $total_filesize = 0; ?>
+<?php foreach(get_included_files() as $file => $value) { ?>
+<?php $total_filesize += filesize($value); ?>
+<tr>
+    <td class="sub"><?php print($file + 1); ?>.</td>
+    <td>
+        <?php if (CREO('show_source')) { ?>
+        <a href="<?php echo view_source_url($value); ?>"><?php echo $value; ?> (<?php echo get_filesize($value); ?>)</a>
+        <?php } else { ?>
+        <?php echo $value; ?> (<?php echo get_filesize($value); ?>)
+        <?php } ?>
+    </td>
+</tr>
+<?php } ?>
+<tr><td class="sub">Total</td><td><?php print($file + 1); ?> Files (<?php echo get_filesize($total_filesize); ?>)</td></tr>
+</table>

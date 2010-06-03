@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActionRouter extends Object
+class ActionRouter extends CreovelObject
 {
     /**
      * Add route to framework.
@@ -265,4 +265,4 @@ class ActionRouter extends Object
                 $event
                 );
     }
-} // END class ActionRouter extends Object
+} // END class ActionRouter extends CreovelObject

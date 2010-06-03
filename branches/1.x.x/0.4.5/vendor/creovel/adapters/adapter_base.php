@@ -12,7 +12,7 @@
 // include adapter interface.
 require_once 'adapter_interface.php';
 
-abstract class AdapterBase extends Object implements AdapterInterface, Iterator
+abstract class AdapterBase extends CreovelObject implements AdapterInterface, Iterator
 {
     /**
      * Database resource.
@@ -35,7 +35,7 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
      * @var integer
      **/
     public $offset = 0;
-	
+    
     /**
      * Pass an associative array of database settings to connect
      * to database on construction of class.
@@ -59,7 +59,7 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
             $msg = 'An error occurred while interacting with a database ' .
                 "using <strong>{$this->to_string()}</strong> adapter.";
         }
-        CREO('error_code', 500);
+        CREO('application_error_code', 500);
         CREO('application_error', $msg);
     }
     
@@ -175,4 +175,4 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
     {
         $this->execute('COMMIT;');
     }
-} // END abstract class AdapterBase extends Object implements AdapterInterface, Iterator
+} // END abstract class AdapterBase extends CreovelObject implements AdapterInterface, Iterator

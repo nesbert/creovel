@@ -113,7 +113,7 @@ class MysqlImproved extends AdapterBase
      **/
     public function get_row()
     {
-    	if ($this->valid()) {
+        if ($this->valid()) {
             return $this->result->fetch_object();
         } else {
             return false;

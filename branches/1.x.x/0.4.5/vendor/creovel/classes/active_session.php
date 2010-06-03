@@ -7,7 +7,7 @@
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0 
  **/
-class ActiveSession extends Object
+class ActiveSession extends CreovelObject
 {
     /**
      * Storage resource.
@@ -149,4 +149,4 @@ class ActiveSession extends Object
             return ActiveRecord::table_object()->query($sql);
         }
     }
-} // END class Session extends Object
+} // END class Session extends CreovelObject

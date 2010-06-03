@@ -11,13 +11,6 @@
 class IbmDb2 extends AdapterBase
 {
     /**
-     * Database resource.
-     *
-     * @var resource
-     **/
-    public $db;
-    
-    /**
      * Database name.
      *
      * @var resource
@@ -30,33 +23,6 @@ class IbmDb2 extends AdapterBase
      * @var resource
      **/
     public $schema;
-    
-    /**
-     * SQL query string.
-     *
-     * @var string
-     **/
-    public $query = '';
-    
-    /**
-     * Result row offset. Must be between zero and the total number
-     * of rows minus one.
-     *
-     * @var integer
-     **/
-    //public $offset = 0;
-    
-    /**
-     * Pass an associative array of database settings to connect
-     * to database on construction of class.
-     *
-     * @return void
-     **/
-    public function  __construct($db_properties = null)
-    {
-        // if properties passed connect to database
-        if (is_array($db_properties)) $this->connect($db_properties);
-    }
     
     /**
      * Opens a connection to the server with $db_properties an
@@ -134,15 +100,18 @@ class IbmDb2 extends AdapterBase
             CREO('log', "Query: {$query}");
         }
         
-        $query = str_replace_array($query, array(
-            'LIMIT 1' => 'OPTIMIZE FOR 1 ROWS'
-            ));
-        $query = str_replace(array('`', ')', '('), '', $query);
-        
-        echo $query . __LINE__ . '<br>';
-        
         $stmt = db2_prepare($this->db, $query);
         if (!$stmt) {
+            self::throw_error(db2_stmt_errormsg() . " Query \"" .
+            str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
+        }
+        
+        $stm_options = array(
+                    'rowcount' => DB2_ROWCOUNT_PREFETCH_ON,
+                    'cursor' => DB2_SCROLLABLE
+                    );
+        
+        if (!db2_set_option($stmt, $stm_options, 2)) {
             self::throw_error(db2_stmt_errormsg() . " Query \"" .
             str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
         }
@@ -192,14 +161,22 @@ class IbmDb2 extends AdapterBase
     }
     
     /**
-     * Returns an associative array that corresponds to the fetched row
+     * Returns an object that corresponds to the fetched row
      * or NULL if there are no more rows.
      *
      * @return object
      **/
     public function get_row($result = null)
     {
-        return db2_fetch_object($result ? $result : $this->result);
+        if ($result) {
+            return db2_fetch_object($result);
+        } else {
+            if ($this->valid()) {
+                return db2_fetch_object($this->result);
+            } else {
+                return false;
+            }
+        }
     }
     
     /**
@@ -216,22 +193,17 @@ class IbmDb2 extends AdapterBase
         
         // foreach row in results insert into fields object
         $result = db2_columns($this->db, null, $this->schema, $table_name, '%');
-        while ($row = $this->get_row($result)) {
-            $fields[$row->COLUMN_NAME] = new stdClass;
-            $fields[$row->COLUMN_NAME]->type = strtoupper($row->TYPE_NAME);
-            $fields[$row->COLUMN_NAME]->null = $row->IS_NULLABLE;
-            $fields[$row->COLUMN_NAME]->default = null;
-            $fields[$row->COLUMN_NAME]->extra = null;
-            $fields[$row->COLUMN_NAME]->value = null;
+        while ($row = db2_fetch_object($result)) {
+            $fields[$row->COLUMN_NAME] = $row;
         }
         $this->free_result($result);
         
         // get and set primary key info
         $result = db2_primary_keys($this->db, null, $this->schema, $table_name);
         
-        while ($row = $this->get_row($result)) {
+        while ($row = db2_fetch_object($result)) {
             if (isset($fields[$row->COLUMN_NAME])) {
-                $fields[$row->COLUMN_NAME]->key = 'PRI';
+                $fields[$row->COLUMN_NAME]->key = 'PK';
                 $fields[$row->COLUMN_NAME]->key_name = $row->PK_NAME;
             }
         }
@@ -247,7 +219,8 @@ class IbmDb2 extends AdapterBase
      */
     public function total_rows($result = null)
     {
-        return @db2_num_rows($result ? $result : $this->result);
+    	$result = $result ? $result : $this->result;
+    	return is_resource($result) ? db2_num_rows($result) : 0;
     }
     
     /**
@@ -257,7 +230,7 @@ class IbmDb2 extends AdapterBase
      */
     public function affected_rows()
     {
-        return @db2_num_rows($this->db);
+        return db2_num_rows($this->result);
     }
     
     /**
@@ -267,7 +240,7 @@ class IbmDb2 extends AdapterBase
      */
     public function insert_id()
     {
-        return @db2_last_insert_id($this->db);
+        return db2_last_insert_id($this->db);
     }
     
     /**
@@ -278,7 +251,7 @@ class IbmDb2 extends AdapterBase
      */
     public function escape($string)
     {
-        return @db2_escape_string($string);
+        return db2_escape_string($string);
     }
     
     /**
@@ -288,14 +261,7 @@ class IbmDb2 extends AdapterBase
      **/
     public function reset()
     {
-        // reset properties
-        $this->query = '';
-        $this->offset = 0;
-        
-        // release result resource
-        if (is_resource($this->db) && !empty($this->result) && is_resource($this->result)) {
-            $this->free_result();
-        }
+        parent::reset();
     }
     
     /**
@@ -305,7 +271,7 @@ class IbmDb2 extends AdapterBase
      **/
     public function free_result($result = null)
     {
-        return @db2_free_result($result ? $result : $this->result);
+        return db2_free_result($result ? $result : $this->result);
     }
     
     /**
@@ -321,7 +287,11 @@ class IbmDb2 extends AdapterBase
     public function valid()
     {
         if ($this->offset < $this->total_rows()) {
-            return db2_fetch_row($this->result, $this->offset);
+        	if ($this->offset) {
+                return db2_fetch_object($this->result, $this->offset) !== false;
+        	} else {
+        		return true;
+        	}
         } else {
             return false;
         }

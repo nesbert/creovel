@@ -15,6 +15,40 @@ require_once 'adapter_interface.php';
 abstract class AdapterBase extends Object implements AdapterInterface, Iterator
 {
     /**
+     * Database resource.
+     *
+     * @var resource
+     **/
+    public $db;
+    
+    /**
+     * SQL query string.
+     *
+     * @var string
+     **/
+    public $query = '';
+    
+    /**
+     * Result row offset. Must be between zero and the total number
+     * of rows minus one.
+     *
+     * @var integer
+     **/
+    public $offset = 0;
+	
+    /**
+     * Pass an associative array of database settings to connect
+     * to database on construction of class.
+     *
+     * @return void
+     **/
+    public function  __construct($db_properties = null)
+    {
+        // if properties passed connect to database
+        if (is_array($db_properties)) $this->connect($db_properties);
+    }
+    
+    /**
      * Stop the application and display/handle error.
      *
      * @return void
@@ -88,6 +122,24 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
     {
         $this->offset--;
         return $this->current();
+    }
+    
+    /**
+     * Resets DB properties and frees result resources.
+     *
+     * @return void
+     **/
+    public function reset()
+    {
+        // reset properties
+        $this->query = '';
+        $this->rewind();
+        
+        // release result resource
+        if (!empty($this->db) && !empty($this->result) &&
+            is_resource($this->db) && is_resource($this->result)) {
+            $this->free_result();
+        }
     }
     
     /**

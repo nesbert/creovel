@@ -11,40 +11,6 @@
 class MysqlImproved extends AdapterBase
 {
     /**
-     * Database resource.
-     *
-     * @var resource
-     **/
-    public $db;
-    
-    /**
-     * SQL query string.
-     *
-     * @var string
-     **/
-    public $query = '';
-    
-    /**
-     * Result row offset. Must be between zero and the total number
-     * of rows minus one.
-     *
-     * @var integer
-     **/
-    public $offset = 0;
-    
-    /**
-     * Pass an associative array of database settings to connect
-     * to database on construction of class.
-     *
-     * @return void
-     **/
-    public function  __construct($db_properties = null)
-    {
-        // if properties passed connect to database
-        if (is_array($db_properties)) $this->connect($db_properties);
-    }
-    
-    /**
      * Opens a connection to the MySQL Server with $db_properties an
      * array of database settings.
      *
@@ -147,7 +113,11 @@ class MysqlImproved extends AdapterBase
      **/
     public function get_row()
     {
-        return $this->result->fetch_object();
+    	if ($this->valid()) {
+            return $this->result->fetch_object();
+        } else {
+            return false;
+        }
     }
     
     /**
@@ -238,14 +208,7 @@ class MysqlImproved extends AdapterBase
      **/
     public function reset()
     {
-        // reset properties
-        $this->query = '';
-        $this->offset = 0;
-        
-        // release result resource
-        if (is_resource($this->db) && is_resource($this->result)) {
-            $this->free_result();
-        }
+        parent::reset();
     }
     
     /**

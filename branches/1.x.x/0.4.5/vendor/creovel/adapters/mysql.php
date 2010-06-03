@@ -11,40 +11,6 @@
 class Mysql extends AdapterBase
 {
     /**
-     * Database resource.
-     *
-     * @var resource
-     **/
-    public $db;
-    
-    /**
-     * SQL query string.
-     *
-     * @var string
-     **/
-    public $query = '';
-    
-    /**
-     * Result row offset. Must be between zero and the total number
-     * of rows minus one.
-     *
-     * @var integer
-     **/
-    //public $offset = 0;
-    
-    /**
-     * Pass an associative array of database settings to connect
-     * to database on construction of class.
-     *
-     * @return void
-     **/
-    public function  __construct($db_properties = null)
-    {
-        // if properties passed connect to database
-        if (is_array($db_properties)) $this->connect($db_properties);
-    }
-    
-    /**
      * Opens a connection to the MySQL Server with $db_properties an
      * array of database settings.
      *
@@ -165,7 +131,15 @@ class Mysql extends AdapterBase
      **/
     public function get_row($result = null)
     {
-        return mysql_fetch_object($result ? $result : $this->result);
+    	if ($result) {
+            return mysql_fetch_object($result);
+    	} else {
+    		if ($this->valid()) {
+                return mysql_fetch_object($this->result);
+    		} else {
+    			return false;
+    		}
+    	}
     }
     
     /**
@@ -215,7 +189,8 @@ class Mysql extends AdapterBase
      */
     public function total_rows($result = null)
     {
-        return @mysql_num_rows($result ? $result : $this->result);
+        $result = $result ? $result : $this->result;
+        return is_resource($result) ? mysql_num_rows($result) : 0;
     }
     
     /**
@@ -256,14 +231,7 @@ class Mysql extends AdapterBase
      **/
     public function reset()
     {
-        // reset properties
-        $this->query = '';
-        $this->offset = 0;
-        
-        // release result resource
-        if (is_resource($this->db) && !empty($this->result) && is_resource($this->result)) {
-            $this->free_result();
-        }
+    	parent::reset();
     }
     
     /**

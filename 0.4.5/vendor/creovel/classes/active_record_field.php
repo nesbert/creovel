@@ -11,34 +11,6 @@
 class ActiveRecordField extends CreovelObject
 {
     /**
-     * Field database.
-     *
-     * @var string
-     **/
-    public $database;
-    
-    /**
-     * Field schema.
-     *
-     * @var string
-     **/
-    public $schema;
-    
-    /**
-     * Field table.
-     *
-     * @var string
-     **/
-    public $table;
-    
-    /**
-     * Field table.
-     *
-     * @var string
-     **/
-    public $name;
-    
-    /**
      * Field type (CHAR, VARCHAR, TEXT, etc).
      *
      * @var string
@@ -67,6 +39,13 @@ class ActiveRecordField extends CreovelObject
     public $has_changed = false;
     
     /**
+     * Field is identity flag.
+     *
+     * @var string
+     **/
+    public $is_identity = false;
+    
+    /**
      * Field key (PK, FR, blank).
      *
      * @var string
@@ -79,13 +58,6 @@ class ActiveRecordField extends CreovelObject
      * @var string
      **/
     public $key_name = '';
-    
-    /**
-     * Field is identity flag.
-     *
-     * @var string
-     **/
-    public $is_identity = false;
     
     /**
      * Field default value.
@@ -111,11 +83,7 @@ class ActiveRecordField extends CreovelObject
     {
         switch ($attributes->adapter) {
             
-            case 'IbmDb2':
-                $this->database = strtoupper($attributes->database);
-                $this->schema = strtoupper($attributes->TABLE_SCHEM);
-                $this->table = $attributes->TABLE_NAME;
-                $this->name = $attributes->COLUMN_NAME;
+            case 'ibmdb2':
                 $this->type = $attributes->TYPE_NAME;
                 if ($attributes->DATA_TYPE == 3) {
                     $this->size = "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";
@@ -140,11 +108,6 @@ class ActiveRecordField extends CreovelObject
             
             // mysql & mysqli adpater field routine
             default:
-                $this->database = $attributes->database;
-                unset($this->schema);
-                $this->table = $attributes->table;
-                $this->name = $attributes->name;
-                
                 if (in_string('(', $attributes->type)) {
                     $this->type = strtoupper(preg_replace('/(\w+)\((.*)\)/i', '${1}', $attributes->type));
                     $this->size = preg_replace('/(\w+)\((.*)\)/i', '${2}', $attributes->type);
@@ -164,6 +127,8 @@ class ActiveRecordField extends CreovelObject
                 
                 if ($attributes->extra == 'auto_increment') {
                     $this->is_identity = true;
+                } else {
+                    unset($this->is_identity);
                 }
                 
                 $this->null = $attributes->null;
@@ -172,12 +137,6 @@ class ActiveRecordField extends CreovelObject
         }
         
         $this->value = $this->default;
-        
-        // if ($this->type == 'DOUBLE') {
-        //     var_dump($attributes);
-        //     var_dump($this);
-        //     die;
-        // }
     }
     
     /**

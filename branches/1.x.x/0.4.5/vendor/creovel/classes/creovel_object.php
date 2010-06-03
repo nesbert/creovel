@@ -38,6 +38,26 @@ class CreovelObject implements Iterator
     }
     
     /**
+     * General __get routine.
+     *
+     * @return void
+     **/
+    public function __get($property)
+    {
+        // make sure items is set
+        if (isset($this->_items_)) {
+            // check for property
+            if (isset($this->_items_[$this->_index_]->{$property})) {
+                if (is_object($this->_items_[$this->_index_])) {
+                    return $this->_items_[$this->_index_]->{$property};
+                } else {
+                    return $this->_items_[$this->_index_][$property];
+                }
+            }
+        }
+    }
+    
+    /**
      * Magic function call being used to catch controller errors.
      *
      * @param string $method Name of method being called.
@@ -269,29 +289,4 @@ class CreovelObject implements Iterator
         }
         return 0;
     }
-    
-    /**
-     * General magic methods.
-     */
-    
-    /**
-     * General __get routine.
-     *
-     * @return void
-     **/
-    public function __get($property)
-    {
-        // make sure items is set
-        if (isset($this->_items_)) {
-            // check for property
-            if (isset($this->_items_[$this->_index_]->{$property})) {
-                if (is_object($this->_items_[$this->_index_])) {
-                    return $this->_items_[$this->_index_]->{$property};
-                } else {
-                    return $this->_items_[$this->_index_][$property];
-                }
-            }
-        }
-    }
-    
 } // END class CreovelObject implements Iterator

@@ -679,9 +679,10 @@ class ActiveRecord extends CreovelObject
     /**
      * Save current object to database. If id set update else insert.
      *
+     * @param boolean $reload_on_success
      * @return void
      **/
-    public function save($validation_routine = 'validate')
+    public function save($reload_on_success = true)
     {
         // call back
         $this->before_save();
@@ -745,7 +746,9 @@ class ActiveRecord extends CreovelObject
         if ($ret_val) {
             // load record to make sure to get most recent info
             // from DB for all the columns
-            $this->find('first', array('conditions' => $conditions));
+            if ($reload_on_success) {
+                $this->find('first', array('conditions' => $conditions));
+            }
             
             // call back
             $this->after_save();

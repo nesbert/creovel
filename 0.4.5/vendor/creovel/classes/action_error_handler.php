@@ -35,7 +35,7 @@ class ActionErrorHandler extends CObject
         $message = '';
         
         if (!$subject) {
-            $subject = 'Application Error: ' . url();
+            $subject = 'Application Error: ' . CNetwork::url();
         }
         
         if ($error_message) {

@@ -3,7 +3,7 @@
  * Base Object class.
  *
  * @package     Creovel
- * @subpackage  BaseCore
+ * @subpackage  Core
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo

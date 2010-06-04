@@ -50,17 +50,17 @@ class CDateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($yesterday, CDate::gmdatetime(CDate::datetime(strtotime('-1day'))));
     }
 
-    public function testTimeAgo()
+    public function testtimeAgo()
     {
-        $this->assertEquals('1 day', CDate::timeAgo(strtotime('-1day')));
-        $this->assertEquals('5 days', CDate::timeAgo(strtotime('-5day')));
-        $this->assertEquals('1 week', CDate::timeAgo(strtotime('-8day')));
-        $this->assertFalse(CDate::timeAgo(strtotime('-4weeks')));
-        $this->assertFalse(@CDate::timeAgo());
-        $this->assertFalse(@CDate::timeAgo(time() + MINUTE));
+        $this->assertEquals('1 day', CDate::time_ago(strtotime('-1day')));
+        $this->assertEquals('5 days', CDate::time_ago(strtotime('-5day')));
+        $this->assertEquals('1 week', CDate::time_ago(strtotime('-8day')));
+        $this->assertFalse(CDate::time_ago(strtotime('-4weeks')));
+        $this->assertFalse(@CDate::time_ago());
+        $this->assertFalse(@CDate::time_ago(time() + MINUTE));
     }
 
-    public function testDateRange()
+    public function testdateRange()
     {
         $array = array(
             '2010-05-28' => 'Fri',
@@ -72,9 +72,9 @@ class CDateTest extends PHPUnit_Framework_TestCase
             '2010-06-03' => 'Thu',
             '2010-06-04' => 'Fri',
         );
-        $this->assertEquals($array, CDate::dateRange('2010-05-28', '2010-06-04'));
-        $this->assertEquals(array_flip($array), CDate::dateRange('2010-05-28', '2010-06-04', 'D', 'Y-m-d'));
-        $this->assertTrue(is_array(CDate::dateRange(strtotime('-1week'))));
+        $this->assertEquals($array, CDate::date_range('2010-05-28', '2010-06-04'));
+        $this->assertEquals(array_flip($array), CDate::date_range('2010-05-28', '2010-06-04', 'D', 'Y-m-d'));
+        $this->assertTrue(is_array(CDate::date_range(strtotime('-1week'))));
     }
 }
 ?>

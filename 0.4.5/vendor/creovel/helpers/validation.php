@@ -1,5 +1,9 @@
 <?php
 /**
+ * WARNING!
+ * These functions has been DEPRECATED as of 0.4.5 and have been moved
+ * to the CValidate object. Relying on this feature is highly discouraged.
+ * 
  * Global validation functions.
  *
  * @package     Creovel
@@ -19,8 +23,7 @@
  **/
 function is_hostname($var)
 {
-    return preg_match('/^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,4})$/', $var)
-            && $var{0} != '-' ? true : false;
+    return CValidate::hostname($var);
 }
 
 /**
@@ -32,10 +35,7 @@ function is_hostname($var)
  **/
 function is_email($var)
 {
-    $var = @explode('@', $var);
-    return count($var) == 2
-            && preg_match('/^[_A-Za-z0-9-]+(\.[_A-Za-z0-9-]+)*$/', $var[0])
-            && is_hostname($var[1]) ? true : false;
+    return CValidate::email($var);
 }
 
 /**
@@ -47,11 +47,7 @@ function is_email($var)
  **/
 function is_url($var)
 {
-    $var = parse_url($var);
-    
-    return (isset($var['scheme']) && isset($var['host']))
-            && preg_match('/^(http|https|ftp)$/', $var['scheme'])
-            && is_hostname($var['host']) ? true : false;
+    return CValidate::url($var);
 }
 
 /**
@@ -63,7 +59,7 @@ function is_url($var)
  **/
 function is_alpha($var)
 {
-    return preg_match('/^[a-z]+$/i', $var) ? true : false;
+    return CValidate::alpha($var);
 }
 
 /**
@@ -75,7 +71,7 @@ function is_alpha($var)
  **/
 function is_alpha_numeric($var)
 {
-    return preg_match('/^[a-zA-Z0-9]+$/', $var) ? true : false;
+    return CValidate::alpha_numeric($var);
 }
 
 /**
@@ -88,7 +84,7 @@ function is_alpha_numeric($var)
 if (!function_exists('is_number')) {
     function is_number($var)
     {
-        return preg_match('/^[0-9]+?[.]?[0-9]*$/', $var) ? true : false;
+        return CValidate::number($var);
     }
 }
 
@@ -101,7 +97,7 @@ if (!function_exists('is_number')) {
  **/
 function is_positive_number($var)
 {
-    return is_number($var) && $var > 0 ? true : false;
+    return CValidate::positive_number($var);
 }
 
 /**
@@ -114,7 +110,7 @@ function is_positive_number($var)
  **/
 function is_match($var1, $var2)
 {
-    return $var1 == $var2;
+    return CValidate::match($var1, $var2);
 }
 
 /**
@@ -128,8 +124,7 @@ function is_match($var1, $var2)
  **/
 function is_between($var, $min, $max)
 {
-    return (is_numeric($min) && is_numeric($max))
-        && ($var >= $min && $var <= $max);
+    return CValidate::between($var, $min, $max);
 }
 
 /**
@@ -142,7 +137,7 @@ function is_between($var, $min, $max)
  **/
 function is_length($var, $length)
 {
-    return count(str_split($var)) == $length;
+    return CValidate::length($var, $length);
 }
 
 /**
@@ -156,8 +151,7 @@ function is_length($var, $length)
  **/
 function is_length_between($var, $min, $max)
 {
-	$length = strlen($var);
-	return ( $length >= $min ) && ( $length <= $max );
+    return CValidate::length_between($var, $min, $max);
 }
 
 /**
@@ -169,8 +163,7 @@ function is_length_between($var, $min, $max)
  **/
 function is_regex($var)
 {
-    @preg_match($var, '', $test);
-    return is_array($test);
+    return CValidate::regex($var);
 }
 
 /**
@@ -181,7 +174,7 @@ function is_regex($var)
  **/
 function is_even($var)
 {
-    return !is_odd($var);
+    return CValidate::even($var);
 }
 
 /**
@@ -192,7 +185,7 @@ function is_even($var)
  **/
 function is_odd($var)
 {
-    return $var & 1;
+    return CValidate::odd($var);
 }
 
 /**
@@ -203,7 +196,7 @@ function is_odd($var)
  **/
 function is_ajax()
 {
-    return @$_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
+    return CValidate::ajax();
 }
 
 /**
@@ -215,13 +208,5 @@ function is_ajax()
  **/
 function is_hash($array)
 {
-    if (is_array($array) == false) {
-        return false;
-    }
-    
-    foreach (array_keys($array) as $k => $v) {
-        if ($k !== $v) return true;
-    }
-    
-    return false;
+    return CValidate::hash($array);
 }

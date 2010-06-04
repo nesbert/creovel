@@ -411,7 +411,7 @@ class ActiveQuery
         $sql = '';
         
         // 1. hash or object condidtions
-        if (is_hash($conditions) || is_object($conditions)) {
+        if (CValidate::hash($conditions) || is_object($conditions)) {
             $cs = array();
             foreach ($conditions as $k => $v) {
                 $cs[] = $this->build_identifier(array($this->__db->__schema, $table, $k)) . " = {$this->quote_value($v)}";

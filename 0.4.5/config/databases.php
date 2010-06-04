@@ -11,11 +11,21 @@
  */
 CREO('database', array(
     'mode'      => 'development',
-    'adapter'   => 'mysql',
+    'adapter'   => 'Mysql',
+    'host'      => 'mysqltest',
+    'username'  => 'webuser',
+    'password'  => 'webpass',
+    'database'  => 'cmsdb'
+    ));
+
+CREO('database', array(
+    'mode'      => 'development1',
+    'adapter'   => 'IbmDb2',
     'host'      => 'localhost',
-    'username'  => '',
-    'password'  => '',
-    'database'  => 'creovel_development'
+    'username'  => 'webuser',
+    'password'  => 'webpass',
+    'database'  => 'cmsdb',
+    'schema'    => 'cmsdb',
     ));
 
 /**
@@ -23,7 +33,7 @@ CREO('database', array(
  */
 CREO('database', array(
     'mode'      => 'test',
-    'adapter'   => 'mysql',
+    'adapter'   => 'Mysql',
     'host'      => 'localhost',
     'username'  => '',
     'password'  => '',
@@ -35,7 +45,7 @@ CREO('database', array(
  */
 CREO('database', array(
     'mode'      => 'production',
-    'adapter'   => 'mysql',
+    'adapter'   => 'Mysql',
     'host'      => 'localhost',
     'username'  => '',
     'password'  => '',

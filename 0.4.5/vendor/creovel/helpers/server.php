@@ -1,5 +1,9 @@
 <?php
 /**
+ * WARNING!
+ * These functions has been DEPRECATED as of 0.4.5 and have been moved
+ * to the CNetwork object. Relying on this feature is highly discouraged.
+ * 
  * General server/networking functions.
  *
  * @package     Creovel
@@ -16,7 +20,7 @@
  **/
 function ip()
 {
-    return @$_SERVER['REMOTE_ADDR'];
+    return CNetwork::ip();
 }
 
 /**
@@ -27,7 +31,7 @@ function ip()
  **/
 function http()
 {
-    return 'http'.(getenv('HTTPS') == 'on' ? 's' : '').'://';
+    return CNetwork::http();
 }
 
 /**
@@ -38,7 +42,7 @@ function http()
  **/
 function host()
 {
-    return @$_SERVER['HTTP_HOST'];
+    return CNetwork::host();
 }
 
 /**
@@ -49,7 +53,7 @@ function host()
  **/
 function http_host()
 {
-    return http() . host();
+    return CNetwork::http_host();
 }
 
 /**
@@ -60,7 +64,7 @@ function http_host()
  **/
 function url()
 {
-    return http_host() . $_SERVER['REQUEST_URI'];
+    return CNetwork::url();
 }
 
 /**
@@ -71,9 +75,7 @@ function url()
  **/
 function domain()
 {
-    $url = explode('.', host());
-    $tld = explode(':', $url[count($url) - 1]);
-    return $url[count($url) - 2] . '.' . $tld[0];
+    return CNetwork::domain();
 }
 
 /**
@@ -87,8 +89,7 @@ function domain()
  **/
 function tld()
 {
-    $url = explode('.', domain());
-    return isset($url[1]) ? $url[1] : '';
+    return CNetwork::tld();
 }
 
 /**
@@ -99,8 +100,7 @@ function tld()
  * @return integer
  * @author Nesbert Hidalgo
  **/
-function int_ip($ip = '')
+function int_ip($ip = null)
 {
-    if (is_numeric($ip)) return long2ip($ip);
-    return ip2long($ip ? $ip : ip());
+    return CNetwork::int_ip($ip);
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * WARNING
+ * WARNING!
  * These functions has been DEPRECATED as of 0.4.5 and have been moved
  * to the CDate object. Relying on this feature is highly discouraged.
  *
@@ -59,7 +59,7 @@ function gmdatetime($datetime = null)
  **/
 function time_ago($time)
 { 
-    return CDate::timeAgo($time);
+    return CDate::time_ago($time);
 }
 
 /**
@@ -75,5 +75,5 @@ function time_ago($time)
  **/
 function date_range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
 {
-    return CDate::dateRange($start, $end, $key_date_format, $value_date_format);
+    return CDate::date_range($start, $end, $key_date_format, $value_date_format);
 }

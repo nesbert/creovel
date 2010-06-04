@@ -100,7 +100,9 @@ class PrototypeString extends Prototype
     public function gsub($pattern, $replace)
     {
         return preg_replace(
-                        (is_regex($pattern) ? $pattern : "~{$pattern}~"),
+                        (CValidate::regex($pattern)
+                            ? $pattern
+                            : "~{$pattern}~"),
                         $replace,
                         $this->value
                         );
@@ -167,7 +169,9 @@ class PrototypeString extends Prototype
     public function sub($pattern, $replace, $times = 1)
     {
         return preg_replace(
-                        (is_regex($pattern) ? $pattern : "~{$pattern}~"),
+                        (CValidate::regex($pattern)
+                            ? $pattern
+                            : "~{$pattern}~"),
                         $replace,
                         $this->value,
                         $times);

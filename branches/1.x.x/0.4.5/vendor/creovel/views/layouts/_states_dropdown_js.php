@@ -11,7 +11,10 @@
  **/
 
 // create JS objects
-$countries = array('US' => states('US'), 'CA' => states('CA'));
+$countries = array(
+    'US' => CLocale::states('US'),
+    'CA' => CLocale::states('CA')
+    );
 $objects = array();
 foreach ($countries as $country => $states) {
     $temp = array();

@@ -96,7 +96,7 @@ class ActiveRecord extends CObject
     final public function load_model_data($data)
     {
         // $data hash load
-        if (is_hash($data) || is_object($data)) {
+        if (CValidate::hash($data) || is_object($data)) {
             // load data into object
             $this->attributes($data);
         }
@@ -119,7 +119,7 @@ class ActiveRecord extends CObject
         if (is_object($data)) $data = (array) $data;
         
         // if assc array
-        if (is_hash($data)) {
+        if (CValidate::hash($data)) {
             // do nothing $data already in correct format
         } elseif (count($keys) == 1) {
             if (is_array($data)) {
@@ -558,7 +558,7 @@ class ActiveRecord extends CObject
     final public function attributes($data = null)
     {
         // set column properties
-        if (is_hash($data) || is_object($data)) {
+        if (CValidate::hash($data) || is_object($data)) {
             // insert new vals
             foreach ($data as $k => $v) {
                 $this->{$k} = $v;
@@ -581,7 +581,7 @@ class ActiveRecord extends CObject
      **/
     final private function set_attributes_from_query($data)
     {
-        if (is_hash($data) || is_object($data)) {
+        if (CValidate::hash($data) || is_object($data)) {
             // insert new vals
             foreach ($data as $k => $v) {
                 $this->_columns_[$k]->value = $v;
@@ -872,7 +872,7 @@ class ActiveRecord extends CObject
         if (!isset($options['update'])) {
             throw new Exception('Missing argument <em>update</em> not set' .
             " in options array for <strong>{$this->class_name()}::update</strong>.");
-        } elseif (!is_hash($options['update']) && !is_object($options['update'])) {
+        } elseif (!CValidate::hash($options['update']) && !is_object($options['update'])) {
             throw new Exception('Argument <em>update</em> must be an array' .
             " or object of attributes for <strong>{$this->class_name()}::update</strong>.");
         }
@@ -1213,7 +1213,7 @@ class ActiveRecord extends CObject
                     break;
                 
                 case in_string('find_by_', $method):
-                    $args = isset($arguments[1]) && is_hash($arguments[1]) ? $arguments[1] : array();
+                    $args = isset($arguments[1]) && CValidate::hash($arguments[1]) ? $arguments[1] : array();
                     $args['conditions'] = array($name => $arguments[0]);
                     $return = $this->find('all', $args);
                     

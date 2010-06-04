@@ -114,7 +114,7 @@ class ActiveValidation extends CObject
     {
         // no value2 get from params
         if ( $value2 === null ) $value2 = Creovel::params($field . '_confirmation');
-        return self::validate_field_by_bool(is_match($value, $value2), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." doesn't match confirmation."), $required);
+        return self::validate_field_by_bool(CValidate::match($value, $value2), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." doesn't match confirmation."), $required);
     }
     
     /**
@@ -129,7 +129,7 @@ class ActiveValidation extends CObject
      **/
     public function validates_email_format_of($field, $value, $message = null, $required = false)
     {
-        return self::validate_field_by_bool(is_email($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid email address."), $required);
+        return self::validate_field_by_bool(CValidate::email($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid email address."), $required);
     }
     
     /**
@@ -174,7 +174,7 @@ class ActiveValidation extends CObject
     public function validates_numericality_of($field, $value, $message = null, $required = false, $only_integer = false)
     {
         
-        return self::validate_field_by_bool(($only_integer ? (is_number($value) && is_int((int) $value)) : is_number($value)), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is not a number."), $required);
+        return self::validate_field_by_bool(($only_integer ? (CValidate::number($value) && is_int((int) $value)) : CValidate::number($value)), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is not a number."), $required);
     }
     
     /**
@@ -250,7 +250,7 @@ class ActiveValidation extends CObject
         // set message and replace %d with minimum, maximum or exact length
         $options['message'] = str_replace('%d', $d, ( $options['message'] ? $options['message'] : $message ));
         
-        return self::validate_field_by_bool(is_between(strlen($value), $options['minimum'], $options['maximum']), $field, $value, self::format_message($field, $value, $options['message'], self::FIELD_NAME." is not a number."), $options['required']);
+        return self::validate_field_by_bool(CValidate::between(strlen($value), $options['minimum'], $options['maximum']), $field, $value, self::format_message($field, $value, $options['message'], self::FIELD_NAME." is not a number."), $options['required']);
     }
     
     /**
@@ -264,7 +264,7 @@ class ActiveValidation extends CObject
      **/
     public function validates_url_format_of($field, $value, $message = null, $required = false)
     {
-        return self::validate_field_by_bool(is_url($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid web address."), $required);
+        return self::validate_field_by_bool(CValidate::url($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid web address."), $required);
     }
     
     /**

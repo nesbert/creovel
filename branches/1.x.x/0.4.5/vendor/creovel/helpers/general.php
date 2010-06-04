@@ -204,11 +204,7 @@ function str_replace_array($string, $array)
  **/
 function in_string($needle, $haystack)
 {
-    if (strpos($haystack, (string) $needle) === false) {
-        return false;
-    } else {
-        return true;
-    }
+    return CValidate::in_string($needle, $haystack);
 }
 
 /**
@@ -251,57 +247,57 @@ function get_type($var)
  **/
 function dir_to_array($dir, $options = array())
 {
-	// set default options
-	if (!is_array($options)) $options = array();
-	if (!isset($options['recursive'])) $options['recursive'] = false;
-	if (!isset($options['show_dirs'])) $options['show_dirs'] = false;
-	if (!isset($options['show_invisibles'])) $options['show_invisibles'] = false;
-	if (!isset($options['group'])) $options['group'] = false;
-	if (!isset($options['filter'])) $options['filter'] = '';
-	
-	$array_items = array();
-	if ($handle = opendir($dir)) {
-		while (false !== ($file = readdir($handle))) {
-			
-			if (!$options['show_invisibles'] && $file{0} == '.') continue;
-			
-			if ($file != '.' && $file != '..') {
-				
-				$filepath = $dir . DS . $file;
-				
-				// be nice to non *nix machines
-				$dir_regex = DS == '/' ? '/\/\//si' : '/\\\\/si';
-				
-				if (is_dir($filepath)) {
-					
-					if ($options['show_dirs']) {
-						if ($options['group']) {
-							$array_items[dirname($filepath)][] = preg_replace($dir_regex, DS, $filepath);
-						} else {
-							$array_items[] = preg_replace($dir_regex, DS, $filepath);
-						}
-					}
-					if ($options['recursive']) {
-						$array_items = array_merge($array_items, dir_to_array($filepath, $options));
-					}
-					
-				} else {
-				
-					if ($options['filter'] && !preg_match($options['filter'], $file)) continue;
-					
-					if ($options['group']) {
-						$array_items[dirname($filepath)][] = preg_replace($dir_regex, DS, $filepath);
-					} else {
-						$array_items[] = preg_replace($dir_regex, DS, $filepath);
-					}
-					
-				}
-				
-			}
-		}
-		closedir($handle);
-	}
-	return $array_items;
+    // set default options
+    if (!is_array($options)) $options = array();
+    if (!isset($options['recursive'])) $options['recursive'] = false;
+    if (!isset($options['show_dirs'])) $options['show_dirs'] = false;
+    if (!isset($options['show_invisibles'])) $options['show_invisibles'] = false;
+    if (!isset($options['group'])) $options['group'] = false;
+    if (!isset($options['filter'])) $options['filter'] = '';
+    
+    $array_items = array();
+    if ($handle = opendir($dir)) {
+        while (false !== ($file = readdir($handle))) {
+            
+            if (!$options['show_invisibles'] && $file{0} == '.') continue;
+            
+            if ($file != '.' && $file != '..') {
+                
+                $filepath = $dir . DS . $file;
+                
+                // be nice to non *nix machines
+                $dir_regex = DS == '/' ? '/\/\//si' : '/\\\\/si';
+                
+                if (is_dir($filepath)) {
+                    
+                    if ($options['show_dirs']) {
+                        if ($options['group']) {
+                            $array_items[dirname($filepath)][] = preg_replace($dir_regex, DS, $filepath);
+                        } else {
+                            $array_items[] = preg_replace($dir_regex, DS, $filepath);
+                        }
+                    }
+                    if ($options['recursive']) {
+                        $array_items = array_merge($array_items, dir_to_array($filepath, $options));
+                    }
+                    
+                } else {
+                
+                    if ($options['filter'] && !preg_match($options['filter'], $file)) continue;
+                    
+                    if ($options['group']) {
+                        $array_items[dirname($filepath)][] = preg_replace($dir_regex, DS, $filepath);
+                    } else {
+                        $array_items[] = preg_replace($dir_regex, DS, $filepath);
+                    }
+                    
+                }
+                
+            }
+        }
+        closedir($handle);
+    }
+    return $array_items;
 }
 
 /**

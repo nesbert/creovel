@@ -513,7 +513,7 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
         }
     
         // intialize states array
-        $state_arr = states($country ? $country : 'US', @$html_options['show_abbr'], @$html_options['more_states']);
+        $state_arr = CLocale::states($country ? $country : 'US', @$html_options['show_abbr'], @$html_options['more_states']);
         unset($html_options['show_abbr']);
         unset($html_options['more_states']);
     
@@ -542,7 +542,7 @@ function select_countries_tag($name = 'country', $selected = null, $choices = nu
 {
     $choices = $choices ? $choices : array('' => 'Please select...');
     
-    $country_arr = countries(@$html_options['us_first'], @$html_options['show_abbr']);
+    $country_arr = CLocale::countries(@$html_options['us_first'], @$html_options['show_abbr']);
     
     // unset country function vars
     unset($html_options['us_first']);
@@ -720,7 +720,7 @@ function get_timestamp_from_array($array)
  **/
 function select_time_zone_tag($name, $selected = null, $choices = null, $html_options = null)
 {
-    $time_zones = timezones();
+    $time_zones = CLocale::timezones();
     $choices = ( $choices ? $choices : array('' => 'Please select...') );
     $time_zones = array_merge($choices, $time_zones);
     

@@ -15,7 +15,6 @@ define('CREOVEL_RELEASE_DATE', '2010-0?-?? ??:??:??');
 
 // Define environment constants.
 define('PHP', PHP_VERSION);
-define('AJAX_REQUEST', ((!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') || @$_REQUEST['_AJAX_']));
 
 // Define time constants.
 define('SECOND',  1);
@@ -171,7 +170,7 @@ class Creovel
         require_once CREOVEL_PATH . 'classes/action_router.php';
         
         // Set routing defaults
-        $GLOBALS['CREOVEL']['ROUTING'] = parse_url(url());
+        $GLOBALS['CREOVEL']['ROUTING'] = parse_url(CNetwork::url());
         $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
         $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
         
@@ -392,12 +391,15 @@ class Creovel
     public function base_url()
     {
         $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
-        if ( (!$GLOBALS['CREOVEL']['ROUTING']['base_path'] || $GLOBALS['CREOVEL']['ROUTING']['base_path'] == '/') && in_string($script, url()) ) {
+        if ( (!$GLOBALS['CREOVEL']['ROUTING']['base_path']
+            || $GLOBALS['CREOVEL']['ROUTING']['base_path'] == '/')
+            && in_string($script, CNetwork::url()) ) {
             return $script . '/';
         } else {
             if (in_string($script, url())) {
-                $p = explode($GLOBALS['CREOVEL']['ROUTING']['base_path'], url());
-                return str_replace(http_host(), '', $p[0] . '/');
+                $p = explode($GLOBALS['CREOVEL']['ROUTING']['base_path'],
+                        CNetwork::url());
+                return str_replace(CNetwork::http_host(), '', $p[0] . '/');
             } else {
                 return str_replace(array('/public/' . $GLOBALS['CREOVEL']['DISPATCHER'], '/' . $GLOBALS['CREOVEL']['DISPATCHER']), '', $script) . '/';
             }

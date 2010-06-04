@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for CDate object.
+ * Unit tests for ActiveValidation object.
  *
  * @access      private
  * @package     Creovel

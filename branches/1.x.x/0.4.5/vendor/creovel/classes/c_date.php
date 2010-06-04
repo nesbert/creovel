@@ -3,7 +3,7 @@
  * Base Date class.
  *
  * @package     Creovel
- * @subpackage  BaseCore
+ * @subpackage  Core
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.5
  * @author      Nesbert Hidalgo
@@ -51,7 +51,7 @@ class CDate extends CObject
                                                 $datetime['year']));
                 break;
 
-            case is_number($datetime):
+            case CValidate::number($datetime):
                 return date('Y-m-d H:i:s', $datetime);
                 break;
 
@@ -97,7 +97,7 @@ class CDate extends CObject
      * @return string
      * @author Nesbert Hidalgo 
      **/
-    public function timeAgo($time)
+    public function time_ago($time)
     { 
         if (empty($time)) return false;
         
@@ -151,7 +151,7 @@ class CDate extends CObject
      * @return Array
      * @author Nesbert Hidalgo
      **/
-    public function dateRange($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
+    public function date_range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
     {
         $start = strtotime(self::datetime($start));
         $end = strtotime(self::datetime($end));

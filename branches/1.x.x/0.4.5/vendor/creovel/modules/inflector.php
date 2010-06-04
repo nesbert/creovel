@@ -294,14 +294,14 @@ class Inflector extends ModuleBase
         return self::camelize(self::singularize($table_name));
     }
 
-	/**
-	 * Converts number to its ordinal English form. This method
-	 * converts 13 to 13th, 2 to 2nd, etc.
-	 *
+    /**
+     * Converts number to its ordinal English form. This method
+     * converts 13 to 13th, 2 to 2nd, etc.
+     *
      * @param string/integer $number
-	 * @return string
-	 * @author Nesbert Hidalgo
-	 **/
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
     public function ordinalize($number)
     {
         if (in_array((intval($number) % 100),range(11,13))){
@@ -332,7 +332,7 @@ class Inflector extends ModuleBase
      **/
     public function patherize($class)
     {
-        if (in_string('_', $class)) {
+        if (!(strpos($class, '_') === false)) {
             $folders = explode('_', $class);
             foreach ($folders as $k => $v) {
                 $folders[$k] = self::underscore($v);

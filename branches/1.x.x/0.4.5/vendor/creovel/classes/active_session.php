@@ -7,7 +7,7 @@
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0 
  **/
-class ActiveSession extends CreovelObject
+class ActiveSession extends CObject
 {
     /**
      * Storage resource.
@@ -97,7 +97,7 @@ class ActiveSession extends CreovelObject
         $this->r->query(sprintf(
             "REPLACE INTO `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` VALUES('%s', '%s', '%s');",
             $this->r->escape($id),
-            datetime(time() + get_cfg_var("session.gc_maxlifetime")),
+            CDate::datetime(time() + get_cfg_var("session.gc_maxlifetime")),
             $this->r->escape($val)
             ));
         
@@ -124,7 +124,7 @@ class ActiveSession extends CreovelObject
      **/
     public function gc($maxlifetime)
     {
-        $this->r->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `expires_at` < '" . datetime() . "';");
+        $this->r->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `expires_at` < '" . CDate::datetime() . "';");
         return $this->r->affected_rows();
     }
     
@@ -149,4 +149,4 @@ class ActiveSession extends CreovelObject
             return ActiveRecord::table_object()->query($sql);
         }
     }
-} // END class Session extends CreovelObject
+} // END class Session extends CObject

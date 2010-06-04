@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.x
  * @author      Nesbert Hidalgo
  **/
-class ActiveRecordField extends CreovelObject
+class ActiveRecordField extends CObject
 {
     /**
      * Field type (CHAR, VARCHAR, TEXT, etc).
@@ -155,4 +155,4 @@ class ActiveRecordField extends CreovelObject
     {
         return new ActiveRecordField($attributes);
     }
-} // END class ActiveRecordField extends CreovelObject
+} // END class ActiveRecordField extends CObject

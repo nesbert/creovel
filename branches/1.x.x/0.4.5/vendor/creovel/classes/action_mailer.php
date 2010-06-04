@@ -231,7 +231,7 @@ class ActionMailer extends ActionController
             $this->get_email_address($this->bcc) . "\n";
         
         $this->__header .= "Date: " .
-            date("r", strtotime(datetime($this->sent_on))) . "\n";
+            date("r", strtotime(CDate::datetime($this->sent_on))) . "\n";
         
         if ($this->has_attachments()) {
             $this->__header .= 'MIME-Version: 1.0'."\n";

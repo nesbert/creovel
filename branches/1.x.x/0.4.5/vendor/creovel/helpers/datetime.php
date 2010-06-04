@@ -1,5 +1,9 @@
 <?php
 /**
+ * WARNING
+ * These functions has been DEPRECATED as of 0.4.5 and have been moved
+ * to the CDate object. Relying on this feature is highly discouraged.
+ *
  * Global date and time functions.
  *
  * @package     Creovel
@@ -18,44 +22,7 @@
  **/
 function datetime($datetime = null)
 {
-    switch (true) {
-        case !$datetime:
-        default:
-            return date('Y-m-d H:i:s');
-            break;
-        
-        case is_array($datetime):
-            $datetime['hour'] = isset($datetime['hour'])
-                                ? $datetime['hour']
-                                : 0;
-            $datetime['minute'] = isset($datetime['minute'])
-                                ? $datetime['minute']
-                                : 0;
-            $datetime['second'] = isset($datetime['second'])
-                                ? $datetime['second']
-                                : 0;
-            if (!empty($datetime['ampm'])
-                && strtoupper($datetime['ampm']) == 'PM'
-                && $datetime['hour'] < 12) {
-                $datetime['hour'] += 12;
-            }
-            return date('Y-m-d H:i:s', mktime(
-                                            $datetime['hour'],
-                                            $datetime['minute'],
-                                            $datetime['second'],
-                                            $datetime['month'],
-                                            $datetime['day'],
-                                            $datetime['year']));
-            break;
-        
-        case is_number($datetime):
-            return date('Y-m-d H:i:s', $datetime);
-            break;
-        
-        case is_string($datetime) && $datetime != '0000-00-00 00:00:00':
-            return date('Y-m-d H:i:s', strtotime($datetime));
-            break;
-    }
+    return CDate::datetime($datetime);
 }
 
 /**
@@ -67,7 +34,7 @@ function datetime($datetime = null)
  **/
 function gmtime()
 {
-    return strtotime(gmdate('Y-m-d H:i:s'));
+    return CDate::gmtime();
 }
 
 /**
@@ -80,10 +47,7 @@ function gmtime()
  **/
 function gmdatetime($datetime = null)
 {
-    return gmdate('Y-m-d H:i:s', ($datetime
-                                    ? strtotime(datetime($datetime))
-                                    : time()
-                                    ));
+    return CDate::gmdatetime($datetime);
 }
 
 /**
@@ -95,40 +59,7 @@ function gmdatetime($datetime = null)
  **/
 function time_ago($time)
 { 
-    $time = time() - (is_string($time) ? strtotime($time) : $time);
-    
-    switch (true) {
-        case ($time < MINUTE):
-            $time = round(((($time % WEEK) % DAY) % HOUR) % MINUTE);
-            $return = "{$time} second";
-            break;
-        
-        case ($time < HOUR):
-            $time = round(((($time % WEEK) % DAY) % HOUR) / MINUTE);
-            $return = "{$time} minute";
-            break;
-        
-        case ($time < DAY):
-            $time = round((($time % WEEK) % DAY) / HOUR);
-            $return = "{$time} hour";
-            break;
-        
-        case ($time < WEEK):
-            $time = round(($time % WEEK) / DAY);
-            $return = "{$time} day";
-            break;
-        
-        case ($time < WEEK * 4):
-            $time = round($time / WEEK);
-            $return = "{$time} week";
-            break;
-        
-        default:
-            return false;
-            break;
-    }
-    
-    return pluralize($return, $time);
+    return CDate::timeAgo($time);
 }
 
 /**
@@ -144,20 +75,5 @@ function time_ago($time)
  **/
 function date_range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
 {
-    $start = strtotime(datetime($start));
-    $end = strtotime(datetime($end));
-    $end = mktime(0, 0, 0, date('m', $end), date('d', $end), date('Y', $end));
-    $range = array();
-    
-    if ($end >= $start) {
-        $range[date($key_date_format, $start)] = date($value_date_format, $start);
-        $next_day = $start;
-        while ($next_day < $end) {
-            $next_day_time = strtotime(date('Y-m-d', $next_day) . ' +1day'); // add a day
-            $range[date($key_date_format, $next_day_time)] = date($value_date_format, $next_day_time);
-            $next_day += DAY; // add a day
-        }
-    }
-    
-    return $range;
+    return CDate::dateRange($start, $end, $key_date_format, $value_date_format);
 }

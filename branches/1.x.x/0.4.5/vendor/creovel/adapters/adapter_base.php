@@ -12,7 +12,7 @@
 // include adapter interface.
 require_once 'adapter_interface.php';
 
-abstract class AdapterBase extends CreovelObject implements AdapterInterface, Iterator
+abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
 {
     /**
      * Database resource.
@@ -177,4 +177,4 @@ abstract class AdapterBase extends CreovelObject implements AdapterInterface, It
     {
         $this->execute('COMMIT;');
     }
-} // END abstract class AdapterBase extends CreovelObject implements AdapterInterface, Iterator
+} // END abstract class AdapterBase extends CObject implements AdapterInterface, Iterator

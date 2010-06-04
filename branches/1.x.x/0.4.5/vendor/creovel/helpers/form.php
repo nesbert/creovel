@@ -599,7 +599,7 @@ function select_redirect($name, $names_and_urls, $html_options = null)
  **/
 function date_select($name, $date = null, $html_options = null)
 {
-    $date = strtotime(datetime($date));
+    $date = strtotime(CDate::datetime($date));
     
     $i = 1;
     $months = array();

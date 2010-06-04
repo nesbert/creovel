@@ -57,7 +57,7 @@ class Logger extends ModuleBase
             $this->partition($this->filename);
         }
         
-        $message = ($this->timestamp ? '[' . datetime() . '] ' : '') .
+        $message = ($this->timestamp ? '[' . CDate::datetime() . '] ' : '') .
                     $message . ($auto_break ? "\n" : '');
                     
         if (!@file_put_contents($this->filename, $message, FILE_APPEND)) {

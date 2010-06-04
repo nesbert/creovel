@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActiveValidation extends CreovelObject
+class ActiveValidation extends CObject
 {
     /**
      * Special tag for error messages.
@@ -318,4 +318,4 @@ class ActiveValidation extends CreovelObject
         
         return $message;
     }
-} // END class ActiveValidation extends CreovelObject
+} // END class ActiveValidation extends CObject

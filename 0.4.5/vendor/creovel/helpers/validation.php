@@ -19,7 +19,7 @@
  **/
 function is_hostname($var)
 {
-    return eregi('^[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', $var)
+    return preg_match('/^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,4})$/', $var)
             && $var{0} != '-' ? true : false;
 }
 
@@ -34,7 +34,7 @@ function is_email($var)
 {
     $var = @explode('@', $var);
     return count($var) == 2
-            && eregi('^[_a-z0-9-]+(\.[_a-z0-9-]+)*$', $var[0])
+            && preg_match('/^[_A-Za-z0-9-]+(\.[_A-Za-z0-9-]+)*$/', $var[0])
             && is_hostname($var[1]) ? true : false;
 }
 
@@ -50,7 +50,7 @@ function is_url($var)
     $var = parse_url($var);
     
     return (isset($var['scheme']) && isset($var['host']))
-            && eregi('^(http|https|ftp)$', $var['scheme'])
+            && preg_match('/^(http|https|ftp)$/', $var['scheme'])
             && is_hostname($var['host']) ? true : false;
 }
 

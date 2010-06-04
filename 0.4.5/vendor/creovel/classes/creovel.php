@@ -50,7 +50,7 @@ if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
 }
 
 // Include minimum base classes.
-require_once CREOVEL_PATH . 'classes/creovel_object.php';
+require_once CREOVEL_PATH . 'classes/c_object.php';
 require_once CREOVEL_PATH . 'modules/module_base.php';
 require_once CREOVEL_PATH . 'modules/inflector.php';
 

@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-abstract class ActionController extends CreovelObject
+abstract class ActionController extends CObject
 {
     /**
      * Name of controller to use.
@@ -495,4 +495,4 @@ abstract class ActionController extends CreovelObject
         return VIEWS_PATH . 'layouts' . DS .
                 ($layout ? $layout : $this->layout) . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
     }
-} // END abstract class ActionController extends CreovelObject
+} // END abstract class ActionController extends CObject

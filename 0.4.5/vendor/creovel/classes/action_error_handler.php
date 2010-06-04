@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  */
-class ActionErrorHandler extends CreovelObject
+class ActionErrorHandler extends CObject
 {
     /**
      * Add/process application error.
@@ -169,4 +169,4 @@ class ActionErrorHandler extends CreovelObject
             $this->message .= " The following Query has been executed: \"". ActiveSession::create_table(1) ."\". You should not see this message again.";
         }
     }
-} // END class ActionErrorHandler extends CreovelObject
+} // END class ActionErrorHandler extends CObject

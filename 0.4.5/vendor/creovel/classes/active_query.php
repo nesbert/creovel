@@ -233,7 +233,7 @@ class ActiveQuery
      **/
     final public function build_query($options)
     {
-        $q = new CreovelObject;
+        $q = new CObject;
         $q->select = null;
         $q->from = null;
         $q->join = null;
@@ -505,7 +505,7 @@ class ActiveQuery
         // set created at
         if (isset($columns['created_at'])) {
             $columns['created_at']->has_changed = true;
-            $columns['created_at']->value = datetime($columns['created_at']);
+            $columns['created_at']->value = CDate::datetime($columns['created_at']);
         }
         
         // do any special magic for certain columns
@@ -554,7 +554,7 @@ class ActiveQuery
         // set updated at
         if (isset($columns['updated_at'])) {
             $columns['updated_at']->has_changed = true;
-            $columns['updated_at']->value = datetime();
+            $columns['updated_at']->value = CDate::datetime();
         }
         
         // do any special magic for certain columns
@@ -606,7 +606,7 @@ class ActiveQuery
                 // set array types
                 case is_array($field->value):
                     if (strtolower($field->type) == 'datetime') {
-                        $columns[$name]->value = datetime($field->value);
+                        $columns[$name]->value = CDate::datetime($field->value);
                     } else {
                         $columns[$name]->value = serialize($field->value);
                     }

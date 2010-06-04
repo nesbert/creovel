@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActiveRecord extends CreovelObject
+class ActiveRecord extends CObject
 {
     /**
      * Table name.
@@ -1895,5 +1895,5 @@ class ActiveRecord extends CreovelObject
     public function validate_on_create() {}
     public function validate_on_update() {}
     /**#@-*/
-} // END class ActiveRecord extends CreovelObject
+} // END class ActiveRecord extends CObject
 

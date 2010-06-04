@@ -10,7 +10,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class Prototype extends CreovelObject
+class Prototype extends CObject
 {
     /**
      * Storage for object values.
@@ -196,4 +196,4 @@ class Prototype extends CreovelObject
     {
         return is_array($this->value) ? count($this->value) > 0 : trim($this->value);
     }
-} // END class Prototype extends CreovelObject
+} // END class Prototype extends CObject

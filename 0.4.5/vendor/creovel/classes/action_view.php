@@ -10,7 +10,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  */
-class ActionView extends CreovelObject
+class ActionView extends CObject
 {
     /**
      * Creates the page to be displayed and sets it to the page property.
@@ -122,4 +122,4 @@ class ActionView extends CreovelObject
     {
         print self::to_str($view_path, $layout_path, $options);
     }
-} // END class ActionView extends CreovelObject
+} // END class ActionView extends CObject

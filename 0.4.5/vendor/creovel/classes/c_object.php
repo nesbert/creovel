@@ -3,12 +3,12 @@
  * Base Object class.
  *
  * @package     Creovel
- * @subpackage  Core
+ * @subpackage  BaseCore
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class CreovelObject implements Iterator
+class CObject implements Iterator
 {
     /**
      * Initialize parents. Override accordingly.
@@ -289,4 +289,4 @@ class CreovelObject implements Iterator
         }
         return 0;
     }
-} // END class CreovelObject implements Iterator
+} // END class CObject implements Iterator

@@ -255,45 +255,6 @@ function flash_success($message = null)
 }
 
 /**
- * Stops the application and display an error message or handle error
- * gracefully if not in development mode.
- *
- * @param string $message Error message
- * @param boolean $thow_exception Optional displays additional debugging info
- * @return mixed String or boolean
- * @author Nesbert Hidalgo
- **/
-function application_error($message, $thow_exception = false)
-{
-    if ($thow_exception) {
-        $thow_exception = new Exception($message);
-    }
-    $GLOBALS['CREOVEL']['ERROR']->add($message, $thow_exception);
-}
-
-/**
- * Returns an array of the adapters available to the framework.
- *
- * @return array
- * @author Nesbert Hidalgo
- **/
-function get_creovel_adapters()
-{
-    return get_files_from_dir(CREOVEL_PATH.'adapters');
-}
-
-/**
- * Returns an array of the services available to the framework.
- *
- * @return array
- * @author Nesbert Hidalgo
- **/
-function get_creovel_modules()
-{
-    return get_files_from_dir(CREOVEL_PATH.'modules');
-}
-
-/**
  * Creates a url path for lazy programmers.
  *
  * <code>
@@ -410,33 +371,4 @@ function redirect_to_url($url)
 {
     header('location: ' . $url);
     die;
-}
-
-/**
- * Create a URL to view source of page. Used for when framework is 
- * in dev mode and viewing source set to "true".
- *
- * @access private
- * @param string $file
- * @return string
- * @author Nesbert Hidalgo
- **/
-function view_source_url($file)
-{
-    return $_SERVER['REQUEST_URI'] .
-                (strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?') .
-                    'view_source=' . $file;
-}
-
-/**
- * Create a CData object from $val. Helper function for the
- * CData data classes CString and CArray.
- *
- * @param mixed $val
- * @return mixed
- * @author Nesbert Hidalgo
- **/
-function p($val)
-{
-    return new CData($val);
 }

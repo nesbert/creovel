@@ -358,4 +358,59 @@ class Creovel
                 break;
         }
     }
+    
+    /**
+     * Returns an array of the adapters available to the framework.
+     *
+     * @return array
+     * @author Nesbert Hidalgo
+     **/
+    public function adapters()
+    {
+        return CDirectory::ls_with_file_name(CREOVEL_PATH.'adapters');
+    }
+    
+    /**
+     * Returns an array of the services available to the framework.
+     *
+     * @return array
+     * @author Nesbert Hidalgo
+     **/
+    public function modules()
+    {
+        return CDirectory::ls_with_file_name(CREOVEL_PATH.'modules');
+    }
+    
+    /**
+     * Create a URL to view source of page. Used for when framework is 
+     * in dev mode and viewing source set to "true".
+     *
+     * @access private
+     * @param string $file
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public function source_url($file)
+    {
+        return $_SERVER['REQUEST_URI'] .
+                    (strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?') .
+                        'view_source=' . $file;
+    }
+    
+    /**
+     * Stops the application and display an error message or handle error
+     * gracefully if not in development mode.
+     *
+     * @param string $message Error message
+     * @param boolean $thow_exception Optional displays additional debugging info
+     * @return mixed String or boolean
+     * @author Nesbert Hidalgo
+     **/
+    public function error($message, $thow_exception = false)
+    {
+        if ($thow_exception) {
+            $thow_exception = new Exception($message);
+        }
+        $GLOBALS['CREOVEL']['ERROR']->add($message, $thow_exception);
+    }
 } // END class Creovel

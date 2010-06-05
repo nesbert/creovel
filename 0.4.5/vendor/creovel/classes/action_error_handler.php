@@ -95,7 +95,7 @@ class ActionErrorHandler extends CObject
         if (!$has_errored) {
             $has_errored = true;
             // if command line show text errors
-            if (!empty($GLOBALS['CREOVEL']['CMD']) || @AJAX_REQUEST) {
+            if (!empty($GLOBALS['CREOVEL']['CMD']) || CValidate::ajax()) {
                 // only show erros in dev mode
                 if (CREO('mode') == 'development') {
                     @header('Content-Type: text/plain; charset=utf-8');
@@ -141,7 +141,7 @@ class ActionErrorHandler extends CObject
         
         if (CREO('show_source')
             && isset($_GET['view_source'])
-            && in_string(BASE_PATH, $_GET['view_source'])) {
+            && CValidate::in_string(BASE_PATH, $_GET['view_source'])) {
             // show source view on application error
             ActionView::show(CREOVEL_PATH . 'views' . DS . 'debugger' . DS .
                             'view_source.php',
@@ -164,7 +164,7 @@ class ActionErrorHandler extends CObject
      **/
     private function __custom_errors()
     {
-        if (in_string(".active_sessions' doesn't exist", $this->message)) {
+        if (CValidate::in_string(".active_sessions' doesn't exist", $this->message)) {
             ActiveSession::create_table();
             $this->message .= " The following Query has been executed: \"". ActiveSession::create_table(1) ."\". You should not see this message again.";
         }

@@ -98,7 +98,7 @@ function stylesheet_include_tag($url, $media = 'screen')
     
     $return = '';
     if (is_array($url)) foreach ($url as $path) {
-        $file = in_string('.css', $path) ? $path : CSS_URL . $path . '.css';
+        $file = CValidate::in_string('.css', $path) ? $path : CSS_URL . $path . '.css';
         $return .= stylesheet_include_tag($file, $media) . "\n";
     }
     return $return ? $return : create_html_element('link', $html_options);

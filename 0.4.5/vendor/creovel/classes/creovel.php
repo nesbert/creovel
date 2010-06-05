@@ -1,76 +1,5 @@
 <?php
 /**
- * Set constants, include helpers, configuration files & core classes,
- * amp default routes and set CREOVEL & environment variables.
- **/
-
-// If not PHP 5 stop.
-if (PHP_VERSION <= 5) {
-    die('Creovel requires PHP >= 5!');
-}
-
-// Define creovel constants.
-define('CREOVEL_VERSION', '0.4.5');
-define('CREOVEL_RELEASE_DATE', '2010-0?-?? ??:??:??');
-
-// Define environment constants.
-define('PHP', PHP_VERSION);
-
-// Define time constants.
-define('SECOND',  1);
-define('MINUTE', 60 * SECOND);
-define('HOUR',   60 * MINUTE);
-define('DAY',    24 * HOUR);
-define('WEEK',    7 * DAY);
-define('MONTH',  30 * DAY);
-define('YEAR',  365 * DAY);
-
-// Include base helper libraries.
-require_once CREOVEL_PATH . 'helpers/datetime.php';
-require_once CREOVEL_PATH . 'helpers/form.php';
-require_once CREOVEL_PATH . 'helpers/framework.php';
-require_once CREOVEL_PATH . 'helpers/general.php';
-require_once CREOVEL_PATH . 'helpers/html.php';
-require_once CREOVEL_PATH . 'helpers/locale.php';
-require_once CREOVEL_PATH . 'helpers/server.php';
-require_once CREOVEL_PATH . 'helpers/text.php';
-require_once CREOVEL_PATH . 'helpers/validation.php';
-
-// Be kind to existing __autoload routines
-if (PHP <= '5.1.2') {
-    function __autoload($class) { __autoload_creovel($class); }
-} else {
-    spl_autoload_register('__autoload_creovel');
-}
-
-// Include application_helper
-if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
-    require_once $helper;
-}
-
-// Include minimum base classes.
-require_once CREOVEL_PATH . 'classes/c_object.php';
-require_once CREOVEL_PATH . 'modules/module_base.php';
-require_once CREOVEL_PATH . 'modules/inflector.php';
-
-// Set default creovel global vars.
-$GLOBALS['CREOVEL']['MODE'] = 'production';
-$GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
-$GLOBALS['CREOVEL']['SESSION'] = true;
-$GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
-$GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
-$GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
-$GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
-$GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
-$GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
-
-// set error handler
-require_once CREOVEL_PATH . 'classes/action_error_handler.php';
-$GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
-$GLOBALS['CREOVEL']['APPLICATION_ERROR_CODE'] = '';
-$GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
-
-/**
  * The main class where the model, view and controller interact.
  *
  * @package     Creovel
@@ -89,6 +18,10 @@ class Creovel
     public function run($events = null, $params = null, $return_as_str = false, $skip_init = false)
     {
         try {
+            // start system
+            include_once dirname(dirname(__FILE__)) .
+                DIRECTORY_SEPARATOR . 'main.php';
+            
             // gather up any output that occurs before output phase
             ob_start();
 
@@ -241,6 +174,10 @@ class Creovel
      **/
     public function cmd()
     {
+        // start system
+        include_once dirname(dirname(__FILE__)) .
+            DIRECTORY_SEPARATOR . 'main.php';
+            
         global $argc;
         global $argv;
         global $args;
@@ -262,7 +199,7 @@ class Creovel
             $params = array();
             foreach ($argv as $k => $v) {
                 if (!$k) continue;
-                if (in_string(':', $v)) {
+                if (CValidate::in_string(':', $v)) {
                     $v  = explode(':', $v);
                     $params[$v[0]] = $v[1];
                 } else if (starts_with('-', $v)) {
@@ -393,10 +330,10 @@ class Creovel
         $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
         if ( (!$GLOBALS['CREOVEL']['ROUTING']['base_path']
             || $GLOBALS['CREOVEL']['ROUTING']['base_path'] == '/')
-            && in_string($script, CNetwork::url()) ) {
+            && CValidate::in_string($script, CNetwork::url()) ) {
             return $script . '/';
         } else {
-            if (in_string($script, url())) {
+            if (CValidate::in_string($script, url())) {
                 $p = explode($GLOBALS['CREOVEL']['ROUTING']['base_path'],
                         CNetwork::url());
                 return str_replace(CNetwork::http_host(), '', $p[0] . '/');
@@ -414,8 +351,8 @@ class Creovel
     public function ignore_check()
     {
         switch (true) {
-            case in_string('favicon.ico', $_SERVER['REQUEST_URI']):
-            case in_string('robots.txt', $_SERVER['REQUEST_URI']):
+            case CValidate::in_string('favicon.ico', $_SERVER['REQUEST_URI']):
+            case CValidate::in_string('robots.txt', $_SERVER['REQUEST_URI']):
                 exit(0);
                 break;
         }

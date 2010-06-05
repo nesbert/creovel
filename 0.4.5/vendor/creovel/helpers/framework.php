@@ -43,7 +43,7 @@ function __autoload_creovel($class)
                 if (file_exists($path)) break;
                 
             case (true):
-                $type = in_string('Mailer', $class) ? 'Mailer' : 'Model';
+                $type = CValidate::in_string('Mailer', $class) ? 'Mailer' : 'Model';
                 $path = MODELS_PATH . $class . '.php';
                 if (file_exists($path)) break;
                 
@@ -429,8 +429,8 @@ function view_source_url($file)
 }
 
 /**
- * Create a Prototype object from $val. Helper function for the
- * Prototype data classes.
+ * Create a CData object from $val. Helper function for the
+ * CData data classes CString and CArray.
  *
  * @param mixed $val
  * @return mixed
@@ -438,5 +438,5 @@ function view_source_url($file)
  **/
 function p($val)
 {
-    return new Prototype($val);
+    return new CData($val);
 }

@@ -74,7 +74,7 @@ class CObject implements Iterator
         } catch (Exception $e) {
             
             switch (true) {
-                case in_string('Controller', $this->to_string()):
+                case CValidate::in_string('Controller', $this->to_string()):
                     $error_type = 404;
                     break;
                 

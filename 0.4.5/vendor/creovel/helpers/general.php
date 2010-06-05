@@ -216,17 +216,7 @@ function in_string($needle, $haystack)
  **/
 function get_type($var)
 {
-    return
-        (is_array($var) ? 'array' :
-        (is_bool($var) ? 'boolean' :
-        (is_float($var) ? 'float' :
-        (is_int($var) ? 'integer' :
-        (is_null($var) ? 'null' :
-        (is_numeric($var) ? 'numeric' :
-        (is_object($var) ? 'object' :
-        (is_resource($var) ? 'resource' :
-        (is_string($var) ? 'string' :
-        'unknown' )))))))));
+    return CData::type($var);
 }
 
 /**
@@ -315,7 +305,7 @@ function get_files_from_dir($dir_path, $file_type = 'php', $show_invisibles = fa
     if ( $handle = opendir($dir_path) ) {
         while ( false !== ($file = readdir($handle)) ) {
             if (!$show_invisibles && $file{0} == '.') continue;
-            if ( in_string('.'.$file_type, $file) ) {
+            if ( CValidate::in_string('.'.$file_type, $file) ) {
                 $files[substr($file, 0, -4)] = $dir_path.DS.$file;
             }
         }

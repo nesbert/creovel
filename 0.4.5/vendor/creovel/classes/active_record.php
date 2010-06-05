@@ -168,7 +168,7 @@ class ActiveRecord extends CObject
         
         if (count($vars)) foreach ($vars as $var => $vals) {
             switch (true) {
-                case in_string('options_for_', $var):
+                case CValidate::in_string('options_for_', $var):
                     $this->{'set_' . $var}($vals);
                     break;
                     
@@ -482,7 +482,7 @@ class ActiveRecord extends CObject
             // do some magic
             foreach ($this->_columns_ as $k => $v) {
                 // set default options for enum types
-                if (!isset($this->{'options_for_' . $k}) && in_string('enum(', $v->type)) {
+                if (!isset($this->{'options_for_' . $k}) && CValidate::in_string('enum(', $v->type)) {
                     $v->options = $this->field_options($k);
                 }
             }
@@ -1078,7 +1078,7 @@ class ActiveRecord extends CObject
                     return $this->return_value($this->association($this->_associations_[$attribute]));
                     break;
                     
-                case in_string('options_for_', $attribute) && isset($this->_columns_[$this->field_name_from_str($attribute)]->options):
+                case CValidate::in_string('options_for_', $attribute) && isset($this->_columns_[$this->field_name_from_str($attribute)]->options):
                     return $this->return_value($this->_columns_[$this->field_name_from_str($attribute)]->options);
                     break;
                     
@@ -1159,16 +1159,16 @@ class ActiveRecord extends CObject
             $arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
             
             switch (true) {
-                case in_string('field_for_', $method):
-                case in_string('select_for_', $method):
-                case in_string('text_area_for_', $method):
-                case in_string('textarea_for_', $method):
-                case in_string('check_box_for_', $method):
-                case in_string('checkbox_for_', $method):
-                case in_string('radio_button_for_', $method):
-                case in_string('select_countries_tag_for_', $method):
-                case in_string('select_states_tag_for_', $method):
-                case in_string('date_time_select_for_', $method):
+                case CValidate::in_string('field_for_', $method):
+                case CValidate::in_string('select_for_', $method):
+                case CValidate::in_string('text_area_for_', $method):
+                case CValidate::in_string('textarea_for_', $method):
+                case CValidate::in_string('check_box_for_', $method):
+                case CValidate::in_string('checkbox_for_', $method):
+                case CValidate::in_string('radio_button_for_', $method):
+                case CValidate::in_string('select_countries_tag_for_', $method):
+                case CValidate::in_string('select_states_tag_for_', $method):
+                case CValidate::in_string('date_time_select_for_', $method):
                     $type = str_replace(
                                 array(
                                     '_field_for_' . $name,
@@ -1180,20 +1180,20 @@ class ActiveRecord extends CObject
                     break;
                 
                 // options_for_* called for existing field
-                case in_string('set_options_for_', $method)
+                case CValidate::in_string('set_options_for_', $method)
                     && isset($this->_columns_[$name])
                     && is_array($arguments[0]):
                     return $this->_columns_[$name]->options = $arguments[0];
                     break;
                 
-                case in_string('options_for_', $method):
+                case CValidate::in_string('options_for_', $method):
                     switch (true) {
                         // set options for ENUM field types
                         case isset($this->_columns_[$name]->type)
-                            && in_string('enum(', $this->_columns_[$name]->type):
+                            && CValidate::in_string('enum(', $this->_columns_[$name]->type):
                         // set options for ENUM field types
                         case isset($this->_columns_[$name]->type)
-                            && in_string('tinyint(1)', $this->_columns_[$name]->type):
+                            && CValidate::in_string('tinyint(1)', $this->_columns_[$name]->type):
                         // if options for property is set
                         case isset($this->_columns_[$name]->options):
                             $type = 'select';
@@ -1208,11 +1208,11 @@ class ActiveRecord extends CObject
                     }
                     break;
                 
-                case in_string('_has_error', $method):
+                case CValidate::in_string('_has_error', $method):
                     return $this->has_error($name, $arguments[0]);
                     break;
                 
-                case in_string('find_by_', $method):
+                case CValidate::in_string('find_by_', $method):
                     $args = isset($arguments[1]) && CValidate::hash($arguments[1]) ? $arguments[1] : array();
                     $args['conditions'] = array($name => $arguments[0]);
                     $return = $this->find('all', $args);
@@ -1225,13 +1225,13 @@ class ActiveRecord extends CObject
                     return $return;
                     break;
                 
-                case in_string('validates_', $method):
+                case CValidate::in_string('validates_', $method):
                     return $this->validate_by_method($method, $arguments);
                     break;
                     
                 /* Paging Links */
-                case in_string('link_to_', $method):
-                case in_string('paging_', $method):
+                case CValidate::in_string('link_to_', $method):
+                case CValidate::in_string('paging_', $method):
                     if (method_exists($this->_paging_, $method)) {
                         return call_user_func_array(array($this->_paging_, $method), $arguments);
                     } else {
@@ -1541,7 +1541,7 @@ class ActiveRecord extends CObject
      **/
     final public function field_options($property)
     {
-        if (in_string('enum(', $this->_columns_[$property]->type)) {
+        if (CValidate::in_string('enum(', $this->_columns_[$property]->type)) {
             $options = explode("','", str_replace(
                                                 array("enum('"),
                                                 '',
@@ -1553,7 +1553,7 @@ class ActiveRecord extends CObject
             }
             return $return;
         }
-        if (in_string('tinyint(1)', $this->_columns_[$property]->type)) {
+        if (CValidate::in_string('tinyint(1)', $this->_columns_[$property]->type)) {
             return array('1' => 'Yes', '0' => 'No');
         }
     }
@@ -1847,7 +1847,7 @@ class ActiveRecord extends CObject
     }
     
     /**
-     * Pass through function used to add Prototype functionality to
+     * Pass through function used to add CData functionality to
      * value if prototype is enabled.
      *
      * @param mixed $value
@@ -1856,7 +1856,7 @@ class ActiveRecord extends CObject
     public function return_value($value)
     {
         if ($this->prototype(1)) {
-            return new Prototype($value);
+            return new CData($value);
         } else {
             return $value;
         }

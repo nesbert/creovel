@@ -193,8 +193,8 @@ class GoogleMaps extends ModuleBase
     public function display_map($html_options = null)
     {
         static $shown;
-        if ( !in_string('px', $this->width) && !in_string('%', $this->width) ) $this->width .= 'px';
-        if ( !in_string('px', $this->height) && !in_string('%', $this->height) ) $this->height .= 'px';
+        if ( !CValidate::in_string('px', $this->width) && !CValidate::in_string('%', $this->width) ) $this->width .= 'px';
+        if ( !CValidate::in_string('px', $this->height) && !CValidate::in_string('%', $this->height) ) $this->height .= 'px';
         $html_options['style'] = "width:{$this->width}; height:{$this->height}; " . $html_options['style'];
         ?>
 <?=$this->include_api()?>
@@ -586,7 +586,7 @@ if ( GBrowserIsCompatible() ) {
     
     public function gpoint($x, $y = null)
     {
-        if ( in_string(',', $x) ) {
+        if ( CValidate::in_string(',', $x) ) {
             $temp = explode(',', $x);
             $x = $temp[0];
             $y = $temp[1];
@@ -617,7 +617,7 @@ if ( GBrowserIsCompatible() ) {
     
     public function gsize($width, $height = null)
     {
-        if ( in_string(',', $width) ) {
+        if ( CValidate::in_string(',', $width) ) {
             $temp = explode(',', $width);
             $width = $temp[0];
             $height = $temp[1];

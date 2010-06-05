@@ -15,9 +15,9 @@ class CArray extends CObject
      *
      * @return void
      **/
-    public function __construct($value)
+    public function __construct($value = null)
     {
-        $this->value = $value;
+        $this->value = (array) $value;
     }
     
     /**

@@ -455,7 +455,7 @@ class ActiveRecord extends CObject
     final public function table_name($table_name = '')
     {
         $this->_table_name_ = $table_name ? $table_name : $this->_table_name_;
-        $this->_table_name_ = $this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name());
+        $this->_table_name_ = $this->_table_name_ ? $this->_table_name_ : CString::tableize($this->class_name());
         if (0) $this->_table_name_ = strtoupper($this->_table_name_);
         return $this->_table_name_;
     }
@@ -1595,7 +1595,7 @@ class ActiveRecord extends CObject
         
         $table_str = $this->action_query()->build_identifier(array($this->table_name()));
         $id_str = 'id';
-        $fk = Inflector::singularize($obj->table_name()) . '_' . $id_str;
+        $fk = CString::singularize($obj->table_name()) . '_' . $id_str;
         
         if ($this->action_query()->get_adapter_type() == 'ibmdb2') {
             $id_str = strtoupper($id_str);

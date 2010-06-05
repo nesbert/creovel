@@ -19,7 +19,7 @@
     <td class="sub">Registered Adapters</td>
     <td>
         <em>
-        <?php if ($adapters = get_creovel_adapters()) foreach ($adapters as $name => $file) { ?>
+        <?php if ($adapters = Creovel::adapters()) foreach ($adapters as $name => $file) { ?>
             <?php
                 // skip these
                 switch ($name) {
@@ -29,7 +29,7 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo view_source_url($file); ?>"><?php echo CString::classify($name); ?></a>
+            <a href="<?php echo Creovel::source_url($file); ?>"><?php echo CString::classify($name); ?></a>
             <?php } else { ?>
             <?php echo CString::classify($name); ?>
             <?php } ?>
@@ -43,7 +43,7 @@
     <td class="sub">Registered Modules</td>
     <td>
         <em>
-        <?php if ($services = get_creovel_modules()) foreach ($services as $name => $file) { ?>
+        <?php if ($services = Creovel::modules()) foreach ($services as $name => $file) { ?>
             <?php
                 // skip these
                 switch ($name) {
@@ -52,7 +52,7 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo view_source_url($file); ?>"><?php echo CString::classify($name); ?></a>
+            <a href="<?php echo Creovel::source_url($file); ?>"><?php echo CString::classify($name); ?></a>
             <?php } else { ?>
             <?php echo CString::classify($name); ?>
             <?php } ?>
@@ -151,7 +151,7 @@ include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
     <td class="sub"><?php print($file + 1); ?>.</td>
     <td>
         <?php if (CREO('show_source')) { ?>
-        <a href="<?php echo view_source_url($value); ?>"><?php echo $value; ?> (<?php echo get_filesize($value); ?>)</a>
+        <a href="<?php echo Creovel::source_url($value); ?>"><?php echo $value; ?> (<?php echo get_filesize($value); ?>)</a>
         <?php } else { ?>
         <?php echo $value; ?> (<?php echo get_filesize($value); ?>)
         <?php } ?>

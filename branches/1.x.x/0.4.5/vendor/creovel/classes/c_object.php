@@ -123,7 +123,6 @@ class CObject implements Iterator
      * Convert class name to string path.
      *
      * @return string
-     * @author Nesbert Hidalgo
      **/
     public function to_string_path()
     {

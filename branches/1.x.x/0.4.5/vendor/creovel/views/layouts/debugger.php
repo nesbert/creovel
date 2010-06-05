@@ -34,7 +34,7 @@
 #creovel .block dd { font-style: italic; }
 #creovel table.block { width: 100%; border-right: none; border-bottom: none; }
 
-#creovel .code { display: block; overflow: auto; margin: 0 0 10px 0; padding: 8px; background: #ccc; border: 1px dashed #333; text-align: left; font-family: monaco, 'Courier New', courier, monospace; font-size: 100%; }
+#creovel .code { display: block; overflow: auto; margin: 0 0 10px 0; padding: 8px; background: #ddd; border: 1px dashed #333; text-align: left; font-family: monaco, 'Courier New', courier, monospace; font-size: 100%; }
 #creovel .code table.source td { white-space: nowrap; padding: 0; }
 #creovel .title { background-color: #aaa099; }
 

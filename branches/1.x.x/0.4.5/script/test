@@ -16,7 +16,7 @@ $recursive = true;
 foreach ($args as $path) {
     if (is_dir($path)) {
         // get test files
-        $files = array_merge($files, dir_to_array($path, array('recursive' => true, 'filter' => $filter)));
+        $files = array_merge($files, CDirectory::ls($path, array('recursive' => true, 'filter' => $filter)));
     } elseif (is_file($path)) {
         $files[] = $path;
     }

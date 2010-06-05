@@ -29,9 +29,9 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo view_source_url($file); ?>"><?php echo classify($name); ?></a>
+            <a href="<?php echo view_source_url($file); ?>"><?php echo CString::classify($name); ?></a>
             <?php } else { ?>
-            <?php echo classify($name); ?>
+            <?php echo CString::classify($name); ?>
             <?php } ?>
         <?php } else { ?>
             Not Available
@@ -52,9 +52,9 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo view_source_url($file); ?>"><?php echo classify($name); ?></a>
+            <a href="<?php echo view_source_url($file); ?>"><?php echo CString::classify($name); ?></a>
             <?php } else { ?>
-            <?php echo classify($name); ?>
+            <?php echo CString::classify($name); ?>
             <?php } ?>
         <?php } else { ?>
             Not Available
@@ -88,7 +88,7 @@
         <dl>
             <dt><?php echo strtolower($mode); ?></dt>
             <?php if (count($data)) foreach($data as $key => $val) { ?>
-            <dd><?php echo strtolower($key); ?> =&gt; <?php echo (strtoupper($key) == 'PASSWORD' ? mask('hidelength') : $val); ?></dd>
+            <dd><?php echo strtolower($key); ?> =&gt; <?php echo (strtoupper($key) == 'PASSWORD' ? CString::mask('hidelength') : $val); ?></dd>
             <?php } ?>
         </dl>
         <?php } ?>

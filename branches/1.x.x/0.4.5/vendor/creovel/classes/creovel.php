@@ -36,7 +36,7 @@ class Creovel
             $params = is_array($params) ? $params : self::params();
             
             // handle dashed controller names
-            $events['controller'] = underscore($events['controller']);
+            $events['controller'] = CString::underscore($events['controller']);
             
             if (isset($params['nested_controller'])
                 && $params['nested_controller']) {
@@ -53,13 +53,13 @@ class Creovel
             self::include_controller($controller_path);
             
             // create controller object and build the framework
-            $controller = camelize($events['controller']) . 'Controller';
+            $controller = CString::camelize($events['controller']) . 'Controller';
             
             if (class_exists($controller)) {
                 $controller = new $controller();
             } else {
                 throw new Exception("Class " . str_replace('Controller', '', $controller) .
-                " not found in <strong>" . classify($controller) . "</strong>");
+                " not found in <strong>" . CString::classify($controller) . "</strong>");
             }
             
             // set controller properties
@@ -202,9 +202,9 @@ class Creovel
                 if (CValidate::in_string(':', $v)) {
                     $v  = explode(':', $v);
                     $params[$v[0]] = $v[1];
-                } else if (starts_with('-', $v)) {
+                } else if (CString::starts_with('-', $v)) {
                     // double dash mean whole words
-                    if (starts_with('--', $v)) {
+                    if (CString::starts_with('--', $v)) {
                         $flags[] = substr($v, 2);
                     } else {
                         // split each single dash char into a flag
@@ -288,7 +288,8 @@ class Creovel
                 } else {
                     $controller_path = str_replace($class . '.php', '',
                                             $controller_path);
-                    throw new Exception(str_replace(' ', '', humanize($class)) .
+                    throw new Exception(str_replace(
+                                ' ', '', CString::humanize($class)) .
                     " not found in <strong>" . str_replace('_controller' .
                     '.php', '', $controller_path) . "</strong>");
                 }

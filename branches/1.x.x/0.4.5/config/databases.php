@@ -12,20 +12,10 @@
 CREO('database', array(
     'mode'      => 'development',
     'adapter'   => 'Mysql',
-    'host'      => 'mysqltest',
-    'username'  => 'webuser',
-    'password'  => 'webpass',
-    'database'  => 'cmsdb'
-    ));
-
-CREO('database', array(
-    'mode'      => 'development1',
-    'adapter'   => 'IbmDb2',
     'host'      => 'localhost',
-    'username'  => 'webuser',
-    'password'  => 'webpass',
-    'database'  => 'cmsdb',
-    'schema'    => 'cmsdb',
+    'username'  => '',
+    'password'  => '',
+    'database'  => 'creovel_development'
     ));
 
 /**

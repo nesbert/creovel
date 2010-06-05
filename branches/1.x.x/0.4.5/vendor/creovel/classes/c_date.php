@@ -137,7 +137,7 @@ class CDate extends CObject
                 break;
         }
 
-        return pluralize($return, $time);
+        return CString::pluralize($return, $time);
     }
 
     /**

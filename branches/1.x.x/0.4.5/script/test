@@ -46,7 +46,7 @@ if (count($files)) foreach ($files as $file) {
         
         $result = array_pop($output);
         
-        if (starts_with('OK ', $result)) {
+        if (CString::starts_with('OK ', $result)) {
             $ok++;
             if (preg_match('/([0-9]+) test/', $result, $match1)) {
                 $tests += $match1[1];
@@ -71,7 +71,7 @@ if (count($files)) foreach ($files as $file) {
         
         echo "{$result} -> {$file}\n";
         
-        if (!starts_with('OK ', $result)) {
+        if (!CString::starts_with('OK ', $result)) {
             
             foreach ($output as $k => $line) {
                 if ($k < 2) continue;

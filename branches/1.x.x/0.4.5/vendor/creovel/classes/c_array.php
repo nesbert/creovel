@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class CArray extends CData
+class CArray extends CObject
 {
     /**
      * Set value.
@@ -17,7 +17,7 @@ class CArray extends CData
      **/
     public function __construct($value)
     {
-        parent::__construct($value);
+        $this->value = $value;
     }
     
     /**
@@ -37,7 +37,7 @@ class CArray extends CData
      **/
     public function first()
     {
-        return reset($this->_attribites_->value);
+        return reset($this->value);
     }
     
     /**
@@ -47,7 +47,7 @@ class CArray extends CData
      **/
     public function last()
     {
-        return end($this->_attribites_->value);
+        return end($this->value);
     }
     
     /**
@@ -57,7 +57,7 @@ class CArray extends CData
      **/
     public function next()
     {
-        return next($this->_attribites_->value);
+        return next($this->value);
     }
     
     /**
@@ -67,6 +67,6 @@ class CArray extends CData
      **/
     public function prev()
     {
-        return prev($this->_attribites_->value);
+        return prev($this->value);
     }
-} // END CArray extends CData
+} // END CArray extends CObject

@@ -78,7 +78,7 @@ class ActionRouter extends CObject
             }
         }
         
-        if (in_string('*', $url)) {
+        if (CValidate::in_string('*', $url)) {
             $astrik_path = explode('/', $url);
             $start = array_search('*', $astrik_path) - 
                         ($astrik_path[0] ? 0 : 1);

@@ -114,7 +114,7 @@ class ActiveRecordField extends CObject
             
             // mysql & mysqli adpater field routine
             default:
-                if (in_string('(', $attributes->type)) {
+                if (CValidate::in_string('(', $attributes->type)) {
                     $this->type = strtoupper(preg_replace('/(\w+)\((.*)\)/i', '${1}', $attributes->type));
                     $this->size = preg_replace('/(\w+)\((.*)\)/i', '${2}', $attributes->type);
                 } else {

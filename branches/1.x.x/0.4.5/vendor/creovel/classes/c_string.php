@@ -3,12 +3,12 @@
  * Extend functionality of a string data type.
  *
  * @package     Creovel
- * @subpackage  Prototype
+ * @subpackage  Core
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class PrototypeString extends Prototype
+class CString extends CData
 {
     /**
      * String value.
@@ -33,9 +33,9 @@ class PrototypeString extends Prototype
      * @return string
      * @see Inflector::camelize()
      **/
-    public function camelize()
+    public function camelize($lower_first = false)
     {
-        return camelize($this->value);
+        return Inflector::camelize($this->value, $lower_first);
     }
     
     /**
@@ -56,7 +56,7 @@ class PrototypeString extends Prototype
      **/
     public function contains($str)
     {
-        return in_string($str, $this->value);
+        return CValidate::in_string($str, $this->value);
     }
     
     /**
@@ -246,4 +246,4 @@ class PrototypeString extends Prototype
     {
         return html_entity_decode($this->value);
     }
-} // END PrototypeString extends Prototype
+} // END CString extends CData

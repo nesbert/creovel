@@ -5,12 +5,12 @@
  * framework created by Sam Stephenson.
  *
  * @package     Creovel
- * @subpackage  Prototype
+ * @subpackage  Core
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class Prototype extends CObject
+class CData extends CObject
 {
     /**
      * Storage for object values.
@@ -47,7 +47,7 @@ class Prototype extends CObject
     public function __call($method, $arguments)
     {
         try {
-            $DataType = "Prototype{$this->type}";
+            $DataType = "C{$this->type}";
             switch (true) {
                 case method_exists($DataType, $method):
                     $value = call_user_func_array(
@@ -58,15 +58,15 @@ class Prototype extends CObject
                             return $value;
                             break;
                         
-                        case ($DataType == 'PrototypeArray'
+                        case ($DataType == 'CArray'
                                 && $method == 'clear'):
                             $this->value = $value;
-                            return new Prototype(array());
+                            return new CData(array());
                             break;
                         
-                        case $DataType == 'PrototypeArray';
-                        case $DataType == 'PrototypeString';
-                            return new Prototype($value);
+                        case $DataType == 'CArray';
+                        case $DataType == 'CString';
+                            return new CData($value);
                             break;
                     }
                     break;
@@ -80,7 +80,7 @@ class Prototype extends CObject
         } catch (Exception $e) {
             
             switch (true) {
-                case in_string('Controller', $this->to_string()):
+                case CValidate::in_string('Controller', $this->to_string()):
                     $error_type = 404;
                     break;
                 
@@ -104,6 +104,7 @@ class Prototype extends CObject
     {
         #echo "$attribute, $value<br>";
         switch (true) {
+            case $attribute == 'val':
             case $attribute == 'value':
                 $this->_attribites_->type =
                     ucwords(get_type($value));
@@ -153,18 +154,6 @@ class Prototype extends CObject
     }
     
     /**
-     * Get value.
-     *
-     * @return string
-     **/
-    public function to_string()
-    {
-        return isset($this->_attribites_->value)
-                ? (string) $this->_attribites_->value
-                : '';
-    }
-    
-    /**
      * Initialize prototype.
      *
      * @param mixed $value Data to prototype.
@@ -184,7 +173,8 @@ class Prototype extends CObject
      **/
     public function length()
     {
-        return is_array($this->value) ? count($this->value) : strlen($this->value);
+        return is_array($this->_attribites_->value)
+                    ? count($this->value) : strlen($this->value);
     }
     
     /**
@@ -194,6 +184,44 @@ class Prototype extends CObject
      **/
     public function blank()
     {
-        return is_array($this->value) ? count($this->value) > 0 : trim($this->value);
+        return empty($this->_attribites_->value);
     }
-} // END class Prototype extends CObject
+    
+    /**
+     * Get object value.
+     *
+     * @return mixed
+     **/
+    public function val()
+    {
+        return $this->_attribites_->value;
+    }
+    
+    /**
+     * Get the data type of a variable.
+     *
+     * @param $var
+     * @link http://us3.php.net/manual/en/function.gettype.php#78381
+     * @return string
+     **/
+    function type($var = null)
+    {
+        if (isset($this) && empty($var)) {
+            $var = $this->_attribites_->value;
+        }
+        
+        if (empty($var)) return false;
+        
+        return
+            (is_array($var) ? 'array' :
+            (is_bool($var) ? 'boolean' :
+            (is_float($var) ? 'float' :
+            (is_int($var) ? 'integer' :
+            (is_null($var) ? 'null' :
+            (is_numeric($var) ? 'numeric' :
+            (is_object($var) ? 'object' :
+            (is_resource($var) ? 'resource' :
+            (is_string($var) ? 'string' :
+            'unknown' )))))))));
+    }
+} // END class CData extends CObject

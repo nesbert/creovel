@@ -30,7 +30,7 @@ class CObject implements Iterator
     {
         $parents = get_ancestors($this->to_string());
         foreach (array_reverse($parents) as $parent) {
-            $method = 'initialize_' . Inflector::underscore($parent);
+            $method = 'initialize_' . CString::underscore($parent);
             if (method_exists($parent, $method)) {
                 $this->{$method}();
             }

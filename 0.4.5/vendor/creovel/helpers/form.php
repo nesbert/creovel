@@ -31,7 +31,7 @@ function name_to_id($field_name)
 function add_form_error($field_name, $message = null)
 {
     $GLOBALS['CREOVEL']['VALIDATION_ERRORS'][name_to_id($field_name)] =
-        $message ? $message : humanize($field_name) . ' is invalid.';
+        $message ? $message : CString::humanize($field_name) . ' is invalid.';
 }
 
 /**
@@ -130,7 +130,7 @@ function error_messages_for($errors = null, $title = null, $description = null)
             $default_title = "{$errors_count} error" .
             ($errors_count == 1 ? ' has' : 's have') .
             " prohibited this " . 
-            (isset($model) ? humanize($model) : 'Form' ) . 
+            (isset($model) ? CString::humanize($model) : 'Form' ) . 
             " from being saved.";
         }
         $title = $title ? $title : $default_title;
@@ -396,7 +396,7 @@ function label($name, $title = null, $html_options = null)
     if (!$title) {
         $args = explode('[', $name);
         $title = str_replace(']', '', end($args));
-        $title = humanize($title);
+        $title = CString::humanize($title);
     }
     $html_options['for'] = name_to_id($name);
     return create_html_element('label', $html_options, $title) . "\n";
@@ -550,7 +550,7 @@ function select_countries_tag($name = 'country', $selected = null, $choices = nu
 
     if ($state_id) {
         $state_id = name_to_id($state_id);
-        $func = underscore($state_id) . '_func';
+        $func = CString::underscore($state_id) . '_func';
         $html_options['onchange'] = (isset($html_options['onchange']) ? trim($html_options['onchange']) : '') . "updateState(this.options[this.selectedIndex].value, '" . $state_id . "');";
     }
     
@@ -771,7 +771,7 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
         $class_temp = isset($label_options['class']) ? $label_options['class'] : '';
         
         foreach( $choices as $value => $desc ) {
-            $label_options['class'] = $class_temp . ( CValidate::in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . cycle('row-1', 'row-2');
+            $label_options['class'] = $class_temp . ( CValidate::in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . CString::cycle('row-1', 'row-2');
             $label_options['for'] = name_to_id($name) . '_' . $value;
             $return .= "<label ".html_options_str($label_options).">\n";
             $return .= create_input_tag($type, $name, in_array($value, $selected), $box_html_options, $value, $desc)."\n";
@@ -779,7 +779,7 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
         }
         
     } else {
-        $return .= '<span class="'.underscore($none_title).'">'.$none_title.'</span>';
+        $return .= '<span class="'.CString::underscore($none_title).'">'.$none_title.'</span>';
     }
     
     $return .= "</div>\n";

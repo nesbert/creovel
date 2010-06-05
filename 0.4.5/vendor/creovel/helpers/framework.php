@@ -74,7 +74,7 @@ function __autoload_creovel($class)
             if ($type == 'Controller' || $type == 'Model' || $type == 'Mailer') {
                 $folders = explode('/', $class);
                 foreach ($folders as $k => $v) {
-                    $folders[$k] = Inflector::classify($v);
+                    $folders[$k] = CString::classify($v);
                 }
                 $class = implode('_', $folders);
             }
@@ -310,7 +310,7 @@ function get_creovel_modules()
 function url_for()
 {
     $args = func_get_args();
-    $use_pretty_urls = ends_with('*', $GLOBALS['CREOVEL']['ROUTING']['current']['url']);
+    $use_pretty_urls = CString::ends_with('*', $GLOBALS['CREOVEL']['ROUTING']['current']['url']);
     
     if (is_array($args[0])) {
         

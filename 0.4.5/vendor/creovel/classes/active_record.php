@@ -1335,7 +1335,9 @@ class ActiveRecord extends CObject
                         if (current($this->action_query()->current())) {
                             ActiveValidation::add_error(
                                 $params[0],
-                                ($params[2] ? $params[2] : humanize($params[0]).' is not unique.')
+                                ($params[2] 
+                                    ? $params[2]
+                                    : CString::humanize($params[0]).' is not unique.')
                                 );
                             return false;
                         } else {
@@ -1377,7 +1379,7 @@ class ActiveRecord extends CObject
     {
         // set form vars
         $html = '';
-        $field_name = underscore($this->class_name()) . "[{$name}]";
+        $field_name = CString::underscore($this->class_name()) . "[{$name}]";
         $arguments[0] = isset($arguments[0]) ? $arguments[0] : null;
         @$html_options = $arguments[0];
         
@@ -1549,7 +1551,7 @@ class ActiveRecord extends CObject
                                                 ));
             $return = array();
             foreach ($options as $value) {
-                $return[$value] = humanize($value);
+                $return[$value] = CString::humanize($value);
             }
             return $return;
         }
@@ -1586,14 +1588,14 @@ class ActiveRecord extends CObject
     {
         // set class name
         $options['class_name'] = empty($options['class_name'])
-                        ? Inflector::classify($options['association_id']) : $options['class_name'];
+                        ? CString::classify($options['association_id']) : $options['class_name'];
 
         // set for linking class
         $obj = new $options['class_name'];
         
         $table_str = $this->action_query()->build_identifier(array($this->table_name()));
         $id_str = 'id';
-        $fk = singularize($obj->table_name()) . '_' . $id_str;
+        $fk = Inflector::singularize($obj->table_name()) . '_' . $id_str;
         
         if ($this->action_query()->get_adapter_type() == 'ibmdb2') {
             $id_str = strtoupper($id_str);

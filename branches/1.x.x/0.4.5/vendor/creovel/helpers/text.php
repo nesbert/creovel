@@ -1,5 +1,9 @@
 <?php
 /**
+ * WARNING!
+ * These functions has been DEPRECATED as of 0.4.5 and have been moved
+ * to the CString object. Relying on this feature is highly discouraged.
+ * 
  * Text & String functions.
  *
  * @package     Creovel

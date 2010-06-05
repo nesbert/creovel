@@ -372,7 +372,7 @@ class ActionMailer extends ActionController
         if ($this->view_path) {
             $view_path = $this->view_path;
         } else {
-            $view_path = VIEWS_PATH . Inflector::patherize($this->to_string()) . DS;
+            $view_path = VIEWS_PATH . CString::patherize($this->to_string()) . DS;
         }
         
         $html = $this->get_include_contents($view_path . $this->_action . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION']);

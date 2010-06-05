@@ -100,6 +100,33 @@ class CString extends CObject
     }
 
     /**
+     * Converts a class name to its table name according to rails naming
+     * conventions. Converts "Person" to "people"
+     *
+     * @param string $class_name
+     * @see classify()
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public function tableize($class_name)
+    {
+        return Inflector::tableize($class_name);
+    }
+
+    /**
+     * Create a path string from class name. This method converts
+     * API_PersonSubclass to api/person_subclass
+     *
+     * @param string $class_name
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public function patherize($class_name)
+    {
+        return Inflector::patherize($class_name);
+    }
+
+    /**
      * Helpful for alternating between between two values during a loop.
      *
      * <code>

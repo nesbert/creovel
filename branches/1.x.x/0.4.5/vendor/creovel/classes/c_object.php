@@ -126,7 +126,7 @@ class CObject implements Iterator
      **/
     public function to_string_path()
     {
-        return Inflector::patherize($this->to_string());
+        return CString::patherize($this->to_string());
     }
     
     /**
@@ -174,10 +174,14 @@ class CObject implements Iterator
      **/
     public function current()
     {
-        $class = $this->to_string();
-        $o = new $class;
-        $o->load_item((object) $this->_items_[$this->_index_]);
-        return $o;
+        if ($this->valid()) {
+            $class = $this->to_string();
+            $o = new $class;
+            $o->load_item((object) $this->_items_[$this->_index_]);
+            return $o;
+        } else {
+            return false;
+        }
     }
     
     /**

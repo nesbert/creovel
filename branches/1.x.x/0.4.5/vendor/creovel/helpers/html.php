@@ -1,5 +1,9 @@
 <?php
 /**
+ * WARNING!
+ * These functions has been DEPRECATED as of 0.4.5 and have been moved
+ * to the CLocale object. Relying on this feature is highly discouraged.
+ *
  * HTML/Tag functions.
  *
  * @package     Creovel
@@ -19,23 +23,7 @@
  **/
 function create_html_element($name, $html_options = null, $content = null)
 {
-    $name = strtolower(trim($name));
-    $no_end_tag = false;
-    
-    // set flag for tags with no ends
-    switch ($name) {
-        case 'meta':
-        case 'link':
-        case 'input':
-        case 'br':
-        case 'img':
-            $no_end_tag = true;
-            break;
-    }
-    
-    return "<{$name}" .
-            (($attr_str = html_options_str($html_options)) ? ' ' . $attr_str : '') .
-            ($no_end_tag ? ' />' : ">{$content}</{$name}>" );
+    return CTag::create($name, $html_options, $content);
 }
 
 /**
@@ -47,32 +35,7 @@ function create_html_element($name, $html_options = null, $content = null)
  **/
 function html_options_str($html_options)
 {
-    $options_str = '';
-    if (count($html_options)){
-        // lowercase all attributes
-        foreach ($html_options as $attribute => $value) {
-            $html_options[strtolower($attribute)] = $value;
-        }
-        
-        // add confirm pop up
-        if (isset($html_options['confirm'])) {
-            $msg = str_replace("'", "\'", htmlentities($html_options['confirm']));
-            $onclick = "if (!window.confirm('{$msg}')) return false;";
-            if (isset($html_options['onclick'])) {
-                $html_options['onclick'] = $onclick . " " .$html_options['onclick'];
-            } else {
-                $html_options['onclick'] = $onclick;
-            }
-            unset($html_options['confirm']);
-        }
-        
-        // create options string foreach valid option set
-        foreach ($html_options as $attribute => $value) {
-            $options_str .= ' ' . $attribute . '="' . $value .'"';
-        }
-    }
-    
-    return trim($options_str);
+    return CTag::attributes($html_options);
 }
 
 /**
@@ -85,23 +48,7 @@ function html_options_str($html_options)
  **/
 function stylesheet_include_tag($url, $media = 'screen')
 {
-    $html_options = array(
-        'rel' => 'stylesheet',
-        'type' => 'text/css',
-        'media' => $media,
-        'href' => $url
-        );
-    if (is_array($media)) {
-        $html_options = array_merge($html_options, $media);
-        $html_options['media'] = isset($media['media']) ? $media['media'] : 'screen';
-    }
-    
-    $return = '';
-    if (is_array($url)) foreach ($url as $path) {
-        $file = CValidate::in_string('.css', $path) ? $path : CSS_URL . $path . '.css';
-        $return .= stylesheet_include_tag($file, $media) . "\n";
-    }
-    return $return ? $return : create_html_element('link', $html_options);
+    return CTag::stylesheet_include($url, $media);
 }
 
 /**
@@ -113,8 +60,7 @@ function stylesheet_include_tag($url, $media = 'screen')
  **/
 function javascript_tag($script = '', $html_options = array())
 {
-    $html_options['type'] = 'text/javascript';
-    return create_html_element('script', $html_options, $script);
+    return CTag::javascript($script, $html_options);
 }
 
 /**
@@ -126,14 +72,7 @@ function javascript_tag($script = '', $html_options = array())
  **/
 function javascript_include_tag($url, $html_options = array())
 {
-    $return = '';
-    if (is_array($url)) foreach ($url as $path) {
-        $return .= javascript_include_tag(
-                    $path ? JAVASCRIPT_URL . $path . '.js' : '',
-                    $html_options) . "\n";
-    }
-    if ($url) $html_options['src'] = $url;
-    return $return ? $return : javascript_tag('', $html_options);
+    return CTag::javascript_include($url, $html_options);
 }
 
 
@@ -154,13 +93,8 @@ function javascript_include_tag($url, $html_options = array())
  **/
 function link_to($link_title = 'Goto', $controller = '', $action = '', $id = '', $html_options = null)
 {
-    // set href
-    $html_options['href'] = @$html_options['href']
-                            ? $html_options['href']
-                            : url_for($controller, $action, $id, @$html_options['https']);
-    // if action is array merge it with html_options
-    if (is_array($action)) $html_options = array_merge((array) $action, (array) $html_options);
-    return create_html_element('a', $html_options, $link_title);
+    return CTag::link_to($link_title, $controller,
+            $action, $id, $html_options);
 }
 
 /**
@@ -178,8 +112,7 @@ function link_to($link_title = 'Goto', $controller = '', $action = '', $id = '',
  **/
 function link_to_url($link_title = 'Goto', $url = '#', $html_options = null)
 {
-	$html_options['href'] = $url;
-	return link_to($link_title, null, null, null, $html_options);
+    return CTag::link_to_url($link_title, $url, $html_options);
 }
 
 /**
@@ -197,9 +130,7 @@ function link_to_url($link_title = 'Goto', $url = '#', $html_options = null)
  **/
 function link_to_google_maps($link_title = 'Google Maps&trade;', $address, $html_options = null)
 {
-    $url = urlencode(strip_tags(str_replace(array(',', '.', '<br>', '<br />', '<br/>'), array('', '', ' ', ' ', ' '), $address)));
-    $url .= isset($html_options['title']) ? '+('.urlencode($html_options['title']).')' : '';
-    return link_to_url($link_title, 'http://maps.google.com/maps?q=' . $url, $html_options);
+    return CTag::link_to_google_maps($link_title, $address, $html_options);
 }
 
 /**
@@ -214,10 +145,6 @@ function link_to_google_maps($link_title = 'Google Maps&trade;', $address, $html
  **/
 function mail_to($email, $link_title = null, $html_options = null, $amphersand_encode = false)
 {
-    if ($amphersand_encode) {
-        $html_options['href'] = amphersand_encode('mailto:' . $email);
-    } else {
-        $html_options['href'] = 'mailto:' . $email;
-    }
-    return link_to(($link_title ? $link_title : $email ), null, null, null, $html_options);
+    return CTag::mail_to($email, $link_title,
+            $html_options, $amphersand_encode);
 }

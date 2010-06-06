@@ -18,7 +18,7 @@
  **/
 function print_obj($obj, $kill = false)
 {
-    echo create_html_element('pre', array('class' => 'print_obj'), "\n".print_r($obj, 1)). "\n";
+    echo CTag::create('pre', array('class' => 'print_obj'), "\n".print_r($obj, 1)). "\n";
     if ($kill) die;
 }
 

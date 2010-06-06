@@ -57,7 +57,7 @@ class DatabaseXML extends ModuleBase
         if ($file) {
             $this->_schema_file_ = $file;
         } else {
-            $this->_schema_file_ = SCHEMAS_PATH . CString::underscore($this->_model_) . '.xml';
+            $this->_schema_file_ = SCHEMAS_PATH . Inflector::underscore($this->_model_) . '.xml';
         }
         
         if (file_exists($this->_schema_file_)) {
@@ -84,6 +84,10 @@ class DatabaseXML extends ModuleBase
      **/
     public function create_file($options)
     {
+        if (!defined('SCHEMAS_PATH')) {
+            self::throw_error("SCHEMAS_PATH not defined.");
+        }
+        
         //  set class name
         $class_name = empty($options['class_name']) ? '' : $options['class_name'];
         
@@ -105,7 +109,7 @@ class DatabaseXML extends ModuleBase
         $file = empty($options['file']) ? '' : $options['file'];
         if (!$file) {
             // use default path dir for schemas
-            $file = SCHEMAS_PATH . CString::underscore($class_name) . '.xml';
+            $file = SCHEMAS_PATH . Inflector::underscore($class_name) . '.xml';
         }
         
         // create DOM

@@ -65,7 +65,7 @@ abstract class ActionController extends CObject
      **/
     public function __set_events($events)
     {
-        $events['action'] = CString::underscore($events['action']);
+        $events['action'] = Inflector::underscore($events['action']);
         $this->_controller = $events['controller'];
         $this->_action = $events['action'];
         if (!$this->render) {

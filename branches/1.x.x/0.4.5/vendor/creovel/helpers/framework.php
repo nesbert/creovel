@@ -74,7 +74,7 @@ function __autoload_creovel($class)
             if ($type == 'Controller' || $type == 'Model' || $type == 'Mailer') {
                 $folders = explode('/', $class);
                 foreach ($folders as $k => $v) {
-                    $folders[$k] = CString::classify($v);
+                    $folders[$k] = Inflector::classify($v);
                 }
                 $class = implode('_', $folders);
             }
@@ -271,7 +271,7 @@ function flash_success($message = null)
 function url_for()
 {
     $args = func_get_args();
-    $use_pretty_urls = CString::ends_with('*', $GLOBALS['CREOVEL']['ROUTING']['current']['url']);
+    $use_pretty_urls = CString::ends_with('*', @$GLOBALS['CREOVEL']['ROUTING']['current']['url']);
     
     if (is_array($args[0])) {
         
@@ -320,7 +320,7 @@ function url_for()
         $https = true;
     }
     // build url
-    $uri = $GLOBALS['CREOVEL']['ROUTING']['base_url'] . (!$controller && $action
+    $uri = @$GLOBALS['CREOVEL']['ROUTING']['base_url'] . (!$controller && $action
                 ? get_controller()
                 : $controller ) . ($action ? "/{$action}" : '');
     

@@ -277,7 +277,7 @@ if ( GBrowserIsCompatible() ) {
 <?=$this->_display_warning_if_not_compatible()?>
 //]]>
 </script>
-<div id="<?=$this->id?>"<?=html_options_str($html_options)?>></div>
+<div id="<?=$this->id?>"<?=CTag::attributes($html_options)?>></div>
         <?
         $shown++;
     }

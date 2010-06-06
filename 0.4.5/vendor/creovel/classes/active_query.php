@@ -241,6 +241,7 @@ class ActiveQuery
         $q->limit = null;
         $q->offset = null;
         $q->group = null;
+        $q->order = null;
         
         if (!isset($options['table'])) {
             throw new Exception('Missing argument <em>table</em> not set' .

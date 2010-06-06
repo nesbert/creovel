@@ -32,6 +32,7 @@ $seconds = 0;
 $tests = 0;
 $assertions = 0;
 $failures = 0;
+$errors = 0;
 $incomplete = 0;
 $skipped = 0;
 $show_title = false;
@@ -80,6 +81,11 @@ if (count($files)) foreach ($files as $file) {
                 $tag .= 'F';
             }
             
+            if (preg_match('/Errors: ([0-9]+)/', $result, $match3)) {
+                $errors += $match3[1];
+                $tag .= 'E';
+            }
+            
             if (preg_match('/Incomplete: ([0-9]+)/', $result, $match2)) {
                 $incomplete += $match2[1];
                 $tag .= 'I';
@@ -103,8 +109,13 @@ if (count($files)) foreach ($files as $file) {
             $replacement = '$2 $1, $4 $3, $6 $5';
             $result = preg_replace($pattern, $replacement, $result);
             
+            if (CString::contains('F', $tag)) {
+                $error = 'FAILED';
+            } else {
+                $error = '------';
+            }
             
-            echo "FAILED {$file} ({$result}) ". ($tag ? "*{$tag}*" : '') ."\n";
+            echo "{$error} {$file} ({$result}) ". ($tag ? "*{$tag}*" : '') ."\n";
         }
         
     } else {
@@ -117,6 +128,7 @@ $total = count($files);
 echo "\nTime: {$seconds} seconds\n";
 echo "\nResults: {$ok} of {$total} Files \"PASSED\" ({$tests} tests, {$assertions} assertions";
 echo $failures ? ", {$failures} failures" : '';
+echo $errors ? ", {$errors} errors" : '';
 echo $incomplete ? ", {$incomplete} incomplete" : '';
 echo $skipped ? ", {$skipped} skipped" : '';
 echo ")\n";

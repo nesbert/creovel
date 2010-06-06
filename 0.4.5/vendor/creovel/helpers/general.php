@@ -23,25 +23,6 @@ function print_obj($obj, $kill = false)
 }
 
 /**
- * Cleans up javascript and properly escapes quotes.
- *
- * @param string $javascript
- * @return string
- * @author Nesbert Hidalgo
- **/
-function escape_javascript($javascript)
-{
-    $escape = array(
-        "\r\n"  => '\n',
-        "\r"    => '\n',
-        "\n"    => '\n',
-        '"'     => '\"',
-        "'"     => "\\'"
-    );
-    return str_replace(array_keys($escape), array_values($escape), $javascript);
-}
-
-/**
  * Returns an array user defined constants.
  *
  * @return array

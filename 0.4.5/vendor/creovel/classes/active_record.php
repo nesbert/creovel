@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActiveRecord extends CObject
+class ActiveRecord extends CObject implements Iterator
 {
     /**
      * Table name.
@@ -1897,5 +1897,5 @@ class ActiveRecord extends CObject
     public function validate_on_create() {}
     public function validate_on_update() {}
     /**#@-*/
-} // END class ActiveRecord extends CObject
+} // END class ActiveRecord extends CObject implements Iterator
 

@@ -40,12 +40,13 @@ class CString extends CObject
      * Transform text like 'programmers_field' to 'Programmers Field'.
      *
      * @param string $word
+     * @param boolean $ucwords
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function humanize($word)
+    public function humanize($word, $ucwords = false)
     {
-        return Inflector::humanize($word);
+        return Inflector::humanize($word, $ucwords);
     }
 
     /**
@@ -66,13 +67,13 @@ class CString extends CObject
      * character by a dash ("-").
      *
      * @param string $word
-     * @param string $seperator
+     * @param string $separator
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function dasherize($word, $seperator = '-')
+    public function dasherize($word, $separator = '-')
     {
-        return Inflector::underscore($word, $seperator);
+        return Inflector::underscore($word, $separator);
     }
 
     /**
@@ -136,16 +137,17 @@ class CString extends CObject
      *
      * @param string $var1
      * @param string $var2
+     * @param boolean $reset
      * @return mixed Returns 1 & 2 in to strings passed
      * @author Nesbert Hidalgo
      **/
-    public function cycle($var1 = '', $var2 = '')
+    public function cycle($var1 = '', $var2 = '', $reset = false)
     {
-        static $return;
+        static $c;
+        if (empty($c) || $reset) $c = 1;
         $var1 = $var1 ? $var1 : 1;
         $var2 = $var2 ? $var2 : 2;
-        $return = $return == $var2 || !$return ? $var1 : $var2;
-        return $return;
+        return CValidate::odd($c++) ? $var1 : $var2;
     }
 
     /**
@@ -161,7 +163,7 @@ class CString extends CObject
     }
 
     /**
-     * Replace every charactor of a string with $mask
+     * Replace every character of a string with $mask
      *
      * @param string $str
      * @param string $mask Optional default set to '*'
@@ -170,15 +172,13 @@ class CString extends CObject
      **/
     public function mask($str, $mask = '*')
     {
-        $return = '';
-        for ($i = 0; $i <= (strlen($str) - 1); $i++) $return .= $mask;
-        return $return;
+        return str_repeat($mask, strlen($str));
     }
 
     /**
      * Truncates a string and adds trailing periods to it. Now handles
      * words better thank you Mel Cruz for the suggestion. By default
-     * trucates at end of words.
+     * truncates at end of words.
      *
      * @param string $str
      * @param integer $length Optional default set to 100 characters
@@ -221,6 +221,7 @@ class CString extends CObject
     {
         $tok = strtok($s, " ");
         $formatted = '';
+        $line = '';
 
         while (strlen($tok) != 0) {
             if (strlen($line) + strlen($tok) < ($l + 2) ) {
@@ -556,9 +557,7 @@ class CString extends CObject
      **/
     public function times($string, $count)
     {
-        $str = '';
-        for ($i = 0; $i < $count; $i++ ) $str .= $string;
-        return $str;
+        return str_repeat($string, $count);
     }
     
     /**
@@ -574,14 +573,23 @@ class CString extends CObject
     }
     
     /**
-     * Create a JSON string with current value.
+     * Cleans up javascript and properly escapes quotes.
      *
-     * @param string $string
+     * @param string $javascript
      * @return string
+     * @author Nesbert Hidalgo
      **/
-    public function to_json($string)
+    public function prep_javascript($javascript)
     {
-        return '"'.escape_javascript($string).'"';
+        $escape = array(
+            "\r\n"  => '\n',
+            "\r"    => '\n',
+            "\n"    => '\n',
+            '"'     => '\"',
+            "'"     => "\\'"
+        );
+        return str_replace(array_keys($escape),
+                array_values($escape), $javascript);
     }
     
     /**

@@ -7,6 +7,7 @@
  * @subpackage  UnitTest
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.5
+ * @author      Nesbert Hidalgo
  **/
 require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'env.php';
 

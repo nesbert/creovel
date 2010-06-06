@@ -120,7 +120,7 @@ function error_messages_for($errors = null, $title = null, $description = null)
     
     if ($errors_count) foreach ($errors_array as $field => $message) {
         if ( $message == 'no_message') continue;
-        $li_str .= create_html_element('li', null, $message) . "\n";
+        $li_str .= CTag::create('li', null, $message) . "\n";
     }
     
     if ($errors_count) {
@@ -197,7 +197,7 @@ function start_form_tag($event_options,
                 $event_options['controller'],
                 $event_options['action'],
                 $event_options['id']
-                ) . '"' . html_options_str($html_options) .
+                ) . '"' . CTag::attributes($html_options) .
                 '>' . "\n" . $obj_id_str;
 }
 
@@ -236,7 +236,7 @@ function create_input_tag($type, $name, $value = null, $html_options = array(), 
         $input['value'] = $tag_value;
         if ( $value == $tag_value ) $html_options['checked'] = 'checked';
     }
-    return create_html_element('input', array_merge($input, $html_options)) . ($text ? ' ' . $text : '') . "\n";
+    return CTag::create('input', array_merge($input, $html_options)) . ($text ? ' ' . $text : '') . "\n";
 }
 
 /**
@@ -362,7 +362,7 @@ function textarea($name, $value = '', $html_options = array())
 {
     $textarea['id'] = name_to_id($name);
     $textarea['name'] = $name;
-    return create_html_element('textarea', array_merge($textarea, $html_options), $value);
+    return CTag::create('textarea', array_merge($textarea, $html_options), $value);
 }
 
 /**
@@ -399,7 +399,7 @@ function label($name, $title = null, $html_options = null)
         $title = CString::humanize($title);
     }
     $html_options['for'] = name_to_id($name);
-    return create_html_element('label', $html_options, $title) . "\n";
+    return CTag::create('label', $html_options, $title) . "\n";
 }
 
 /**
@@ -422,7 +422,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
     if (count($choices)) {
         
         if ($have_none) {
-            $content .= create_html_element('option', array('value' => ''), $none_title)."\n";
+            $content .= CTag::create('option', array('value' => ''), $none_title)."\n";
         }
         
         foreach ($choices as $value => $description) {
@@ -436,7 +436,7 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
                 }
                 
                 $html_options = is_array($select_options) ? array('value' => $value) + (array) $select_options : array('value' => $value);
-                $content .= create_html_element('option', $html_options, ($description ? $description : $value))."\n";
+                $content .= CTag::create('option', $html_options, ($description ? $description : $value))."\n";
                 
             } else {
                 
@@ -452,10 +452,10 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
                         }
                         
                         $html_options = is_array($select_options) ? array('value' => $value2) + (array) $select_options : array('value' => $value2);
-                        $group .= create_html_element('option', $html_options, ($description2 ? $description2 : $value2))."\n";
+                        $group .= CTag::create('option', $html_options, ($description2 ? $description2 : $value2))."\n";
                     }
                     
-                    $content .= create_html_element('optgroup', array('label' => str_replace('optgroup:', '', $value)), $group)."\n";
+                    $content .= CTag::create('optgroup', array('label' => str_replace('optgroup:', '', $value)), $group)."\n";
                     
                 }
             
@@ -464,11 +464,11 @@ function select($name, $selected = '', $choices = null, $html_options = null, $n
     
     } else {
     
-        $content .= create_html_element('option', array('value' => ''), $none_title);
+        $content .= CTag::create('option', array('value' => ''), $none_title);
         
     }
     
-    $out = create_html_element('select', $og_options, $content);
+    $out = CTag::create('select', $og_options, $content);
     
     return $out;
 }
@@ -523,7 +523,7 @@ function select_states_tag($name = 'state', $selected = null, $choices = null, $
         $html = select($name, $selected, $state_arr, $html_options);
     }
     
-    return create_html_element('span', array('id' => $name . '-wrap'), $html);
+    return CTag::create('span', array('id' => $name . '-wrap'), $html);
 }
 
 /**
@@ -550,7 +550,7 @@ function select_countries_tag($name = 'country', $selected = null, $choices = nu
 
     if ($state_id) {
         $state_id = name_to_id($state_id);
-        $func = CString::underscore($state_id) . '_func';
+        $func = Inflector::underscore($state_id) . '_func';
         $html_options['onchange'] = (isset($html_options['onchange']) ? trim($html_options['onchange']) : '') . "updateState(this.options[this.selectedIndex].value, '" . $state_id . "');";
     }
     
@@ -764,7 +764,7 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
         
     }
     
-    $return = "<div". html_options_str($html_options) .">\n";
+    $return = "<div". CTag::attributes($html_options) .">\n";
     
     if ( count($choices) ) {
         
@@ -773,13 +773,13 @@ function checkbox_select($name, $selected = array(), $choices = null, $html_opti
         foreach( $choices as $value => $desc ) {
             $label_options['class'] = $class_temp . ( CValidate::in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . CString::cycle('row-1', 'row-2');
             $label_options['for'] = name_to_id($name) . '_' . $value;
-            $return .= "<label ".html_options_str($label_options).">\n";
+            $return .= "<label ".CTag::attributes($label_options).">\n";
             $return .= create_input_tag($type, $name, in_array($value, $selected), $box_html_options, $value, $desc)."\n";
             $return .= "<br /></label>\n";        
         }
         
     } else {
-        $return .= '<span class="'.CString::underscore($none_title).'">'.$none_title.'</span>';
+        $return .= '<span class="'.Inflector::underscore($none_title).'">'.$none_title.'</span>';
     }
     
     $return .= "</div>\n";

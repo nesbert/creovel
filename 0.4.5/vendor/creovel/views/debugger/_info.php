@@ -29,9 +29,9 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo Creovel::source_url($file); ?>"><?php echo CString::classify($name); ?></a>
+            <a href="<?php echo Creovel::source_url($file); ?>"><?php echo Inflector::classify($name); ?></a>
             <?php } else { ?>
-            <?php echo CString::classify($name); ?>
+            <?php echo Inflector::classify($name); ?>
             <?php } ?>
         <?php } else { ?>
             Not Available
@@ -52,9 +52,9 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo Creovel::source_url($file); ?>"><?php echo CString::classify($name); ?></a>
+            <a href="<?php echo Creovel::source_url($file); ?>"><?php echo Inflector::classify($name); ?></a>
             <?php } else { ?>
-            <?php echo CString::classify($name); ?>
+            <?php echo Inflector::classify($name); ?>
             <?php } ?>
         <?php } else { ?>
             Not Available

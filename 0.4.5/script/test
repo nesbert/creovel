@@ -1,5 +1,8 @@
 #!/usr/bin/php -q
 <?php
+// Sart timer
+$exe_seconds = microtime(true);
+
 // Include Creovel Base.
 require_once('base');
 
@@ -125,7 +128,9 @@ if (count($files)) foreach ($files as $file) {
 
 $total = count($files);
 
-echo "\nTime: {$seconds} seconds\n";
+$exe_seconds = number_format((microtime(true) - $exe_seconds), 2);
+
+echo "\nTime: {$exe_seconds} seconds (PHPUnit {$seconds} seconds)\n";
 echo "\nResults: {$ok} of {$total} Files \"PASSED\" ({$tests} tests, {$assertions} assertions";
 echo $failures ? ", {$failures} failures" : '';
 echo $errors ? ", {$errors} errors" : '';

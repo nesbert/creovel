@@ -1,6 +1,6 @@
 <?php
 /**
- * Base Object class.
+ * Base CObject class.
  *
  * @package     Creovel
  * @subpackage  Core
@@ -102,7 +102,7 @@ class CObject
     {
         $parents = get_ancestors($this->to_string());
         foreach (array_reverse($parents) as $parent) {
-            $method = 'initialize_' . CString::underscore($parent);
+            $method = 'initialize_' . Inflector::underscore($parent);
             if (method_exists($parent, $method)) {
                 $this->{$method}();
             }

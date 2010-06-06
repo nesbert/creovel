@@ -13,5 +13,7 @@ define('BASE_PATH', dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
 require_once BASE_PATH . 'config' . DIRECTORY_SEPARATOR . 'paths.php';
 
 // Initialize framework and include core libraries.
-require_once CREOVEL_PATH . 'classes' . DIRECTORY_SEPARATOR . 'creovel.php';
-Creovel::run();
+require_once CREOVEL_PATH . 'classes' . DS . 'creovel.php';
+
+// Run framework.
+Creovel::main();

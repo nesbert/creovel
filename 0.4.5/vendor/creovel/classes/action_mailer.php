@@ -328,7 +328,7 @@ class ActionMailer extends ActionController
         
         if (!$return) {
             $text = $this->get_include_contents(
-                VIEWS_PATH . CString::underscore($this->to_string()) . DS .
+                VIEWS_PATH . Inflector::underscore($this->to_string()) . DS .
                 $this->_action . '.txt'
                 );
             $return = $text ? $text : $this->get_html();

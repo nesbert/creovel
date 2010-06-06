@@ -1379,7 +1379,7 @@ class ActiveRecord extends CObject implements Iterator
     {
         // set form vars
         $html = '';
-        $field_name = CString::underscore($this->class_name()) . "[{$name}]";
+        $field_name = Inflector::underscore($this->class_name()) . "[{$name}]";
         $arguments[0] = isset($arguments[0]) ? $arguments[0] : null;
         @$html_options = $arguments[0];
         
@@ -1588,14 +1588,14 @@ class ActiveRecord extends CObject implements Iterator
     {
         // set class name
         $options['class_name'] = empty($options['class_name'])
-                        ? CString::classify($options['association_id']) : $options['class_name'];
+                        ? Inflector::classify($options['association_id']) : $options['class_name'];
 
         // set for linking class
         $obj = new $options['class_name'];
         
         $table_str = $this->action_query()->build_identifier(array($this->table_name()));
         $id_str = 'id';
-        $fk = CString::singularize($obj->table_name()) . '_' . $id_str;
+        $fk = Inflector::singularize($obj->table_name()) . '_' . $id_str;
         
         if ($this->action_query()->get_adapter_type() == 'ibmdb2') {
             $id_str = strtoupper($id_str);

@@ -10,12 +10,15 @@
  **/
  
 // Include application constant paths.
-define('BASE_PATH', dirname(dirname(dirname(dirname(__FILE__)))) . DIRECTORY_SEPARATOR);
+define('BASE_PATH',
+    dirname(dirname(dirname(dirname(__FILE__)))) . DIRECTORY_SEPARATOR);
 require_once BASE_PATH . 'config/paths.php';
 
 // Initialize framework and include core libraries.
 require_once CREOVEL_PATH . 'classes' . DS . 'creovel.php';
-Creovel::cmd();
+
+// Run framework.
+Creovel::main();
 
 // include PHPUnit
 require_once 'PHPUnit/Framework.php';

@@ -22,7 +22,7 @@ class Logger extends ModuleBase
      *
      * @var integer
      **/
-    public $filesize_limit = 104857600;
+    public $filesize_limit = 10485760; // 10 MBs
     
     /**
      * Flag to include time stamp in logs.

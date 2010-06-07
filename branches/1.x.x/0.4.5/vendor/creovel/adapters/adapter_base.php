@@ -51,8 +51,8 @@ abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
      **/
     public function  __construct($db_properties = null)
     {
-    	$this->offset = 0;
-    	
+        $this->offset = 0;
+        
         // if properties passed connect to database
         if (is_array($db_properties)) $this->connect($db_properties);
     }
@@ -64,7 +64,7 @@ abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
      **/
     public function throw_error($msg = null)
     {
-        if (!$msg) {
+        if (empty($msg)) {
             $msg = 'An error occurred while interacting with a database ' .
                 "using <strong>{$this->to_string()}</strong> adapter.";
         }
@@ -174,7 +174,7 @@ abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
     {
         $this->execute('ROLLBACK;');
     }
-
+    
     /**
      * COMMIT transaction.
      *

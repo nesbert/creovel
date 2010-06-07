@@ -38,7 +38,7 @@ class CObject
         } catch (Exception $e) {
             
             switch (true) {
-                case CValidate::in_string('Controller', $this->to_string()):
+                case CString::ends_with('Controller', $this->to_string()):
                     $error_type = 404;
                     break;
                 
@@ -116,10 +116,11 @@ class CObject
      **/
     public function throw_error($msg = null)
     {
-        if (!$msg) {
+        if (empty($msg)) {
             $msg = 'An error occurred while executing a method in ' .
                 "<strong>{$this->to_string()}</strong> class.";
         }
+        CREO('application_error_code', 500);
         CREO('application_error', $msg);
     }
     

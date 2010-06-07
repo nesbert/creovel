@@ -10,7 +10,7 @@
  **/
 require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'env.php';
 
-class CObjectTest extends PHPUnit_Framework_TestCase
+class CObjectTest extends PHPUnit_Extensions_OutputTestCase
 {
     /**
      * @var    CObject
@@ -78,17 +78,69 @@ class CObjectTest extends PHPUnit_Framework_TestCase
     }
     public function test_debug()
     {
-        // todo
+        $a = array(1,2,3,4,5,6);
+        $o = '<pre class="debug">
+Array
+(
+    [0] => 1
+    [1] => 2
+    [2] => 3
+    [3] => 4
+    [4] => 5
+    [5] => 6
+)
+</pre>
+';
+        $this->expectOutputString($o);
+        CObject::debug($a);
     }
     
     public function test_user_defined_constants()
     {
-        // todo
+        $a = CObject::user_defined_constants();
+        $this->assertTrue(in_array('BASE_PATH', array_keys($a)));
+        $this->assertTrue(in_array('DS', array_keys($a)));
+        $this->assertTrue(in_array('CONFIG_PATH', array_keys($a)));
+        $this->assertTrue(in_array('PUBLIC_PATH', array_keys($a)));
+        $this->assertTrue(in_array('APP_PATH', array_keys($a)));
+        $this->assertTrue(in_array('LOG_PATH', array_keys($a)));
+        $this->assertTrue(in_array('MODELS_PATH', array_keys($a)));
+        $this->assertTrue(in_array('VIEWS_PATH', array_keys($a)));
+        $this->assertTrue(in_array('CONTROLLERS_PATH', array_keys($a)));
+        $this->assertTrue(in_array('HELPERS_PATH', array_keys($a)));
+        $this->assertTrue(in_array('SCRIPT_PATH', array_keys($a)));
+        $this->assertTrue(in_array('VENDOR_PATH', array_keys($a)));
+        $this->assertTrue(in_array('CREOVEL_PATH', array_keys($a)));
+        $this->assertTrue(in_array('CSS_URL', array_keys($a)));
+        $this->assertTrue(in_array('JAVASCRIPT_URL', array_keys($a)));
+        $this->assertTrue(in_array('CREOVEL_VERSION', array_keys($a)));
+        $this->assertTrue(in_array('CREOVEL_RELEASE_DATE', array_keys($a)));
+        $this->assertTrue(in_array('PHP', array_keys($a)));
+        $this->assertTrue(in_array('SECOND', array_keys($a)));
+        $this->assertTrue(in_array('MINUTE', array_keys($a)));
+        $this->assertTrue(in_array('HOUR', array_keys($a)));
+        $this->assertTrue(in_array('DAY', array_keys($a)));
+        $this->assertTrue(in_array('WEEK', array_keys($a)));
+        $this->assertTrue(in_array('MONTH', array_keys($a)));
+        $this->assertTrue(in_array('YEAR', array_keys($a)));
     }
     
     public function test_ancestors()
     {
-        // todo
+        $a = CObject::ancestors('IndexController');
+        $this->assertEquals('IndexController', $a[0]);
+        $this->assertEquals('ApplicationController', $a[1]);
+        $this->assertEquals('ActionController', $a[2]);
+        $this->assertEquals('CObject', $a[3]);
+        
+        $a = CObject::ancestors('ActiveRecord');
+        $this->assertEquals('ActiveRecord', $a[0]);
+        $this->assertEquals('CObject', $a[1]);
+        
+        $a = CObject::ancestors('Mysql');
+        $this->assertEquals('Mysql', $a[0]);
+        $this->assertEquals('AdapterBase', $a[1]);
+        $this->assertEquals('CObject', $a[2]);
     }
 }
 ?>

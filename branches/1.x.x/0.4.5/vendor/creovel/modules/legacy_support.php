@@ -1389,7 +1389,6 @@ function is_hash($array)
 
 # helpers/general.php
 
-<?php
 /**
  * General top-level functions.
  *

@@ -25,3 +25,8 @@ CREO('show_source', false);
  * Set error reporting level.
  */
 error_reporting(CREO('mode') == 'development' ? E_ALL : 0);
+
+/**
+ * Uncomment to load old top level functions.
+ */
+// LegacySupport::init();

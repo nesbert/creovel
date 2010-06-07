@@ -22,3 +22,4 @@ Creovel::main();
 
 // include PHPUnit
 require_once 'PHPUnit/Framework.php';
+require_once 'PHPUnit/Extensions/OutputTestCase.php';

@@ -1375,8 +1375,8 @@ class ActiveRecord extends CObject implements Iterator
      * @param array $arguments
      * @return string
      **/
-    final public function html_field($type, $name, $value, $arguments = array())
-    {
+    final public function html_field($type, $name, $value,
+    $arguments = array()) {
         // set form vars
         $html = '';
         $field_name = Inflector::underscore($this->class_name()) . "[{$name}]";
@@ -1386,15 +1386,15 @@ class ActiveRecord extends CObject implements Iterator
         // get HTML
         switch ($type) {
             case 'text':
-                $html = text_field($field_name, $value, $html_options);
+                $html = CForm::text_field($field_name, $value, $html_options);
                 break;
             
             case 'password':
-                $html = password_field($field_name, $value, $html_options);
+                $html = CForm::password_field($field_name, $value, $html_options);
                 break;
             
             case 'hidden':
-                $html = hidden_field($field_name, $value, $html_options);
+                $html = CForm::hidden_field($field_name, $value, $html_options);
                 break;
             
             case 'check_box':
@@ -1408,7 +1408,7 @@ class ActiveRecord extends CObject implements Iterator
             
             case 'text_area':
             case 'textarea':
-                $html = textarea($field_name, $value, $html_options);
+                $html = CForm::textarea($field_name, $value, $html_options);
                 break;
             
             case 'select':
@@ -1424,7 +1424,7 @@ class ActiveRecord extends CObject implements Iterator
                 }
                 $html_options = $arguments[0];
                 $arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
-                $html = select($field_name, $value, $options, $html_options, $arguments[1]);
+                $html = CForm::select($field_name, $value, $options, $html_options, $arguments[1]);
                 break;
             
             case 'select_countries_tag':

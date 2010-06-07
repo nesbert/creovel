@@ -454,10 +454,9 @@ abstract class ActionController extends CObject
      **/
     public function throw_error($msg = null, $error_code = 404)
     {
-        if (!$msg) {
+        if (empty($msg)) {
             $msg = 'An error occurred while executing the action ' .
-            "<em>{$this->_action}</em> in the <strong> " . get_class($this) .
-            '</strong>.';
+            "<em>{$this->_action}</em> in the <strong>{$this->to_string()}</strong>.";
         }
         CREO('application_error_code', $error_code);
         CREO('application_error', $msg);

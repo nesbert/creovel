@@ -24,9 +24,9 @@ class MysqlImproved extends AdapterBase
             $db_properties['host'],
             $db_properties['username'],
             $db_properties['password'],
-            $db_properties['database'],
-            isset($db_properties['port']) ? $db_properties['port'] : null,
-            isset($db_properties['socket']) ? $db_properties['socket'] : null
+            !empty($db_properties['database']) ? $db_properties['database'] : null,
+            !empty($db_properties['port']) ? $db_properties['port'] : null,
+            !empty($db_properties['socket']) ? $db_properties['socket'] : null
             );
         
         if (mysqli_connect_error()) {
@@ -100,8 +100,8 @@ class MysqlImproved extends AdapterBase
      **/
     public function close()
     {
-        if (isset($this->result) && is_resource($this->result)) {
-            $this->result->close();
+        if (isset($this->result) && is_object($this->result)) {
+            $this->free_result();
         }
     }
     
@@ -214,11 +214,12 @@ class MysqlImproved extends AdapterBase
     /**
      * Free results resource.
      *
-     * @return boolean
+     * @return void
      **/
     public function free_result()
     {
-        return $this->result->close();
+        $this->result->close();
+        $this->result = null;
     }
     
     /**
@@ -233,7 +234,11 @@ class MysqlImproved extends AdapterBase
      **/
     public function valid()
     {
-        return $this->result->data_seek($this->offset);
+        if ($this->result) {
+            return $this->result->data_seek($this->offset);
+        } else {
+            return false;
+        }
     }
     
     /**

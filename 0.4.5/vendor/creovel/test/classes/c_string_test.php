@@ -446,12 +446,21 @@ class CStringTest extends PHPUnit_Framework_TestCase
     
     public function test_replace_with_array()
     {
-        // todo
+        $s = 'abcdefghijklmnopqrstuvwxyz';
+        $this->assertEquals(
+            'abcdEfghijklmNopqrStuvwxyz',
+            CString::replace_with_array($s, array('n' => 'N', 'e' => 'E', 's' => 'S')));
+        $this->assertEquals(
+            'abcdefghijkl | mnopqrstuvwxyz',
+            CString::replace_with_array($s, array('mno' => ' | mno')));
     }
     
     public function test_clean()
     {
-        // todo
+        $s = '<p>test</p><script>alert("test")</script>';
+        $this->assertEquals('testalert(&quot;test&quot;)',CString::clean($s));
+        $this->assertEquals('test',CString::clean($s, 4));
+        $this->assertEquals('&lt;p&gt;tes',CString::clean($s, 12, '<p>'));
     }
 }
 ?>

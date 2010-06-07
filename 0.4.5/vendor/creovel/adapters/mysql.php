@@ -73,6 +73,10 @@ class Mysql extends AdapterBase
      **/
     public function execute($query)
     {
+        if (!is_resource($this->db)) {
+            self::throw_error("Could not connect to server to execute query.");
+        }
+        
         $result = mysql_query($query, $this->db);
         
         // log queries
@@ -101,11 +105,6 @@ class Mysql extends AdapterBase
         
         // set database property
         $this->query = $query;
-        
-        // if connection lost reconnect
-        if (!is_resource($this->db)) {
-            $this->connect(ActiveRecord::connection_properties());
-        }
         
         // send a MySQL query and set query_link resource on success
         return $this->result = $this->execute($query);
@@ -256,7 +255,9 @@ class Mysql extends AdapterBase
      **/
     public function valid()
     {
-        if ($this->offset < $this->total_rows() && $this->offset >= 0) {
+        if ($this->offset <= $this->total_rows()
+            && $this->offset >= 0
+            && is_resource($this->result)) {
             return mysql_data_seek($this->result, $this->offset);
         } else {
             return false;

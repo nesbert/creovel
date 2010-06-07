@@ -54,7 +54,7 @@ class ActionView extends CObject
                     // in views
                     $parts = explode('<!--HEADSPLIT-->', $content);
                     if (count($parts) == 2) {
-                        $layout = str_replace_array(
+                        $layout = CString::replace_with_array(
                                 $layout,
                                 array(
                                     '</head>' => $parts[0] . '</head>'

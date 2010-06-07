@@ -40,21 +40,13 @@ class Creovel
         define('YEAR',  365 * DAY);
 
         // Include base helper libraries.
-        require_once CREOVEL_PATH . 'helpers/datetime.php';
-        require_once CREOVEL_PATH . 'helpers/form.php';
         require_once CREOVEL_PATH . 'helpers/framework.php';
-        require_once CREOVEL_PATH . 'helpers/general.php';
-        require_once CREOVEL_PATH . 'helpers/html.php';
-        require_once CREOVEL_PATH . 'helpers/locale.php';
-        require_once CREOVEL_PATH . 'helpers/server.php';
-        require_once CREOVEL_PATH . 'helpers/text.php';
-        require_once CREOVEL_PATH . 'helpers/validation.php';
 
         // Be kind to existing __autoload routines
         if (PHP <= '5.1.2') {
-            function __autoload($class) { __autoload_creovel($class); }
+            function __autoload($class) { self::autoload($class); }
         } else {
-            spl_autoload_register('__autoload_creovel');
+            spl_autoload_register('Creovel::autoload');
         }
 
         // Include application_helper
@@ -195,7 +187,7 @@ class Creovel
         // if global_xss_filtering is enabled
         if (!empty($GLOBALS['CREOVEL']['GLOBAL_XSS_FILTERING'])) {
             if (empty($GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'])) {
-                $xss_func = 'clean_array';
+                $xss_func = 'CArray::clean';
             } else {
                 $xss_func = $GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'];
             }
@@ -490,5 +482,88 @@ class Creovel
             $thow_exception = new Exception($message);
         }
         $GLOBALS['CREOVEL']['ERROR']->add($message, $thow_exception);
+    }
+    
+    /**
+     * Autoload routine for controllers, interfaces, adapters,
+     * services, vendor, mailer and models.
+     *
+     * @param string $class
+     * @author Nesbert Hidalgo
+     **/
+    public static function autoload($class)
+    {
+        try {
+            // check for nested paths
+            $class = Inflector::patherize($class);
+
+            // make all file names under score
+            $class = strtolower($class);
+
+            switch (true) {
+
+                case (true):
+                    $type = 'Core Class';
+                    $path = CREOVEL_PATH . 'classes' . DS . $class.'.php';
+                    if (file_exists($path)) break;
+
+                case (true):
+                    $type = 'Adapter';
+                    $path = CREOVEL_PATH . 'adapters' . DS . $class . '.php';
+                    if (file_exists($path)) break;
+
+                case (true):
+                    $type = 'Controller';
+                    $path = CONTROLLERS_PATH . $class . '.php';
+                    if (file_exists($path)) break;
+
+                case (true):
+                    $type = CValidate::in_string('Mailer', $class) ? 'Mailer' : 'Model';
+                    $path = MODELS_PATH . $class . '.php';
+                    if (file_exists($path)) break;
+
+                case (true):
+                    $type = 'Shared';
+                    @$shared_path = SHARED_PATH . $class . '.php';
+                    if (file_exists($shared_path)) {
+                        $path = $shared_path;
+                        break;
+                    }
+
+                case (true):
+                    $type = 'Vendor';
+                    $path = VENDOR_PATH . $class . '.php';
+                    if (file_exists($path)) break;
+
+                case (true):
+                    $type = 'Module';
+                    $path = CREOVEL_PATH . 'modules' . DS . $class . '.php';
+                    if (file_exists($path)) break;
+            }
+
+            if (file_exists($path)) {
+                require_once $path;
+            } else {
+                $file = $class;
+                if ($type == 'Controller') CREO('application_error_code', 404);
+                if ($type == 'Controller' || $type == 'Model' || $type == 'Mailer') {
+                    $folders = explode('/', $class);
+                    foreach ($folders as $k => $v) {
+                        $folders[$k] = Inflector::classify($v);
+                    }
+                    $class = implode('_', $folders);
+                }
+                throw new Exception("{$class} not found in <strong>{$path}</strong>");
+            }
+        } catch (Exception $e) {
+            // __PHP_Incomplete_Class Object bypass flag 
+            if (empty($GLOBALS['CREOVEL']['SKIP_AUTOLOAD_ERRORS'])) {
+                CREO('application_error', $e);
+            } else {
+                if (!empty($GLOBALS['CREOVEL']['LOG_ERRORS'])) {
+                    CREO('log', 'Error: ' . $e->getMessage());
+                }
+            }
+        }
     }
 } // END class Creovel

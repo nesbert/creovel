@@ -69,4 +69,42 @@ class CArray extends CObject
     {
         return prev($this->value);
     }
+    
+    /**
+     * Sanitize associative array values.
+     *
+     * @param array $array
+     * @return array
+     * @see CString::clean()
+     * @author Nesbert Hidalgo
+     **/
+    public function clean($array)
+    {
+        if (is_array($array)) {
+            foreach ($array as $k => $v) {
+                $array[$k] = is_array($v)
+                                ? self::clean($v)
+                                : CString::clean($v);
+            }
+            return $array;
+        } else {
+            return CString::clean($array);
+        }
+    }
+
+    /**
+     * Search a multidimensional array for a certain value and return the
+     * array with the match.
+     *
+     * @return array
+     * @author Nesbert Hidalgo
+     **/
+    public function search($i, $val, $array)
+    {
+        if (is_array($array)) foreach ($array as $row) {
+            if (@$row[$i] == $val) return $row;
+        } else {
+            return null;
+        }
+    }
 } // END CArray extends CObject

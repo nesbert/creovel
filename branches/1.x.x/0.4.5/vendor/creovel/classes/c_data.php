@@ -107,7 +107,7 @@ class CData extends CObject
             case $attribute == 'val':
             case $attribute == 'value':
                 $this->_attribites_->type =
-                    ucwords(get_type($value));
+                    ucwords(self::type($value));
                 $this->_attribites_->value = $value;
                 break;
                 
@@ -223,5 +223,96 @@ class CData extends CObject
             (is_resource($var) ? 'resource' :
             (is_string($var) ? 'string' :
             'unknown' )))))))));
+    }
+    
+    /**
+     * Add slashes to arrays, objects, and strings recursively.
+     *
+     * @param mixed $data
+     * @return mixed
+     * @author Nesbert Hidalgo
+     **/
+    public function add_slashes($data)
+    {
+        switch (true) {
+            // clean data array
+            case is_array($data):
+                $clean_values = array();
+                foreach ($data as $name => $value) {
+                    $clean_values[$name] = is_array($value)
+                                            ? array_map('addslashes', $value)
+                                            : addslashes(trim($value));
+                }
+                break;
+
+            // get vars from object -> clean data -> update and return object
+            case is_object($data):
+                $clean_values = get_object_vars($data);
+                foreach ($clean_values as $name => $value) {
+                    $data->{$name} = self::add_slashes($value);
+                }
+                $clean_values = $data;
+                break;
+
+            // clean data
+            default:
+                $clean_values = addslashes(trim($data));
+                break;
+        }
+
+        return $clean_values;
+    }
+
+    /**
+     * Strip slashes to arrays, objects, and strings recursively.
+     *
+     * @param mixed $data
+     * @return mixed
+     * @author Nesbert Hidalgo
+     **/
+    public function strip_slashes($data)
+    {
+        switch (true) {
+            // clean data array
+            case is_array($data):
+                $clean_values = array();
+                foreach ($data as $name => $value) {
+                    $clean_values[$name] = is_array($value)
+                                            ? array_map('strip_slashes', $value)
+                                            : stripslashes(trim($value));
+                }
+                break;
+
+            // get vars from object -> clean data -> update and return object
+            case is_object($data):
+                $clean_values = get_object_vars($data);
+                foreach ($clean_values as $name => $value) {
+                    $data->{$name} = self::strip_slashes($value);
+                }
+                $clean_values = $data;
+                break;
+
+            // clean data
+            default:
+                $clean_values = stripslashes(trim($data));
+                break;
+        }
+
+        return $clean_values;
+    }
+    
+    /**
+     * Returns the raw post from php://input. It is a less memory
+     * intensivealternative to $HTTP_RAW_POST_DATA and does not
+     * need any special php.ini directives. php://input is not
+     * available with enctype="multipart/form-data".
+     *
+     * @link http://us.php.net/wrappers.php
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public function raw_post()
+    {
+        return trim(file_get_contents('php://input'));
     }
 } // END class CData extends CObject

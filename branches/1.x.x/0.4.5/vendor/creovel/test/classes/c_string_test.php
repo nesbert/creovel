@@ -443,5 +443,15 @@ class CStringTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('<p>', CString::unescape_html("&lt;p&gt;"));
         $this->assertEquals('&', CString::unescape_html("&amp;"));
     }
+    
+    public function test_replace_with_array()
+    {
+        // todo
+    }
+    
+    public function test_clean()
+    {
+        // todo
+    }
 }
 ?>

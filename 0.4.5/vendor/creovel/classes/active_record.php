@@ -788,7 +788,7 @@ class ActiveRecord extends CObject implements Iterator
     final public function clean_column_value($attribute)
     {
         if (isset($this->_columns_[$attribute]->value)) {
-            return strip_slashes($this->_columns_[$attribute]->value);
+            return CData::strip_slashes($this->_columns_[$attribute]->value);
         } else {
             return '';
         }

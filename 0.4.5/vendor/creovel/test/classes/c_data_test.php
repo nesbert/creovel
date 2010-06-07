@@ -83,5 +83,20 @@ class CDataTest extends PHPUnit_Framework_TestCase
         $this->object->value = 'Test';
         $this->assertEquals('Test', $this->object->val());
     }
+    
+    public function test_add_slashes()
+    {
+        // todo
+    }
+
+    public function test_strip_slashes()
+    {
+        // todo
+    }
+    
+    public function test_raw_post()
+    {
+        // todo
+    }
 }
 ?>

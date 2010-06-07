@@ -467,7 +467,7 @@ class ActionMailer extends ActionController
      **/
     public function get_content_type($file_path)
     {
-        return get_mime_type($file_path);
+        return CFile::mime_type($file_path);
     }
     
     /**

@@ -603,4 +603,38 @@ class CString extends CObject
     {
         return html_entity_decode($string);
     }
+    
+    /**
+     * String replaces a string using array keys with array values.
+     *
+     * @param string $string
+     * @param array $array
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public function replace_with_array($string, $array)
+    {
+        return str_replace(array_keys($array), array_values($array), $string);
+    }
+    
+    /**
+     * Sanitize a string by not allowing HTML, encoding and using HTML Special
+     * characters for certain tags. Basic layer for XSS prevention.
+     *
+     * @param string $str
+     * @param string $length
+     * @param string $allowed_tags
+     * @author Nesbert Hidalgo
+     **/
+    public function clean($str, $length = 0, $allowed_tags = false)
+    {
+        // strip or allow only certain tags
+        $str = strip_tags($str, (!$allowed_tags ? null : $allowed_tags));
+        // trim, utf-8 and HTML encode
+        $str = htmlspecialchars(utf8_encode(trim($str)), ENT_QUOTES);
+        // limit length of string
+        $length = intval($length);
+        if ($length) $str = substr($str, 0, $length);
+        return $str;
+    }
 } // END CString extends CObject

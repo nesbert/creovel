@@ -100,7 +100,7 @@ class CObject
      **/
     public function initialize_parents()
     {
-        $parents = get_ancestors($this->to_string());
+        $parents = self::ancestors($this->to_string());
         foreach (array_reverse($parents) as $parent) {
             $method = 'initialize_' . Inflector::underscore($parent);
             if (method_exists($parent, $method)) {
@@ -121,5 +121,44 @@ class CObject
                 "<strong>{$this->to_string()}</strong> class.";
         }
         CREO('application_error', $msg);
+    }
+    
+    /**
+     * Prints human-readable information about a variable much prettier.
+     *
+     * @param mixed $obj The value to print out
+     * @param boolean $kill Die after print out to screen.
+     * @return void
+     * @author John Faircloth
+     **/
+    public function debug($obj, $kill = false)
+    {
+        echo CTag::create('pre', array('class' => 'debug'), "\n".print_r($obj, 1)). "\n";
+        if ($kill) die;
+    }
+    
+    /**
+     * Returns an array user defined constants.
+     *
+     * @return array
+     * @author Nesbert Hidalgo
+     **/
+    public function user_defined_constants()
+    {
+        $return = get_defined_constants(true);
+        return $return['user'];
+    }
+    
+    /**
+     * Get an array of all class parents.
+     *
+     * @link http://us.php.net/manual/en/function.get-parent-class.php#57548
+     * @return array
+     **/
+    public function ancestors($class)
+    {
+        $classes = array($class);
+        while($class = get_parent_class($class)) { $classes[] = $class; }
+        return $classes;
     }
 } // END class CObject

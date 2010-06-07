@@ -137,7 +137,7 @@ include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
 
 <h1>Constants</h1>
 <?php
-$data = get_user_defined_constants();
+$data = CObject::user_defined_constants();
 include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
 ?>
 
@@ -151,12 +151,12 @@ include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
     <td class="sub"><?php print($file + 1); ?>.</td>
     <td>
         <?php if (CREO('show_source')) { ?>
-        <a href="<?php echo Creovel::source_url($value); ?>"><?php echo $value; ?> (<?php echo get_filesize($value); ?>)</a>
+        <a href="<?php echo Creovel::source_url($value); ?>"><?php echo $value; ?> (<?php echo CFile::size($value); ?>)</a>
         <?php } else { ?>
-        <?php echo $value; ?> (<?php echo get_filesize($value); ?>)
+        <?php echo $value; ?> (<?php echo CFile::size($value); ?>)
         <?php } ?>
     </td>
 </tr>
 <?php } ?>
-<tr><td class="sub">Total</td><td><?php print($file + 1); ?> Files (<?php echo get_filesize($total_filesize); ?>)</td></tr>
+<tr><td class="sub">Total</td><td><?php print($file + 1); ?> Files (<?php echo CFile::size($total_filesize); ?>)</td></tr>
 </table>

@@ -76,5 +76,19 @@ class CObjectTest extends PHPUnit_Framework_TestCase
     {
         // cant test error function cause framework halts php on errors
     }
+    public function test_debug()
+    {
+        // todo
+    }
+    
+    public function test_user_defined_constants()
+    {
+        // todo
+    }
+    
+    public function test_ancestors()
+    {
+        // todo
+    }
 }
 ?>

@@ -40,15 +40,15 @@ class Creovel
         define('YEAR',  365 * DAY);
 
         // Include base helper libraries.
-        #require_once CREOVEL_PATH . 'helpers/datetime.php';
-        #require_once CREOVEL_PATH . 'helpers/form.php';
+        require_once CREOVEL_PATH . 'helpers/datetime.php';
+        require_once CREOVEL_PATH . 'helpers/form.php';
         require_once CREOVEL_PATH . 'helpers/framework.php';
         require_once CREOVEL_PATH . 'helpers/general.php';
-        #require_once CREOVEL_PATH . 'helpers/html.php';
-        #require_once CREOVEL_PATH . 'helpers/locale.php';
-        #require_once CREOVEL_PATH . 'helpers/server.php';
-        #require_once CREOVEL_PATH . 'helpers/text.php';
-        #require_once CREOVEL_PATH . 'helpers/validation.php';
+        require_once CREOVEL_PATH . 'helpers/html.php';
+        require_once CREOVEL_PATH . 'helpers/locale.php';
+        require_once CREOVEL_PATH . 'helpers/server.php';
+        require_once CREOVEL_PATH . 'helpers/text.php';
+        require_once CREOVEL_PATH . 'helpers/validation.php';
 
         // Be kind to existing __autoload routines
         if (PHP <= '5.1.2') {

@@ -177,7 +177,10 @@ class ActionRouter extends CObject
     public function which($uri = null, $return_params = false)
     {
         // set uri
-        $uri = $uri ? $uri : $GLOBALS['CREOVEL']['ROUTING']['base_path'];
+        if (empty($uri)
+            && !empty($GLOBALS['CREOVEL']['ROUTING']['base_path'])) {
+            $uri = $GLOBALS['CREOVEL']['ROUTING']['base_path'];
+        }
         
         // set static vars
         static $match;
@@ -209,7 +212,9 @@ class ActionRouter extends CObject
             return $match['params'];
         } else {
             $match['events']['controller'] = self::clean_event($match['events']['controller']);
-            $match['events']['action'] = self::clean_event($match['events']['action']);
+            if (!empty($match['events']['action']))
+                $match['events']['action'] =
+                    self::clean_event($match['events']['action']);
             return $match['events'];
         }
     }
@@ -259,7 +264,7 @@ class ActionRouter extends CObject
     public function clean_event($event)
     {
         // clean up any file extension for a action
-        return preg_replace(
+        return @preg_replace(
                 '/.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'] . '$/',
                 '',
                 $event

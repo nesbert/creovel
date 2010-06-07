@@ -22,6 +22,13 @@ abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
     public $db;
     
     /**
+     * Database result resource.
+     *
+     * @var resource
+     **/
+    public $result;
+    
+    /**
      * SQL query string.
      *
      * @var string

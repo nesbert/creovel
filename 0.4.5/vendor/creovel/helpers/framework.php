@@ -237,7 +237,7 @@ function url_for()
     }
     // build url
     $uri = @$GLOBALS['CREOVEL']['ROUTING']['base_url'] . (!$controller && $action
-                ? get_controller()
+                ? Creovel::events('controller')
                 : $controller ) . ($action ? "/{$action}" : '');
     
     if (@$misc) {

@@ -22,7 +22,7 @@ class CDate extends CObject
     {
         switch (true) {
             case empty($datetime):
-            case $datetime <= 0:
+            case is_int($datetime) && $datetime <= 0:
             default:
                 return date('Y-m-d H:i:s');
                 break;

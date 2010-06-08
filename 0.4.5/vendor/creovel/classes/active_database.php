@@ -76,15 +76,9 @@ class ActiveDatabase
             
             $this->__adapter = $db_properties['adapter'];
             
-            if (strtolower($this->__adapter) == 'ibmdb2') {
-                // uppercase properties
-                $db_properties['database'] = strtoupper($db_properties['database']);
-                $db_properties['schema'] = strtoupper($db_properties['schema']);
-            } else {
-                // use databse for schema for mysql
-                if (empty($db_properties['schema'])) {
-                    $db_properties['schema'] = $db_properties['database'];
-                }
+            // Use databse for schema for mysql
+            if (empty($db_properties['schema'])) {
+                $db_properties['schema'] = $db_properties['database'];
             }
             
             $this->__database = $db_properties['database'];

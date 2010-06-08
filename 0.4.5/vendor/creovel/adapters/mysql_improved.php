@@ -19,6 +19,19 @@ class MysqlImproved extends AdapterBase
      **/
     public function connect($db_properties)
     {
+        if (empty($db_properties['host'])
+            || empty($db_properties['username'])
+            || empty($db_properties['password'])) {
+            self::throw_error('Could not connect to server because of '.
+                'missing arguments for $db_properties.');
+            
+        }
+        
+        if (!empty($db_properties['persistent'])
+            && PHP_VERSION >= '5.3') {
+            $db_properties['host'] = 'p:'.$db_properties['host'];
+        }
+        
         // open a connection to a MySQL Server and set db_link
         $this->db = @new mysqli(
             $db_properties['host'],

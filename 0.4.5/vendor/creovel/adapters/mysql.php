@@ -19,6 +19,14 @@ class Mysql extends AdapterBase
      **/
     public function connect($db_properties)
     {
+        if (empty($db_properties['host'])
+            || empty($db_properties['username'])
+            || empty($db_properties['password'])) {
+            self::throw_error('Could not connect to server because of '.
+                'missing arguments for $db_properties.');
+            
+        }
+        
         $server = $db_properties['host'];
         
         if (!empty($db_properties['port'])) {
@@ -30,11 +38,19 @@ class Mysql extends AdapterBase
         }
         
         // open a connection to a MySQL Server and set db_link
-        $this->db = @mysql_connect(
-            $server,
-            $db_properties['username'],
-            $db_properties['password']
-            );
+        if (empty($db_properties['persistent'])) {
+            $this->db = @mysql_connect(
+                $server,
+                $db_properties['username'],
+                $db_properties['password']
+                );
+        } else {
+            $this->db = @mysql_pconnect(
+                $server,
+                $db_properties['username'],
+                $db_properties['password']
+                );
+        }
         
         if (!$this->db) {
             self::throw_error("Could not connect to server ({$server}). " .

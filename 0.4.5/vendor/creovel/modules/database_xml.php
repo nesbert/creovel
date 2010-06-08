@@ -1,7 +1,8 @@
 <?php
 /**
- * Database to XML class used for creating and reading xml files.
- * variety of block algorithms.
+ * Database to File class used for creating and reading mapping files.
+ * Reducing the number of connections/requests to a database in order to
+ * model a tables columns and attributes.
  *
  * @package     Creovel
  * @subpackage  Modules

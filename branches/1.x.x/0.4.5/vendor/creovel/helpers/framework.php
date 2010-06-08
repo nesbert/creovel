@@ -56,6 +56,9 @@ function CREO()
             if (isset($val['schema'])) {
                 $GLOBALS['CREOVEL']['DATABASES'][$mode]['schema'] = $val['schema'];
             }
+            if (isset($val['persistent'])) {
+                $GLOBALS['CREOVEL']['DATABASES'][$mode]['persistent'] = $val['persistent'];
+            }
             break;
         
         case $key == 'LOG':

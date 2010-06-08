@@ -1,6 +1,9 @@
 <?php
 /**
- * Unit tests for Mysql object.
+ * Unit tests for Mysql object. The following user needs to added to
+ * your database in order for tests to complete:
+ *
+ * // GRANT ALL ON *.* TO 'phpunit'@'localhost' IDENTIFIED BY 'phpunit';
  *
  * @access      private
  * @package     Creovel
@@ -32,8 +35,6 @@ class MysqlTest extends PHPUnit_Framework_TestCase
         
         CREO('log_errors', true);
         CREO('log_queries', true);
-        
-        // GRANT ALL ON *.* TO 'phpunit'@'localhost' IDENTIFIED BY 'phpunit';
         
         $this->drop_db_sql = "DROP DATABASE IF EXISTS `phpunit`;";
         $this->create_db_sql = "CREATE DATABASE `phpunit`;";

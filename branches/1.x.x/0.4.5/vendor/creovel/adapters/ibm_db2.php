@@ -32,6 +32,13 @@ class IbmDb2 extends AdapterBase
     public $offset = 1;
     
     /**
+     * Temporay autocommit mode holder.
+     *
+     * @var resource
+     **/
+    public $autocommit;
+    
+    /**
      * Pass an associative array of database settings to connect
      * to database on construction of class.
      *
@@ -53,6 +60,14 @@ class IbmDb2 extends AdapterBase
      **/
     public function connect($db_properties)
     {
+        if (empty($db_properties['database'])
+            || empty($db_properties['username'])
+            || empty($db_properties['password'])) {
+            self::throw_error('Could not connect to server because of '.
+                'missing arguments for $db_properties.');
+            
+        }
+        
         $server = $db_properties['host'];
         
         if (empty($db_properties['port'])) {
@@ -75,7 +90,11 @@ class IbmDb2 extends AdapterBase
         $this->database = $db_properties['database'];
         $this->schema = $db_properties['schema'];
         
-        $this->db = db2_connect($conn_string, '', '');
+        if (empty($db_properties['persistent'])) {
+            $this->db = db2_connect($conn_string, '', '');
+        } else {
+            $this->db = db2_pconnect($conn_string, '', '');
+        }
         
         if (empty($this->db)) {
             self::throw_error("Could not connect to server {$server} (" .
@@ -136,7 +155,7 @@ class IbmDb2 extends AdapterBase
             str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
         }
         
-        $result = db2_execute($stmt, array());
+        $result = db2_execute($stmt);
         if (!$result) {
             self::throw_error(db2_stmt_errormsg() . " Query \"" .
             str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
@@ -158,11 +177,6 @@ class IbmDb2 extends AdapterBase
         
         // set database property
         $this->query = $query;
-        
-        // if connection lost reconnect
-        if (!is_resource($this->db)) {
-            $this->connect(ActiveRecord::connection_properties());
-        }
         
         // send a query and set query_link resource on success
         return $this->result = $this->execute($query);
@@ -193,7 +207,7 @@ class IbmDb2 extends AdapterBase
         } else if ($this->offset >= 1) {
             return db2_fetch_object($this->result, $this->offset);
         } else {
-        	return false;
+            return false;
         }
     }
     
@@ -227,9 +241,7 @@ class IbmDb2 extends AdapterBase
         }
         $this->free_result($result);
         
-        
         // get identity solumn for table
-        //$result = db2_statistics($this->db, null, $this->schema, $table_name, 0);
         $q = "SELECT TABSCHEMA, TABNAME, COLNO, COLNAME, TYPENAME, LENGTH, DEFAULT, IDENTITY, GENERATED " .
              "FROM SYSCAT.COLUMNS " .
              "WHERE TABSCHEMA = '{$this->schema}' AND TABNAME = '{$table_name}' AND IDENTITY = 'Y';";
@@ -306,7 +318,9 @@ class IbmDb2 extends AdapterBase
      **/
     public function free_result($result = null)
     {
-        return db2_free_result($result ? $result : $this->result);
+        $return = db2_free_result($result ? $result : $this->result);
+        if ($return ) $this->result = null;
+        return $return;
     }
     
     /**
@@ -340,5 +354,45 @@ class IbmDb2 extends AdapterBase
         } else {
             return false;
         }
-    } 
+    }
+    
+    /**
+     * Transaction methods.
+     */
+    
+    /**
+     * START transaction and save current autocommit mode before
+     * transaction begins.
+     *
+     * @return void
+     **/
+    public function start_tran()
+    {
+        $this->autocommit = db2_autocommit($this->db);
+        db2_autocommit($this->db, DB2_AUTOCOMMIT_OFF);
+    }
+    
+    /**
+     * ROLLBACK transaction and revert autocommit back to the same
+     * mode before transaction.
+     *
+     * @return void
+     **/
+    public function rollback()
+    {
+        db2_rollback($this->db);
+        db2_autocommit($this->db, $this->autocommit);
+    }
+    
+    /**
+     * COMMIT transaction and revert autocommit back to the same
+     * mode before transaction.
+     *
+     * @return void
+     **/
+    public function commit()
+    {
+        db2_commit($this->db);
+        db2_autocommit($this->db, $this->autocommit);
+    }
 } // END class IbmDb2 extends AdapterBase

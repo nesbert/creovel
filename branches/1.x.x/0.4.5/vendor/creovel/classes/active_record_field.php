@@ -79,7 +79,35 @@ class ActiveRecordField extends CObject
      *
      * @return void
      **/
-    public function __construct($attributes = stdClass)
+    public function __construct($attributes = null)
+    {
+        if (is_array($attributes)) {
+            $this->init_with_array($attributes);
+        }
+        
+        if (is_object($attributes)) {
+            $this->init_with_object($attributes);
+        }
+    }
+    
+    /**
+     * Return a loaded object of ActiveRecordField.
+     *
+     * @param object $attributes
+     * @return object ActiveRecordField
+     **/
+    public function object($attributes)
+    {
+        return new ActiveRecordField($attributes);
+    }
+    
+    /**
+     * Set values by an object.
+     *
+     * @param object $attributes
+     * @return void
+     **/
+    public function init_with_object($attributes = stdClass)
     {
         switch (strtolower($attributes->adapter)) {
             case 'ibmdb2':
@@ -88,6 +116,8 @@ class ActiveRecordField extends CObject
                     $this->size = "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";
                 } else if ($attributes->DATA_TYPE == 1) {
                     $this->size = "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";
+                } else if (!empty($attributes->COLUMN_SIZE)) {
+                    $this->size = $attributes->COLUMN_SIZE; "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";
                 } else {
                     unset($this->size);
                 }
@@ -105,7 +135,7 @@ class ActiveRecordField extends CObject
                     unset($this->is_identity);
                 }
                 
-                $this->null = $attributes->IS_NULLABLE;
+                $this->null = (bool) $attributes->NULLABLE;
                 $this->default = $attributes->COLUMN_DEF;
                 if ($this->null == 'NO' && empty($this->default)) {
                     $this->default = '';
@@ -114,6 +144,9 @@ class ActiveRecordField extends CObject
             
             // mysql & mysqli adpater field routine
             default:
+                $attributes->type = trim(str_replace(
+                            array('unsigned'), '', $attributes->type));
+                            
                 if (CValidate::in_string('(', $attributes->type)) {
                     $this->type = strtoupper(preg_replace('/(\w+)\((.*)\)/i', '${1}', $attributes->type));
                     $this->size = preg_replace('/(\w+)\((.*)\)/i', '${2}', $attributes->type);
@@ -137,7 +170,7 @@ class ActiveRecordField extends CObject
                     unset($this->is_identity);
                 }
                 
-                $this->null = $attributes->null;
+                $this->null = $attributes->null == 'YES';
                 $this->default = $attributes->default;
                 break;
         }
@@ -146,13 +179,37 @@ class ActiveRecordField extends CObject
     }
     
     /**
-     * Return a loaded object of ActiveRecordField.
+     * Set values by an array.
      *
      * @param object $attributes
-     * @return object ActiveRecordField
+     * @return void
      **/
-    public function object($attributes)
+    public function init_with_array($attributes = array())
     {
-        return new ActiveRecordField($attributes);
+        $this->type = $attributes['type'];
+        
+        if (!empty($attributes['size'])) {
+        $this->size = $attributes['size'];
+        } else {
+            unset($this->size);
+        }
+                
+        if (!empty($attributes['key']) && $attributes['key'] == 'PK') {
+            $this->key = $attributes['key'];
+            $this->key_name = $attributes['key_name'];
+        } else {
+            unset($this->key);
+            unset($this->key_name);
+        }
+        
+        if (!empty($attributes['identity'])) {
+            $this->is_identity = true;
+        } else {
+            unset($this->is_identity);
+        }
+                
+        $this->null = @$attributes['null'];
+        $this->default = @$attributes['default'];
+        $this->value = $this->default;
     }
 } // END class ActiveRecordField extends CObject

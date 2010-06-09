@@ -10,16 +10,8 @@
  * @since       Class available since Release 0.4.2
  * @author      Nesbert Hidalgo
  **/
-class DatabaseXML extends ModuleBase
+class DatabaseFile extends ModuleBase
 {
-    /**
-     * Class name.
-     *
-     * @var string
-     **/
-    private $_model_ = '';
-    
-    
     /**
      * Table columns array.
      *
@@ -41,10 +33,9 @@ class DatabaseXML extends ModuleBase
      * @return string $file
      * @return void
      **/
-    public function __construct($model = null, $file = null)
+    public function __construct($file = null)
     {
-        $this->_model_ = $model;
-        if ($file) $this->load_file($file);
+        if ($file) $this->load($file);
     }
     
     /**
@@ -53,12 +44,17 @@ class DatabaseXML extends ModuleBase
      * @param string $file
      * @return void
      **/
-    public function load_file($file = null)
+    public function load($file = null)
     {
+        if (!defined('SCHEMAS_PATH')) {
+            self::throw_error("SCHEMAS_PATH not defined.");
+        }
+        
         if ($file) {
             $this->_schema_file_ = $file;
         } else {
-            $this->_schema_file_ = SCHEMAS_PATH . Inflector::underscore($this->_model_) . '.xml';
+            
+            $this->_schema_file_ = self::default_file($this->_model_);
         }
         
         if (file_exists($this->_schema_file_)) {
@@ -81,9 +77,9 @@ class DatabaseXML extends ModuleBase
      * //model/table/indexes/index
      *
      * @param array $options
-     * @return void
+     * @return string
      **/
-    public function create_file($options)
+    public function create($options)
     {
         if (!defined('SCHEMAS_PATH')) {
             self::throw_error("SCHEMAS_PATH not defined.");
@@ -93,15 +89,13 @@ class DatabaseXML extends ModuleBase
         $class_name = empty($options['class_name']) ? '' : $options['class_name'];
         
         if (empty($class_name)) {
-            self::throw_error("Model name needed for <strong>DatabaseXML</strong>.");
+            self::throw_error("Model name needed for <strong>DatabaseFile</strong>.");
         }
         
         // load class without initializing
         $obj = new $class_name(null, null, false);
-        $cols = $obj->columns(true);
         
-        // set db settings
-        $settings = $obj->connection_properties();
+        $cols = $obj->columns(true);
         
         // if table not set use model
         $options['table_name'] = $obj->table_name();
@@ -110,7 +104,7 @@ class DatabaseXML extends ModuleBase
         $file = empty($options['file']) ? '' : $options['file'];
         if (!$file) {
             // use default path dir for schemas
-            $file = SCHEMAS_PATH . Inflector::underscore($class_name) . '.xml';
+            $file = self::default_file($obj->schema_name(), $class_name);
         }
         
         // create DOM
@@ -128,7 +122,8 @@ class DatabaseXML extends ModuleBase
         $table = $doc->createElement('table');
         $table = $model->appendChild($table);
         $table->setAttribute('name', $options['table_name']);
-        $table->setAttribute('db', $settings['default']);
+        $table->setAttribute('database', $obj->database_name());
+        $table->setAttribute('schema', $obj->schema_name());
         
         // table child element
         $columns = $doc->createElement('columns');
@@ -147,39 +142,38 @@ class DatabaseXML extends ModuleBase
             $column->setAttribute('name', $name);
             
             // set type
-            $remove_from_type = array('unsigned');
-            preg_match('/\((.*)\)/', $col->type, $matches); // find size values
-            if (isset($matches[0])) {
-                $remove_from_type[] = $matches[0];
-            }
-            $type = trim(str_replace($remove_from_type, '', $col->type));
-            $column->setAttribute('type', $type);
+            $column->setAttribute('type', $col->type);
             
             // set size
-            if (isset($matches[1])) {
-                $column->setAttribute('size', $matches[1]);
-            }
+            if (!empty($col->size))
+                $column->setAttribute('size', $col->size);
             
             // set default
-            if ($col->default) $column->setAttribute('default', $col->default);
+            if (!empty($col->default))
+                $column->setAttribute('default', $col->default);
             
             // set auto_increment
-            if (preg_match('/(YES|1)/i', $col->null)) {
-                $column->setAttribute('null', 'yes');
+            if ($col->null == 'YES' || $col->null) {
+                $column->setAttribute('null', 'YES');
             }
             
-            if (preg_match('/(auto_increment)/i', $col->extra)) {
-                $column->setAttribute('auto_increment', 'yes');
+            if (!empty($col->key)) {
+                $column->setAttribute('key', $col->key);
+                $column->setAttribute('key_name', $col->key_name);
             }
             
-            if (preg_match('/(unsigned)/i', $col->type)) {
-                $column->setAttribute('unsigned', 'yes');
+            if (!empty($col->is_identity)) {
+                $column->setAttribute('identity', 'YES');
             }
+            
+            // if (preg_match('/(unsigned)/i', $col->type)) {
+            //     $column->setAttribute('unsigned', 'yes');
+            // }
             
             // check for index
             if (!empty($col->key)) {
                 switch ($col->key) {
-                    case 'PRI':
+                    case 'PK':
                         $idxs['primary'][] = $name;
                         break;
                         
@@ -193,7 +187,8 @@ class DatabaseXML extends ModuleBase
                 }
             }
         } else {
-            self::throw_error("Unable to load columns from table <em>{$options['table_name']}</em> for <strong>DatabaseXML</strong>.");
+            self::throw_error("Unable to load columns from table ".
+            "<em>{$options['table_name']}</em> for <strong>{$class_name}</strong>.");
         }
         
         // check indexes
@@ -231,11 +226,23 @@ class DatabaseXML extends ModuleBase
         
         $xml = $doc->saveXML();
         
-        if (!@file_put_contents($file, $xml)) {
-            self::throw_error("Unable to create <em>{$file}</em> for <strong>DatabaseXML</strong>.");
+        if (!file_put_contents($file, $xml)) {
+            self::throw_error("Unable to create <em>{$file}</em> for ".
+            "<strong>{$class_name}</strong>.");
         } else {
-            return true;
+            return $file;
         }
+    }
+    
+    /**
+     * Default file name.
+     *
+     * @return string
+     **/
+    public function default_file($schema, $class_name)
+    {
+        return SCHEMAS_PATH . Inflector::underscore(
+                $schema . '_' . $class_name) . '.xml';
     }
     
     /**
@@ -251,15 +258,14 @@ class DatabaseXML extends ModuleBase
         if (!empty($this->xml->table->columns)) {
             $this->_columns_ = array();
             foreach ($this->xml->table->columns->column as $col) {
-                $this->_columns_[(string) $col->attributes()->name] = (object) array(
-                        'type'      => $this->column_type($col->attributes()),
-                        'null'      => $this->column_null($col->attributes()),
-                        'key'       => $this->column_key($col->attributes()),
-                        'default'   => $this->column_default($col->attributes()),
-                        'extra'     => $this->column_extra($col->attributes()),
-                        'value'     => $this->column_default($col->attributes())
-                        );
                 
+                $attr = array();
+                foreach ($col->attributes() as $k => $v) {
+                    $attr[(string) $k] = (string) $v;
+                }
+                
+                $this->_columns_[$attr['name']] =
+                    new ActiveRecordField($attr);
             }
             return $this->_columns_;            
         } else {
@@ -374,4 +380,4 @@ class DatabaseXML extends ModuleBase
         
         return implode(' ', $extra);
     }
-} // END class DatabaseXML extends ModuleBase
+} // END class DatabaseFile extends ModuleBase

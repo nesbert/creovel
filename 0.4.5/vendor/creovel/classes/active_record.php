@@ -455,8 +455,9 @@ class ActiveRecord extends CObject implements Iterator
     final public function table_name($table_name = '')
     {
         $this->_table_name_ = $table_name ? $table_name : $this->_table_name_;
-        $this->_table_name_ = $this->_table_name_ ? $this->_table_name_ : CString::tableize($this->class_name());
-        if (0) $this->_table_name_ = strtoupper($this->_table_name_);
+        $this->_table_name_ = $this->_table_name_
+                ? $this->_table_name_
+                : CString::tableize($this->class_name());
         return $this->_table_name_;
     }
     
@@ -471,10 +472,13 @@ class ActiveRecord extends CObject implements Iterator
         // only describe table once
         if (empty($this->_columns_)) {
             
-            if ($this->has_schema && !$force_table_look_up) {
-                $db2xml = new DatabaseXML($this);
-                $db2xml->load_file();
-                $this->_columns_ = $db2xml->columns();
+            if ($this->_schema_ && !$force_table_look_up) {
+                $dbf = new DatabaseFile;
+                $dbf->load($dbf->default_file(
+                    $this->_schema_,
+                    $this->to_string())
+                    );
+                $this->_columns_ = $dbf->columns();
             } else {
                 $this->_columns_ = $this->select_query()->columns($this->table_name());
             }
@@ -1067,7 +1071,7 @@ class ActiveRecord extends CObject implements Iterator
         try {
             switch (true) {
                 // skip these special cases
-                case $attribute == 'has_schema':
+                case $attribute == '_schema_':
                 case $attribute == '_was_inserted_':
                     break;
                 case isset($this->_columns_[$attribute]):
@@ -1846,6 +1850,26 @@ class ActiveRecord extends CObject implements Iterator
     final function is_paged()
     {
         return isset($this->_paging_);
+    }
+    
+    /**
+     * Return database name from current ActiveDatabase object.
+     *
+     * @return string
+     **/
+    public function database_name()
+    {
+        return $this->select_query()->db()->__database;
+    }
+    
+    /**
+     * Return schema name from current ActiveDatabase object.
+     *
+     * @return string
+     **/
+    public function schema_name()
+    {
+        return $this->select_query()->db()->__schema;
     }
     
     /**

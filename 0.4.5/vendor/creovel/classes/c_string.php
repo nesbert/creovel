@@ -367,8 +367,9 @@ class CString extends CObject
 
         if ($c == 1) {
             if ($money) {
-                $s .= " dollars and $cents cents";
-            } else {
+                $s .= " dollars";
+                if ($cents > 0) $s .= " and $cents cents";
+            } else if ($cents > 0) {
                 $s .= " and $cents/100";
             }
         }

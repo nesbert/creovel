@@ -33,7 +33,7 @@ function CREO()
     switch (true) {
         case $key == 'APPLICATION_ERROR':
             $GLOBALS['CREOVEL']['ERROR']->add($val);
-            break;
+            return;
             
         case $key == 'DATABASE':
             $mode = strtoupper($val['mode']);
@@ -59,20 +59,23 @@ function CREO()
             if (isset($val['persistent'])) {
                 $GLOBALS['CREOVEL']['DATABASES'][$mode]['persistent'] = $val['persistent'];
             }
-            break;
+            return;
         
         case $key == 'LOG':
             $log = new Logger(empty($args[2]) ? @LOG_PATH . $GLOBALS['CREOVEL']['MODE'] . '.log' : $args[2]);
             $log->write(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $val));
             break;
             
+        case $key == 'SESSION' && !empty($val):
+            $GLOBALS['CREOVEL'][$key] = $val;
+            ActiveSession::start();
+            return $GLOBALS['CREOVEL'][$key];
+            
         case $val !== null:
             return $GLOBALS['CREOVEL'][$key] = $val;
-            break;
             
         default:
             return $GLOBALS['CREOVEL'][$key];
-            break;
     }
 }
 

@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.x
  * @author      Nesbert Hidalgo
  **/
-class ActiveDatabase
+class ActiveDatabase extends CObject
 {
     /**#@+
      * Class member.
@@ -33,7 +33,7 @@ class ActiveDatabase
     public function __construct($db_properties = null)
     {
         if (!empty($db_properties)) {
-            $this->establish_connection($db_properties);
+            $this->connect($db_properties);
         }
     }
     
@@ -54,7 +54,7 @@ class ActiveDatabase
      *
      * @return array
      **/
-    final public function connection_properties()
+    public function connection_properties()
     {
         return $GLOBALS['CREOVEL']['DATABASES'][strtoupper(CREO('mode'))];
     }
@@ -66,7 +66,7 @@ class ActiveDatabase
      * @param array $db_properties
      * @return boolean
      **/
-    final public function establish_connection($db_properties = null)
+    public function connect($db_properties = null)
     {
         try {
             
@@ -99,6 +99,16 @@ class ActiveDatabase
     }
     
     /**
+     * Disconnect from database and free resources.
+     *
+     * @return void
+     **/
+    public function disconnect()
+    {
+        return $this->adapter()->disconnect();
+    }
+    
+    /**
      * Pass through method to access the __adapter member. Checks for
      * db connection if not present will a new establish connection.
      *
@@ -108,7 +118,7 @@ class ActiveDatabase
     public function adapter()
     {
         if (empty($this->__adapter_obj)) {
-            $this->establish_connection();
+            $this->connect();
         }
         return $this->__adapter_obj;
     }
@@ -141,4 +151,4 @@ class ActiveDatabase
             CREO('application_error', $e);
         }
     }
-} // END class ActiveDatabase
+} // END class ActiveDatabase extends CObject

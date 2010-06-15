@@ -157,10 +157,9 @@ class ActionErrorHandler extends CObject
     }
     
     /**
-     * undocumented function
+     * Catch certain errors and see if we can correct them.
      *
      * @return void
-     * @author Nesbert Hidalgo
      **/
     private function __custom_errors()
     {

@@ -12,7 +12,19 @@
 CREO('mode', 'development');
 
 /**
- * Set session handler: false, true, or 'table'.
+ * Set flag to log errors in the log directory..
+ */
+CREO('log_errors', false);
+
+/**
+ * Set flag to log queries in the log directory..
+ */
+CREO('log_queries', false);
+
+/**
+ * Set session handler: false, true, or 'table'. This will set and
+ * start session handling for application. This may also be done at
+ * the controller level.
  */
 CREO('session', false);
 

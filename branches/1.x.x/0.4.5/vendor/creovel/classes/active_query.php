@@ -114,7 +114,7 @@ class ActiveQuery extends CObject implements Iterator
      * @param string $string Prep for SQL query
      * @return string
      **/
-    final public function quote_value($string)
+    public function quote_value($string)
     {
         return "'" . $this->escape($string) . "'";
     }
@@ -261,7 +261,7 @@ class ActiveQuery extends CObject implements Iterator
      * @param array $options
      * @return string
      **/
-    final public function build_query($options)
+    public function build_query($options)
     {
         $q = new CObject;
         $q->select = null;
@@ -439,7 +439,7 @@ class ActiveQuery extends CObject implements Iterator
      * @param boolean $isolate
      * @return void
      **/
-    final public function build_query_from_conditions($table, $conditions, $isolate = true)
+    public function build_query_from_conditions($table, $conditions, $isolate = true)
     {
         $sql = '';
         
@@ -498,7 +498,7 @@ class ActiveQuery extends CObject implements Iterator
      * @param boolean $isolate
      * @return string
      **/
-    final function build_where($table, $conditions = null, $isolate = true)
+    public function build_where($table, $conditions = null, $isolate = true)
     {
         return $this->build_query_from_conditions($table, $conditions, $isolate);
     }
@@ -545,7 +545,7 @@ class ActiveQuery extends CObject implements Iterator
      * @param array $columns ActiveRecordField objects
      * @return integer Current result ID.
      **/
-    final public function insert_row($table, $columns)
+    public function insert_row($table, $columns)
     {
         // Make sure columns are the coorect object
         $this->convert_columns($columns);
@@ -597,7 +597,7 @@ class ActiveQuery extends CObject implements Iterator
      * @param mixed $conditions
      * @return integer Current result ID.
      **/
-    final public function update_row($table, $columns, $conditions)
+    public function update_row($table, $columns, $conditions)
     {
         // Make sure columns are the coorect object
         $this->convert_columns($columns);
@@ -722,7 +722,7 @@ class ActiveQuery extends CObject implements Iterator
      * @param mixed $conditions
      * @return integer
      **/
-    final public function delete($table, $conditions = null)
+    public function delete($table, $conditions = null)
     {
         $table_str = $this->build_table_name($table);
         

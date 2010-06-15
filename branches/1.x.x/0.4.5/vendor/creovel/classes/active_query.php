@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.x
  * @author      Nesbert Hidalgo
  **/
-class ActiveQuery
+class ActiveQuery extends CObject implements Iterator
 {
     
     /**#@+
@@ -43,9 +43,29 @@ class ActiveQuery
     {
         if (empty($this->__db)) {
             $this->__db = new ActiveDatabase;
-            $this->__db->establish_connection();
+            $this->__db->connect();
         }
         return $this->__db;
+    }
+    
+    /**
+     * Pass through function to adapter.
+     *
+     * @return void
+     **/
+    public function connect()
+    {
+        return $this->db();
+    }
+    
+    /**
+     * Pass through function to adapter.
+     *
+     * @return void
+     **/
+    public function disconnect()
+    {
+        return $this->db()->disconnect();
     }
     
     /**
@@ -56,6 +76,16 @@ class ActiveQuery
     public function columns($table)
     {
         return $this->db()->columns($table);
+    }
+    
+    /**
+     * Alias to query function.
+     *
+     * @return void
+     **/
+    public function execute($sql)
+    {
+        return $this->query($sql);
     }
     
     /**
@@ -243,7 +273,7 @@ class ActiveQuery
         $q->group = null;
         $q->order = null;
         
-        if (!isset($options['table'])) {
+        if (empty($options['table'])) {
             throw new Exception('Missing argument <em>table</em> not set' .
             " in options array for <strong>ActiveQuery::build_query</strong>.");
         }        
@@ -275,8 +305,8 @@ class ActiveQuery
             $q->join = $options['join'];
         }
         
-        if (isset($options['order']) &&
-                preg_match($regex, $options['order'])) {
+        if (isset($options['order'])
+            && preg_match($regex, $options['order'])) {
             $q->order = $options['order'];
         }
         
@@ -288,7 +318,8 @@ class ActiveQuery
             $q->limit = $options['limit'];
         }
         
-        if (isset($options['group']) && preg_match($regex, $options['group'])) {
+        if (isset($options['group'])
+            && preg_match($regex, $options['group'])) {
             $q->group = $options['group'];
         }
         
@@ -304,7 +335,7 @@ class ActiveQuery
             $sql = "SELECT {$q->select} FROM {$q->from}";
         }
         
-        if ($q->join) $sql .= " " . $this->build_query_from_conditions($options['table'], $join, false);
+        if ($q->join) $sql .= " " . $this->build_query_from_conditions($options['table'], $q->join, false);
         
         if (!empty($options['update'])) {
             $set = array();
@@ -319,14 +350,14 @@ class ActiveQuery
         }
         
         // pre WHERE DB2 stuff
-		if ($this->get_adapter_type() == 'ibmdb2') {
-			if (!empty($q->offset)) {
-	            $q->where[] = sprintf("ROWNUM BETWEEN %d AND %d", $q->offset+1, $q->offset + $q->limit);
-	            unset($q->offset);
-			} else if (!empty($q->limit)) {
+        if ($this->get_adapter_type() == 'ibmdb2') {
+            if (!empty($q->offset)) {
+                $q->where[] = sprintf("ROWNUM BETWEEN %d AND %d", $q->offset+1, $q->offset + $q->limit);
+                unset($q->offset);
+            } else if (!empty($q->limit)) {
                 $q->where[] = sprintf("ROWNUM BETWEEN %d AND %d", 1, $q->limit);
-			}
-		} 
+            }
+        } 
         
         if (count($q->where)) {
             $sql .= " WHERE " . implode(' AND ', $q->where);
@@ -336,12 +367,12 @@ class ActiveQuery
         
         if ($q->limit) {
             switch ($this->get_adapter_type()) {
-            	case 'ibmdb2':
-           			$sql .= sprintf(" OPTIMIZE FOR %d ROWS", $q->limit);
-            		break;
-            	default:
-            		$sql .= " LIMIT {$q->limit}";
-            		break;
+                case 'ibmdb2':
+                    $sql .= sprintf(" OPTIMIZE FOR %d ROWS", $q->limit);
+                    break;
+                default:
+                    $sql .= " LIMIT {$q->limit}";
+                    break;
             }
         }
         
@@ -351,7 +382,8 @@ class ActiveQuery
     }
     
     /**
-     * undocumented function
+     * Build full table name with adapter specific identifier
+     * quote character.
      *
      * @return string
      **/
@@ -363,17 +395,17 @@ class ActiveQuery
     }
     
     /**
-     * undocumented function
+     * Get adapter specific identifier quote character.
      *
      * @return string
      **/
     public function get_identifier_quote_character()
     {
         switch ($this->get_adapter_type()) {
-        	case 'ibmdb2':
-        		return '"';
-        	default:
-        		return '`';
+            case 'ibmdb2':
+                return '"';
+            default:
+                return '`';
         }
     }
     
@@ -478,31 +510,46 @@ class ActiveQuery
      * @param mixed $conditions
      * @return object Row result
      **/
-    final public function find_row($table, $conditions)
+    public function find($table, $conditions, $type = 'all')
     {
-        $table_str = $this->build_table_name($table);
-        $where_str = $this->build_where($table, $conditions);
+        // set table from params
+        $conditions = (array) $conditions;
+        $conditions['table'] = $table;
         
-        // build query
-        $qry =  "SELECT {$table_str}.* " .
-                "FROM {$table_str} " .
-                "WHERE {$where_str};";
+        // find record
+        $this->query($this->build_query($conditions));
         
-        // insert record
-        $this->query($qry);
-        
-        return $this->current();
+        if ($type == 'all') {
+            return clone $this;
+        } else {
+            return $this->current();
+        }
+    }
+    
+    /**
+     * Find row into a table by column properties.
+     *
+     * @param string $table
+     * @param mixed $conditions
+     * @return object Row result
+     **/
+    public function find_row($table, $conditions)
+    {
+        return $this->find($table, $conditions, 'first');
     }
     
     /**
      * Insert a row into a table by columns properties.
      *
      * @param string $table
-     * @param array $colmns ActiveRecordField objects
+     * @param array $columns ActiveRecordField objects
      * @return integer Current result ID.
      **/
     final public function insert_row($table, $columns)
     {
+        // Make sure columns are the coorect object
+        $this->convert_columns($columns);
+        
         // set created at
         if (isset($columns['created_at'])) {
             $columns['created_at']->has_changed = true;
@@ -552,6 +599,9 @@ class ActiveQuery
      **/
     final public function update_row($table, $columns, $conditions)
     {
+        // Make sure columns are the coorect object
+        $this->convert_columns($columns);
+        
         // set updated at
         if (isset($columns['updated_at'])) {
             $columns['updated_at']->has_changed = true;
@@ -596,10 +646,10 @@ class ActiveQuery
     /**
      * Prepares the current columns and values for SQL.
      *
-     * @param array $colmns ActiveRecordField objects
+     * @param array $columns ActiveRecordField objects
      * @return array
      **/
-    final public function prepare_columns(&$columns)
+    public function prepare_columns(&$columns)
     {
         foreach ($columns as $name => $field) {
             if (empty($field->value)) continue;
@@ -619,6 +669,28 @@ class ActiveQuery
             }
         }
         
+        return $columns;
+    }
+    
+    /**
+     * Convert an array key value pairs into ActiveRecordField objects.
+     *
+     * @param array $columns
+     * @return array
+     **/
+    public function convert_columns(&$columns)
+    {
+        foreach ($columns as $col => $data) {
+            if (is_object($data)
+                && get_class($data) == 'ActiveRecordField') {
+                break;
+            } else {
+                $tmp = new ActiveRecordField;
+                $tmp->has_changed = true;
+                $tmp->value = $data;
+                $columns[$col] = $tmp;
+            }
+        }
         return $columns;
     }
     
@@ -653,7 +725,7 @@ class ActiveQuery
     final public function delete($table, $conditions = null)
     {
         $table_str = $this->build_table_name($table);
-            	
+        
         // build delete statement
         $q = "DELETE FROM {$table_str}";
         
@@ -676,7 +748,7 @@ class ActiveQuery
      **/
     public function get_adapter_type()
     {
-    	return strtolower($this->db()->__adapter);
+        return strtolower($this->db()->__adapter);
     }
     
-} // END class ActiveQuery
+} // END class ActiveQuery extends CObject implements Iterator

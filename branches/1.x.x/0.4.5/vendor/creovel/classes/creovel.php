@@ -220,24 +220,6 @@ class Creovel
         // Include custom routes
         require_once CONFIG_PATH . 'routes.php';
         
-        // Set session handler
-        if ($GLOBALS['CREOVEL']['SESSION']) {
-            
-            if ($GLOBALS['CREOVEL']['SESSION'] === 'table') {
-                // include/create session db object
-                require_once CREOVEL_PATH . 'classes/active_session.php';
-                $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'active_sessions';
-                $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new ActiveSession;
-            }
-            
-            // Fix for PHP 5.05
-            // http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
-            register_shutdown_function('session_write_close');
-            
-            // start session
-            if (session_id() == '') session_start();
-        }
-        
         return $initialized = true;
     }
     
@@ -539,6 +521,10 @@ class Creovel
                     $type = 'Module';
                     $path = CREOVEL_PATH . 'modules' . DS . $class . '.php';
                     if (file_exists($path)) break;
+                
+                default:
+                    $path = MODELS_PATH . $class . '.php';
+                    break;
             }
 
             if (file_exists($path)) {
@@ -566,4 +552,5 @@ class Creovel
             }
         }
     }
+    
 } // END class Creovel

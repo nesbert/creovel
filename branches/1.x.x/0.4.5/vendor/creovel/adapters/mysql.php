@@ -271,7 +271,7 @@ class Mysql extends AdapterBase
      **/
     public function valid()
     {
-        if ($this->offset <= $this->total_rows()
+        if ($this->offset < $this->total_rows()
             && $this->offset >= 0
             && is_resource($this->result)) {
             return mysql_data_seek($this->result, $this->offset);

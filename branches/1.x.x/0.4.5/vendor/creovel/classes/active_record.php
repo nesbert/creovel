@@ -966,7 +966,7 @@ class ActiveRecord extends CObject implements Iterator
     {
         if (!is_array($db)) $db = ActiveDatabase::connection_properties();
         if ($table_name) $db['table_name'] = $table_name;
-        return self::establish_connection($db);
+        return ActiveDatabase::connect($db);
     }
     
     /**

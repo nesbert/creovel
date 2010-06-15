@@ -339,7 +339,8 @@ class ActiveRecord extends CObject implements Iterator
      **/
     public function prepare()
     {
-        return $this->_prepared_query_ = $this->selec_query()->build_query_from_conditions($this->table_name(), func_get_args(), false);
+        $args = func_get_args();
+        return $this->_prepared_query_ = $this->select_query()->build_query_from_conditions($this->table_name(), $args, false);
     }
     
     /**
@@ -1039,8 +1040,8 @@ class ActiveRecord extends CObject implements Iterator
     final public function reset_values()
     {
         foreach($this->_columns_ as $k => $v) {
-        	$this->_columns_[$k]->has_changed = false;
-            $this->_columns_[$k]->value = $v->default;
+            $this->_columns_[$k]->has_changed = false;
+            $this->_columns_[$k]->value = @$v->default;
         }
     }
     

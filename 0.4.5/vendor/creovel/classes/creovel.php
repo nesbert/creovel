@@ -22,14 +22,14 @@ class Creovel
         if (PHP_VERSION <= 5) {
             die('Creovel requires PHP >= 5!');
         }
-
+        
         // Define creovel constants.
         define('CREOVEL_VERSION', '0.4.5');
         define('CREOVEL_RELEASE_DATE', '2010-0?-?? ??:??:??');
-
+        
         // Define environment constants.
         define('PHP', PHP_VERSION);
-
+        
         // Define time constants.
         define('SECOND',  1);
         define('MINUTE', 60 * SECOND);
@@ -38,36 +38,40 @@ class Creovel
         define('WEEK',    7 * DAY);
         define('MONTH',  30 * DAY);
         define('YEAR',  365 * DAY);
-
-        // Include base helper libraries.
-        require_once CREOVEL_PATH . 'helpers/framework.php';
-
+        
         // Be kind to existing __autoload routines
         if (PHP <= '5.1.2') {
             function __autoload($class) { self::autoload($class); }
         } else {
             spl_autoload_register('Creovel::autoload');
         }
-
-        // Include application_helper
-        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
-            require_once $helper;
-        }
-
+        
+        // Include base helper libraries.
+        require_once CREOVEL_PATH . 'helpers/framework.php';
+        
         // Include minimum base classes.
         require_once CREOVEL_PATH . 'classes/c_object.php';
         require_once CREOVEL_PATH . 'modules/module_base.php';
         require_once CREOVEL_PATH . 'modules/inflector.php';
-
+        
         // Set default mode.
         $GLOBALS['CREOVEL']['MODE'] = 'production';
-
+        $GLOBALS['CREOVEL']['BUFFER_HEADER'] = true;
+        
         // Set error handler.
         require_once CREOVEL_PATH . 'classes/action_error_handler.php';
         $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
         $GLOBALS['CREOVEL']['APPLICATION_ERROR_CODE'] = '';
         $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
-
+        
+        // set configuration settings
+        self::config();
+        
+        // Include application_helper
+        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
+            require_once $helper;
+        }
+        
         // Run framework.
         if (empty($_SERVER['DOCUMENT_ROOT'])) {
             // Run in command line mode.
@@ -82,7 +86,7 @@ class Creovel
             $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
             $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
             $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
-
+            
             // Run in default web mode.
             self::run();
         }
@@ -97,8 +101,10 @@ class Creovel
     {
         try {
             // gather up any output that occurs before output phase
-            ob_start();
-
+            if ($GLOBALS['CREOVEL']['BUFFER_HEADER']) {
+                ob_start();
+            }
+            
             // ignore certain requests
             self::ignore_check();
             
@@ -143,14 +149,16 @@ class Creovel
             // execute action
             $controller->__execute_action();
             
-            // determine if any output has been sent to output buffer
-            $buffer = ob_get_contents();
-            
-            // if buffer store in CREO varialbe
-            if ($buffer) $GLOBALS['CREOVEL']['BUFFER'] = $buffer;
-
-            // clean buffer
-            ob_clean();
+            if ($GLOBALS['CREOVEL']['BUFFER_HEADER']) {
+                // determine if any output has been sent to output buffer
+                $buffer = ob_get_contents();
+                
+                // if buffer store in CREO varialbe
+                if ($buffer) $GLOBALS['CREOVEL']['BUFFER'] = $buffer;
+                
+                // clean buffer
+                ob_clean();
+            }
             
             // output to user
             return $controller->__output($return_as_str);
@@ -173,16 +181,10 @@ class Creovel
         static $initialized;
         if ($initialized) return $initialized;
         
-        // Include framework base classes.
-        require_once CREOVEL_PATH . 'classes/action_router.php';
-        
         // Set routing defaults
         $GLOBALS['CREOVEL']['ROUTING'] = @parse_url(CNetwork::url());
         $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
         $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
-        
-        // set configuration settings
-        self::config();
         
         // if global_xss_filtering is enabled
         if (!empty($GLOBALS['CREOVEL']['GLOBAL_XSS_FILTERING'])) {
@@ -204,6 +206,8 @@ class Creovel
         }
         $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
         $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
+        
+        require_once CREOVEL_PATH . 'classes/action_router.php';
         
         // Set default route
         ActionRouter::map('default', '/:controller/:action/*', array(
@@ -238,9 +242,6 @@ class Creovel
         
         // set flag for command line
         $GLOBALS['CREOVEL']['CMD'] = true;
-        
-        // set configuration settings
-        self::config();
         
         // create local variables
         if ($argc > 1) {
@@ -280,11 +281,11 @@ class Creovel
     public function config()
     {
         // Include database setting filee
-        require_once CONFIG_PATH . 'databases.php';
+        include_once CONFIG_PATH . 'databases.php';
         // Include application config file
-        require_once CONFIG_PATH . 'environment.php';
+        include_once CONFIG_PATH . 'environment.php';
         // Include environment specific config file
-        require_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
+        include_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
     }
     
     /**

@@ -177,7 +177,7 @@ class Creovel
         require_once CREOVEL_PATH . 'classes/action_router.php';
         
         // Set routing defaults
-        $GLOBALS['CREOVEL']['ROUTING'] = parse_url(CNetwork::url());
+        $GLOBALS['CREOVEL']['ROUTING'] = @parse_url(CNetwork::url());
         $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
         $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
         

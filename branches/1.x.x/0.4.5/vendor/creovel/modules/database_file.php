@@ -109,7 +109,7 @@ class DatabaseFile extends ModuleBase
         
         // create DOM
         if (!class_exists('DomDocument')) {
-            self::throw_error("DomDocument module needed for <strong>DatabaseXML</strong>.");
+            self::throw_error("DomDocument module needed for <strong>DatabaseFile</strong>.");
         }
         $doc = new DomDocument('1.0', 'utf-8');
         $doc->formatOutput = true;

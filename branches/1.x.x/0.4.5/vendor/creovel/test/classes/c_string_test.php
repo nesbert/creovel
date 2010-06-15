@@ -313,13 +313,13 @@ class CStringTest extends PHPUnit_Framework_TestCase
 
     public function testNum2words()
     {
-        $this->assertEquals('one hundred and 00/100',
+        $this->assertEquals('one hundred',
             CString::num2words('100'));
         $this->assertEquals('one hundred',
             CString::num2words('100', 0, 0, 0));
         $this->assertEquals('One Hundred',
             CString::num2words('100', 0, 1, 0));
-        $this->assertEquals('one hundred dollars and 00 cents',
+        $this->assertEquals('one hundred dollars',
             CString::num2words('100' , 1));
         $this->assertEquals(
             'ten million twenty-five thousand twenty and 50/100',

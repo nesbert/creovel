@@ -109,8 +109,8 @@ class ActiveRecordField extends CObject
      **/
     public function init_with_object($attributes = stdClass)
     {
-        switch (strtolower($attributes->adapter)) {
-            case 'ibmdb2':
+        switch (strtolower($attributes->adapter_type)) {
+            case 'db2':
                 $this->type = $attributes->TYPE_NAME;
                 if ($attributes->DATA_TYPE == 3) {
                     $this->size = "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";

@@ -39,18 +39,14 @@ class Creovel
         define('MONTH',  30 * DAY);
         define('YEAR',  365 * DAY);
         
-        // Be kind to existing __autoload routines
-        if (PHP <= '5.1.2') {
-            function __autoload($class) { self::autoload($class); }
-        } else {
-            spl_autoload_register('Creovel::autoload');
-        }
-        
         // Include base helper libraries.
         require_once CREOVEL_PATH . 'helpers/framework.php';
         
         // Include minimum base classes.
         require_once CREOVEL_PATH . 'classes/c_object.php';
+        require_once CREOVEL_PATH . 'classes/c_network.php';
+        require_once CREOVEL_PATH . 'classes/c_string.php';
+        require_once CREOVEL_PATH . 'classes/c_validate.php';
         require_once CREOVEL_PATH . 'modules/module_base.php';
         require_once CREOVEL_PATH . 'modules/inflector.php';
         
@@ -281,11 +277,11 @@ class Creovel
     public function config()
     {
         // Include database setting filee
-        include_once CONFIG_PATH . 'databases.php';
+        @include_once CONFIG_PATH . 'databases.php';
         // Include application config file
-        include_once CONFIG_PATH . 'environment.php';
+        @include_once CONFIG_PATH . 'environment.php';
         // Include environment specific config file
-        include_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
+        @include_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
     }
     
     /**
@@ -507,11 +503,8 @@ class Creovel
 
                 case (true):
                     $type = 'Shared';
-                    @$shared_path = SHARED_PATH . $class . '.php';
-                    if (file_exists($shared_path)) {
-                        $path = $shared_path;
-                        break;
-                    }
+                    @$path = SHARED_PATH . $class . '.php';
+                    if (file_exists($path)) break;
 
                 case (true):
                     $type = 'Vendor';
@@ -524,10 +517,11 @@ class Creovel
                     if (file_exists($path)) break;
                 
                 default:
+                    $type = 'Model';
                     $path = MODELS_PATH . $class . '.php';
                     break;
             }
-
+            
             if (file_exists($path)) {
                 require_once $path;
             } else {

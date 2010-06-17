@@ -8,6 +8,13 @@
  * @since       Class available since Release 0.1.0
  **/
 
+// Be kind to existing __autoload routines
+if (PHP <= '5.1.2') {
+    function __autoload($class) { Creovel::autoload($class); }
+} else {
+    spl_autoload_register(array('Creovel', 'autoload'));
+}
+
 /**
  * Set & get $GLOBALS['CREOVEL'] variables and other magical goodness.
  *

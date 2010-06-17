@@ -350,7 +350,8 @@ class ActiveQuery extends CObject implements Iterator
         }
         
         // pre WHERE DB2 stuff
-        if ($this->get_adapter_type() == 'ibmdb2') {
+        $adapter_type = $this->db()->get_adapter_type();
+        if ($adapter_type == 'db2') {
             if (!empty($q->offset)) {
                 $q->where[] = sprintf("ROWNUM BETWEEN %d AND %d", $q->offset+1, $q->offset + $q->limit);
                 unset($q->offset);
@@ -366,8 +367,8 @@ class ActiveQuery extends CObject implements Iterator
         if ($q->order) $sql .= " ORDER BY {$q->order}";
         
         if ($q->limit) {
-            switch ($this->get_adapter_type()) {
-                case 'ibmdb2':
+            switch ($adapter_type) {
+                case 'db2':
                     $sql .= sprintf(" OPTIMIZE FOR %d ROWS", $q->limit);
                     break;
                 default:
@@ -401,8 +402,8 @@ class ActiveQuery extends CObject implements Iterator
      **/
     public function get_identifier_quote_character()
     {
-        switch ($this->get_adapter_type()) {
-            case 'ibmdb2':
+        switch ($this->db()->get_adapter_type()) {
+            case 'db2':
                 return '"';
             default:
                 return '`';
@@ -740,15 +741,4 @@ class ActiveQuery extends CObject implements Iterator
         
         return $this->affected_rows();
     }
-    
-    /**
-     * Buid a lowercased string of the current DB adapter.
-     * 
-     * @return string
-     **/
-    public function get_adapter_type()
-    {
-        return strtolower($this->db()->__adapter);
-    }
-    
 } // END class ActiveQuery extends CObject implements Iterator

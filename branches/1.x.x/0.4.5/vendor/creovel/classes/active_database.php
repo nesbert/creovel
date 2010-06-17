@@ -141,7 +141,7 @@ class ActiveDatabase extends CObject
             $return = array();
             
             foreach ($columns as $name => $attr) {
-                $attr->adapter = $this->__adapter;
+                $attr->adapter_type = $this->get_adapter_type();
                 $return[$name] = ActiveRecordField::object($attr);
             }
             
@@ -149,6 +149,24 @@ class ActiveDatabase extends CObject
         } catch (Exception $e) {
             CREO('application_error_code', 500);
             CREO('application_error', $e);
+        }
+    }
+    
+    /**
+     * Buid a lowercased string of the current DB adapter.
+     * 
+     * @return string
+     **/
+    public function get_adapter_type()
+    {
+        $resource_type =
+            strtolower(get_resource_type($this->__adapter_obj->db));
+        
+        switch ($resource_type) {
+            case CValidate::in_string('db2', $resource_type):
+                return 'db2';
+            default:
+                return 'mysql';
         }
     }
 } // END class ActiveDatabase extends CObject

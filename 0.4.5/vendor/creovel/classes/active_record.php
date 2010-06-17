@@ -371,7 +371,8 @@ class ActiveRecord extends CObject implements Iterator
             }
             
             // set which settings mode to use
-            if (isset($this) && !empty($this->_mode_)) {
+            if (isset($this)
+                && !empty($GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)])) {
                 $connection_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)];
             }
             
@@ -477,8 +478,9 @@ class ActiveRecord extends CObject implements Iterator
                 $dbf = new DatabaseFile;
                 $dbf->load($dbf->default_file(
                     $this->_schema_,
-                    $this->to_string())
-                    );
+                    $this->table_name(),
+                    $this->to_string()
+                    ));
                 $this->_columns_ = $dbf->columns();
             } else {
                 $this->_columns_ = $this->select_query()->columns($this->table_name());

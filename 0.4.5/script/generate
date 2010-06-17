@@ -20,6 +20,9 @@ switch (true) {
  **/
 function __create_schema($params, $flags = null)
 {
+    if (!empty($params['model'])) {
+        $params['class_name'] = $params['model']; 
+    }
     @$options = array(
         'class_name'    => $params['class_name'],
         'table_name'    => $params['table_name'],

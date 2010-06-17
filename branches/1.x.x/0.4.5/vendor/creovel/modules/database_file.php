@@ -104,7 +104,11 @@ class DatabaseFile extends ModuleBase
         $file = empty($options['file']) ? '' : $options['file'];
         if (!$file) {
             // use default path dir for schemas
-            $file = self::default_file($obj->schema_name(), $class_name);
+            $file = self::default_file(
+                            $obj->schema_name(),
+                            $options['table_name'],
+                            $class_name
+                            );
         }
         
         // create DOM
@@ -210,12 +214,12 @@ class DatabaseFile extends ModuleBase
                     case 'primary':
                     case 'unique':
                         $index->setAttribute('name', strtoupper($type));
-                        $index->setAttribute('type', $type);
+                        $index->setAttribute('type', strtoupper($type));
                         break;
                     
                     default:
-                        $index->setAttribute('name', 'index_' . $type);
-                        $index->setAttribute('type', 'index');
+                        $index->setAttribute('name', strtoupper('index_' . $type));
+                        $index->setAttribute('type', 'INDEX');
                         break;
                     
                 }
@@ -239,10 +243,10 @@ class DatabaseFile extends ModuleBase
      *
      * @return string
      **/
-    public function default_file($schema, $class_name)
+    public function default_file($schema, $table, $class_name)
     {
         return SCHEMAS_PATH . Inflector::underscore(
-                $schema . '_' . $class_name) . '.xml';
+                $schema . '_' . $table . '_' . $class_name, '.') . '.xml';
     }
     
     /**
@@ -273,111 +277,4 @@ class DatabaseFile extends ModuleBase
         }
     }
     
-    /**
-     * Get/build indexes array.
-     *
-     * @return void
-     **/
-    public function indexes()
-    {
-        // if already set return
-        if (!empty($this->_indexes_)) return $this->_indexes_;
-        
-        if (!empty($this->xml->table->indexes)) {
-            $this->_indexes_ = array();
-            foreach ($this->xml->table->indexes->index as $idx) {
-                $type = strtolower((string) $idx->attributes()->type);
-                $name = strtolower((string) $idx->attributes()->name);
-                switch ($type) {
-                    case 'primary':
-                        if ($name) {
-                            $this->_indexes_[$type]->{$name}->keys = explode(',', (string) $idx->attributes()->column);
-                        }
-                    break;
-                }
-            }
-            return $this->_indexes_;
-        }
-    }
-    
-    /**
-     * Get column type.
-     *
-     * @return string
-     **/
-    public function column_type(SimpleXMLElement $attrs)
-    {
-        return (string) $attrs->type . (empty($attrs->size) ? '' : '(' . (string) $attrs->size . ')');
-    }
-    
-    /**
-     * Get if column null.
-     *
-     * @return string
-     **/
-    public function column_null(SimpleXMLElement $attrs)
-    {
-        switch (strtoupper((string) $attrs->null)) {
-            case 'YES':
-            case '1':
-                return 'YES';
-            
-            default:
-                return 'NO';
-        }
-    }
-    
-    /**
-     * Get if column key.
-     *
-     * @return string
-     **/
-    public function column_key(SimpleXMLElement $attrs)
-    {
-        $key = (string) $attrs->name;
-        foreach ($this->indexes() as $type => $index) {
-            foreach ($index as $idx) {
-                if (in_array($key, $idx->keys)) {
-                    return substr(strtoupper($type), 0, 3);
-                }
-            }
-        }
-    }
-    
-    /**
-     * Get column default value.
-     *
-     * @return string
-     **/
-    public function column_default(SimpleXMLElement $attrs)
-    {
-        $default = (string) $attrs->default;
-        switch (strtoupper($default)) {
-            case 'NULL':
-            case '':
-                return null;
-            
-            default:
-                return $default;
-        }
-    }
-    
-    /**
-     * Get column extra value.
-     *
-     * @return string
-     **/
-    public function column_extra(SimpleXMLElement $attrs)
-    {
-        $extra = array();
-        
-        // check auto increment
-        switch (strtoupper((string) $attrs->auto_increment)) {
-            case 'YES':
-            case '1':
-                $extra[] = 'auto_increment';
-        }
-        
-        return implode(' ', $extra);
-    }
 } // END class DatabaseFile extends ModuleBase

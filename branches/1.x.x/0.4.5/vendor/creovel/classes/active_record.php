@@ -137,7 +137,7 @@ class ActiveRecord extends CObject implements Iterator
         $this->find($search_type, array(
                 'conditions' => $data
             ));
-        
+            
         return $this->total_rows() ? true : false;
     }
     
@@ -372,6 +372,7 @@ class ActiveRecord extends CObject implements Iterator
             
             // set which settings mode to use
             if (isset($this)
+                && !empty($this->_mode_)
                 && !empty($GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)])) {
                 $connection_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)];
             }

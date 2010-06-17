@@ -548,6 +548,7 @@ class ActiveQuery extends CObject implements Iterator
      **/
     public function insert_row($table, $columns)
     {
+        $adapter_type = $this->db()->get_adapter_type();
         // Make sure columns are the coorect object
         $this->convert_columns($columns);
         
@@ -566,12 +567,34 @@ class ActiveQuery extends CObject implements Iterator
         
         // sanitize values
         foreach ($columns as $k => $field) {
-            if (empty($field->value)) continue;
+            if (empty($field->value)) {
+                
+                if (empty($field->null)
+                    && $adapter_type == 'db2'
+                    && !$field->is_identity) {
+                    
+                    switch ($field->type) {
+                        case 'INTEGER':
+                        case 'DOUBLE':
+                        case 'DECIMAL':
+                        case 'FLOAT':
+                        case 'SMALLINT':
+                        case 'REAL':
+                            $field->value = 0;
+                            break;
+                    }
+                    
+                    $columns_str[] = $this->build_identifier(array($k));
+                    $values_str[] = $this->quote_value($field->value);
+                }
+                
+                continue;
+            }
             // if same as default value skip
             if ($field->value === $columns[$k]->default) continue;
             // if value has not changed 
             if (!$columns[$k]->has_changed) continue;
-            $columns_str[] = $this->build_identifier(array($this->db()->__schema, $table, $k));
+            $columns_str[] = $this->build_identifier(array($k));
             $values_str[] = $field->value == 'NULL' ? 'NULL' : $this->quote_value($field->value);
         }
         
@@ -622,7 +645,7 @@ class ActiveQuery extends CObject implements Iterator
             if ($field->value === $columns[$k]->default) continue;
             // if value has not changed 
             if (!$columns[$k]->has_changed) continue;
-            $set_str[$k] = $this->build_identifier(array($this->db()->__schema, $table, $k));
+            $set_str[$k] = $this->build_identifier(array($k));
             $set_str[$k] .= ' = ';
             $set_str[$k] .= $field->value == 'NULL' ? 'NULL' : $this->quote_value($field->value);
         }

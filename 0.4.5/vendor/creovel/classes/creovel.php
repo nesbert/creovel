@@ -52,6 +52,7 @@ class Creovel
         
         // Set default mode.
         $GLOBALS['CREOVEL']['MODE'] = 'production';
+        $GLOBALS['CREOVEL']['CLI'] = empty($_SERVER['DOCUMENT_ROOT']);
         $GLOBALS['CREOVEL']['BUFFER_HEADER'] = true;
         
         // Set error handler.
@@ -60,40 +61,44 @@ class Creovel
         $GLOBALS['CREOVEL']['APPLICATION_ERROR_CODE'] = '';
         $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
         
-        // set configuration settings
-        self::config();
-        
-        // Include application_helper
-        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
-            require_once $helper;
-        }
-        
-        // Run framework.
-        if (empty($_SERVER['DOCUMENT_ROOT'])) {
-            // Run in command line mode.
-            self::cmd();
-        } else {
-            // Set default creovel global vars.
+        // Set default WEB creovel global vars.
+        if (!$GLOBALS['CREOVEL']['CLI']) {
             $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
-            $GLOBALS['CREOVEL']['SESSION'] = true;
+            $GLOBALS['CREOVEL']['SESSION'] = false;
             $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
             $GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
             $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
             $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
             $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
             $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
+        }
             
-            // Run in default web mode.
-            self::run();
+        // set configuration settings include_once to make it optional
+        @include_once CONFIG_PATH . 'databases.php';
+        @include_once CONFIG_PATH . 'environment.php';
+        @include_once CONFIG_PATH . 'environment' . DS .
+            $GLOBALS['CREOVEL']['MODE'] . '.php';
+                
+        // Include application_helper
+        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
+            require_once $helper;
+        }
+        
+        // Run framework in command line or web mode.
+        if ($GLOBALS['CREOVEL']['CLI']) {
+            self::cli();
+        } else {
+            self::web();
         }
     }
     
     /**
-     * Set frame events and params. Build controller execution environment.
+     * Initialize framework for web applications. Set framework
+     * events and params. Build controller execution environment.
      *
      * @return void
      **/
-    public function run($events = null, $params = null, $return_as_str = false, $skip_init = false)
+    public function web($events = null, $params = null, $return_as_str = false, $skip_init = false)
     {
         try {
             // gather up any output that occurs before output phase
@@ -104,8 +109,55 @@ class Creovel
             // ignore certain requests
             self::ignore_check();
             
-            // initialize web for web appliocations
-            self::web();
+            // initialize web for web appliocations only run once
+            static $initialized;
+            if (empty($initialized)) {
+                
+                // Set routing defaults
+                $GLOBALS['CREOVEL']['ROUTING'] = @parse_url(CNetwork::url());
+                $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
+                $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
+                
+                // if global_xss_filtering is enabled
+                if (!empty($GLOBALS['CREOVEL']['GLOBAL_XSS_FILTERING'])) {
+                    if (empty($GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'])) {
+                        $xss_func = 'CArray::clean';
+                    } else {
+                        $xss_func = $GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'];
+                    }
+                    // filter COOKIE, GET, POST, SERVER
+                    $_COOKIE = $xss_func($_COOKIE);
+                    $_GET = $xss_func($_GET);
+                    $_POST = $xss_func($_POST);
+                    $_SERVER = $xss_func($_SERVER);
+                }
+                
+                // set additional routing options
+                if (empty($GLOBALS['CREOVEL']['DISPATCHER'])) {
+                    $GLOBALS['CREOVEL']['DISPATCHER'] = basename($_SERVER['PHP_SELF']);
+                }
+                $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
+                $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
+                
+                require_once CREOVEL_PATH . 'classes/action_router.php';
+                
+                // Set default route
+                ActionRouter::map('default', '/:controller/:action/*', array(
+                            'controller' => 'index',
+                            'action' => 'index'
+                            ));
+                
+                // Set default error route
+                ActionRouter::map('errors', '/errors/:action/*', array(
+                            'controller' => 'errors',
+                            'action' => 'general'
+                            ));
+                
+                // Include custom routes
+                require_once CONFIG_PATH . 'routes.php';
+                
+                $initialized = true;
+            } // end if (empty($initialized))
             
             // set event and params
             $events = is_array($events) ? $events : self::events();
@@ -166,78 +218,17 @@ class Creovel
     }
     
     /**
-     * Prepare framework for web applications by setting default routes and
-     * set CREOVEL environment variables for web applications.
-     *
-     * @return void
-     **/
-    public function web()
-    {
-        // only run once
-        static $initialized;
-        if ($initialized) return $initialized;
-        
-        // Set routing defaults
-        $GLOBALS['CREOVEL']['ROUTING'] = @parse_url(CNetwork::url());
-        $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
-        $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
-        
-        // if global_xss_filtering is enabled
-        if (!empty($GLOBALS['CREOVEL']['GLOBAL_XSS_FILTERING'])) {
-            if (empty($GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'])) {
-                $xss_func = 'CArray::clean';
-            } else {
-                $xss_func = $GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'];
-            }
-            // filter COOKIE, GET, POST, SERVER
-            $_COOKIE = $xss_func($_COOKIE);
-            $_GET = $xss_func($_GET);
-            $_POST = $xss_func($_POST);
-            $_SERVER = $xss_func($_SERVER);
-        }
-        
-        // set additional routing options
-        if (empty($GLOBALS['CREOVEL']['DISPATCHER'])) {
-            $GLOBALS['CREOVEL']['DISPATCHER'] = basename($_SERVER['PHP_SELF']);
-        }
-        $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
-        $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
-        
-        require_once CREOVEL_PATH . 'classes/action_router.php';
-        
-        // Set default route
-        ActionRouter::map('default', '/:controller/:action/*', array(
-                    'controller' => 'index',
-                    'action' => 'index'
-                    ));
-        
-        // Set default error route
-        ActionRouter::map('errors', '/errors/:action/*', array(
-                    'controller' => 'errors',
-                    'action' => 'general'
-                    ));
-        
-        // Include custom routes
-        require_once CONFIG_PATH . 'routes.php';
-        
-        return $initialized = true;
-    }
-    
-    /**
      * Initialize framework for command line support.
      *
      * @return void
      **/
-    public function cmd()
+    public function cli()
     {
         global $argc;
         global $argv;
         global $args;
         global $flags;
         global $params;
-        
-        // set flag for command line
-        $GLOBALS['CREOVEL']['CMD'] = true;
         
         // create local variables
         if ($argc > 1) {
@@ -270,18 +261,13 @@ class Creovel
     }
     
     /**
-     * Read and set environment and databases files .
+     * Alias to Creovel::main();
      *
      * @return void
      **/
-    public function config()
+    public function run()
     {
-        // Include database setting filee
-        @include_once CONFIG_PATH . 'databases.php';
-        // Include application config file
-        @include_once CONFIG_PATH . 'environment.php';
-        // Include environment specific config file
-        @include_once CONFIG_PATH . 'environment' . DS . CREO('mode') . '.php';
+        self::main();
     }
     
     /**

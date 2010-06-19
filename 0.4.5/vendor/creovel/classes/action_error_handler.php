@@ -95,7 +95,7 @@ class ActionErrorHandler extends CObject
         if (!$has_errored) {
             $has_errored = true;
             // if command line show text errors
-            if (!empty($GLOBALS['CREOVEL']['CMD']) || CValidate::ajax()) {
+            if ($GLOBALS['CREOVEL']['CLI'] || CValidate::ajax()) {
                 // only show erros in dev mode
                 if (CREO('mode') == 'development') {
                     @header('Content-Type: text/plain; charset=utf-8');
@@ -111,7 +111,7 @@ class ActionErrorHandler extends CObject
                 $params = (array) Creovel::params() + array('error' => $this->message, 'exception' => $this->exception);
                 // clean output buffer for application errors
                 @ob_end_clean();
-                Creovel::run($events, $params);
+                Creovel::web($events, $params);
             } else {
                 // show debugger
                 $this->__debug();
@@ -120,7 +120,7 @@ class ActionErrorHandler extends CObject
             die;
         }
         
-        if (empty($GLOBALS['CREOVEL']['CMD'])) {
+        if (!$GLOBALS['CREOVEL']['CLI']) {
             // show internal server error
             include_once CREOVEL_PATH . 'views' . DS . 'layouts' . DS . 'apache_500_error.php';
         }

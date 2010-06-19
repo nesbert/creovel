@@ -33,13 +33,7 @@ class IbmDb2Test extends PHPUnit_Framework_TestCase
         CREO('log_errors', true);
         CREO('log_queries', true);
         
-        $this->settings = array(
-             'host'      => 'localhost',
-             'username'  => 'db2inst1',
-             'password'  => 'password',
-             'database'  => '', // enter database
-             'schema'    => '', // enter schema
-             );
+        $this->settings = TestSetting::$db2;
         
         $this->drop_table_sql = 'DROP TABLE ITEMS;';
         $this->create_table_sql = 'CREATE TABLE ITEMS (

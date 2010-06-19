@@ -95,14 +95,14 @@ class ActiveRecord extends CObject implements Iterator
      **/
     final public function load_model_data($data)
     {
+        // if data contains primary key data load record first
+        $this->load_by_primary_key($data);
+        
         // $data hash load
         if (CValidate::hash($data) || is_object($data)) {
             // load data into object
             $this->attributes($data);
         }
-        
-        // if data contains primary key data load record first
-        $this->load_by_primary_key($data);
     }
     
     /**
@@ -119,8 +119,12 @@ class ActiveRecord extends CObject implements Iterator
         if (is_object($data)) $data = (array) $data;
         
         // if assc array
-        if (CValidate::hash($data)) {
-            // do nothing $data already in correct format
+        if (CValidate::hash($data) && count($keys) > 1) {
+            // only search by primary key
+            foreach ($data as $k => $v) {
+                if (in_array($k, $keys)) continue;
+                unset($data[$k]);
+            }
         } elseif (count($keys) == 1) {
             if (is_array($data)) {
                 $search_type = 'all';
@@ -490,7 +494,7 @@ class ActiveRecord extends CObject implements Iterator
             // do some magic
             foreach ($this->_columns_ as $k => $v) {
                 // set default options for enum types
-                if (!isset($this->{'options_for_' . $k}) && CValidate::in_string('enum(', $v->type)) {
+                if ($this->__is_options_for_type($k)) {
                     $v->options = $this->field_options($k);
                 }
             }
@@ -706,7 +710,7 @@ class ActiveRecord extends CObject implements Iterator
         
         // if record found update
         if ($this->total_rows() || $this->_was_inserted_) {
-        
+            
             // validate model on every update
             $this->validate_on_update();
             
@@ -734,7 +738,7 @@ class ActiveRecord extends CObject implements Iterator
                 if ($id = $this->action_query()->insert_id()) {
                     // find auto increment field and set ID
                     foreach ($this->columns() as $col => $field) {
-                        if ($field->is_identity) {
+                        if (!empty($field->is_identity)) {
                             $conditions[$col] = $id;
                             break;
                         }
@@ -748,8 +752,6 @@ class ActiveRecord extends CObject implements Iterator
                 }
             }
         }
-        
-        #foreach ($this->child_objects as $obj) $obj->save();
         
         if ($ret_val) {
             // load record to make sure to get most recent info
@@ -1167,16 +1169,16 @@ class ActiveRecord extends CObject implements Iterator
             $arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
             
             switch (true) {
-                case CValidate::in_string('field_for_', $method):
-                case CValidate::in_string('select_for_', $method):
-                case CValidate::in_string('text_area_for_', $method):
-                case CValidate::in_string('textarea_for_', $method):
-                case CValidate::in_string('check_box_for_', $method):
-                case CValidate::in_string('checkbox_for_', $method):
-                case CValidate::in_string('radio_button_for_', $method):
-                case CValidate::in_string('select_countries_tag_for_', $method):
-                case CValidate::in_string('select_states_tag_for_', $method):
-                case CValidate::in_string('date_time_select_for_', $method):
+                case CString::starts_with('field_for_', $method):
+                case CString::starts_with('select_for_', $method):
+                case CString::starts_with('text_area_for_', $method):
+                case CString::starts_with('textarea_for_', $method):
+                case CString::starts_with('check_box_for_', $method):
+                case CString::starts_with('checkbox_for_', $method):
+                case CString::starts_with('radio_button_for_', $method):
+                case CString::starts_with('select_countries_tag_for_', $method):
+                case CString::starts_with('select_states_tag_for_', $method):
+                case CString::starts_with('date_time_select_for_', $method):
                     $type = str_replace(
                                 array(
                                     '_field_for_' . $name,
@@ -1188,24 +1190,20 @@ class ActiveRecord extends CObject implements Iterator
                     break;
                 
                 // options_for_* called for existing field
-                case CValidate::in_string('set_options_for_', $method)
-                    && isset($this->_columns_[$name])
-                    && is_array($arguments[0]):
+                case CString::starts_with('set_options_for_', $method)
+                    && isset($this->_columns_[$name]):
                     return $this->_columns_[$name]->options = $arguments[0];
                     break;
                 
-                case CValidate::in_string('options_for_', $method):
+                case CString::starts_with('options_for_', $method):
                     switch (true) {
-                        // set options for ENUM field types
-                        case isset($this->_columns_[$name]->type)
-                            && CValidate::in_string('enum(', $this->_columns_[$name]->type):
-                        // set options for ENUM field types
-                        case isset($this->_columns_[$name]->type)
-                            && CValidate::in_string('tinyint(1)', $this->_columns_[$name]->type):
-                        // if options for property is set
+                        case $this->__is_options_for_type($name):
                         case isset($this->_columns_[$name]->options):
                             $type = 'select';
-                            return $this->html_field($type, $name, $this->{$name}, $arguments);
+                            if (!empty($arguments[0])) {
+                                $this->_columns_[$name]->options = $arguments[0];
+                            }
+                            return $this->html_field($type, $name, $this->{$name}, $this->_columns_[$name]->options);
                             break;
                         
                         default:
@@ -1216,11 +1214,11 @@ class ActiveRecord extends CObject implements Iterator
                     }
                     break;
                 
-                case CValidate::in_string('_has_error', $method):
+                case CString::ends_with('_has_error', $method):
                     return $this->has_error($name, $arguments[0]);
                     break;
                 
-                case CValidate::in_string('find_by_', $method):
+                case CString::starts_with('find_by_', $method):
                     $args = isset($arguments[1]) && CValidate::hash($arguments[1]) ? $arguments[1] : array();
                     $args['conditions'] = array($name => $arguments[0]);
                     $return = $this->find('all', $args);
@@ -1233,13 +1231,13 @@ class ActiveRecord extends CObject implements Iterator
                     return $return;
                     break;
                 
-                case CValidate::in_string('validates_', $method):
+                case CString::starts_with('validates_', $method):
                     return $this->validate_by_method($method, $arguments);
                     break;
                     
                 /* Paging Links */
-                case CValidate::in_string('link_to_', $method):
-                case CValidate::in_string('paging_', $method):
+                case CString::starts_with('link_to_', $method):
+                case CString::starts_with('paging_', $method):
                     if (method_exists($this->_paging_, $method)) {
                         return call_user_func_array(array($this->_paging_, $method), $arguments);
                     } else {
@@ -1328,8 +1326,22 @@ class ActiveRecord extends CObject implements Iterator
                         // build key to support multipule rows
                         $ops = array();
                         $ops['select'] = "COUNT(*)";
-                        //$ops['conditions'] = $this->primary_keys_and_values();
-                        $ops['conditions'][$params[0]] = $params[1];
+                        
+                        if ($this->is_primary_keys_and_values_set()) {
+                            $where = array();
+                            $cols = array();
+                            $cols = $this->primary_keys_and_values();
+                            foreach ($cols as $k => $v) {
+                                $where[] = "{$k} = :{$k}";
+                            }
+                            $where = implode(' AND ', $where);
+                            $cols[$params[0]] = $params[1];
+                            $where = "{$params[0]} = :{$params[0]} AND NOT ({$where})";
+                            $ops['conditions'] = array($where, $cols);
+                        } else {
+                            $ops['conditions'][$params[0]] = $params[1];
+                        }
+                        
                         $ops['table'] = $this->table_name();
                         // extend WHERE statement
                         if (!empty($params[3])) $ops['where_append'] = $params[3];
@@ -1545,26 +1557,37 @@ class ActiveRecord extends CObject implements Iterator
     }
     
     /**
-     * Get options for ENUM field types.
+     * Get options for certain field types.
      *
      * @return void
      **/
-    final public function field_options($property)
+    final public function field_options($name)
     {
-        if (CValidate::in_string('enum(', $this->_columns_[$property]->type)) {
-            $options = explode("','", str_replace(
-                                                array("enum('"),
-                                                '',
-                                                substr($this->_columns_[$property]->type, 0, -2)
-                                                ));
-            $return = array();
-            foreach ($options as $value) {
-                $return[$value] = CString::humanize($value);
+        if (isset($this->_columns_[$name])) {
+            if (isset($this->_columns_[$name]->options)) {
+                return $this->_columns_[$name]->options;
             }
-            return $return;
-        }
-        if (CValidate::in_string('tinyint(1)', $this->_columns_[$property]->type)) {
-            return array('1' => 'Yes', '0' => 'No');
+            
+            if ($this->_columns_[$name]->type == 'ENUM') {
+                $options = explode(',', $this->_columns_[$name]->size);
+                $return = array();
+                foreach ($options as $value) {
+                    $value = preg_replace('/(^\'|\'$)/', '', $value);
+                    $return[$value] = CString::humanize($value);
+                }
+                return $return;
+            }
+            
+            // if interger and length is 1
+            if (($this->_columns_[$name]->size == 1
+                    && $this->_columns_[$name]->type == 'TINYINT')
+                || ($this->_columns_[$name]->type == 'SMALLINT')) {
+                return array('1' => 'Yes', '0' => 'No');
+            }
+        } else {
+            throw new Exception("Unable to get options for {$name}. Not a " .
+                "valid <strong>{$this->class_name()}</strong> model column.");
+            
         }
     }
     
@@ -1925,5 +1948,19 @@ class ActiveRecord extends CObject implements Iterator
     public function validate_on_create() {}
     public function validate_on_update() {}
     /**#@-*/
+    
+    private function __is_options_for_type($name)
+    {
+        if (!isset($this->_columns_[$name]->type)) return false;
+        switch (true) {
+            case $this->_columns_[$name]->type == 'ENUM':
+            case ($this->_columns_[$name]->type == 'TINYINT'
+                    && $this->_columns_[$name]->size == 1):
+            case $this->_columns_[$name]->type == 'SMALLINT':
+                    return true;
+            default:
+                return false;
+        }
+    }
 } // END class ActiveRecord extends CObject implements Iterator
 

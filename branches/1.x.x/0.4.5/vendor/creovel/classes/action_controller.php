@@ -378,7 +378,7 @@ abstract class ActionController extends CObject
                                 $route_name);
         $params = array();
         if ($id) $params['id'] = $id;
-        return Creovel::run($events, array_merge($params, $extras), $to_str);
+        return Creovel::web($events, array_merge($params, $extras), $to_str);
     }
     
     /**

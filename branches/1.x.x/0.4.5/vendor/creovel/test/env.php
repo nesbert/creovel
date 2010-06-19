@@ -20,6 +20,25 @@ require_once CREOVEL_PATH . 'classes' . DS . 'creovel.php';
 // Run framework.
 Creovel::main();
 
-// include PHPUnit
+// Include PHPUnit.
 require_once 'PHPUnit/Framework.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
+
+// Testing class for storage or common functions.
+class TestSetting {
+    
+    public static $mysql = array(
+        'host'      => 'localhost',
+        'username'  => 'phpunit',
+        'password'  => 'phpunit',
+        );
+
+    public static $db2 = array(
+        'host'      => 'localhost',
+        'username'  => 'db2inst1',
+        'password'  => 'password',
+        'database'  => '', // enter database
+        'schema'    => '', // enter schema
+        );
+
+}

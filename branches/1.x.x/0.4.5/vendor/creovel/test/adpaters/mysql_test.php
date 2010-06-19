@@ -51,11 +51,7 @@ class MysqlTest extends PHPUnit_Framework_TestCase
        
         $this->insert_row_sql = "INSERT INTO `phpunit`.`items` (`id`, `title`, `qty`, `desc`, `created_at`, `updated_at`) VALUES (NULL, 'iPhone', '100', 'Is there anything else?', NOW(), NOW());";
         
-        $this->settings = array(
-             'host'      => 'localhost',
-             'username'  => 'phpunit',
-             'password'  => 'phpunit'
-             );
+        $this->settings = TestSetting::$mysql;
 
         $this->a = new Mysql;
     }

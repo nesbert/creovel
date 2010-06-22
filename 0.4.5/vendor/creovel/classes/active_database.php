@@ -44,7 +44,7 @@ class ActiveDatabase extends CObject
      **/
     public function __get($member)
     {
-        if (isset($member)) {
+        if (isset($this->{$member})) {
             return $this->{$member};
         }
     }
@@ -91,6 +91,8 @@ class ActiveDatabase extends CObject
                     "Unknown database adapter '{$adapter}'. " .
                     "Please check database configuration file.");
             }
+            
+            return true;
             
         } catch (Exception $e) {
             CREO('application_error_code', 500);
@@ -159,8 +161,13 @@ class ActiveDatabase extends CObject
      **/
     public function get_adapter_type()
     {
-        $resource_type =
-            strtolower(get_resource_type($this->__adapter_obj->db));
+        if (is_resource($this->__adapter_obj->db)) {
+            $resource_type = get_resource_type($this->__adapter_obj->db);
+        } else {
+            $resource_type = get_class($this->__adapter_obj->db);
+        }
+        
+        $resource_type = strtolower($resource_type);
         
         switch ($resource_type) {
             case CValidate::in_string('db2', $resource_type):

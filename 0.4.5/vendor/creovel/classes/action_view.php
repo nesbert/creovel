@@ -13,6 +13,32 @@
 class ActionView extends CObject
 {
     /**
+     * Using output buffering to include a PHP file into a string. Used to
+     * combine coding logic (PHP) and views. The main function used by
+     * Creovel's template engine (STS).
+     *
+     * @param string Required string of the file path.
+     * @param array $options - Optional array of display options.
+     * @link http://us3.php.net/manual/en/function.include.php Example #6
+     * @return string HTML/Text from buffer.
+     **/
+    public function include_contents($filename, $options = null)
+    {
+        if (is_file($filename)) {
+            ob_start();
+            // create a variable foreach option, using keyas the vairable name
+            if (count($options)) foreach ($options as $key => $values) {
+                $$key = $values;
+            }
+            include $filename;
+            $contents = ob_get_contents();
+            ob_end_clean();
+            return $contents;
+        }
+        return false;
+    }
+    
+    /**
      * Creates the page to be displayed and sets it to the page property.
      *
      * @param string $view_path Required string of the file path.
@@ -82,32 +108,6 @@ class ActionView extends CObject
             CREO('application_error_code', 404);
             CREO('application_error', $e);
         }
-    }
-    
-    /**
-     * Using output buffering to include a PHP file into a string. Used to
-     * combine coding logic (PHP) and views. The main function used by
-     * Creovel's template engine (STS).
-     *
-     * @param string Required string of the file path.
-     * @param array $options - Optional array of display options.
-     * @link http://us3.php.net/manual/en/function.include.php Example #6
-     * @return string HTML/Text from buffer.
-     **/
-    public function include_contents($filename, $options = null)
-    {
-        if (is_file($filename)) {
-            ob_start();
-            // create a variable foreach option, using keyas the vairable name
-            if (count($options)) foreach ($options as $key => $values) {
-                $$key = $values;
-            }
-            include $filename;
-            $contents = ob_get_contents();
-            ob_end_clean();
-            return $contents;
-        }
-        return false;
     }
     
     /**

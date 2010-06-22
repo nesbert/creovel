@@ -53,7 +53,7 @@ class MysqlImprovedTest extends PHPUnit_Framework_TestCase
        
         $this->insert_row_sql = "INSERT INTO `phpunit`.`items` (`id`, `title`, `qty`, `desc`, `created_at`, `updated_at`) VALUES (NULL, 'iPhone', '100', 'Is there anything else?', NOW(), NOW());";
         
-        $this->settings = TestSetting::$mysql;
+        $this->settings = TestSetting::$mysqli;
         
         $this->a = new MysqlImproved;
     }

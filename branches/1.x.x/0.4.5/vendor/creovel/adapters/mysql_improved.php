@@ -58,8 +58,8 @@ class MysqlImproved extends AdapterBase
         $this->close();
         
         // close MySQL connection
-        if (isset($this->db) && is_resource($this->db)) {
-            $this->db->close();
+        if (isset($this->db) && is_object($this->db)) {
+            return $this->db->close();
         }
     }
     

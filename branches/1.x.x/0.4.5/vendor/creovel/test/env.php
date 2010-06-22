@@ -28,17 +28,31 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 class TestSetting {
     
     public static $mysql = array(
-        'host'      => 'localhost',
+        'mode'      => 'mysql',
+        'adapter'   => 'Mysql',
+        'host'      => 'mysqltest',
         'username'  => 'phpunit',
         'password'  => 'phpunit',
+        'database'  => 'test',
         );
+    
+    public static $mysqli = array(
+        'mode'      => 'mysql2',
+        'adapter'   => 'MysqlImproved',
+        'host'      => 'mysqltest',
+        'username'  => 'phpunit',
+        'password'  => 'phpunit',
+        'database'  => 'test',
+    );
 
     public static $db2 = array(
+        'mode'      => 'db2',
+        'adapter'   => 'IbmDb2',
         'host'      => 'localhost',
         'username'  => 'db2inst1',
         'password'  => 'password',
-        'database'  => '', // enter database
-        'schema'    => '', // enter schema
+        'database'  => 'TEST', // enter database
+        'schema'    => 'TEST', // enter schema
         );
 
 }

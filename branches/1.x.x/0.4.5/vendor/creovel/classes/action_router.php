@@ -205,7 +205,7 @@ class ActionRouter extends CObject
         
         // return params or events
         if ($return_params) {
-            if (end($match['params'])) {
+            if (is_array($match['params']) && end($match['params'])) {
                 $last = key($match['params']);
                 $match['params'][$last] = self::clean_event($match['params'][$last]);
             }

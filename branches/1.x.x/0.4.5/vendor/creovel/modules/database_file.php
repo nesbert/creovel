@@ -44,18 +44,17 @@ class DatabaseFile extends ModuleBase
      * @param string $file
      * @return void
      **/
-    public function load($file = null)
+    public function load($file)
     {
         if (!defined('SCHEMAS_PATH')) {
-            self::throw_error("SCHEMAS_PATH not defined.");
+            $this->throw_error("SCHEMAS_PATH not defined.");
         }
         
         if ($file) {
             $this->_schema_file_ = $file;
         } else {
-            
-            $this->_schema_file_ = self::default_file($this->_model_);
-        }
+            $this->throw_error("Missing argument $file for DatabaseFile::load.");
+         }
         
         if (file_exists($this->_schema_file_)) {
             if (!class_exists('SimpleXMLElement')) {
@@ -106,8 +105,7 @@ class DatabaseFile extends ModuleBase
             // use default path dir for schemas
             $file = self::default_file(
                             $obj->schema_name(),
-                            $options['table_name'],
-                            $class_name
+                            $options['table_name']
                             );
         }
         
@@ -243,10 +241,10 @@ class DatabaseFile extends ModuleBase
      *
      * @return string
      **/
-    public function default_file($schema, $table, $class_name)
+    public function default_file($schema, $table)
     {
         return SCHEMAS_PATH . Inflector::underscore(
-                $schema . '_' . $table . '_' . $class_name, '.') . '.xml';
+                $schema . '_' . $table . '.xml', '.');
     }
     
     /**

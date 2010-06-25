@@ -16,7 +16,7 @@ class Creovel
      *
      * @return void
      **/
-    public function main()
+    public function main($force_cli = false)
     {
         // If not PHP 5 stop.
         if (PHP_VERSION <= 5) {
@@ -53,6 +53,7 @@ class Creovel
         // Set default mode.
         $GLOBALS['CREOVEL']['MODE'] = 'production';
         $GLOBALS['CREOVEL']['CLI'] = empty($_SERVER['DOCUMENT_ROOT']);
+        if ($force_cli) $GLOBALS['CREOVEL']['CLI'] = true; 
         $GLOBALS['CREOVEL']['BUFFER_HEADER'] = true;
         
         // Set error handler.

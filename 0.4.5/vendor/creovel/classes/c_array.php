@@ -24,6 +24,7 @@ class CArray extends CObject implements Iterator
      **/
     public function __construct($value = null)
     {
+        // set value
         $this->value = (array) $value;
     }
     

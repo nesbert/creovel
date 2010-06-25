@@ -483,8 +483,7 @@ class ActiveRecord extends CObject implements Iterator
                 $dbf = new DatabaseFile;
                 $dbf->load($dbf->default_file(
                     $this->_schema_,
-                    $this->table_name(),
-                    $this->to_string()
+                    $this->table_name()
                     ));
                 $this->_columns_ = $dbf->columns();
             } else {
@@ -972,7 +971,7 @@ class ActiveRecord extends CObject implements Iterator
     {
         if (!is_array($db)) $db = ActiveDatabase::connection_properties();
         if ($table_name) $db['table_name'] = $table_name;
-        return ActiveDatabase::connect($db);
+        return new ActiveQuery($db);
     }
     
     /**

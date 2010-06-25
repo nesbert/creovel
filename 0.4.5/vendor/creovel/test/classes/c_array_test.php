@@ -27,7 +27,8 @@ class CArrayTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->a = new CArray(array('a', 'b', 'c', 'd', 'e', 'f'));
+        $this->og = array('a', 'b', 'c', 'd', 'e', 'f');
+        $this->a = new CArray($this->og);
     }
 
     /**
@@ -44,6 +45,24 @@ class CArrayTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals(array(), $this->a->clear());
         $this->assertEquals(array(), $this->a->value);
+    }
+
+    public function testPop()
+    {
+        $r = $this->a->pop();
+        $this->assertEquals('f', $r);
+        $r = array_pop($this->og);
+        $this->assertEquals($this->og, $this->a->value);
+    }
+
+    public function testPush()
+    {
+        $this->assertEquals(1, $this->a->push('g'));
+        $r = array_push($this->og, 'g');
+        $this->assertEquals($this->og, $this->a->value);
+        $this->assertEquals(3, $this->a->push('h', 'i', 'j'));
+        $r = array_push($this->og, 'h', 'i', 'j');
+        $this->assertEquals($this->og, $this->a->value);
     }
 
     public function testFirst()
@@ -102,5 +121,89 @@ class CArrayTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($b, CArray::search('y', array(2,5,8), $c));
         $this->assertEquals($a, CArray::search('b', array(4,5,6), $c));
     }
+    
+    public function test_rewind()
+    {
+        $this->assertEquals('a', $this->a->first());
+        $this->assertEquals('b', $this->a->next());
+        $this->assertEquals('c', $this->a->next());
+        $this->assertEquals('d', $this->a->next());
+        $this->assertEquals('a', $this->a->rewind());
+        $this->assertEquals('b', $this->a->next());
+        $this->assertEquals('c', $this->a->next());
+        $this->assertEquals('a', $this->a->rewind());
+    }
+
+    public function test_current()
+    {
+        $this->assertEquals('a', $this->a->current());
+        $this->assertEquals('b', $this->a->next());
+        $this->assertEquals('c', $this->a->next());
+        $this->assertEquals('d', $this->a->next());
+        $this->assertEquals('d', $this->a->current());
+        $this->assertEquals('e', $this->a->next());
+        $this->assertEquals('f', $this->a->next());
+        $this->assertEquals('f', $this->a->current());
+    }
+    
+    public function test_key()
+    {
+        $this->assertEquals(0, $this->a->key());
+        $this->assertEquals('a', $this->a->current());
+        $this->a->next();
+        $this->assertEquals(1, $this->a->key());
+        $this->assertEquals('b', $this->a->current());
+        $this->a->next();
+        $this->assertEquals(2, $this->a->key());
+        $this->assertEquals('c', $this->a->current());
+        $this->a->next();
+        $this->assertEquals(3, $this->a->key());
+        $this->assertEquals('d', $this->a->current());
+        $this->a->next();
+        $this->assertEquals(4, $this->a->key());
+        $this->assertEquals('e', $this->a->current());
+        $this->a->rewind();
+        $this->assertEquals(0, $this->a->key());
+        $this->assertEquals('a', $this->a->current());
+    }
+    
+    public function test_valid()
+    {
+        $this->assertTrue($this->a->valid());
+        $this->assertEquals('a', $this->a->current());
+        $this->a->next();
+        $this->assertTrue($this->a->valid());
+        $this->assertEquals('b', $this->a->current());
+        $this->a->next();
+        $this->assertTrue($this->a->valid());
+        $this->assertEquals('c', $this->a->current());
+        $this->a->next();
+        $this->assertTrue($this->a->valid());
+        $this->assertEquals('d', $this->a->current());
+        $this->a->next();
+        $this->assertTrue($this->a->valid());
+        $this->assertEquals('e', $this->a->current());
+        $this->a->next();
+        $this->assertTrue($this->a->valid());
+        $this->assertEquals('f', $this->a->current());
+        $this->a->next();
+        $this->assertFalse($this->a->valid());
+        $this->a->rewind();
+        $this->assertTrue($this->a->valid());
+        $this->assertEquals('a', $this->a->current());
+    }
+    
+    public function test_iterator()
+    {
+        foreach ($this->a as $i => $v) {
+            $this->assertEquals($this->og[$i], $v);
+        }
+    }
+    
+    public function test_count()
+    {
+        $this->assertEquals(count($this->og), $this->a->count());
+    }
+    
 }
 ?>

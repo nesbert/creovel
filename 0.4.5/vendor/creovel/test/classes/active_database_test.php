@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for ActiveDatabaseTest object.
+ * Unit tests for ActiveDatabase object.
  *
  * @access      private
  * @package     Creovel

@@ -10,6 +10,13 @@
 class ActiveSession extends CObject
 {
     /**
+     * Table name.
+     *
+     * @var string
+     **/
+    public static $_table_name_ = 'active_sessions';
+
+    /**
      * Storage resource.
      *
      * @var object
@@ -54,7 +61,7 @@ class ActiveSession extends CObject
      **/
     public function close()
     {
-        return $this->__r->disconnect();
+        return !empty($this->__r) && $this->__r->disconnect();
     }
     
     /**
@@ -72,7 +79,7 @@ class ActiveSession extends CObject
             array('conditions' => array('ID' => $id))
             );
         
-        return $result ? $result->DATA : "";
+        return $result ? $result->DATA : '';
     }
     
     /**
@@ -86,10 +93,11 @@ class ActiveSession extends CObject
     {
         if (empty($id)) return false;
         
+        $expires = CDate::datetime(time() + ini_get('session.gc_maxlifetime'));
+        
         $columns = array(
             'ID' => $id,
-            'EXPIRES' => CDate::datetime(
-                            time() + get_cfg_var("session.gc_maxlifetime")),
+            'EXPIRES' => $expires,
             'DATA' => $val
             );
         
@@ -182,7 +190,7 @@ class ActiveSession extends CObject
             if ($GLOBALS['CREOVEL']['SESSION'] === 'table') {
                 // include/create session db object
                 require_once CREOVEL_PATH . 'classes/active_session.php';
-                $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = 'active_sessions';
+                $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = self::$_table_name_;
                 $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new ActiveSession;
             }
             

@@ -16,8 +16,10 @@ class Creovel
      *
      * @return void
      **/
-    public function main($force_cli = false)
+    public function init()
     {
+        if (defined('CREOVEL_VERSION')) return;
+        
         // If not PHP 5 stop.
         if (PHP_VERSION <= 5) {
             die('Creovel requires PHP >= 5!');
@@ -53,7 +55,6 @@ class Creovel
         // Set default mode.
         $GLOBALS['CREOVEL']['MODE'] = 'production';
         $GLOBALS['CREOVEL']['CLI'] = empty($_SERVER['DOCUMENT_ROOT']);
-        if ($force_cli) $GLOBALS['CREOVEL']['CLI'] = true; 
         $GLOBALS['CREOVEL']['BUFFER_HEADER'] = true;
         
         // Set error handler.
@@ -84,13 +85,6 @@ class Creovel
         if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
             require_once $helper;
         }
-        
-        // Run framework in command line or web mode.
-        if ($GLOBALS['CREOVEL']['CLI']) {
-            self::cli();
-        } else {
-            self::web();
-        }
     }
     
     /**
@@ -99,9 +93,11 @@ class Creovel
      *
      * @return void
      **/
-    public function web($events = null, $params = null, $return_as_str = false, $skip_init = false)
+    public function web($events = null, $params = null, $return_as_str = false)
     {
         try {
+            self::init();
+            
             // gather up any output that occurs before output phase
             if ($GLOBALS['CREOVEL']['BUFFER_HEADER']) {
                 ob_start();
@@ -225,6 +221,10 @@ class Creovel
      **/
     public function cli()
     {
+        self::init();
+        
+        $GLOBALS['CREOVEL']['CLI'] = true;
+        
         global $argc;
         global $argv;
         global $args;
@@ -258,6 +258,26 @@ class Creovel
                 }
             }
             
+        }
+    }
+    
+    /**
+     * Set constants, include helpers, configuration files & core classes,
+     * amp default routes and set CREOVEL & environment variables.
+     *
+     * @return void
+     **/
+    public function main($force_cli = false)
+    {
+        self::init();
+        
+        if ($force_cli) $GLOBALS['CREOVEL']['CLI'] = true; 
+        
+        // Run framework in command line or web mode.
+        if ($GLOBALS['CREOVEL']['CLI']) {
+            self::cli();
+        } else {
+            self::web();
         }
     }
     
@@ -325,9 +345,9 @@ class Creovel
                     $controller_path = str_replace($class . '.php', '',
                                             $controller_path);
                     throw new Exception(str_replace(
-                                ' ', '', CString::humanize($class)) .
+                                ' ', '', Inflector::classify($class)) .
                     " not found in <strong>" . str_replace('_controller' .
-                    '.php', '', $controller_path) . "</strong>");
+                    '.php', '', $controller_path) . "</strong>.");
                 }
                 
                 // include helper

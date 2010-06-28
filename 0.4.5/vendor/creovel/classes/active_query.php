@@ -675,6 +675,9 @@ class ActiveQuery extends CObject implements Iterator
      **/
     public function prepare_columns(&$columns)
     {
+        $adapter_type = $this->db()->get_adapter_type();
+        
+        // column specific updates
         foreach ($columns as $name => $field) {
             if (empty($field->value)) continue;
             switch (true) {
@@ -691,6 +694,21 @@ class ActiveQuery extends CObject implements Iterator
                     $columns[$name]->value = '';
                     break;
             }
+        }
+        
+        // adapter specific updates
+        switch ($adapter_type) {
+            case 'db2':
+                foreach ($columns as $name => $field) {
+                    // limit length for text fields
+                    switch (true) {
+                        case $field->type == 'VARCHAR':
+                        case $field->type == 'CHAR':
+                            $field->value = substr($field->value, 0, $field->size);
+                            break;
+                    }
+                }
+                break;
         }
         
         return $columns;

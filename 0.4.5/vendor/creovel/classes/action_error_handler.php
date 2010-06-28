@@ -17,7 +17,7 @@ class ActionErrorHandler extends CObject
      * @param string/object $error Error message or Exception object.
      * @return void
      **/
-    public function add(&$error)
+    public function add($error)
     {
         $this->__process($error);
     }
@@ -53,10 +53,8 @@ class ActionErrorHandler extends CObject
      * @param string/object $error Error message or Exception object.
      * @return void
      **/
-    private function __process(&$error)
+    private function __process($error)
     {
-        static $has_errored;
-        
         if (is_object($error)) {
             $this->exception = $error;
             $this->message = $this->exception->getMessage();
@@ -66,8 +64,19 @@ class ActionErrorHandler extends CObject
         }
         
         // log errors
-        if (!empty($GLOBALS['CREOVEL']['LOG_ERRORS'])) {
+        if ($GLOBALS['CREOVEL']['LOG_ERRORS']) {
             CREO('log', 'Error: ' . $this->message);
+        }
+        
+        static $has_errored;
+        // prevent error from ever looping
+        if ($has_errored) {
+            if (!$GLOBALS['CREOVEL']['CLI']) {
+                // show internal server error
+                include_once CREOVEL_PATH . 'views' . DS . 'layouts' . DS . 'apache_500_error.php';
+            }
+        
+            exit(2);
         }
         
         // check for custom errors
@@ -91,42 +100,31 @@ class ActionErrorHandler extends CObject
                 break;
         }
         
-        // prevent error from looping
-        if (!$has_errored) {
-            $has_errored = true;
-            // if command line show text errors
-            if ($GLOBALS['CREOVEL']['CLI'] || CValidate::ajax()) {
-                // only show erros in dev mode
-                if (CREO('mode') == 'development') {
-                    @header('Content-Type: text/plain; charset=utf-8');
-                    include_once CREOVEL_PATH . 'views' . DS . 'debugger' . DS . 'error_cli.php';
-                }
-            // grace fully handle errors in none devlopment mode
-            } else if (CREO('mode') != 'development') {
-                // get default error events
-                $events = ActionRouter::error();
-                if (isset($action)) $events['action'] = $action;
-                
-                // set params
-                $params = (array) Creovel::params() + array('error' => $this->message, 'exception' => $this->exception);
-                // clean output buffer for application errors
-                @ob_end_clean();
-                Creovel::web($events, $params);
-            } else {
-                // show debugger
-                $this->__debug();
+        $has_errored = true;
+        // if command line show text errors
+        if ($GLOBALS['CREOVEL']['CLI'] || CValidate::ajax()) {
+            // only show erros in dev mode
+            if (CREO('mode') == 'development') {
+                @header('Content-Type: text/plain; charset=utf-8');
+                include_once CREOVEL_PATH . 'views' . DS . 'debugger' . DS . 'error_cli.php';
             }
-            exit(1);
-            die;
+        // grace fully handle errors in none devlopment mode
+        } else if (CREO('mode') != 'development') {
+            // get default error events
+            $events = ActionRouter::error();
+            if (isset($action)) $events['action'] = $action;
+            
+            // set params
+            $params = (array) Creovel::params() + array('error' => $this->message, 'exception' => $this->exception);
+            // clean output buffer for application errors
+            @ob_end_clean();
+            Creovel::web($events, $params);
+        } else {
+            // show debugger
+            $this->__debug();
         }
         
-        if (!$GLOBALS['CREOVEL']['CLI']) {
-            // show internal server error
-            include_once CREOVEL_PATH . 'views' . DS . 'layouts' . DS . 'apache_500_error.php';
-        }
-        
-        exit(2);
-        die;
+        exit(1);
     }
     
     /**

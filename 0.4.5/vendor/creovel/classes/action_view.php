@@ -26,7 +26,7 @@ class ActionView extends CObject
     {
         if (is_file($filename)) {
             ob_start();
-            // create a variable foreach option, using keyas the vairable name
+            // create a variable foreach option, using keys as vairable name
             if (count($options)) foreach ($options as $key => $values) {
                 $$key = $values;
             }

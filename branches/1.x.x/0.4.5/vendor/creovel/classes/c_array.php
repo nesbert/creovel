@@ -15,7 +15,7 @@ class CArray extends CObject implements Iterator
      * 
      * @var array
      **/
-    private $value; 
+    public $value; 
     
     /**
      * Set value.
@@ -24,7 +24,7 @@ class CArray extends CObject implements Iterator
      **/
     public function __construct($value = null)
     {
-        // set value
+        parent::__construct();
         $this->value = (array) $value;
     }
     

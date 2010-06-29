@@ -41,15 +41,22 @@ class Creovel
         define('MONTH',  30 * DAY);
         define('YEAR',  365 * DAY);
         
+        if (!defined('DS')) {
+            define('DS', DIRECTORY_SEPARATOR);
+        }
+        if (!defined('CREOVEL_PATH')) {
+            define('CREOVEL_PATH', dirname(dirname(__FILE__)) . DS);
+        }
+        
         // Include base helper libraries.
-        require_once CREOVEL_PATH . 'helpers/framework.php';
+        require_once CREOVEL_PATH . 'helpers' . DS . 'framework.php';
         
         // Include minimum base classes.
-        require_once CREOVEL_PATH . 'classes/c_object.php';
-        require_once CREOVEL_PATH . 'classes/c_network.php';
-        require_once CREOVEL_PATH . 'classes/c_string.php';
-        require_once CREOVEL_PATH . 'modules/module_base.php';
-        require_once CREOVEL_PATH . 'modules/inflector.php';
+        require_once CREOVEL_PATH . 'classes' . DS . 'c_object.php';
+        require_once CREOVEL_PATH . 'classes' . DS . 'c_network.php';
+        require_once CREOVEL_PATH . 'classes' . DS . 'c_string.php';
+        require_once CREOVEL_PATH . 'modules' . DS . 'module_base.php';
+        require_once CREOVEL_PATH . 'modules' . DS . 'inflector.php';
         
         // Set default mode.
         $GLOBALS['CREOVEL']['MODE'] = 'production';
@@ -65,19 +72,22 @@ class Creovel
         $GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
         
         // Set error handler.
-        require_once CREOVEL_PATH . 'classes/action_error_handler.php';
+        require_once CREOVEL_PATH . 'classes' . DS . 'action_error_handler.php';
         $GLOBALS['CREOVEL']['ERROR'] = new ActionErrorHandler;
         $GLOBALS['CREOVEL']['APPLICATION_ERROR_CODE'] = '';
         $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
         
         // set configuration settings include_once to make it optional
-        @include_once CONFIG_PATH . 'databases.php';
-        @include_once CONFIG_PATH . 'environment.php';
-        @include_once CONFIG_PATH . 'environment' . DS .
-            $GLOBALS['CREOVEL']['MODE'] . '.php';
+        if (defined('CONFIG_PATH')) {
+            include_once CONFIG_PATH . 'databases.php';
+            include_once CONFIG_PATH . 'environment.php';
+            include_once CONFIG_PATH . 'environment' . DS .
+                $GLOBALS['CREOVEL']['MODE'] . '.php';
+        }
                 
         // Include application_helper
-        if (file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
+        if (defined(HELPERS_PATH)
+            && file_exists($helper = HELPERS_PATH . 'application_helper.php')) {
             require_once $helper;
         }
     }

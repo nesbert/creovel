@@ -307,13 +307,13 @@ class ActiveValidation extends CObject
         $message = $message ? $message : $default_message;
         
         // check for fieldname and humanze it
-        if ( CValidate::in_string(self::FIELD_NAME, $message) ) {
+        if ( CString::contains(self::FIELD_NAME, $message) ) {
             $message = str_replace(self::FIELD_NAME,
                         CString::humanize($field), $message);
         }
         
         // check for value and insert it into the message
-        if ( CValidate::in_string(self::VALUE, $message) ) {
+        if ( CString::contains(self::VALUE, $message) ) {
             $message = str_replace(self::VALUE, $value, $message);
         }
         

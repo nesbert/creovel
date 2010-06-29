@@ -132,7 +132,7 @@ class CObject
      * @return void
      * @author John Faircloth
      **/
-    public function debug($obj, $kill = false)
+    public static function debug($obj, $kill = false)
     {
         echo CTag::create('pre', array('class' => 'debug'), "\n".print_r($obj, 1)). "\n";
         if ($kill) die;
@@ -144,7 +144,7 @@ class CObject
      * @return array
      * @author Nesbert Hidalgo
      **/
-    public function user_defined_constants()
+    public static function user_defined_constants()
     {
         $return = get_defined_constants(true);
         return $return['user'];
@@ -156,7 +156,7 @@ class CObject
      * @link http://us.php.net/manual/en/function.get-parent-class.php#57548
      * @return array
      **/
-    public function ancestors($class)
+    public static function ancestors($class)
     {
         $classes = array($class);
         while($class = get_parent_class($class)) { $classes[] = $class; }

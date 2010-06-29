@@ -18,7 +18,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function pluralize($word, $count = null)
+    public static function pluralize($word, $count = null)
     {
         if ($count == 1) return $word;
         return Inflector::pluralize($word);
@@ -31,7 +31,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function singularize($word)
+    public static function singularize($word)
     {
         return Inflector::singularize($word);
     }
@@ -44,7 +44,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function humanize($word, $ucwords = false)
+    public static function humanize($word, $ucwords = false)
     {
         return Inflector::humanize($word, $ucwords);
     }
@@ -57,7 +57,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function camelize($word, $lower_first_char = false)
+    public static function camelize($word, $lower_first_char = false)
     {
         return Inflector::camelize($word, $lower_first_char);
     }
@@ -71,7 +71,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function dasherize($word, $separator = '-')
+    public static function dasherize($word, $separator = '-')
     {
         return Inflector::underscore($word, $separator);
     }
@@ -83,7 +83,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function underscore($word)
+    public static function underscore($word)
     {
         return Inflector::underscore($word);
     }
@@ -95,7 +95,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function classify($word)
+    public static function classify($word)
     {
         return Inflector::classify($word);
     }
@@ -109,7 +109,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function tableize($class_name)
+    public static function tableize($class_name)
     {
         return Inflector::tableize($class_name);
     }
@@ -122,7 +122,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function patherize($class_name)
+    public static function patherize($class_name)
     {
         return Inflector::patherize($class_name);
     }
@@ -141,7 +141,7 @@ class CString extends CObject
      * @return mixed Returns 1 & 2 in to strings passed
      * @author Nesbert Hidalgo
      **/
-    public function cycle($var1 = '', $var2 = '', $reset = false)
+    public static function cycle($var1 = '', $var2 = '', $reset = false)
     {
         static $c;
         if (empty($c) || $reset) $c = 1;
@@ -157,7 +157,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function quote2string($str)
+    public static function quote2string($str)
     {
         return str_replace("\"", "&quot;", $str);
     }
@@ -170,7 +170,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function mask($str, $mask = '*')
+    public static function mask($str, $mask = '*')
     {
         return str_repeat($mask, strlen($str));
     }
@@ -187,7 +187,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function truncate($str, $length = 100, $tail = '...',
+    public static function truncate($str, $length = 100, $tail = '...',
     $strict = false) {
         if (!$strict) $str = trim($str);
 
@@ -217,7 +217,7 @@ class CString extends CObject
      * @return string
      * @author Russ Smith
      **/
-    public function wordwrap_line($s, $l)
+    public static function wordwrap_line($s, $l)
     {
         $tok = strtok($s, " ");
         $formatted = '';
@@ -245,7 +245,7 @@ class CString extends CObject
      * @return float
      * @author Nesbert Hidalgo
      **/
-    public function retrieve_number($str)
+    public static function retrieve_number($str)
     {
         return floatval(preg_replace('/[^0-9.-]/', '', $str));
     }
@@ -271,7 +271,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function ends_with($needle, $haystack)
+    public static function ends_with($needle, $haystack)
     {
         return substr($haystack, -strlen($needle)) == $needle;
     }
@@ -285,7 +285,7 @@ class CString extends CObject
      * @return string
      * @link http://us.php.net/manual/en/function.number-format.php#66895
      **/
-    public function num2words($num, $money = false, $caps = false, $c = 1)
+    public static function num2words($num, $money = false, $caps = false, $c = 1)
     {
         $ZERO = 'zero';
         $MINUS = 'minus';
@@ -383,7 +383,7 @@ class CString extends CObject
      * @return string
      * @link http://www.gamedev.net/community/forums/topic.asp?topic_id=448909
      **/
-    public function escape_string($str)
+    public static function escape_string($str)
     {
         $search = array("\x00",	"\n", "\r", "\\", "'", "\"", "\x1a");
         $replace = array("\\x00", "\\n", "\\r", "\\\\" ,"\'", "\\\"", "\\\x1a");
@@ -408,7 +408,7 @@ class CString extends CObject
      * @author Nesbert Hidalgo
      * @link http://us.php.net/manual/en/function.preg-split.php#95924
      **/ 
-    public function split_words($string, $max = 1) 
+    public static function split_words($string, $max = 1) 
     { 
         $words = preg_split('/\s/', $string); 
         $lines = array(); 
@@ -438,7 +438,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function capitalize($string)
+    public static function capitalize($string)
     {
         return ucfirst($string);
     }
@@ -450,9 +450,9 @@ class CString extends CObject
      * @param string $haystack
      * @return boolean
      **/
-    public function contains($needle, $haystack)
+    public static function contains($needle, $haystack)
     {
-        return CValidate::in_string($needle, $haystack);
+        return !(strpos($haystack, (string) $needle) === false);
     }
     
     /**
@@ -461,7 +461,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function escape_HTML($string)
+    public static function escape_HTML($string)
     {
         return htmlentities($string);
     }
@@ -474,7 +474,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function gsub($string, $pattern, $replace)
+    public static function gsub($string, $pattern, $replace)
     {
         return preg_replace(
                         (CValidate::regex($pattern)
@@ -491,7 +491,7 @@ class CString extends CObject
      * @param string $string
      * @return boolean
      **/
-    public function is_empty($string)
+    public static function is_empty($string)
     {
         return empty($string);
     }
@@ -502,7 +502,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function strip($string)
+    public static function strip($string)
     {
         return trim($string);
     }
@@ -513,7 +513,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function strip_scripts($string, $tag = 'script')
+    public static function strip_scripts($string, $tag = 'script')
     {
         return preg_replace('/<'.$tag.'(|\W[^>]*)>(.*)<\/'. $tag .'>/iusU',
                     '', $string);
@@ -525,7 +525,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function strip_tags($string, $allowed_tags = null)
+    public static function strip_tags($string, $allowed_tags = null)
     {
         return strip_tags($string, $allowed_tags);
     }
@@ -539,7 +539,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function sub($string, $pattern, $replace, $times = 1)
+    public static function sub($string, $pattern, $replace, $times = 1)
     {
         return preg_replace(
                         (CValidate::regex($pattern)
@@ -556,7 +556,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function times($string, $count)
+    public static function times($string, $count)
     {
         return str_repeat($string, $count);
     }
@@ -568,7 +568,7 @@ class CString extends CObject
      * @param string $string
      * @return array
      **/
-    public function to_array($string)
+    public static function to_array($string)
     {
         return preg_split('//', $string, -1, PREG_SPLIT_NO_EMPTY);
     }
@@ -580,7 +580,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function prep_javascript($javascript)
+    public static function prep_javascript($javascript)
     {
         $escape = array(
             "\r\n"  => '\n',
@@ -600,7 +600,7 @@ class CString extends CObject
      * @param string $string
      * @return string
      **/
-    public function unescape_html($string)
+    public static function unescape_html($string)
     {
         return html_entity_decode($string);
     }
@@ -613,7 +613,7 @@ class CString extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function replace_with_array($string, $array)
+    public static function replace_with_array($string, $array)
     {
         return str_replace(array_keys($array), array_values($array), $string);
     }
@@ -627,7 +627,7 @@ class CString extends CObject
      * @param string $allowed_tags
      * @author Nesbert Hidalgo
      **/
-    public function clean($str, $length = 0, $allowed_tags = false)
+    public static function clean($str, $length = 0, $allowed_tags = false)
     {
         // strip or allow only certain tags
         $str = strip_tags($str, (!$allowed_tags ? null : $allowed_tags));

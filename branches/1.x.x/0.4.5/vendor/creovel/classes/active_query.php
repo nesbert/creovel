@@ -457,7 +457,7 @@ class ActiveQuery extends CObject implements Iterator
             }
             
         // 2. array condidtions
-        } elseif (is_array($conditions) && CValidate::in_string('?', $conditions[0])) {
+        } elseif (is_array($conditions) && CString::contains('?', $conditions[0])) {
             $str = array_shift($conditions);
             foreach ($conditions as $v) {
                 $str = preg_replace('/\?/', $this->quote_value($v), $str, 1);
@@ -469,7 +469,7 @@ class ActiveQuery extends CObject implements Iterator
             }
         
         // 3. array with symbols
-        } elseif (is_array($conditions) && CValidate::in_string(':', $conditions[0])) {
+        } elseif (is_array($conditions) && CString::contains(':', $conditions[0])) {
             $str = $conditions[0];
             if (is_array($conditions[1])) foreach ($conditions[1] as $k => $v) {
                 $str = str_replace(':' . $k, $this->quote_value($v), $str);

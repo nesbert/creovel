@@ -26,7 +26,7 @@ class CDirectory extends CObject
      * @author Nesbert Hidalgo
      * @link http://snippets.dzone.com/posts/show/155
      **/
-    public function ls($path, $options = array())
+    public static function ls($path, $options = array())
     {
         // set default options
         if (!is_array($options)) $options = array();
@@ -90,7 +90,7 @@ class CDirectory extends CObject
      * @return array
      * @author Nesbert Hidalgo
      **/
-    public function ls_with_file_name($path, $file_type = 'php', $show_invisibles = false)
+    public static function ls_with_file_name($path, $file_type = 'php', $show_invisibles = false)
     {
         $files = self::ls($path, array(
             'filter' => '/.'.$file_type.'$/',

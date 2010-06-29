@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-abstract class ModuleBase
+abstract class ModuleBase extends CObject
 {
     /**
      * Stop the application and display/handle error.
@@ -24,4 +24,4 @@ abstract class ModuleBase
         CREO('application_error_code', 500);
         CREO('application_error', $msg);
     }
-} // END abstract class ModuleBase
+} // END abstract class ModuleBase extends CObject

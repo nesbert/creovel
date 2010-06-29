@@ -80,7 +80,7 @@ class CData extends CObject
         } catch (Exception $e) {
             
             switch (true) {
-                case CValidate::in_string('Controller', $this->to_string()):
+                case CString::contains('Controller', $this->to_string()):
                     $error_type = 404;
                     break;
                 

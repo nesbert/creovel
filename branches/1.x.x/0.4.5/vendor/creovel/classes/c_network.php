@@ -16,7 +16,7 @@ class CNetwork extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    function ip()
+    public static function ip()
     {
         return @$_SERVER['REMOTE_ADDR'];
     }
@@ -27,7 +27,7 @@ class CNetwork extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    function http()
+    public static function http()
     {
         return 'http'.(self::is_ssl() ? 's' : '').'://';
     }
@@ -38,7 +38,7 @@ class CNetwork extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    function host()
+    public static function host()
     {
         return @$_SERVER['HTTP_HOST'];
     }
@@ -49,7 +49,7 @@ class CNetwork extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    function http_host()
+    public static function http_host()
     {
         return self::http() . self::host();
     }
@@ -60,9 +60,9 @@ class CNetwork extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    function url()
+    public static function url()
     {
-        return self::http_host() . $_SERVER['REQUEST_URI'];
+        return self::http_host() . @$_SERVER['REQUEST_URI'];
     }
 
     /**
@@ -71,7 +71,7 @@ class CNetwork extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    function domain()
+    public static function domain()
     {
         $url = explode('.', self::host());
         $tld = explode(':', $url[count($url) - 1]);
@@ -88,7 +88,7 @@ class CNetwork extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    function tld()
+    public static function tld()
     {
         $url = explode('.', self::domain());
         return isset($url[1]) ? $url[1] : '';
@@ -102,7 +102,7 @@ class CNetwork extends CObject
      * @return integer
      * @author Nesbert Hidalgo
      **/
-    function int_ip($ip = null)
+    public static function int_ip($ip = null)
     {
         if (is_numeric($ip)) return long2ip($ip);
         return sprintf("%u", ip2long($ip ? $ip : self::ip()));
@@ -114,7 +114,7 @@ class CNetwork extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function is_ssl()
+    public static function is_ssl()
     {
         return getenv('HTTPS') == 'on';
     }
@@ -126,7 +126,7 @@ class CNetwork extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function is_ip($ip)
+    public static function is_ip($ip)
     {
         return long2ip(ip2long($ip)) != '0.0.0.0';
     }

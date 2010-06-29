@@ -172,7 +172,7 @@ class ActiveRecord extends CObject implements Iterator
         
         if (count($vars)) foreach ($vars as $var => $vals) {
             switch (true) {
-                case CValidate::in_string('options_for_', $var):
+                case CString::contains('options_for_', $var):
                     $this->{'set_' . $var}($vals);
                     break;
                     
@@ -1087,7 +1087,7 @@ class ActiveRecord extends CObject implements Iterator
                     return $this->return_value($this->association($this->_associations_[$attribute]));
                     break;
                     
-                case CValidate::in_string('options_for_', $attribute) && isset($this->_columns_[$this->field_name_from_str($attribute)]->options):
+                case CString::contains('options_for_', $attribute) && isset($this->_columns_[$this->field_name_from_str($attribute)]->options):
                     return $this->return_value($this->_columns_[$this->field_name_from_str($attribute)]->options);
                     break;
                     

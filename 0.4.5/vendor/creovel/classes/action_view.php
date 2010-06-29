@@ -22,7 +22,7 @@ class ActionView extends CObject
      * @link http://us3.php.net/manual/en/function.include.php Example #6
      * @return string HTML/Text from buffer.
      **/
-    public static function process($filename, $options = null)
+    public function process($filename, $options = null)
     {
         if (is_file($filename)) {
             ob_start();
@@ -46,7 +46,7 @@ class ActionView extends CObject
      * @param array $options - Optional array of display options.
      * @return string Content/HTML used for output.
      **/
-    public static function to_str($view_path, $layout_path, $options = null)
+    public function to_str($view_path, $layout_path, $options = null)
     {
         try {
             // set content data
@@ -108,7 +108,7 @@ class ActionView extends CObject
      * @param array $options - Optional array of display options.
      * @return string Content/HTML printed out to screen.
      **/
-    public static function show($view_path, $layout_path, $options = null)
+    public function show($view_path, $layout_path, $options = null)
     {
         print self::to_str($view_path, $layout_path, $options);
     }

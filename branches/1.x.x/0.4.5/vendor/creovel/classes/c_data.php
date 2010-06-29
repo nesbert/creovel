@@ -204,7 +204,7 @@ class CData extends CObject
      * @link http://us3.php.net/manual/en/function.gettype.php#78381
      * @return string
      **/
-    function type($var = null)
+    public static function type($var = null)
     {
         if (isset($this) && empty($var)) {
             $var = $this->_attribites_->value;
@@ -232,7 +232,7 @@ class CData extends CObject
      * @return mixed
      * @author Nesbert Hidalgo
      **/
-    public function add_slashes($data)
+    public static function add_slashes($data)
     {
         switch (true) {
             // clean data array
@@ -270,7 +270,7 @@ class CData extends CObject
      * @return mixed
      * @author Nesbert Hidalgo
      **/
-    public function strip_slashes($data)
+    public static function strip_slashes($data)
     {
         switch (true) {
             // clean data array
@@ -311,7 +311,7 @@ class CData extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function raw_post()
+    public static function raw_post()
     {
         return trim(file_get_contents('php://input'));
     }

@@ -313,7 +313,7 @@ class ActionMailer extends ActionController
      **/
     private function get_include_contents($filename)
     {
-        return ActionView::include_contents($filename);
+        return ActionView::process($filename);
     }
     
     /**

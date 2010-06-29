@@ -19,7 +19,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function hostname($var)
+    public static function hostname($var)
     {
         return preg_match('/^[A-Za-z0-9-]+([\.A-Za-z0-9-]+)$/', $var)
                 && $var{0} != '-' ? true : false;
@@ -32,7 +32,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function domain($var)
+    public static function domain($var)
     {
         return preg_match('/^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,4})$/', $var)
                 && $var{0} != '-' ? true : false;
@@ -45,7 +45,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function email($var)
+    public static function email($var)
     {
         $var = @explode('@', $var);
         return count($var) == 2
@@ -60,7 +60,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function url($var)
+    public static function url($var)
     {
         $var = @parse_url($var);
         
@@ -76,7 +76,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function alpha($var)
+    public static function alpha($var)
     {
         if (!is_string($var)) return false;
         return preg_match('/^[a-z]+$/i', $var) ? true : false;
@@ -89,7 +89,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function alpha_numeric($var)
+    public static function alpha_numeric($var)
     {
         if (!is_string($var) && !is_numeric($var)) return false;
         return preg_match('/^[a-zA-Z0-9]+$/', $var) ? true : false;
@@ -102,7 +102,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function number($var)
+    public static function number($var)
     {
         if (!is_string($var) && !is_numeric($var)) return false;
         return preg_match('/^[0-9]+?[.]?[0-9]*$/', $var) ? true : false;
@@ -115,7 +115,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function positive_number($var)
+    public static function positive_number($var)
     {
         return self::number($var) && $var > 0;
     }
@@ -128,7 +128,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function match($var1, $var2)
+    public static function match($var1, $var2)
     {
         return $var1 === $var2;
     }
@@ -142,7 +142,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function between($var, $min, $max)
+    public static function between($var, $min, $max)
     {
         return (is_numeric($min) && is_numeric($max))
             && ($var >= $min && $var <= $max);
@@ -156,7 +156,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function length($var, $length)
+    public static function length($var, $length)
     {
         if (is_string($var)) {
            return count(str_split($var)) == $length;
@@ -175,7 +175,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function length_between($var, $min, $max)
+    public static function length_between($var, $min, $max)
     {
         if (is_string($var)) {
             $length = strlen($var);
@@ -194,7 +194,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function regex($var)
+    public static function regex($var)
     {
         @preg_match($var, '', $test);
         return is_array($test);
@@ -207,7 +207,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function even($var)
+    public static function even($var)
     {
         if (!self::number($var)) return false;
         return !self::odd($var);
@@ -220,7 +220,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function odd($var)
+    public static function odd($var)
     {
         if (!self::number($var)) return false;
         return ($var % 2) == 1;
@@ -232,7 +232,7 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function ajax()
+    public static function ajax()
     {
         return ((!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
                 && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) ==
@@ -247,7 +247,7 @@ class CValidate extends CObject
      * @link http://us3.php.net/manual/en/function.is-array.php#85324
      * @return boolean
      **/
-    public function hash($array)
+    public static function hash($array)
     {
         if (is_array($array) == false) {
             return false;
@@ -269,8 +269,8 @@ class CValidate extends CObject
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function in_string($needle, $haystack)
+    public static function in_string($needle, $haystack)
     {
-        return !(strpos($haystack, (string) $needle) === false);
+        return CString::contains($needle, $haystack);
     }
 } // END class CValidate extends CObject

@@ -22,7 +22,7 @@ class ActionView extends CObject
      * @link http://us3.php.net/manual/en/function.include.php Example #6
      * @return string HTML/Text from buffer.
      **/
-    public function include_contents($filename, $options = null)
+    public static function process($filename, $options = null)
     {
         if (is_file($filename)) {
             ob_start();
@@ -37,7 +37,7 @@ class ActionView extends CObject
         }
         return false;
     }
-    
+
     /**
      * Creates the page to be displayed and sets it to the page property.
      *
@@ -46,70 +46,60 @@ class ActionView extends CObject
      * @param array $options - Optional array of display options.
      * @return string Content/HTML used for output.
      **/
-    public function to_str($view_path, $layout_path, $options = null)
+    public static function to_str($view_path, $layout_path, $options = null)
     {
         try {
             // set content data
             $content = isset($options['text']) ? $options['text'] : '';
             $options['render'] = isset($options['render'])
-                                    ? $options['render']
-                                    : '';
+                ? $options['render'] : '';
             $options['layout'] = isset($options['layout'])
-                                    ?
-                                    $options['layout']
-                                    : '';
-            
+                ? $options['layout'] : '';
+
             // grab and set view content
             if ($options['render'] !== false) {
-                
                 if (is_file($view_path)) {
-                    $content .= self::include_contents($view_path, $options);
+                    $content .= self::process($view_path, $options);
                 } else {
                     throw new Exception('Unable to render <em>view</em> '.
                         "not found in <strong>{$view_path}</strong>.");
                 }
-                
             }
-            
+
             // combine content and template. else use content only
             if ($options['layout'] !== false) {
-                
                 if (is_file($layout_path)) {
-                    $layout = self::include_contents($layout_path, $options);
+                    $layout = self::process($layout_path, $options);
                     // allow inline head decalarations with <!--HEADSPLIT-->
                     // in views
                     $parts = explode('<!--HEADSPLIT-->', $content);
                     if (count($parts) == 2) {
                         $layout = CString::replace_with_array(
-                                $layout,
-                                array(
-                                    '</head>' => $parts[0] . '</head>'
-                                    )
-                            );
+                                    $layout,
+                                    array('</head>' => $parts[0] . '</head>')
+                                    );
                         $content = $parts[1];
                     }
                     $page = str_replace(
-                                $GLOBALS['CREOVEL']['PAGE_CONTENTS'],
-                                $content,
-                                $layout
-                                );
+                        $GLOBALS['CREOVEL']['PAGE_CONTENTS'],
+                        $content,
+                        $layout
+                        );
                 } else {
-                    throw new Exception('Unable to render <em>layout</em> '.
+                    throw new Exception('Unable to render <em>layout</em> ' .
                         "not found in <strong>{$layout_path}</strong>.");
                 }
-                
             } else {
                 $page = $content;
             }
-            
+
             return $page;
-            
         } catch ( Exception $e ) {
             CREO('application_error_code', 404);
             CREO('application_error', $e);
         }
     }
-    
+
     /**
      * Print a page view to screen. A wrapper to ActionView::to_str().
      *
@@ -118,7 +108,7 @@ class ActionView extends CObject
      * @param array $options - Optional array of display options.
      * @return string Content/HTML printed out to screen.
      **/
-    public function show($view_path, $layout_path, $options = null)
+    public static function show($view_path, $layout_path, $options = null)
     {
         print self::to_str($view_path, $layout_path, $options);
     }

@@ -170,7 +170,7 @@ class ActiveDatabase extends CObject
         $resource_type = strtolower($resource_type);
         
         switch ($resource_type) {
-            case CValidate::in_string('db2', $resource_type):
+            case CString::contains('db2', $resource_type):
                 return 'db2';
             default:
                 return 'mysql';

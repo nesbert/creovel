@@ -18,7 +18,7 @@ class CLocale extends CObject
      * @return array
      * @author Nesbert Hidalgo
      **/
-    public function countries_array($more_states = false)
+    public static function countries_array($more_states = false)
     {
         if (!$more_states && isset($GLOBALS['CREOVEL']['COUNTRIES'])) {
             return $GLOBALS['CREOVEL']['COUNTRIES'];
@@ -413,7 +413,7 @@ class CLocale extends CObject
      * @return array
      * @author Nesbert Hidalgo
      **/
-    public function countries($us_first = false, $show_abbr = false)
+    public static function countries($us_first = false, $show_abbr = false)
     {
         if ($us_first) {
             $countries = array(
@@ -438,7 +438,7 @@ class CLocale extends CObject
      * @return array
      * @author Nesbert Hidalgo
      **/
-    function states($country = 'US', $show_abbr = false, $more_states = false)
+    public static function states($country = 'US', $show_abbr = false, $more_states = false)
     {
         static $states;
         static $selected;
@@ -468,7 +468,7 @@ class CLocale extends CObject
      * @return void
      * @author Nesbert Hidalgo
      **/
-    public function timezones()
+    public static function timezones()
     {
         if (isset($GLOBALS['CREOVEL']['TIMEZONES'])) {
             return $GLOBALS['CREOVEL']['TIMEZONES'];

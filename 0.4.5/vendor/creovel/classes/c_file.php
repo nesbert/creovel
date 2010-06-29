@@ -17,7 +17,7 @@ class CFile extends CObject
      * @link http://us2.php.net/manual/hk/function.filesize.php#64387
      * @return string
      **/
-    function size($file_or_size)
+    public static function size($file_or_size)
     {
         $iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
         $size = is_numeric($file_or_size) ? $file_or_size : @filesize($file_or_size);
@@ -36,7 +36,7 @@ class CFile extends CObject
      * @link http://us.php.net/manual/en/function.finfo-open.php#78927
      * @return string
      **/
-    function mime_type($filepath)
+    public static function mime_type($filepath)
     {
         ob_start();
         system("file -i -b {$filepath}");

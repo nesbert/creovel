@@ -124,7 +124,7 @@ class Inflector extends ModuleBase
      * @link http://kuwamoto.org/2007/12/17/improved-pluralizing-in-php-actionscript-and-ror/
      * @return string
      **/
-    public function pluralize($string)
+    public static function pluralize($string)
     {
         // save some time in the case that singular and plural are the same
         if ( in_array( strtolower( $string ), self::$uncountable ) )
@@ -156,7 +156,7 @@ class Inflector extends ModuleBase
      * @link http://kuwamoto.org/2007/12/17/improved-pluralizing-in-php-actionscript-and-ror/
      * @return string
      **/
-    public function singularize($string)
+    public static function singularize($string)
     {
         // save some time in the case that singular and plural are the same
         if ( in_array( strtolower( $string ), self::$uncountable ) )
@@ -193,7 +193,7 @@ class Inflector extends ModuleBase
      * first character. Otherwise it will uppercase all the words in the title.
      * @return string
      **/
-    public function titleize($word, $uppercase = '')
+    public static function titleize($word, $uppercase = '')
     {
         $uppercase = $uppercase == 'first' ? 'ucfirst' : 'ucwords';
         return $uppercase(self::humanize(self::underscore($word)));
@@ -208,7 +208,7 @@ class Inflector extends ModuleBase
      * @param string $lowercamel
      * @return string
      **/
-    public function camelize($word, $lowercamel = false)
+    public static function camelize($word, $lowercamel = false)
     {
         $word = str_replace(' ', '', ucwords(preg_replace('/[^A-Z^a-z^0-9]+/',' ',$word)));
         if ($lowercamel) {
@@ -227,7 +227,7 @@ class Inflector extends ModuleBase
      * @param string $sep Default separator is an underscore ("_").
      * @return string
      **/
-    public function underscore($word, $sep = '_')
+    public static function underscore($word, $sep = '_')
     {
         return strtolower(
                 preg_replace('/[^A-Z^a-z^0-9]+/', $sep,
@@ -245,7 +245,7 @@ class Inflector extends ModuleBase
      * @param boolean $ucwords
      * @return string
      **/
-    public function humanize($word, $ucwords = false)
+    public static function humanize($word, $ucwords = false)
     {
         $ucwords = $ucwords ? 'ucwords' : 'ucfirst';
         return $ucwords(str_replace('_',' ',preg_replace('/_id$/', '',$word)));
@@ -260,7 +260,7 @@ class Inflector extends ModuleBase
      * @see camelize()
      * @return string
      **/
-    public function variablize($word)
+    public static function variablize($word)
     {
         return self::camelize($word, 1);
     }
@@ -286,7 +286,7 @@ class Inflector extends ModuleBase
      * @see tableize()
      * @return string
      **/
-    public function classify($table_name)
+    public static function classify($table_name)
     {
         return self::camelize(self::singularize($table_name));
     }
@@ -299,7 +299,7 @@ class Inflector extends ModuleBase
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function ordinalize($number)
+    public static function ordinalize($number)
     {
         if (in_array((intval($number) % 100),range(11,13))){
             return $number.'th';
@@ -328,7 +328,7 @@ class Inflector extends ModuleBase
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function patherize($class_name)
+    public static function patherize($class_name)
     {
         if (!(strpos($class_name, '_') === false)) {
             $folders = explode('_', $class_name);

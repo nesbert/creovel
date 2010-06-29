@@ -1505,7 +1505,7 @@ function str_replace_array($string, $array)
  **/
 function in_string($needle, $haystack)
 {
-    return CValidate::in_string($needle, $haystack);
+    return CString::contains($needle, $haystack);
 }
 
 /**

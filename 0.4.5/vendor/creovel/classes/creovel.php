@@ -16,7 +16,7 @@ class Creovel
      *
      * @return void
      **/
-    public function init()
+    public static function init()
     {
         if (defined('CREOVEL_VERSION')) return;
         
@@ -48,7 +48,6 @@ class Creovel
         require_once CREOVEL_PATH . 'classes/c_object.php';
         require_once CREOVEL_PATH . 'classes/c_network.php';
         require_once CREOVEL_PATH . 'classes/c_string.php';
-        require_once CREOVEL_PATH . 'classes/c_validate.php';
         require_once CREOVEL_PATH . 'modules/module_base.php';
         require_once CREOVEL_PATH . 'modules/inflector.php';
         
@@ -56,6 +55,14 @@ class Creovel
         $GLOBALS['CREOVEL']['MODE'] = 'production';
         $GLOBALS['CREOVEL']['CLI'] = empty($_SERVER['DOCUMENT_ROOT']);
         $GLOBALS['CREOVEL']['BUFFER_HEADER'] = true;
+        $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
+        $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
+        $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
+        $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
+        $GLOBALS['CREOVEL']['SESSION'] = false;
+        $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
+        $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
+        $GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
         
         // Set error handler.
         require_once CREOVEL_PATH . 'classes/action_error_handler.php';
@@ -63,18 +70,6 @@ class Creovel
         $GLOBALS['CREOVEL']['APPLICATION_ERROR_CODE'] = '';
         $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = array();
         
-        // Set default WEB creovel global vars.
-        if (!$GLOBALS['CREOVEL']['CLI']) {
-            $GLOBALS['CREOVEL']['PAGE_CONTENTS'] = '@@page_contents@@';
-            $GLOBALS['CREOVEL']['SESSION'] = false;
-            $GLOBALS['CREOVEL']['VIEW_EXTENSION'] = 'html';
-            $GLOBALS['CREOVEL']['VIEW_EXTENSION_APPEND'] = false;
-            $GLOBALS['CREOVEL']['DEFAULT_CONTROLLER'] = 'index';
-            $GLOBALS['CREOVEL']['DEFAULT_ACTION'] = 'index';
-            $GLOBALS['CREOVEL']['DEFAULT_LAYOUT'] = 'default';
-            $GLOBALS['CREOVEL']['SHOW_SOURCE'] = false;
-        }
-            
         // set configuration settings include_once to make it optional
         @include_once CONFIG_PATH . 'databases.php';
         @include_once CONFIG_PATH . 'environment.php';
@@ -93,7 +88,7 @@ class Creovel
      *
      * @return void
      **/
-    public function web($events = null, $params = null, $return_as_str = false)
+    public static function web($events = null, $params = null, $return_as_str = false, $execute = true)
     {
         try {
             self::init();
@@ -106,33 +101,38 @@ class Creovel
             // ignore certain requests
             self::ignore_check();
             
+            // if global_xss_filtering is enabled
+            if (!empty($GLOBALS['CREOVEL']['GLOBAL_XSS_FILTERING'])) {
+                if (empty($GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'])) {
+                    $xss_func = 'CArray::clean';
+                } else {
+                    $xss_func = $GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'];
+                }
+                // filter COOKIE, GET, POST, SERVER
+                $_COOKIE = $xss_func($_COOKIE);
+                $_GET = $xss_func($_GET);
+                $_POST = $xss_func($_POST);
+                $_SERVER = $xss_func($_SERVER);
+            }
+            
             // initialize web for web appliocations only run once
             static $initialized;
             if (empty($initialized)) {
                 
-                // Set routing defaults
-                $GLOBALS['CREOVEL']['ROUTING'] = @parse_url(CNetwork::url());
-                $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
-                $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
-                
-                // if global_xss_filtering is enabled
-                if (!empty($GLOBALS['CREOVEL']['GLOBAL_XSS_FILTERING'])) {
-                    if (empty($GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'])) {
-                        $xss_func = 'CArray::clean';
-                    } else {
-                        $xss_func = $GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'];
-                    }
-                    // filter COOKIE, GET, POST, SERVER
-                    $_COOKIE = $xss_func($_COOKIE);
-                    $_GET = $xss_func($_GET);
-                    $_POST = $xss_func($_POST);
-                    $_SERVER = $xss_func($_SERVER);
-                }
-                
-                // set additional routing options
+                // Set framework dispatch file
                 if (empty($GLOBALS['CREOVEL']['DISPATCHER'])) {
                     $GLOBALS['CREOVEL']['DISPATCHER'] = basename($_SERVER['PHP_SELF']);
                 }
+                
+                // Set routing defaults
+                $GLOBALS['CREOVEL']['ROUTING'] = @parse_url(CNetwork::url());
+                if (!$GLOBALS['CREOVEL']['ROUTING']) {
+                    $GLOBALS['CREOVEL']['ROUTING']['path'] = null;
+                }
+                $GLOBALS['CREOVEL']['ROUTING']['current'] = array();
+                $GLOBALS['CREOVEL']['ROUTING']['routes'] = array();
+                
+                // set additional routing options
                 $GLOBALS['CREOVEL']['ROUTING']['base_path'] = self::base_path();
                 $GLOBALS['CREOVEL']['ROUTING']['base_url'] = self::base_url();
                 
@@ -155,6 +155,8 @@ class Creovel
                 
                 $initialized = true;
             } // end if (empty($initialized))
+            
+            if (!$execute) return;
             
             // set event and params
             $events = is_array($events) ? $events : self::events();
@@ -219,7 +221,7 @@ class Creovel
      *
      * @return void
      **/
-    public function cli()
+    public static function cli()
     {
         self::init();
         
@@ -240,7 +242,7 @@ class Creovel
             $params = array();
             foreach ($argv as $k => $v) {
                 if (!$k) continue;
-                if (CValidate::in_string(':', $v)) {
+                if (CString::contains(':', $v)) {
                     $v  = explode(':', $v);
                     $params[$v[0]] = $v[1];
                 } else if (CString::starts_with('-', $v)) {
@@ -267,7 +269,7 @@ class Creovel
      *
      * @return void
      **/
-    public function main($force_cli = false)
+    public static function main($force_cli = false)
     {
         self::init();
         
@@ -286,7 +288,7 @@ class Creovel
      *
      * @return void
      **/
-    public function run()
+    public static function run()
     {
         self::main();
     }
@@ -299,7 +301,7 @@ class Creovel
      * @param string $route_name Get events for specific route.
      * @return mixed 
      **/
-    public function events($event_to_return = null, $uri = null, $route_name = '')
+    public static function events($event_to_return = null, $uri = null, $route_name = '')
     {
         $events = ActionRouter::events($uri, $route_name);
         return $event_to_return ? $events[$event_to_return] : $events;
@@ -312,7 +314,7 @@ class Creovel
      * @param string $uri
      * @return mixed 
      **/
-    public function params($param_to_return = null, $uri = null)
+    public static function params($param_to_return = null, $uri = null)
     {
         $params = array_merge($_GET, $_POST, (array) ActionRouter::params($uri));
         return $param_to_return ? $params[$param_to_return] : $params;
@@ -324,7 +326,7 @@ class Creovel
      * @param string $controller_path Server path of controller to include.
      * @return void 
      **/
-    public function include_controller($controller_path)
+    public static function include_controller($controller_path)
     {
         try {
             // include application controller
@@ -367,13 +369,14 @@ class Creovel
      *
      * @return string
      **/
-    public function base_path()
+    public static function base_path()
     {
         $pattern = str_replace(
                     array('\\', '/public/' . $GLOBALS['CREOVEL']['DISPATCHER'], '/'),
                     array('/', '', '\/'),
                     $_SERVER['SCRIPT_NAME']
                     );
+        if (empty($GLOBALS['CREOVEL']['ROUTING']['path'])) $GLOBALS['CREOVEL']['ROUTING']['path'] = '/';
         return preg_replace('/^'.$pattern.'/', '', str_replace('/public/'. $GLOBALS['CREOVEL']['DISPATCHER'], '', $GLOBALS['CREOVEL']['ROUTING']['path']));
     }
     
@@ -382,15 +385,15 @@ class Creovel
      *
      * @return string
      **/
-    public function base_url()
+    public static function base_url()
     {
         $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
         if ( (!$GLOBALS['CREOVEL']['ROUTING']['base_path']
             || $GLOBALS['CREOVEL']['ROUTING']['base_path'] == '/')
-            && CValidate::in_string($script, CNetwork::url()) ) {
+            && CString::contains($script, CNetwork::url()) ) {
             return $script . '/';
         } else {
-            if (CValidate::in_string($script, CNetwork::url())) {
+            if (CString::contains($script, CNetwork::url())) {
                 $p = explode($GLOBALS['CREOVEL']['ROUTING']['base_path'],
                         CNetwork::url());
                 return str_replace(CNetwork::http_host(), '', $p[0] . '/');
@@ -405,11 +408,11 @@ class Creovel
      *
      * @return void
      **/
-    public function ignore_check()
+    public static function ignore_check()
     {
         switch (true) {
-            case CValidate::in_string('favicon.ico', $_SERVER['REQUEST_URI']):
-            case CValidate::in_string('robots.txt', $_SERVER['REQUEST_URI']):
+            case @CString::contains('favicon.ico', $_SERVER['REQUEST_URI']):
+            case @CString::contains('robots.txt', $_SERVER['REQUEST_URI']):
                 exit(0);
                 break;
         }
@@ -504,7 +507,7 @@ class Creovel
                     if (file_exists($path)) break;
 
                 case (true):
-                    $type = CValidate::in_string('Mailer', $class) ? 'Mailer' : 'Model';
+                    $type = CString::contains('Mailer', $class) ? 'Mailer' : 'Model';
                     $path = MODELS_PATH . $class . '.php';
                     if (file_exists($path)) break;
 

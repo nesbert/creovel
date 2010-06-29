@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.5
  * @author      Nesbert Hidalgo
  **/
-class CTag extends CObject
+class CTag extends CString
 {
     /**
      * Base function used to create the different types of HTML tags.
@@ -19,7 +19,7 @@ class CTag extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function create($name, $html_options = null, $content = null)
+    public static function create($name, $html_options = null, $content = null)
     {
         $name = strtolower(trim($name));
         $no_end_tag = false;
@@ -47,7 +47,7 @@ class CTag extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function attributes($html_options)
+    public static function attributes($html_options)
     {
         $options_str = '';
         if (is_array($html_options)){
@@ -85,7 +85,7 @@ class CTag extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function stylesheet_include($url, $media = 'screen')
+    public static function stylesheet_include($url, $media = 'screen')
     {
         $html_options = array(
             'rel' => 'stylesheet',
@@ -100,7 +100,7 @@ class CTag extends CObject
 
         $return = '';
         if (is_array($url)) foreach ($url as $path) {
-            $file = CValidate::in_string('.css', $path) ? $path : CSS_URL . $path . '.css';
+            $file = self::contains('.css', $path) ? $path : CSS_URL . $path . '.css';
             $return .= self::stylesheet_include($file, $media) . "\n";
         }
         return $return ? $return : self::create('link', $html_options);
@@ -113,7 +113,7 @@ class CTag extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function javascript($script = '', $html_options = array())
+    public static function javascript($script = '', $html_options = array())
     {
         $html_options['type'] = 'text/javascript';
         return self::create('script', $html_options, $script);
@@ -126,7 +126,7 @@ class CTag extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function javascript_include($url, $html_options = array())
+    public static function javascript_include($url, $html_options = array())
     {
         $return = '';
         if (is_array($url)) foreach ($url as $path) {
@@ -154,7 +154,7 @@ class CTag extends CObject
      * @return void
      * @author Nesbert Hidalgo
      **/
-    public function link_to($link_title = 'Goto', $controller = '',
+    public static function link_to($link_title = 'Goto', $controller = '',
     $action = '', $id = '', $html_options = null) {
         // set href
         $html_options['href'] = @$html_options['href']
@@ -180,7 +180,7 @@ class CTag extends CObject
      * @return void
      * @author Nesbert Hidalgo
      **/
-    public function link_to_url($link_title = 'Goto', $url = '#',
+    public static function link_to_url($link_title = 'Goto', $url = '#',
     $html_options = null) {
         $html_options['href'] = $url;
         return self::link_to($link_title, null, null, null, $html_options);
@@ -199,7 +199,7 @@ class CTag extends CObject
      * @return void
      * @author Nesbert Hidalgo
      **/
-    public function link_to_google_maps($link_title = 'Google Maps&trade;',
+    public static function link_to_google_maps($link_title = 'Google Maps&trade;',
     $address, $html_options = null) {
         $url = urlencode(strip_tags(str_replace(array(',', '.', '<br>', '<br />', '<br/>'), array('', '', ' ', ' ', ' '), $address)));
         $url .= isset($html_options['title']) ? '+('.urlencode($html_options['title']).')' : '';
@@ -218,10 +218,10 @@ class CTag extends CObject
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function mail_to($email, $link_title = null, $html_options = null)
+    public static function mail_to($email, $link_title = null, $html_options = null)
     {
         $html_options['href'] = 'mailto:' . $email;
         return self::link_to(($link_title ? $link_title : $email ),
                 null, null, null, $html_options);
     }
-} // END class CTag extends CObject
+} // END class CTag extends CString

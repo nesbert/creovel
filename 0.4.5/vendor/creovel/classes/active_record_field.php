@@ -91,17 +91,6 @@ class ActiveRecordField extends CObject
     }
     
     /**
-     * Return a loaded object of ActiveRecordField.
-     *
-     * @param object $attributes
-     * @return object ActiveRecordField
-     **/
-    public function object($attributes)
-    {
-        return new ActiveRecordField($attributes);
-    }
-    
-    /**
      * Set values by an object.
      *
      * @param object $attributes
@@ -109,6 +98,9 @@ class ActiveRecordField extends CObject
      **/
     public function init_with_object($attributes = stdClass)
     {
+        if (empty($attributes->adapter_type)
+            || !is_object($attributes)) return false;
+        
         switch (strtolower($attributes->adapter_type)) {
             case 'db2':
                 $this->type = $attributes->TYPE_NAME;
@@ -147,7 +139,7 @@ class ActiveRecordField extends CObject
                 $attributes->type = trim(str_replace(
                             array('unsigned'), '', $attributes->type));
                             
-                if (CValidate::in_string('(', $attributes->type)) {
+                if (CString::contains('(', $attributes->type)) {
                     $this->type = strtoupper(preg_replace('/(\w+)\((.*)\)/i', '${1}', $attributes->type));
                     $this->size = preg_replace('/(\w+)\((.*)\)/i', '${2}', $attributes->type);
                 } else {
@@ -186,6 +178,9 @@ class ActiveRecordField extends CObject
      **/
     public function init_with_array($attributes = array())
     {
+        if (empty($attributes['type'])
+            || !is_array($attributes)) return false;
+            
         $this->type = $attributes['type'];
         
         if (!empty($attributes['size'])) {
@@ -202,14 +197,39 @@ class ActiveRecordField extends CObject
             unset($this->key_name);
         }
         
-        if (!empty($attributes['identity'])) {
-            $this->is_identity = true;
-        } else {
-            unset($this->is_identity);
+        if (isset($attributes['extra'])) {
+            if ($attributes['extra'] == 'auto_increment') {
+                $this->is_identity = true;
+            } else {
+                unset($this->is_identity);
+            }
+        } elseif (isset($attributes['is_identity'])) {
+            if (!empty($attributes['identity'])) {
+                $this->is_identity = true;
+            } else {
+                unset($this->is_identity);
+            }
         }
                 
-        $this->null = @$attributes['null'];
+        if (isset($attributes['null'])) {
+            $this->null = $attributes['null'] == 'YES' || $attributes['null'] == true
+                            ? true : false; 
+        } else {
+            $this->null = false;
+        }
+        
         $this->default = @$attributes['default'];
         $this->value = $this->default;
+    }
+    
+    /**
+     * Return a loaded object of ActiveRecordField.
+     *
+     * @param object $attributes
+     * @return object ActiveRecordField
+     **/
+    public static function object($attributes)
+    {
+        return new ActiveRecordField($attributes);
     }
 } // END class ActiveRecordField extends CObject

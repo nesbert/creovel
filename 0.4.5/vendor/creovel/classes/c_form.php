@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.4.5
  * @author      Nesbert Hidalgo
  **/
-class CForm extends CObject
+class CForm extends CTag
 {
     /**
      * Formats user[name] to user_name.
@@ -36,7 +36,7 @@ class CForm extends CObject
     public function add_error($field_name, $message = null)
     {
         $GLOBALS['CREOVEL']['VALIDATION_ERRORS'][self::name_to_id($field_name)] =
-            $message ? $message : CString::humanize($field_name) . ' is invalid.';
+            $message ? $message : self::humanize($field_name) . ' is invalid.';
     }
 
     /**
@@ -125,7 +125,7 @@ class CForm extends CObject
 
         if ($errors_count) foreach ($errors_array as $field => $message) {
             if ( $message == 'no_message') continue;
-            $li_str .= CTag::create('li', null, $message) . "\n";
+            $li_str .= self::create('li', null, $message) . "\n";
         }
 
         if ($errors_count) {
@@ -135,7 +135,7 @@ class CForm extends CObject
                 $default_title = "{$errors_count} error" .
                 ($errors_count == 1 ? ' has' : 's have') .
                 " prohibited this " . 
-                (isset($model) ? CString::humanize($model) : 'Form' ) . 
+                (isset($model) ? self::humanize($model) : 'Form' ) . 
                 " from being saved.";
             }
             $title = $title ? $title : $default_title;
@@ -208,7 +208,7 @@ class CForm extends CObject
             );
         
 
-        return str_replace('</form>', '', CTag::create(
+        return str_replace('</form>', '', self::create(
                 'form',
                 $html_options
                 )) . "\n" . $obj_id_str;
@@ -253,7 +253,7 @@ class CForm extends CObject
             $input['value'] = $tag_value;
             if ( $value == $tag_value ) $html_options['checked'] = 'checked';
         }
-        return CTag::create('input', array_merge($input, (array) $html_options)) .
+        return self::create('input', array_merge($input, (array) $html_options)) .
                 ($text ? ' ' . $text : '') . "\n";
     }
 
@@ -381,7 +381,7 @@ class CForm extends CObject
     {
         $textarea['id'] = self::name_to_id($name);
         $textarea['name'] = $name;
-        return CTag::create('textarea', array_merge($textarea, (array) $html_options), $value). "\n";
+        return self::create('textarea', array_merge($textarea, (array) $html_options), $value). "\n";
     }
 
     /**
@@ -415,10 +415,10 @@ class CForm extends CObject
         if (!$title) {
             $args = explode('[', $name);
             $title = str_replace(']', '', end($args));
-            $title = CString::humanize($title);
+            $title = self::humanize($title);
         }
         $html_options['for'] = self::name_to_id($name);
-        return CTag::create('label', $html_options, $title) . "\n";
+        return self::create('label', $html_options, $title) . "\n";
     }
 
     /**
@@ -445,7 +445,7 @@ class CForm extends CObject
         if (count($choices)) {
 
             if ($have_none) {
-                $content .= CTag::create('option', array('value' => ''),
+                $content .= self::create('option', array('value' => ''),
                                 $none_title)."\n";
             }
 
@@ -460,11 +460,11 @@ class CForm extends CObject
                     }
 
                     $html_options = is_array($select_options) ? array('value' => $value) + (array) $select_options : array('value' => $value);
-                    $content .= CTag::create('option', $html_options, ($description ? $description : $value))."\n";
+                    $content .= self::create('option', $html_options, ($description ? $description : $value))."\n";
 
                 } else {
 
-                    if (CValidate::in_string('optgroup:', $value)) {
+                    if (self::contains('optgroup:', $value)) {
 
                         $group = "\n";
 
@@ -476,10 +476,10 @@ class CForm extends CObject
                             }
 
                             $html_options = is_array($select_options) ? array('value' => $value2) + (array) $select_options : array('value' => $value2);
-                            $group .= CTag::create('option', $html_options, ($description2 ? $description2 : $value2))."\n";
+                            $group .= self::create('option', $html_options, ($description2 ? $description2 : $value2))."\n";
                         }
 
-                        $content .= CTag::create('optgroup', array('label' => str_replace('optgroup:', '', $value)), $group)."\n";
+                        $content .= self::create('optgroup', array('label' => str_replace('optgroup:', '', $value)), $group)."\n";
 
                     }
 
@@ -488,11 +488,11 @@ class CForm extends CObject
 
         } else {
 
-            $content .= CTag::create('option', array('value' => ''), $none_title);
+            $content .= self::create('option', array('value' => ''), $none_title);
 
         }
 
-        $out = CTag::create('select', $og_options, $content);
+        $out = self::create('select', $og_options, $content);
 
         return $out ."\n";
     }
@@ -547,7 +547,7 @@ class CForm extends CObject
             $html = self::select($name, $selected, $state_arr, $html_options);
         }
 
-        return CTag::create('span', array('id' => $name . '-wrap'), $html)."\n";
+        return self::create('span', array('id' => $name . '-wrap'), $html)."\n";
     }
 
     /**
@@ -586,7 +586,7 @@ class CForm extends CObject
             static $included;
             if (empty($included)) {
                 // include JS view
-                $return .= "\n" . ActionView::include_contents(
+                $return .= "\n" . ActionView::process(
                     CREOVEL_PATH . 'views' . DS . 'layouts' . DS .
                         '_states_dropdown_js.php',
                     array(
@@ -794,16 +794,16 @@ class CForm extends CObject
 
         }
 
-        $return = "<div". CTag::attributes($html_options) .">\n";
+        $return = "<div". self::attributes($html_options) .">\n";
 
         if ( count($choices) ) {
 
             $class_temp = isset($label_options['class']) ? $label_options['class'] : '';
 
             foreach( $choices as $value => $desc ) {
-                $label_options['class'] = $class_temp . ( CValidate::in_string('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . CString::cycle('row-1', 'row-2');
+                $label_options['class'] = $class_temp . ( self::contains('class="sub"', $desc) ? '_sub' : '' ) . ' row ' . self::cycle('row-1', 'row-2');
                 $label_options['for'] = self::name_to_id($name) . '_' . $value;
-                $return .= "<label ".CTag::attributes($label_options).">\n";
+                $return .= "<label ".self::attributes($label_options).">\n";
                 $return .= self::input($type, $name, in_array($value, $selected), $box_html_options, $value, $desc);
                 $return .= "</label>\n";        
             }
@@ -833,4 +833,4 @@ class CForm extends CObject
     {
         return self::checkbox_select($name, $selected, $choices, $html_options, $none_title, $have_none, 'radio');
     }
-} // END class CForm extends CObject
+} // END class CForm extends CTag

@@ -18,7 +18,7 @@ class CDate extends CObject
      * @return string Date and time stamp "1979-03-06 05:55:55".
      * @author Nesbert Hidalgo
      **/
-    public function datetime($datetime = null)
+    public static function datetime($datetime = null)
     {
         switch (true) {
             case empty($datetime):
@@ -68,7 +68,7 @@ class CDate extends CObject
      * @return integer
      * @author John Faircloth
      **/
-    public function gmtime()
+    public static function gmtime()
     {
         return strtotime(gmdate('Y-m-d H:i:s'));
     }
@@ -81,7 +81,7 @@ class CDate extends CObject
      * @return string Date and time stamp.
      * @author Nesbert Hidalgo
      **/
-    public function gmdatetime($datetime = null)
+    public static function gmdatetime($datetime = null)
     {
         return gmdate('Y-m-d H:i:s', ($datetime
                                         ? strtotime(self::datetime($datetime))
@@ -97,7 +97,7 @@ class CDate extends CObject
      * @return string
      * @author Nesbert Hidalgo 
      **/
-    public function time_ago($time)
+    public static function time_ago($time)
     { 
         if (empty($time)) return false;
         
@@ -151,7 +151,7 @@ class CDate extends CObject
      * @return Array
      * @author Nesbert Hidalgo
      **/
-    public function date_range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
+    public static function date_range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
     {
         $start = strtotime(self::datetime($start));
         $end = strtotime(self::datetime($end));

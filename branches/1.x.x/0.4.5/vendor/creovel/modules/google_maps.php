@@ -149,6 +149,7 @@ class GoogleMaps extends ModuleBase
      **/
     public function __construct($key = null, $id = null)
     {
+        parent::__construct();
         // set API key
         $this->key = $key;
         // set map ID

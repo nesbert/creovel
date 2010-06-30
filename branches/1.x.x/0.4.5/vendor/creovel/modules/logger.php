@@ -39,6 +39,7 @@ class Logger extends ModuleBase
      **/
     public function __construct($filename = '')
     {
+        parent::__construct();
         $this->filename = $filename;
     }
     

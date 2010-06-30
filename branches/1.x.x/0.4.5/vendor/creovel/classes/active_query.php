@@ -27,6 +27,8 @@ class ActiveQuery extends CObject implements Iterator
      **/
     public function __construct($connection_properties = null)
     {
+        parent::__construct();
+        
         if (!empty($connection_properties)) {
             $this->__db = new ActiveDatabase($connection_properties);
         }

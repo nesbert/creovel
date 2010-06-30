@@ -35,6 +35,7 @@ class DatabaseFile extends ModuleBase
      **/
     public function __construct($file = null)
     {
+        parent::__construct();
         if ($file) $this->load($file);
     }
     

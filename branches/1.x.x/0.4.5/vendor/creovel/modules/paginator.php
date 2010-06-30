@@ -102,6 +102,7 @@ class Paginator extends ModuleBase
      **/
     public function __construct($data = null)
     {
+        parent::__construct();
         $this->set_properties($data);
     }
     

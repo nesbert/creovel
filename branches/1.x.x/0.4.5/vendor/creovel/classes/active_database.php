@@ -32,6 +32,8 @@ class ActiveDatabase extends CObject
      **/
     public function __construct($db_properties = null)
     {
+        parent::__construct();
+        
         if (!empty($db_properties)) {
             $this->connect($db_properties);
         }

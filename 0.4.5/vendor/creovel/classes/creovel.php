@@ -161,7 +161,9 @@ class Creovel
                             ));
                 
                 // Include custom routes
-                require_once CONFIG_PATH . 'routes.php';
+                if (defined('CONFIG_PATH')) {
+                    require_once CONFIG_PATH . 'routes.php';
+                }
                 
                 $initialized = true;
             } // end if (empty($initialized))

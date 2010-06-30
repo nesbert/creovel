@@ -31,6 +31,8 @@ class ActiveSession extends CObject
      **/
     public function __construct()
     {
+        parent::__construct();
+        
         ini_set('session.save_handler', 'user');
         
         session_set_save_handler(

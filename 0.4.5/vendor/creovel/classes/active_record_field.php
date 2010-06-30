@@ -81,6 +81,8 @@ class ActiveRecordField extends CObject
      **/
     public function __construct($attributes = null)
     {
+        parent::__construct();
+        
         if (is_array($attributes)) {
             $this->init_with_array($attributes);
         }

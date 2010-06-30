@@ -13,6 +13,7 @@ if (PHP <= '5.1.2') {
     function __autoload($class) { Creovel::autoload($class); }
 } else {
     spl_autoload_register(array('Creovel', 'autoload'));
+    if (function_exists('__autoload')) spl_autoload_register('__autoload');
 }
 
 /**

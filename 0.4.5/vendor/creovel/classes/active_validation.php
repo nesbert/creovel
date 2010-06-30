@@ -32,6 +32,8 @@ class ActiveValidation extends CObject
      **/
     public function __construct(&$errors = null)
     {
+        parent::__construct();
+        
         if ($errors) {
             $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = $errors;
         }

@@ -149,6 +149,7 @@ class GoogleMaps extends ModuleBase
      **/
     public function __construct($key = null, $id = null)
     {
+        parent::__construct();
         // set API key
         $this->key = $key;
         // set map ID
@@ -193,8 +194,8 @@ class GoogleMaps extends ModuleBase
     public function display_map($html_options = null)
     {
         static $shown;
-        if ( !in_string('px', $this->width) && !in_string('%', $this->width) ) $this->width .= 'px';
-        if ( !in_string('px', $this->height) && !in_string('%', $this->height) ) $this->height .= 'px';
+        if ( !CString::contains('px', $this->width) && !CString::contains('%', $this->width) ) $this->width .= 'px';
+        if ( !CString::contains('px', $this->height) && !CString::contains('%', $this->height) ) $this->height .= 'px';
         $html_options['style'] = "width:{$this->width}; height:{$this->height}; " . $html_options['style'];
         ?>
 <?=$this->include_api()?>
@@ -277,7 +278,7 @@ if ( GBrowserIsCompatible() ) {
 <?=$this->_display_warning_if_not_compatible()?>
 //]]>
 </script>
-<div id="<?=$this->id?>"<?=html_options_str($html_options)?>></div>
+<div id="<?=$this->id?>"<?=CTag::attributes($html_options)?>></div>
         <?
         $shown++;
     }
@@ -586,7 +587,7 @@ if ( GBrowserIsCompatible() ) {
     
     public function gpoint($x, $y = null)
     {
-        if ( in_string(',', $x) ) {
+        if ( CString::contains(',', $x) ) {
             $temp = explode(',', $x);
             $x = $temp[0];
             $y = $temp[1];
@@ -617,7 +618,7 @@ if ( GBrowserIsCompatible() ) {
     
     public function gsize($width, $height = null)
     {
-        if ( in_string(',', $width) ) {
+        if ( CString::contains(',', $width) ) {
             $temp = explode(',', $width);
             $width = $temp[0];
             $height = $temp[1];

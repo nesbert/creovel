@@ -22,7 +22,7 @@ class Logger extends ModuleBase
      *
      * @var integer
      **/
-    public $filesize_limit = 104857600;
+    public $filesize_limit = 10485760; // 10 MBs
     
     /**
      * Flag to include time stamp in logs.
@@ -39,6 +39,7 @@ class Logger extends ModuleBase
      **/
     public function __construct($filename = '')
     {
+        parent::__construct();
         $this->filename = $filename;
     }
     
@@ -57,7 +58,7 @@ class Logger extends ModuleBase
             $this->partition($this->filename);
         }
         
-        $message = ($this->timestamp ? '[' . datetime() . '] ' : '') .
+        $message = ($this->timestamp ? '[' . CDate::datetime() . '] ' : '') .
                     $message . ($auto_break ? "\n" : '');
                     
         if (!@file_put_contents($this->filename, $message, FILE_APPEND)) {

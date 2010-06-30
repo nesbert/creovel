@@ -11,13 +11,6 @@
 class IbmDb2 extends AdapterBase
 {
     /**
-     * Database resource.
-     *
-     * @var resource
-     **/
-    public $db;
-    
-    /**
      * Database name.
      *
      * @var resource
@@ -32,19 +25,18 @@ class IbmDb2 extends AdapterBase
     public $schema;
     
     /**
-     * SQL query string.
+     * Iterator offset DB2 starts 1.
      *
-     * @var string
+     * @var resource
      **/
-    public $query = '';
+    public $offset = 1;
     
     /**
-     * Result row offset. Must be between zero and the total number
-     * of rows minus one.
+     * Temporay autocommit mode holder.
      *
-     * @var integer
+     * @var resource
      **/
-    //public $offset = 0;
+    public $autocommit;
     
     /**
      * Pass an associative array of database settings to connect
@@ -52,10 +44,11 @@ class IbmDb2 extends AdapterBase
      *
      * @return void
      **/
-    public function  __construct($db_properties = null)
+    public function __construct($db_properties = null)
     {
-        // if properties passed connect to database
-        if (is_array($db_properties)) $this->connect($db_properties);
+    	parent::__construct($db_properties);
+    	
+    	$this->offset = 1;
     }
     
     /**
@@ -67,6 +60,14 @@ class IbmDb2 extends AdapterBase
      **/
     public function connect($db_properties)
     {
+        if (empty($db_properties['database'])
+            || empty($db_properties['username'])
+            || empty($db_properties['password'])) {
+            self::throw_error('Could not connect to server because of '.
+                'missing arguments for $db_properties.');
+            
+        }
+        
         $server = $db_properties['host'];
         
         if (empty($db_properties['port'])) {
@@ -89,7 +90,11 @@ class IbmDb2 extends AdapterBase
         $this->database = $db_properties['database'];
         $this->schema = $db_properties['schema'];
         
-        $this->db = db2_connect($conn_string, '', '');
+        if (empty($db_properties['persistent'])) {
+            $this->db = db2_connect($conn_string, '', '');
+        } else {
+            $this->db = db2_pconnect($conn_string, '', '');
+        }
         
         if (empty($this->db)) {
             self::throw_error("Could not connect to server {$server} (" .
@@ -134,20 +139,23 @@ class IbmDb2 extends AdapterBase
             CREO('log', "Query: {$query}");
         }
         
-        $query = str_replace_array($query, array(
-            'LIMIT 1' => 'OPTIMIZE FOR 1 ROWS'
-            ));
-        $query = str_replace(array('`', ')', '('), '', $query);
-        
-        echo $query . __LINE__ . '<br>';
-        
         $stmt = db2_prepare($this->db, $query);
         if (!$stmt) {
             self::throw_error(db2_stmt_errormsg() . " Query \"" .
             str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
         }
         
-        $result = db2_execute($stmt, array());
+        $stm_options = array(
+                    'rowcount' => DB2_ROWCOUNT_PREFETCH_ON,
+                    'cursor' => DB2_SCROLLABLE
+                    );
+        
+        if (!db2_set_option($stmt, $stm_options, 2)) {
+            self::throw_error(db2_stmt_errormsg() . " Query \"" .
+            str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
+        }
+        
+        $result = db2_execute($stmt);
         if (!$result) {
             self::throw_error(db2_stmt_errormsg() . " Query \"" .
             str_replace(', ', ",\n", $query) . "\" failed. #" . db2_stmt_error($this->db));
@@ -170,11 +178,6 @@ class IbmDb2 extends AdapterBase
         // set database property
         $this->query = $query;
         
-        // if connection lost reconnect
-        if (!is_resource($this->db)) {
-            $this->connect(ActiveRecord::connection_properties());
-        }
-        
         // send a query and set query_link resource on success
         return $this->result = $this->execute($query);
     }
@@ -192,14 +195,20 @@ class IbmDb2 extends AdapterBase
     }
     
     /**
-     * Returns an associative array that corresponds to the fetched row
+     * Returns an object that corresponds to the fetched row
      * or NULL if there are no more rows.
      *
      * @return object
      **/
     public function get_row($result = null)
     {
-        return db2_fetch_object($result ? $result : $this->result);
+        if ($result) {
+            return db2_fetch_object($result);
+        } else if ($this->offset >= 1) {
+            return db2_fetch_object($this->result, $this->offset);
+        } else {
+            return false;
+        }
     }
     
     /**
@@ -216,24 +225,32 @@ class IbmDb2 extends AdapterBase
         
         // foreach row in results insert into fields object
         $result = db2_columns($this->db, null, $this->schema, $table_name, '%');
-        while ($row = $this->get_row($result)) {
-            $fields[$row->COLUMN_NAME] = new stdClass;
-            $fields[$row->COLUMN_NAME]->type = strtoupper($row->TYPE_NAME);
-            $fields[$row->COLUMN_NAME]->null = $row->IS_NULLABLE;
-            $fields[$row->COLUMN_NAME]->default = null;
-            $fields[$row->COLUMN_NAME]->extra = null;
-            $fields[$row->COLUMN_NAME]->value = null;
+        while ($row = db2_fetch_object($result)) {
+            $fields[$row->COLUMN_NAME] = $row;
         }
         $this->free_result($result);
         
         // get and set primary key info
         $result = db2_primary_keys($this->db, null, $this->schema, $table_name);
         
-        while ($row = $this->get_row($result)) {
+        while ($row = db2_fetch_object($result)) {
             if (isset($fields[$row->COLUMN_NAME])) {
-                $fields[$row->COLUMN_NAME]->key = 'PRI';
-                $fields[$row->COLUMN_NAME]->key_name = $row->PK_NAME;
+                $fields[$row->COLUMN_NAME]->KEY = 'PK';
+                $fields[$row->COLUMN_NAME]->KEY_NAME = $row->PK_NAME;
             }
+        }
+        $this->free_result($result);
+        
+        // get identity solumn for table
+        $q = "SELECT TABSCHEMA, TABNAME, COLNO, COLNAME, TYPENAME, LENGTH, DEFAULT, IDENTITY, GENERATED " .
+             "FROM SYSCAT.COLUMNS " .
+             "WHERE TABSCHEMA = '{$this->schema}' AND TABNAME = '{$table_name}' AND IDENTITY = 'Y';";
+        $result = $this->execute($q);
+        
+        while ($row = db2_fetch_object($result)) {
+        	if ($row->IDENTITY == 'Y' && $row->GENERATED == true && $row->TYPENAME == 'INTEGER') {
+               $fields[$row->COLNAME]->IS_IDENTITY = true;
+        	}
         }
         $this->free_result($result);
         
@@ -247,7 +264,8 @@ class IbmDb2 extends AdapterBase
      */
     public function total_rows($result = null)
     {
-        return @db2_num_rows($result ? $result : $this->result);
+        $result = $result ? $result : $this->result;
+        return is_resource($result) ? db2_num_rows($result) : 0;
     }
     
     /**
@@ -257,7 +275,7 @@ class IbmDb2 extends AdapterBase
      */
     public function affected_rows()
     {
-        return @db2_num_rows($this->db);
+        return db2_num_rows($this->result);
     }
     
     /**
@@ -267,7 +285,7 @@ class IbmDb2 extends AdapterBase
      */
     public function insert_id()
     {
-        return @db2_last_insert_id($this->db);
+        return db2_last_insert_id($this->db);
     }
     
     /**
@@ -278,8 +296,10 @@ class IbmDb2 extends AdapterBase
      */
     public function escape($string)
     {
-        return @db2_escape_string($string);
+        return db2_escape_string($string);
     }
+    
+    
     
     /**
      * Resets DB properties and frees result resources.
@@ -288,14 +308,7 @@ class IbmDb2 extends AdapterBase
      **/
     public function reset()
     {
-        // reset properties
-        $this->query = '';
-        $this->offset = 0;
-        
-        // release result resource
-        if (is_resource($this->db) && !empty($this->result) && is_resource($this->result)) {
-            $this->free_result();
-        }
+        parent::reset();
     }
     
     /**
@@ -305,12 +318,24 @@ class IbmDb2 extends AdapterBase
      **/
     public function free_result($result = null)
     {
-        return @db2_free_result($result ? $result : $this->result);
+        $return = db2_free_result($result ? $result : $this->result);
+        if ($return ) $this->result = null;
+        return $return;
     }
     
     /**
      * Iterator methods.
      */
+    
+    /**
+     * Set the result object pointer to its first element.
+     *
+     * @return void
+     **/
+    public function rewind()
+    {
+        $this->offset = 1;
+    }
     
     /**
      * Adjusts the result pointer to an arbitrary row in the result
@@ -320,10 +345,54 @@ class IbmDb2 extends AdapterBase
      **/
     public function valid()
     {
-        if ($this->offset < $this->total_rows()) {
-            return db2_fetch_row($this->result, $this->offset);
+        if ($this->offset <= $this->total_rows()) {
+            if ($this->offset) {
+                return db2_fetch_object($this->result, $this->offset) !== false;
+            } else {
+                return true;
+            }
         } else {
             return false;
         }
-    } 
+    }
+    
+    /**
+     * Transaction methods.
+     */
+    
+    /**
+     * START transaction and save current autocommit mode before
+     * transaction begins.
+     *
+     * @return void
+     **/
+    public function start_tran()
+    {
+        $this->autocommit = db2_autocommit($this->db);
+        db2_autocommit($this->db, DB2_AUTOCOMMIT_OFF);
+    }
+    
+    /**
+     * ROLLBACK transaction and revert autocommit back to the same
+     * mode before transaction.
+     *
+     * @return void
+     **/
+    public function rollback()
+    {
+        db2_rollback($this->db);
+        db2_autocommit($this->db, $this->autocommit);
+    }
+    
+    /**
+     * COMMIT transaction and revert autocommit back to the same
+     * mode before transaction.
+     *
+     * @return void
+     **/
+    public function commit()
+    {
+        db2_commit($this->db);
+        db2_autocommit($this->db, $this->autocommit);
+    }
 } // END class IbmDb2 extends AdapterBase

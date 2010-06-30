@@ -8,7 +8,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActiveValidation extends Object
+class ActiveValidation extends CObject
 {
     /**
      * Special tag for error messages.
@@ -32,6 +32,8 @@ class ActiveValidation extends Object
      **/
     public function __construct(&$errors = null)
     {
+        parent::__construct();
+        
         if ($errors) {
             $GLOBALS['CREOVEL']['VALIDATION_ERRORS'] = $errors;
         }
@@ -114,7 +116,7 @@ class ActiveValidation extends Object
     {
         // no value2 get from params
         if ( $value2 === null ) $value2 = Creovel::params($field . '_confirmation');
-        return self::validate_field_by_bool(is_match($value, $value2), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." doesn't match confirmation."), $required);
+        return self::validate_field_by_bool(CValidate::match($value, $value2), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." doesn't match confirmation."), $required);
     }
     
     /**
@@ -129,7 +131,7 @@ class ActiveValidation extends Object
      **/
     public function validates_email_format_of($field, $value, $message = null, $required = false)
     {
-        return self::validate_field_by_bool(is_email($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid email address."), $required);
+        return self::validate_field_by_bool(CValidate::email($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid email address."), $required);
     }
     
     /**
@@ -174,7 +176,7 @@ class ActiveValidation extends Object
     public function validates_numericality_of($field, $value, $message = null, $required = false, $only_integer = false)
     {
         
-        return self::validate_field_by_bool(($only_integer ? (is_number($value) && is_int((int) $value)) : is_number($value)), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is not a number."), $required);
+        return self::validate_field_by_bool(($only_integer ? (CValidate::number($value) && is_int((int) $value)) : CValidate::number($value)), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is not a number."), $required);
     }
     
     /**
@@ -250,7 +252,7 @@ class ActiveValidation extends Object
         // set message and replace %d with minimum, maximum or exact length
         $options['message'] = str_replace('%d', $d, ( $options['message'] ? $options['message'] : $message ));
         
-        return self::validate_field_by_bool(is_between(strlen($value), $options['minimum'], $options['maximum']), $field, $value, self::format_message($field, $value, $options['message'], self::FIELD_NAME." is not a number."), $options['required']);
+        return self::validate_field_by_bool(CValidate::between(strlen($value), $options['minimum'], $options['maximum']), $field, $value, self::format_message($field, $value, $options['message'], self::FIELD_NAME." is not a number."), $options['required']);
     }
     
     /**
@@ -264,7 +266,7 @@ class ActiveValidation extends Object
      **/
     public function validates_url_format_of($field, $value, $message = null, $required = false)
     {
-        return self::validate_field_by_bool(is_url($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid web address."), $required);
+        return self::validate_field_by_bool(CValidate::url($value), $field, $value, self::format_message($field, $value, $message, self::FIELD_NAME." is an invalid web address."), $required);
     }
     
     /**
@@ -307,15 +309,16 @@ class ActiveValidation extends Object
         $message = $message ? $message : $default_message;
         
         // check for fieldname and humanze it
-        if ( in_string(self::FIELD_NAME, $message) ) {
-            $message = str_replace(self::FIELD_NAME, humanize($field), $message);
+        if ( CString::contains(self::FIELD_NAME, $message) ) {
+            $message = str_replace(self::FIELD_NAME,
+                        CString::humanize($field), $message);
         }
         
         // check for value and insert it into the message
-        if ( in_string(self::VALUE, $message) ) {
+        if ( CString::contains(self::VALUE, $message) ) {
             $message = str_replace(self::VALUE, $value, $message);
         }
         
         return $message;
     }
-} // END class ActiveValidation extends Object
+} // END class ActiveValidation extends CObject

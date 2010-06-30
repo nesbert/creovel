@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActiveRecord extends Object
+class ActiveRecord extends CObject implements Iterator
 {
     /**
      * Table name.
@@ -99,7 +99,7 @@ class ActiveRecord extends Object
         $this->load_by_primary_key($data);
         
         // $data hash load
-        if (is_hash($data) || is_object($data)) {
+        if (CValidate::hash($data) || is_object($data)) {
             // load data into object
             $this->attributes($data);
         }
@@ -108,18 +108,23 @@ class ActiveRecord extends Object
     /**
      * Load an array of parameters OR an ID OR an array of IDs into
      * the model.
-     * @param mixed $data
+     * 
      * @return void
      **/
-    final public function load_by_primary_key($data)
+    final public function load_by_primary_key($data = null)
     {
         $keys = $this->primary_key();
+        $data = $data ? $data : $this->primary_keys_and_values();
         $search_type = 'first';
         if (is_object($data)) $data = (array) $data;
         
         // if assc array
-        if (is_hash($data)) {
-            // do nothing $data already in correct format
+        if (CValidate::hash($data) && count($keys) > 1) {
+            // only search by primary key
+            foreach ($data as $k => $v) {
+                if (in_array($k, $keys)) continue;
+                unset($data[$k]);
+            }
         } elseif (count($keys) == 1) {
             if (is_array($data)) {
                 $search_type = 'all';
@@ -132,10 +137,11 @@ class ActiveRecord extends Object
             " set in <strong>{$this->class_name()}</strong> model.");
             break;
         }
-
+        
         $this->find($search_type, array(
-                'conditions' => array($this->build_query_from_primary_keys(), $data)
+                'conditions' => $data
             ));
+            
         return $this->total_rows() ? true : false;
     }
     
@@ -148,7 +154,7 @@ class ActiveRecord extends Object
     final public function load_by_primary_keys_and_values()
     {
         if ($this->is_primary_keys_and_values_set()) {
-            return $this->load_by_primary_key($this->primary_keys_and_values());
+            return $this->load_by_primary_key();
         } else {
             return false;
         }
@@ -166,7 +172,7 @@ class ActiveRecord extends Object
         
         if (count($vars)) foreach ($vars as $var => $vals) {
             switch (true) {
-                case in_string('options_for_', $var):
+                case CString::contains('options_for_', $var):
                     $this->{'set_' . $var}($vals);
                     break;
                     
@@ -195,65 +201,6 @@ class ActiveRecord extends Object
     }
     
     /**
-     * Get the current database connection settings based on Creovel mode.
-     *
-     * @return array
-     **/
-    final public function connection_properties()
-    {
-        // if $this->connection_properties use
-        if (isset($this) && !empty($this->connection_properties)) {
-            return $this->connection_properties;
-        }
-        
-        // set which settings mode to use
-        $mode = strtoupper(isset($this) && !empty($this->_mode_) ? $this->_mode_ : CREO('mode'));
-        
-        // set properties depending on mode
-        $db_properties = $GLOBALS['CREOVEL']['DATABASES'][$mode];
-        
-        if (isset($this)) {
-            // override default database settings
-            if (!empty($this->_host_)) $db_properties['host'] = $this->_host_;
-            if (!empty($this->_port_)) $db_properties['port'] = $this->_port_;
-            if (!empty($this->_socket_)) $db_properties['socket'] = $this->_socket_;
-            if (!empty($this->_database_)) $db_properties['database'] = $this->_database_;
-        }
-        
-        return $db_properties;
-    }
-    
-    /**
-     * Choose the correct DB adapter to use and sets its properties and
-     * return a database object.
-     *
-     * @param array $db_properties
-     * @return object
-     **/
-    final public function establish_connection($db_properties = null)
-    {
-        try {
-            
-            if (!$db_properties || !is_array($db_properties)) {
-                $db_properties = self::connection_properties();
-            }
-            
-            $adapter = $db_properties['adapter'];
-            
-            if (class_exists($adapter)) {
-                return new $adapter($db_properties);
-            } else {
-                throw new Exception("Unknown database adapter '{$adapter}'. " .
-                    "Please check database configuration file.");
-            }
-            
-        } catch (Exception $e) {
-            CREO('error_code', 500);
-            CREO('application_error', $e);
-        }
-    }
-    
-    /**
      * Stop the application and display/handle error.
      *
      * @return void
@@ -264,7 +211,7 @@ class ActiveRecord extends Object
             $msg = "An error occurred while executing a method " .
                     "in the <strong>{$this->class_name()}</strong>.";
         }
-        CREO('error_code', 500);
+        CREO('application_error_code', 500);
         CREO('application_error', $msg);
     }
     
@@ -352,8 +299,16 @@ class ActiveRecord extends Object
         if (isset($options['sql'])) {
             $sql = $options['sql'];
         } else {
-            $sql = $this->build_query($options, $type);
+            $options['table'] = $this->table_name();
+            $options['columns'] = &$this->_columns_;
+            
+            if ($type == 'first') {
+                $options['limit'] = 1;
+            }
+            
+            $sql = $this->select_query()->build_query($options);
         }
+        
         $this->query($sql);
         
         if ($type == 'first') {
@@ -379,225 +334,6 @@ class ActiveRecord extends Object
     }
     
     /**
-     * Build query string from an $options array.
-     *
-     * @param array $options
-     * @param mixed &$type 'all', 'first', ID or array of IDs
-     * @return string
-     **/
-    final public function build_query($options, &$type)
-    {
-        $where = array();
-        $limit = '';
-        $regex = '/^[A-Za-z0-9_,.`\s\-\(\)]+$/';
-        
-        // set vaiables used to build query
-        if (isset($options['select'])) {
-            $select = $options['select'];
-        } else {
-            $select = '*';
-        }
-        
-        if (isset($options['from'])) {
-            $from = $options['from'];
-        } else {
-            $from = "`{$this->table_name()}`";
-        }
-        
-        if (isset($options['where'])) {
-            $options['conditions'] = $options['where'];
-        } else if (isset($options['conditions'])) {
-            $options['conditions'] = $options['conditions'];
-        } else {
-            $options['conditions'] = '';
-        }
-        
-        if (isset($options['join'])) {
-            $join = $options['join'];
-        } else {
-            $join = '';
-        }
-        
-        if (isset($options['order']) &&
-                preg_match($regex, $options['order'])) {
-            $order = $options['order'];
-        } else {
-            $order = '';
-        }
-        
-        if (isset($options['offset']) && is_numeric($options['offset'])) {
-            $offset = $options['offset'];
-        } else {
-            $offset = '';
-        }
-        
-        if (isset($options['limit']) && is_numeric($options['limit'])) {
-            $limit = $options['limit'];
-        } else {
-            $limit = '';
-        }
-        
-        if (isset($options['group']) && preg_match($regex, $options['group'])) {
-            $group = $options['group'];
-        } else {
-            $group = '';
-        }
-        
-        // set where
-        switch (true) {
-            case is_array($type):
-                $id = array();
-                foreach ($type as $v) {
-                    $id[] = $this->quote_value($v);
-                }
-                $where[] = "`{$this->primary_key()}` IN (" .
-                    implode(", ", $id) . ")";
-                break;
-                
-            case strtolower($type) == 'all':
-                break;
-            
-            case strtolower($type) == 'first':
-                $limit = '1';
-                break;
-                
-            default:
-                $where[] = "`{$this->primary_key()}` = ".
-                $this->quote_value($type);
-                // update to auto first record
-                $type = 'first';
-                break;
-        }
-        
-        // Prepare conditions array.
-        if ($options['conditions']) {
-            $where[] = $this->build_query_from_conditions($options['conditions']);
-        }
-        
-        // create sql query
-        if (empty($options['update'])) {
-            $sql = "SELECT {$select} FROM {$from}";
-        } else {
-            $sql = "UPDATE {$from}";
-        }
-        
-        if ($join) $sql .= " " . $this->build_query_from_conditions($join, false);
-        
-        if (!empty($options['update'])) {
-            $set = array();
-            foreach ($options['update'] as $k => $v) {
-                // if primary skip and stribut exists
-                if ($this->is_primary_key($k) || !$this->attribute_exists($k)) continue;
-                $set[] = "`{$this->table_name()}`.`{$k}` = " . ($v == 'NULL' ? 'NULL' : $this->quote_value($v));
-            }
-            $sql .= ' SET ' . implode(', ', $set);
-        }
-        
-        if (count($where)) {
-            $sql .= " WHERE " . implode(' AND ', $where);
-        }
-        if ($group) $sql .= " GROUP BY {$group}";
-        if ($order) $sql .= " ORDER BY {$order}";
-        if ($limit) $sql .= " LIMIT {$limit}";
-        if ($offset) $sql .= " OFFSET {$offset}";
-        
-        return $sql . ';';
-    }
-    
-    /**
-     * Builds where SQL string by the conditions array passed. $isolate query
-     * with parentheses ($string).
-     *
-     * @param mixed $conditions
-     * @param boolean $isolate
-     * @return void
-     **/
-    final public function build_query_from_conditions($conditions, $isolate = true)
-    {
-        $sql = '';
-        
-        // 1. hash or object condidtions
-        if (is_hash($conditions) || is_object($conditions)) {
-            $cs = array();
-            foreach ($conditions as $k => $v) {
-                $cs[] = "`{$this->table_name()}`.`{$k}` = {$this->quote_value($v)}";
-            }
-            if ($isolate) {
-                $sql = '(' . implode(' AND ', $cs) . ')';
-            } else {
-                $sql = implode(' AND ', $cs);
-            }
-            
-        // 2. array condidtions
-        } elseif (is_array($conditions) && in_string('?', $conditions[0])) {
-            $str = array_shift($conditions);
-            foreach ($conditions as $v) {
-                $str = preg_replace('/\?/', $this->quote_value($v), $str, 1);
-            }
-            if ($isolate) {
-                $sql = "({$str})";
-            } else {
-                $sql = "{$str}";
-            }
-        
-        // 3. array with symbols
-        } elseif (is_array($conditions) && in_string(':', $conditions[0])) {
-            $str = $conditions[0];
-            if (is_array($conditions[1])) foreach ($conditions[1] as $k => $v) {
-                $str = str_replace(':' . $k, $this->quote_value($v), $str);
-            }
-            if ($isolate) {
-                $sql = "({$str})";
-            } else {
-                $sql = "{$str}";
-            }
-            
-        // 4. string conditions UNSAFE!
-        } elseif ($conditions) {
-            if ($isolate) {
-                $sql = "({$conditions})";
-            } else {
-                $sql = "{$conditions}";
-            }
-        }
-        
-        return $sql;
-    }
-    
-    /**
-     * Build query string from primary keys.
-     *
-     * @return string
-     **/
-    final public function build_query_from_primary_keys()
-    {
-        $sql = array();
-        foreach ($this->primary_key() as $key) {
-            $sql[] = "`{$this->table_name()}`.`{$key}` = :{$key}";
-        }
-        return implode(' AND ', $sql);
-    }
-    
-    /**
-     * Build a string for using with WHERE statement.
-     *
-     * @param mixed $conditions
-     * @param boolean $isolate
-     * @return string
-     **/
-    final function build_where($conditions = null, $isolate = true)
-    {
-        if ($conditions) {
-            return $this->build_query_from_conditions($conditions, $isolate);
-        } else {
-            return $this->build_query_from_conditions(array(
-                        $this->build_query_from_primary_keys(),
-                        $this->primary_keys_and_values()
-                    ), $isolate);
-        }
-    }
-    
-    /**
      * Prepare a SQL statement for execution. Accepts a conditions array
      * argument array.
      *
@@ -607,7 +343,8 @@ class ActiveRecord extends Object
      **/
     public function prepare()
     {
-        return $this->_prepared_query_ = $this->build_query_from_conditions(func_get_args(), false);
+        $args = func_get_args();
+        return $this->_prepared_query_ = $this->select_query()->build_query_from_conditions($this->table_name(), $args, false);
     }
     
     /**
@@ -632,8 +369,19 @@ class ActiveRecord extends Object
     final public function select_query($query = '', $connection_properties = array())
     {
         if (!is_object($this->_select_query_)) {
-            $this->_select_query_ =
-                $this->establish_connection($connection_properties);
+            if (empty($connection_properties) &&
+                !empty($this->connection_properties)) {
+                $connection_properties = $this->connection_properties;
+            }
+            
+            // set which settings mode to use
+            if (isset($this)
+                && !empty($this->_mode_)
+                && !empty($GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)])) {
+                $connection_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)];
+            }
+            
+            $this->_select_query_ = new ActiveQuery($connection_properties);
         }
         
         if ($query) {
@@ -653,8 +401,17 @@ class ActiveRecord extends Object
     final public function action_query($query = '', $connection_properties = array())
     {
         if (!is_object($this->_action_query_)) {
-            $this->_action_query_ =
-                $this->establish_connection($connection_properties);
+            if (empty($connection_properties) &&
+                !empty($this->connection_properties)) {
+                $connection_properties = $this->connection_properties;
+            }
+            
+            // set which settings mode to use
+            if (isset($this) && !empty($this->_mode_)) {
+                $connection_properties = $GLOBALS['CREOVEL']['DATABASES'][strtoupper($this->_mode_)];
+            }
+            
+            $this->_action_query_ = new ActiveQuery($connection_properties);
         }
         
         if ($query) {
@@ -683,7 +440,7 @@ class ActiveRecord extends Object
      **/
     final public function quote_value($string)
     {
-        return "'" . $this->escape($string) . "'";
+        return $this->select_query()->quote_value($string);
     }
     
     /**
@@ -705,8 +462,9 @@ class ActiveRecord extends Object
     final public function table_name($table_name = '')
     {
         $this->_table_name_ = $table_name ? $table_name : $this->_table_name_;
-        $this->_table_name_ = $this->_table_name_ ? $this->_table_name_ : Inflector::tableize($this->class_name());
-        if (0) $this->_table_name_ = strtoupper($this->_table_name_);
+        $this->_table_name_ = $this->_table_name_
+                ? $this->_table_name_
+                : CString::tableize($this->class_name());
         return $this->_table_name_;
     }
     
@@ -721,10 +479,13 @@ class ActiveRecord extends Object
         // only describe table once
         if (empty($this->_columns_)) {
             
-            if ($this->has_schema && !$force_table_look_up) {
-                $db2xml = new DatabaseXML($this);
-                $db2xml->load_file();
-                $this->_columns_ = $db2xml->columns();
+            if ($this->_schema_ && !$force_table_look_up) {
+                $dbf = new DatabaseFile;
+                $dbf->load($dbf->default_file(
+                    $this->_schema_,
+                    $this->table_name()
+                    ));
+                $this->_columns_ = $dbf->columns();
             } else {
                 $this->_columns_ = $this->select_query()->columns($this->table_name());
             }
@@ -732,7 +493,7 @@ class ActiveRecord extends Object
             // do some magic
             foreach ($this->_columns_ as $k => $v) {
                 // set default options for enum types
-                if (!isset($this->{'options_for_' . $k}) && in_string('enum(', $v->type)) {
+                if ($this->__is_options_for_type($k)) {
                     $v->options = $this->field_options($k);
                 }
             }
@@ -803,19 +564,15 @@ class ActiveRecord extends Object
      * if an array|object is passed
      *
      * @param array/object $data
-     * @param boolean $set_original_value
      * @return array
      **/
-    final public function attributes($data = null, $set_original_value = false)
+    final public function attributes($data = null)
     {
         // set column properties
-        if (is_hash($data) || is_object($data)) {
+        if (CValidate::hash($data) || is_object($data)) {
             // insert new vals
             foreach ($data as $k => $v) {
-                if ($set_original_value) {
-                    $this->_columns_[$k]->original_value = $v;
-                }
-                $this->_columns_[$k]->value = $v;
+                $this->{$k} = $v;
             }
         // get column properties
         } else {
@@ -824,6 +581,22 @@ class ActiveRecord extends Object
                 $attribites[$k] = $v->value;
             }
             return $this->return_value($attribites);
+        }
+    }
+    
+    /**
+     * Set column values from a query result by passing the __set method.
+     * 
+     * @param array/object $data
+     * @return void
+     **/
+    final private function set_attributes_from_query($data)
+    {
+        if (CValidate::hash($data) || is_object($data)) {
+            // insert new vals
+            foreach ($data as $k => $v) {
+                $this->_columns_[$k]->value = $v;
+            }
         }
     }
     
@@ -885,7 +658,7 @@ class ActiveRecord extends Object
         if (empty($this->_primary_key_)) {
             // find primary keys
             foreach ($this->columns() as $column => $attr) {
-                if (isset($attr->key) && $attr->key == 'PRI') {
+                if (isset($attr->key) && $attr->key == 'PK') {
                     $this->_primary_key_[] = $column;
                 }
             }
@@ -903,7 +676,7 @@ class ActiveRecord extends Object
     /**
      * Get an associative array or primary keys and values.
      *
-     * @return void
+     * @return array
      **/
     final public function primary_keys_and_values()
     {
@@ -917,9 +690,10 @@ class ActiveRecord extends Object
     /**
      * Save current object to database. If id set update else insert.
      *
+     * @param boolean $reload_on_success
      * @return void
      **/
-    public function save($validation_routine = 'validate')
+    public function save($reload_on_success = true)
     {
         // call back
         $this->before_save();
@@ -930,13 +704,20 @@ class ActiveRecord extends Object
         // if error return false
         if ($this->has_errors()) return false;
         
+        // conditions array for record reload
+        $conditions = array();
+        
         // if record found update
         if ($this->total_rows() || $this->_was_inserted_) {
-        
+            
             // validate model on every update
             $this->validate_on_update();
             
-            $ret_val = $this->update_row();
+            $ret_val = $this->action_query()->update_row($this->table_name(), $this->_columns_, $this->primary_keys_and_values());
+            
+            if (!empty($ret_val)) {
+                $conditions = $this->primary_keys_and_values();
+            }
             
         } else {
             
@@ -946,101 +727,45 @@ class ActiveRecord extends Object
             // validate model on every insert
             $this->validate_on_create();
             
-            $ret_val = $this->insert_row();
-        }
-        
-        #foreach ($this->child_objects as $obj) $obj->save();
-        
-        if ($ret_val) {
-            $this->after_save();
-            return $ret_val;
-        } else {
-            return false;
-        }
-    }
-    
-    /**
-     * Insert current model's values into database.
-     *
-     * @return integer Current result ID.
-     **/
-    final public function insert_row()
-    {
-        // set created at
-        if ($this->attribute_exists('created_at')) {
-            $this->created_at = datetime($this->created_at);
-        }
-        
-        // sanitize values
-        $values = array();
-        foreach ($this->prepare_attributes() as $k => $v) {
-            // if same as default value skip
-            if ($v === $this->_columns_[$k]->default) continue;
-            $values[$k] = $v == 'NULL' ? 'NULL' : $this->quote_value($v);
-        }
-        
-        // build query
-        $qry =  "INSERT INTO `{$this->table_name()}` " .
-                "(`" . implode('`, `', array_keys($values)) . "`) " .
-                "VALUES " .
-                "(" . implode(', ', $values) . ");";
-        
-        // insert record
-        $this->action_query($qry);
-        
-        // if insert id... loaded auto increament field
-        if ($id = $this->insert_id()) {
-            // find auto increment field and set ID
-            foreach ($this->_columns_ as $k => $v) {
-                if (in_string('auto_increment', $v->extra)) {
-                    $this->_columns_[$k]->value = $id;
+            $ret_val = $this->action_query()->insert_row($this->table_name(), $this->_columns_);
+            
+            if (!empty($ret_val)) {
+                // set inserted flag
+                $this->_was_inserted_ = true;
+                
+                // if insert id... loaded identy increament field
+                if ($id = $this->action_query()->insert_id()) {
+                    // find auto increment field and set ID
+                    foreach ($this->columns() as $col => $field) {
+                        if (!empty($field->is_identity)) {
+                            $conditions[$col] = $id;
+                            break;
+                        }
+                    }
+                } else {
+                    foreach ($this->_columns_ as $col => $field) {
+                        if ($field->has_changed) {
+                            $conditions[$col] = $field->value;
+                        }
+                    }
                 }
             }
         }
         
-        $this->_was_inserted_ = 1;
-        
-        return $this->affected_rows();
-    }
-    
-    /**
-     * Update database with the current model's values.
-     *
-     * @return integer Current result ID.
-     **/
-    final public function update_row()
-    {
-        // set updated at
-        if ($this->attribute_exists('updated_at')) {
-            $this->updated_at = datetime();
-        }
-        
-        // sanitize values and prep set string
-        $set = array();
-        foreach ($this->prepare_attributes() as $k => $v) {
-            // if primary skip
-            if ($this->is_primary_key($k)) continue;
-            // orginal has not been modified skip
-            if (isset($this->_columns_[$k]->original_value) && $this->_columns_[$k]->original_value == $v) continue;
+        if ($ret_val) {
+            // load record to make sure to get most recent info
+            // from DB for all the columns
+            if ($reload_on_success) {
+                $this->find('first', array('conditions' => $conditions));
+            }
             
-            $set[] = "`{$k}` = " . ($v == 'NULL' ? 'NULL' : $this->quote_value($v));
-        }
-        
-        $where = $this->build_where(array(
-            $this->build_query_from_primary_keys(),
-            $this->primary_keys_and_values()
-            ), false);
+            // call back
+            $this->after_save();
             
-        if (count($set)) {
-            $set = implode(', ', $set);
+            return $ret_val;
         } else {
-            $set = str_replace('AND', ',', $where);
+            return false;
         }
-        
-        // build query
-        $qry = "UPDATE `{$this->table_name()}` SET {$set} WHERE {$where};";
-        
-        return $this->action_query($qry)->affected_rows();
     }
     
     /**
@@ -1064,41 +789,6 @@ class ActiveRecord extends Object
     }
     
     /**
-     * Prepares the current columns and values for SQL.
-     *
-     * @return void
-     **/
-    final public function prepare_attributes()
-    {
-        $return = array();
-        foreach ($this->_columns_ as $name => $field) {
-            switch (true) {
-                // set array types
-                case is_array($field->value):
-                    if ($field->type == 'datetime') {
-                        $return[$name] = datetime($field->value);
-                    } else {
-                        $return[$name] = serialize($field->value);
-                    }
-                    break;
-                // set NULL values blank
-                case empty($field->value) && $field->null == 'YES':
-                    $return[$name] = '';
-                    break;
-                // set name and val
-                default:
-                    $return[$name] = $field->value;
-                    break;
-            }
-        }
-        
-        // update current values
-        $this->attributes($return);
-        
-        return $return;
-    }
-    
-    /**
      * Removes slashes from column value.
      *
      * @param string $attribute column name.
@@ -1107,7 +797,7 @@ class ActiveRecord extends Object
     final public function clean_column_value($attribute)
     {
         if (isset($this->_columns_[$attribute]->value)) {
-            return strip_slashes($this->_columns_[$attribute]->value);
+            return CData::strip_slashes($this->_columns_[$attribute]->value);
         } else {
             return '';
         }
@@ -1143,13 +833,14 @@ class ActiveRecord extends Object
      * @param mixed $conditions
      * @return integer
      **/
-    final public function destroy($conditions = '')
+    final public function destroy($conditions = null)
     {
-        // build delete statement
-        $q = "DELETE FROM `{$this->table_name()}` WHERE {$this->build_where($conditions)};";
+        if (empty($conditions)) {
+            $conditions = $this->primary_keys_and_values(); 
+        }
         
         // delete record(s) and return affected rows
-        return $this->action_query($q)->affected_rows();
+        return $this->action_query()->delete($this->table_name(), $conditions);
     }
     
     /**
@@ -1190,7 +881,7 @@ class ActiveRecord extends Object
         if (!isset($options['update'])) {
             throw new Exception('Missing argument <em>update</em> not set' .
             " in options array for <strong>{$this->class_name()}::update</strong>.");
-        } elseif (!is_hash($options['update']) && !is_object($options['update'])) {
+        } elseif (!CValidate::hash($options['update']) && !is_object($options['update'])) {
             throw new Exception('Argument <em>update</em> must be an array' .
             " or object of attributes for <strong>{$this->class_name()}::update</strong>.");
         }
@@ -1198,7 +889,16 @@ class ActiveRecord extends Object
         // before update call-back
         $this->before_update();
         
-        $sql = $this->build_query($options, $type);
+        $options['table'] = $this->table_name();
+        
+        foreach ($options['update'] as $k => $v) {
+            // if primary and attr doesn exits skip
+            if ($this->is_primary_key($k) || !$this->attribute_exists($k)) {
+                unset($options['update'][$k]);
+            }
+        }        
+        
+        $sql = $this->action_query()->build_query($options);
         
         $affected_rows = $this->action_query($sql)->affected_rows();
         
@@ -1217,9 +917,6 @@ class ActiveRecord extends Object
      **/
     final public function paginate($args = null)
     {
-        // search type
-        $type = 'all';
-        
         // create temp args
         $temp = $args;
         
@@ -1227,15 +924,24 @@ class ActiveRecord extends Object
         if (isset($temp['offset'])) unset($temp['offset']);
         if (isset($temp['order'])) unset($temp['order']);
         if (isset($temp['limit'])) unset($temp['limit']);
-        $key = "`{$this->table_name()}`.`" . implode("`, `{$this->table_name()}`.`", $this->primary_key()) . '`';
-        $temp['select'] = "COUNT(DISTINCT {$key})";
-        $qry = $this->build_query($temp, $type);
+        
+        $key = array();
+        foreach ($this->primary_key() as $k) {
+            $key[] = $this->select_query()->build_identifier(array(
+                        $this->table_name(),
+                        $k));
+        }
+        $key = implode(",", $key);
+        $temp['select'] = "COUNT(*)";
+        $temp['table'] = $this->table_name();
+        $temp['group'] = $key; 
+        $qry = $this->select_query()->build_query($temp);
         
         // use select object to reduce connections
         $q = $this->select_query($qry);
         
-        if ($this->total_rows() == 1) {
-            $temp['total_records'] = current($q->get_row());
+        if ($q->total_rows() == 1) {
+            $temp['total_records'] = current($q->current());
         } else {
             $temp['total_records'] = $q->total_rows();
         }
@@ -1251,7 +957,7 @@ class ActiveRecord extends Object
         $args['limit'] = $this->_paging_->limit;
         
         // execute query
-        return $this->find($type, $args);
+        return $this->find('all', $args);
     }
     
     /**
@@ -1263,9 +969,9 @@ class ActiveRecord extends Object
      **/
     final public function table_object($table_name = '', $db = null)
     {
-        if (!is_array($db)) $db = self::connection_properties();
+        if (!is_array($db)) $db = ActiveDatabase::connection_properties();
         if ($table_name) $db['table_name'] = $table_name;
-        return self::establish_connection($db);
+        return new ActiveQuery($db);
     }
     
     /**
@@ -1279,7 +985,7 @@ class ActiveRecord extends Object
      **/
     final public function object($table_name = '', $data = '', $db = null)
     {
-        if (!is_array($db)) $db = self::connection_properties();
+        if (!is_array($db)) $db = ActiveDatabase::connection_properties();
         $o = new ActiveRecord(null, $db, false);
         if ($table_name) $o->table_name($table_name);
         if ($data) $o->load_model_data($data);
@@ -1338,7 +1044,8 @@ class ActiveRecord extends Object
     final public function reset_values()
     {
         foreach($this->_columns_ as $k => $v) {
-            $this->_columns_[$k]->value = $v->default;
+            $this->_columns_[$k]->has_changed = false;
+            $this->_columns_[$k]->value = @$v->default;
         }
     }
     
@@ -1369,7 +1076,7 @@ class ActiveRecord extends Object
         try {
             switch (true) {
                 // skip these special cases
-                case $attribute == 'has_schema':
+                case $attribute == '_schema_':
                 case $attribute == '_was_inserted_':
                     break;
                 case isset($this->_columns_[$attribute]):
@@ -1380,7 +1087,7 @@ class ActiveRecord extends Object
                     return $this->return_value($this->association($this->_associations_[$attribute]));
                     break;
                     
-                case in_string('options_for_', $attribute) && isset($this->_columns_[$this->field_name_from_str($attribute)]->options):
+                case CString::contains('options_for_', $attribute) && isset($this->_columns_[$this->field_name_from_str($attribute)]->options):
                     return $this->return_value($this->_columns_[$this->field_name_from_str($attribute)]->options);
                     break;
                     
@@ -1406,13 +1113,15 @@ class ActiveRecord extends Object
     {
         try {
             switch (true) {
-                // set id calling primary key
-                case $this->is_primary_key($attribute):
-                    // set value
-                    $this->_columns_[$attribute]->value = $value;
-                    // if all primary keys loaded try to load a record
-                    $this->load_by_primary_keys_and_values();
-                    return $this->_columns_[$attribute]->value;
+                    
+                // set column value
+                case isset($this->_columns_[$attribute]):
+                    if ($this->_columns_[$attribute]->value == $value) {
+                        $this->_columns_[$attribute]->has_changed = false;
+                    } else {
+                        $this->_columns_[$attribute]->has_changed = true;                        
+                    }
+                    return $this->_columns_[$attribute]->value = $value;
                     break;
                     
                 // allow hidden properties
@@ -1428,11 +1137,7 @@ class ActiveRecord extends Object
                 case $attribute == 'connection_properties':
                     return $this->{$attribute} = $value;
                     break;
-                    
-                case isset($this->_columns_[$attribute]):
-                    return $this->_columns_[$attribute]->value = $value;
-                    break;
-                    
+                
                 case isset($this->_associations_) && isset($this->_associations_[$attribute]):
                     return $this->{$attribute} = $value;
                     break;
@@ -1463,16 +1168,16 @@ class ActiveRecord extends Object
             $arguments[0] = isset($arguments[0]) ? $arguments[0] : '';
             
             switch (true) {
-                case in_string('field_for_', $method):
-                case in_string('select_for_', $method):
-                case in_string('text_area_for_', $method):
-                case in_string('textarea_for_', $method):
-                case in_string('check_box_for_', $method):
-                case in_string('checkbox_for_', $method):
-                case in_string('radio_button_for_', $method):
-                case in_string('select_countries_tag_for_', $method):
-                case in_string('select_states_tag_for_', $method):
-                case in_string('date_time_select_for_', $method):
+                case CString::starts_with('field_for_', $method):
+                case CString::starts_with('select_for_', $method):
+                case CString::starts_with('text_area_for_', $method):
+                case CString::starts_with('textarea_for_', $method):
+                case CString::starts_with('check_box_for_', $method):
+                case CString::starts_with('checkbox_for_', $method):
+                case CString::starts_with('radio_button_for_', $method):
+                case CString::starts_with('select_countries_tag_for_', $method):
+                case CString::starts_with('select_states_tag_for_', $method):
+                case CString::starts_with('date_time_select_for_', $method):
                     $type = str_replace(
                                 array(
                                     '_field_for_' . $name,
@@ -1484,24 +1189,20 @@ class ActiveRecord extends Object
                     break;
                 
                 // options_for_* called for existing field
-                case in_string('set_options_for_', $method)
-                    && isset($this->_columns_[$name])
-                    && is_array($arguments[0]):
+                case CString::starts_with('set_options_for_', $method)
+                    && isset($this->_columns_[$name]):
                     return $this->_columns_[$name]->options = $arguments[0];
                     break;
                 
-                case in_string('options_for_', $method):
+                case CString::starts_with('options_for_', $method):
                     switch (true) {
-                        // set options for ENUM field types
-                        case isset($this->_columns_[$name]->type)
-                            && in_string('enum(', $this->_columns_[$name]->type):
-                        // set options for ENUM field types
-                        case isset($this->_columns_[$name]->type)
-                            && in_string('tinyint(1)', $this->_columns_[$name]->type):
-                        // if options for property is set
+                        case $this->__is_options_for_type($name):
                         case isset($this->_columns_[$name]->options):
                             $type = 'select';
-                            return $this->html_field($type, $name, $this->{$name}, $arguments);
+                            if (!empty($arguments[0])) {
+                                $this->_columns_[$name]->options = $arguments[0];
+                            }
+                            return $this->html_field($type, $name, $this->{$name}, $this->_columns_[$name]->options);
                             break;
                         
                         default:
@@ -1512,29 +1213,30 @@ class ActiveRecord extends Object
                     }
                     break;
                 
-                case in_string('_has_error', $method):
+                case CString::ends_with('_has_error', $method):
                     return $this->has_error($name, $arguments[0]);
                     break;
                 
-                case in_string('find_by_', $method):
-                    $args = isset($arguments[1]) && is_hash($arguments[1]) ? $arguments[1] : array();
+                case CString::starts_with('find_by_', $method):
+                    $args = isset($arguments[1]) && CValidate::hash($arguments[1]) ? $arguments[1] : array();
                     $args['conditions'] = array($name => $arguments[0]);
                     $return = $this->find('all', $args);
+                    
                     // if one record load the first
-                    if ($this->total_rows() == 1) {
+                    if ($this->select_query()->total_rows() == 1) {
                         $this->current();
                     }
                     
                     return $return;
                     break;
                 
-                case in_string('validates_', $method):
+                case CString::starts_with('validates_', $method):
                     return $this->validate_by_method($method, $arguments);
                     break;
                     
                 /* Paging Links */
-                case in_string('link_to_', $method):
-                case in_string('paging_', $method):
+                case CString::starts_with('link_to_', $method):
+                case CString::starts_with('paging_', $method):
                     if (method_exists($this->_paging_, $method)) {
                         return call_user_func_array(array($this->_paging_, $method), $arguments);
                     } else {
@@ -1620,24 +1322,41 @@ class ActiveRecord extends Object
                         // no value return false
                         if (!$params[1]) return false;
                         
-                        // extend WHERE statement
-                        $where_ext = empty($params[3]) ? '' : " AND ({$this->action_query()->escape($params[3])})";
-                        
                         // build key to support multipule rows
-                        $key = array();
-                        foreach ($this->primary_keys_and_values() as $k => $v) {
-                            $key[] = "`{$k}` != " . $this->quote_value($v);
+                        $ops = array();
+                        $ops['select'] = "COUNT(*)";
+                        
+                        if ($this->is_primary_keys_and_values_set()) {
+                            $where = array();
+                            $cols = array();
+                            $cols = $this->primary_keys_and_values();
+                            foreach ($cols as $k => $v) {
+                                $where[] = "{$k} = :{$k}";
+                            }
+                            $where = implode(' AND ', $where);
+                            $cols[$params[0]] = $params[1];
+                            $where = "{$params[0]} = :{$params[0]} AND NOT ({$where})";
+                            $ops['conditions'] = array($where, $cols);
+                        } else {
+                            $ops['conditions'][$params[0]] = $params[1];
                         }
-                        $key = implode(' AND ', $key);
+                        
+                        $ops['table'] = $this->table_name();
+                        // extend WHERE statement
+                        if (!empty($params[3])) $ops['where_append'] = $params[3];
                         
                         // build query
-                        $q = "SELECT * FROM `{$this->table_name()}` WHERE `{$params[0]}` = '{$params[1]}' AND {$key}{$where_ext};";
+                        $q = $this->action_query()->build_query($ops);
                         
                         // if record found add error
-                        if ($this->action_query($q)->total_rows()) {
+                        $this->action_query($q);
+                        
+                        if (current($this->action_query()->current())) {
                             ActiveValidation::add_error(
                                 $params[0],
-                                ($params[2] ? $params[2] : humanize($params[0]).' is not unique.')
+                                ($params[2] 
+                                    ? $params[2]
+                                    : CString::humanize($params[0]).' is not unique.')
                                 );
                             return false;
                         } else {
@@ -1675,26 +1394,26 @@ class ActiveRecord extends Object
      * @param array $arguments
      * @return string
      **/
-    final public function html_field($type, $name, $value, $arguments = array())
-    {
+    final public function html_field($type, $name, $value,
+    $arguments = array()) {
         // set form vars
         $html = '';
-        $field_name = underscore($this->class_name()) . "[{$name}]";
+        $field_name = Inflector::underscore($this->class_name()) . "[{$name}]";
         $arguments[0] = isset($arguments[0]) ? $arguments[0] : null;
         @$html_options = $arguments[0];
         
         // get HTML
         switch ($type) {
             case 'text':
-                $html = text_field($field_name, $value, $html_options);
+                $html = CForm::text_field($field_name, $value, $html_options);
                 break;
             
             case 'password':
-                $html = password_field($field_name, $value, $html_options);
+                $html = CForm::password_field($field_name, $value, $html_options);
                 break;
             
             case 'hidden':
-                $html = hidden_field($field_name, $value, $html_options);
+                $html = CForm::hidden_field($field_name, $value, $html_options);
                 break;
             
             case 'check_box':
@@ -1708,7 +1427,7 @@ class ActiveRecord extends Object
             
             case 'text_area':
             case 'textarea':
-                $html = textarea($field_name, $value, $html_options);
+                $html = CForm::textarea($field_name, $value, $html_options);
                 break;
             
             case 'select':
@@ -1724,7 +1443,7 @@ class ActiveRecord extends Object
                 }
                 $html_options = $arguments[0];
                 $arguments[1] = isset($arguments[1]) ? $arguments[1] : null;
-                $html = select($field_name, $value, $options, $html_options, $arguments[1]);
+                $html = CForm::select($field_name, $value, $options, $html_options, $arguments[1]);
                 break;
             
             case 'select_countries_tag':
@@ -1837,26 +1556,37 @@ class ActiveRecord extends Object
     }
     
     /**
-     * Get options for ENUM field types.
+     * Get options for certain field types.
      *
      * @return void
      **/
-    final public function field_options($property)
+    final public function field_options($name)
     {
-        if (in_string('enum(', $this->_columns_[$property]->type)) {
-            $options = explode("','", str_replace(
-                                                array("enum('"),
-                                                '',
-                                                substr($this->_columns_[$property]->type, 0, -2)
-                                                ));
-            $return = array();
-            foreach ($options as $value) {
-                $return[$value] = humanize($value);
+        if (isset($this->_columns_[$name])) {
+            if (isset($this->_columns_[$name]->options)) {
+                return $this->_columns_[$name]->options;
             }
-            return $return;
-        }
-        if (in_string('tinyint(1)', $this->_columns_[$property]->type)) {
-            return array('1' => 'Yes', '0' => 'No');
+            
+            if ($this->_columns_[$name]->type == 'ENUM') {
+                $options = explode(',', $this->_columns_[$name]->size);
+                $return = array();
+                foreach ($options as $value) {
+                    $value = preg_replace('/(^\'|\'$)/', '', $value);
+                    $return[$value] = CString::humanize($value);
+                }
+                return $return;
+            }
+            
+            // if interger and length is 1
+            if (($this->_columns_[$name]->size == 1
+                    && $this->_columns_[$name]->type == 'TINYINT')
+                || ($this->_columns_[$name]->type == 'SMALLINT')) {
+                return array('1' => 'Yes', '0' => 'No');
+            }
+        } else {
+            throw new Exception("Unable to get options for {$name}. Not a " .
+                "valid <strong>{$this->class_name()}</strong> model column.");
+            
         }
     }
     
@@ -1893,6 +1623,15 @@ class ActiveRecord extends Object
         // set for linking class
         $obj = new $options['class_name'];
         
+        $table_str = $this->action_query()->build_identifier(array($this->table_name()));
+        $id_str = 'id';
+        $fk = Inflector::singularize($obj->table_name()) . '_' . $id_str;
+        
+        if ($this->action_query()->get_adapter_type() == 'ibmdb2') {
+            $id_str = strtoupper($id_str);
+            $fk = strtoupper($fk);
+        }
+        
         // set args
         $args = array('select' => "`{$obj->table_name()}`.*");
         if (!empty($options['where'])) {
@@ -1910,22 +1649,18 @@ class ActiveRecord extends Object
                     break;
                 
                 case $options['type'] == 'belongs_to':
-                    $fk = singularize($obj->table_name()) . '_id';
-                    $args['join'] = "INNER JOIN `{$this->table_name()}` ON `{$this->table_name()}`.`{$fk}` = `{$obj->table_name()}`.`id`";
-                    $args['conditions'] = array(
-                        $this->build_query_from_primary_keys(),
-                        $this->primary_keys_and_values()
-                        );
+                    $link1 = $this->action_query()->build_identifier(array($this->table_name(), $fk));
+                    $link2 = $this->action_query()->build_identifier(array($this->table_name(), $id_str));
+                    $args['join'] = "INNER JOIN {$table_str} ON {$link1} = {$link2}";
+                    $args['conditions'] = $this->primary_keys_and_values();
                     break;
                 
                 case $options['type'] == 'has_many':
                 case $options['type'] == 'has_one':
-                    $fk = singularize($this->table_name()) . '_id';
-                    $args['join'] = "INNER JOIN `{$this->table_name()}` ON `{$this->table_name()}`.`id` = `{$obj->table_name()}`.`{$fk}`";
-                    $args['conditions'] = array(
-                        $this->build_query_from_primary_keys(),
-                        $this->primary_keys_and_values()
-                        );
+                    $link1 = $this->action_query()->build_identifier(array($this->table_name(), $id_str));
+                    $link2 = $this->action_query()->build_identifier(array($this->table_name(), $fk));
+                    $args['join'] = "INNER JOIN {$table_str} ON {$link1} = {$link2}";
+                    $args['conditions'] = $this->primary_keys_and_values();
                     break;
             }
             
@@ -2043,10 +1778,14 @@ class ActiveRecord extends Object
      **/
     final public function current()
     {
-        // set attributes with current row
-        $this->attributes($this->select_query()->current(), true);
-        
-        // initialize class vars for each record
+    	$attibutes = $this->select_query()->current();
+    	if ($attibutes) {
+	        // set attributes with current row
+	        $this->set_attributes_from_query($attibutes);
+        } else {
+        	$this->reset_values();
+        }
+        // initialize class vars foreach record
         $this->initialize_class_vars();
         
         return clone $this;
@@ -2140,7 +1879,27 @@ class ActiveRecord extends Object
     }
     
     /**
-     * Pass through function used to add Prototype functionality to
+     * Return database name from current ActiveDatabase object.
+     *
+     * @return string
+     **/
+    public function database_name()
+    {
+        return $this->select_query()->db()->__database;
+    }
+    
+    /**
+     * Return schema name from current ActiveDatabase object.
+     *
+     * @return string
+     **/
+    public function schema_name()
+    {
+        return $this->select_query()->db()->__schema;
+    }
+    
+    /**
+     * Pass through function used to add CData functionality to
      * value if prototype is enabled.
      *
      * @param mixed $value
@@ -2149,7 +1908,7 @@ class ActiveRecord extends Object
     public function return_value($value)
     {
         if ($this->prototype(1)) {
-            return new Prototype($value);
+            return new CData($value);
         } else {
             return $value;
         }
@@ -2188,4 +1947,19 @@ class ActiveRecord extends Object
     public function validate_on_create() {}
     public function validate_on_update() {}
     /**#@-*/
-} // END class ActiveRecord extends Object
+    
+    private function __is_options_for_type($name)
+    {
+        if (!isset($this->_columns_[$name]->type)) return false;
+        switch (true) {
+            case $this->_columns_[$name]->type == 'ENUM':
+            case ($this->_columns_[$name]->type == 'TINYINT'
+                    && $this->_columns_[$name]->size == 1):
+            case $this->_columns_[$name]->type == 'SMALLINT':
+                    return true;
+            default:
+                return false;
+        }
+    }
+} // END class ActiveRecord extends CObject implements Iterator
+

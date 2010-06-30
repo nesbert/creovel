@@ -19,167 +19,166 @@
 class Inflector extends ModuleBase
 {
     /**
+     * Plural rules array.
+     *
+     * @var array
+     **/
+    public static $plural = array(
+        '/(quiz)$/i'               => "$1zes",
+        '/^(ox)$/i'                => "$1en",
+        '/([m|l])ouse$/i'          => "$1ice",
+        '/(matr|vert|ind)ix|ex$/i' => "$1ices",
+        '/(x|ch|ss|sh)$/i'         => "$1es",
+        '/([^aeiouy]|qu)y$/i'      => "$1ies",
+        '/(hive)$/i'               => "$1s",
+        '/(?:([^f])fe|([lr])f)$/i' => "$1$2ves",
+        '/(shea|lea|loa|thie)f$/i' => "$1ves",
+        '/sis$/i'                  => "ses",
+        '/([ti])um$/i'             => "$1a",
+        '/(tomat|potat|ech|her|vet)o$/i'=> "$1oes",
+        '/(bu)s$/i'                => "$1ses",
+        '/(alias)$/i'              => "$1es",
+        '/(octop)us$/i'            => "$1i",
+        '/(ax|test)is$/i'          => "$1es",
+        '/(us)$/i'                 => "$1es",
+        '/s$/i'                    => "s",
+        '/$/'                      => "s"
+    );
+    
+    /**
+     * Singular rules array.
+     *
+     * @var array
+     **/
+    public static $singular = array(
+            '/(quiz)zes$/i'             => "$1",
+            '/(matr)ices$/i'            => "$1ix",
+            '/(vert|ind)ices$/i'        => "$1ex",
+            '/^(ox)en$/i'               => "$1",
+            '/(alias)es$/i'             => "$1",
+            '/(octop|vir)i$/i'          => "$1us",
+            '/(cris|ax|test)es$/i'      => "$1is",
+            '/(shoe|foe)s$/i'               => "$1",
+            '/(o)es$/i'                 => "$1",
+            '/(bus)es$/i'               => "$1",
+            '/([m|l])ice$/i'            => "$1ouse",
+            '/(x|ch|ss|sh)es$/i'        => "$1",
+            '/(m)ovies$/i'              => "$1ovie",
+            '/(s)eries$/i'              => "$1eries",
+            '/([^aeiouy]|qu)ies$/i'     => "$1y",
+            '/([lr])ves$/i'             => "$1f",
+            '/(tive)s$/i'               => "$1",
+            '/(hive)s$/i'               => "$1",
+            '/(li|wi|kni)ves$/i'        => "$1fe",
+            '/(shea|loa|lea|thie)ves$/i'=> "$1f",
+            '/(^analy)ses$/i'           => "$1sis",
+            '/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i'  => "$1$2sis",
+            '/([ti])a$/i'               => "$1um",
+            '/(n)ews$/i'                => "$1ews",
+            '/(h|bl)ouses$/i'           => "$1ouse",
+            '/(corpse)s$/i'             => "$1",
+            '/(us)es$/i'                => "$1",
+            '/s$/i'                     => ""
+        );
+    
+    /**
+     * Irregular words list. 
+     *
+     * @var array
+     **/
+    public static $irregular = array(
+            'move'   => 'moves',
+            'foot'   => 'feet',
+            'goose'  => 'geese',
+            'sex'    => 'sexes',
+            'child'  => 'children',
+            'man'    => 'men',
+            'tooth'  => 'teeth',
+            'person' => 'people',
+            'complex' => 'complexes'
+        );
+        
+    /**
+     * Unaccountable words list. 
+     *
+     * @var array
+     **/
+    public static $uncountable = array(
+            'data',
+            'sheep',
+            'fish',
+            'deer',
+            'series',
+            'species',
+            'money',
+            'rice',
+            'information',
+            'equipment',
+        );
+    
+    
+    /**
      * Pluralizes English nouns.
      *
-     * @param string $word English noun to pluralize.
+     * @param string $string English noun to pluralize.
+     * @link http://kuwamoto.org/2007/12/17/improved-pluralizing-in-php-actionscript-and-ror/
      * @return string
      **/
-    public function pluralize($word)
+    public static function pluralize($string)
     {
-        $plural = array(
-                    '/(matr)ix$/i' => '\1ices',
-                    '/(octop|vir)us$/i' => '\1i',
-                    '/([m|l])ouse/i' => '\1ice',
-                    '/(tomato)$/i' => '\1es',
-                    '/(th)$/i' => '\1s',
-                    '/(h)$/i' => '\1es',
-                    '/(ay)$/i' => '\1s',
-                    '/y$/i' => '\1ies',
-                    '/^(ox)/i' => '\1en',
-                    '/(ex)$/i' => 'ices',
-                    '/(x)$/i' => '\1es',
-                    '/(ss)$/i' => '\1es',
-                    '/(us)$/i' => '\1es',
-                    '/(sis)$/i' => 'ses',
-                    '/(f|fe)$/i' => 'ves',
-                    '/(n)ews$/i' => '\1ews',
-                    '/ium$/i' => '\1ia',
-                    '/([ti])a$/i' => '\1um',
-                    '/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i' => '\1\2sis',
-                    '/(^analy)ses$/i' => '\1sis',
-                    '/([^f])ves$/i' => '\1fe',
-                    '/(hive)s$/i' => '\1',
-                    '/(tive)s$/i' => '\1',
-                    '/([lr])ves$/i' => '\1f',
-                    '/([^aeiouy]|qu)ies$/i' => '\1y',
-                    '/(s)eries$/i' => '\1eries',
-                    '/(m)ovies$/i' => '\1ovie',
-                    '/(x|ch|ss|sh)es$/i' => '\1',
-                    '/(bus)es$/i' => '\1',
-                    '/(lo)$/i' => '\1es',
-                    '/(o)es$/i' => '\1',
-                    '/(shoe)s$/i' => '\1',
-                    '/(ax)is$/i' => '\1es',
-                    '/(us)i$/i' => '\1us',
-                    '/(vert|ind)ices$/i' => '\1ex',
-                    '/(alias|status)$/i' => '\1es',
-                    '/(iz)$/i' => '\1zes',
-                    '/(tis)$/i' => 'tes',
-                    '/s$/i' => 's',
-                    '/$/' => 's'
-                    );
-        
-        $uncountable = array('data', 'equipment', 'information', 'rice',
-                            'money', 'species', 'series', 'fish', 'sheep' );
-        
-        $irregular = array(
-                    'person' => 'people',
-                    'man' => 'men',
-                    'child' => 'children',
-                    'sex' => 'sexes',
-                    'move' => 'moves'
-                    );
-        
-        $lowercased_word = strtolower($word);
-        
-        foreach ($uncountable as $_uncountable) {
-            if (substr($lowercased_word,(-1*strlen($_uncountable))) == $_uncountable){
-                return $word;
-            }
+        // save some time in the case that singular and plural are the same
+        if ( in_array( strtolower( $string ), self::$uncountable ) )
+            return $string;
+
+        // check for irregular singular forms
+        foreach ( self::$irregular as $pattern => $result )
+        {
+            $pattern = '/' . $pattern . '$/i';
+
+            if ( preg_match( $pattern, $string ) )
+                return preg_replace( $pattern, $result, $string);
         }
-        
-        foreach ($irregular as $_plural=> $_singular) {
-            if (preg_match('/('.$_plural.')$/i', $word, $arr)) {
-                return preg_replace('/('.$_plural.')$/i', substr($arr[0],0,1).substr($_singular,1), $word);
-            }
+
+        // check for matches using regular expressions
+        foreach ( self::$plural as $pattern => $result )
+        {
+            if ( preg_match( $pattern, $string ) )
+                return preg_replace( $pattern, $result, $string );
         }
-        
-        foreach ($plural as $rule => $replacement) {
-            if (preg_match($rule, $word)) {
-                return preg_replace($rule, $replacement, $word);
-            }
-        }
-        return false;
-    
+
+        return $string;
     }
     
     /**
      * Singularizes English nouns.
      *
-     * @param string $word English noun to singularize.
+     * @param string $string English noun to singularize.
+     * @link http://kuwamoto.org/2007/12/17/improved-pluralizing-in-php-actionscript-and-ror/
      * @return string
      **/
-    public function singularize($word)
+    public static function singularize($string)
     {
-        $singular = array(
-                '/(n)ews$/i' => '\1ews',
-                '/([ti])a$/i' => '\1um',
-                '/(perspective)a$/i' => '\1um',
-                '/(analy|ba|diagno|parenthe|progno|synop|the)ses$/i' => '\1\2sis',
-                '/(^analy)ses$/i' => '\1sis',
-                '/(archive)s$/i' => '\1',
-                '/(hal)ves$/i' => '\1f',
-                '/(dwar)ves$/i' => '\1f',
-                '/(tive)s$/i' => '\1',
-                '/(l)ves/i' => '\1f',
-                '/ves$/i' => '\1fe',
-                '/(ax)es/i' => '\1is',
-                '/([^f])ves$/i' => '\1fe',
-                '/(hive)s$/i' => '\1',
-                '/(tive)s$/i' => '\1',
-                '/([lr])ves$/i' => '\1f',
-                '/(movie)s$/i' => '\1',
-                '/([^aeiouy]|qu)ies$/i' => '\1y',
-                '/(s)eries$/i' => '\1eries',
-                '/(m)ovies$/i' => '\1ovie',
-                '/(x|ch|ss|sh)es$/i' => '\1',
-                '/([m|l])ice$/i' => '\1ouse',
-                '/(bus)es$/i' => '\1',
-                '/(shoe)s$/i' => '\1',
-                '/(o)es$/i' => '\1',
-                '/(cris|ax|test)es$/i' => '\1is',
-                '/(octop|vir)i$/i' => '\1us',
-                '/(alias|status)es$/i' => '\1',
-                '/^(ox)en/i' => '\1',
-                '/(vert|ind)ices$/i' => '\1ex',
-                '/(matr)ices$/i' => '\1ix',
-                '/(quiz)zes$/i' => '\1',
-                '/ss$/i' => '\1ss',
-                '/s$/i' => ''
-                );
-        
-        $uncountable = array('data', 'equipment', 'information', 'rice',
-                            'money', 'species', 'series', 'fish', 'sheep');
-        
-        $irregular = array(
-                        'person' => 'people',
-                        'man' => 'men',
-                        'child' => 'children',
-                        'sex' => 'sexes',
-                        'move' => 'moves'
-                        );
-        
-        $lowercased_word = strtolower($word);
-        
-        foreach ($uncountable as $_uncountable) {
-            if (substr($lowercased_word,(-1*strlen($_uncountable))) == $_uncountable) {
-                return $word;
-            }
+        // save some time in the case that singular and plural are the same
+        if ( in_array( strtolower( $string ), self::$uncountable ) )
+            return $string;
+
+        // check for irregular plural forms
+        foreach ( self::$irregular as $result => $pattern )
+        {
+            $pattern = '/' . $pattern . '$/i';
+
+            if ( preg_match( $pattern, $string ) )
+                return preg_replace( $pattern, $result, $string);
         }
-        
-        foreach ($irregular as $_plural => $_singular) {
-            if (preg_match('/('.$_singular.')$/i', $word, $arr)) {
-                return preg_replace('/('.$_singular.')$/i', substr($arr[0],0,1).substr($_plural,1), $word);
-            }
+
+        // check for matches using regular expressions
+        foreach ( self::$singular as $pattern => $result )
+        {
+            if ( preg_match( $pattern, $string ) )
+                return preg_replace( $pattern, $result, $string );
         }
-        
-        foreach ($singular as $rule => $replacement) {
-            if (preg_match($rule, $word)) {
-                return preg_replace($rule, $replacement, $word);
-            }
-        }
-        
-        return $word;
+
+        return $string;
     }
     
     /**
@@ -194,7 +193,7 @@ class Inflector extends ModuleBase
      * first character. Otherwise it will uppercase all the words in the title.
      * @return string
      **/
-    public function titleize($word, $uppercase = '')
+    public static function titleize($word, $uppercase = '')
     {
         $uppercase = $uppercase == 'first' ? 'ucfirst' : 'ucwords';
         return $uppercase(self::humanize(self::underscore($word)));
@@ -209,7 +208,7 @@ class Inflector extends ModuleBase
      * @param string $lowercamel
      * @return string
      **/
-    public function camelize($word, $lowercamel = false)
+    public static function camelize($word, $lowercamel = false)
     {
         $word = str_replace(' ', '', ucwords(preg_replace('/[^A-Z^a-z^0-9]+/',' ',$word)));
         if ($lowercamel) {
@@ -228,7 +227,7 @@ class Inflector extends ModuleBase
      * @param string $sep Default separator is an underscore ("_").
      * @return string
      **/
-    public function underscore($word, $sep = '_')
+    public static function underscore($word, $sep = '_')
     {
         return strtolower(
                 preg_replace('/[^A-Z^a-z^0-9]+/', $sep,
@@ -243,14 +242,13 @@ class Inflector extends ModuleBase
      * second parameter.
      *
      * @param string $word
-     * @param string $uppercase Set to 'all' to uppercase all the words instead
-     * of just the first one.
+     * @param boolean $ucwords
      * @return string
      **/
-    public function humanize($word, $uppercase = '')
+    public static function humanize($word, $ucwords = false)
     {
-        $uppercase = $uppercase == 'all' ? 'ucwords' : 'ucfirst';
-        return $uppercase(str_replace('_',' ',preg_replace('/_id$/', '',$word)));
+        $ucwords = $ucwords ? 'ucwords' : 'ucfirst';
+        return $ucwords(str_replace('_',' ',preg_replace('/_id$/', '',$word)));
     }
     
     /**
@@ -262,10 +260,9 @@ class Inflector extends ModuleBase
      * @see camelize()
      * @return string
      **/
-    public function variablize($word)
+    public static function variablize($word)
     {
-        $word = self::camelize($word);
-        return strtolower($word[0]).substr($word,1);
+        return self::camelize($word, 1);
     }
 
     /**
@@ -289,20 +286,20 @@ class Inflector extends ModuleBase
      * @see tableize()
      * @return string
      **/
-    public function classify($table_name)
+    public static function classify($table_name)
     {
         return self::camelize(self::singularize($table_name));
     }
 
-	/**
-	 * Converts number to its ordinal English form. This method
-	 * converts 13 to 13th, 2 to 2nd, etc.
-	 *
+    /**
+     * Converts number to its ordinal English form. This method
+     * converts 13 to 13th, 2 to 2nd, etc.
+     *
      * @param string/integer $number
-	 * @return string
-	 * @author Nesbert Hidalgo
-	 **/
-    public function ordinalize($number)
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public static function ordinalize($number)
     {
         if (in_array((intval($number) % 100),range(11,13))){
             return $number.'th';
@@ -327,19 +324,20 @@ class Inflector extends ModuleBase
      * Create a path string from class name. This method converts
      * API_PersonSubclass to api/person_subclass
      *
+     * @param string $class_name
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function patherize($class)
+    public static function patherize($class_name)
     {
-        if (in_string('_', $class)) {
-            $folders = explode('_', $class);
+        if (!(strpos($class_name, '_') === false)) {
+            $folders = explode('_', $class_name);
             foreach ($folders as $k => $v) {
                 $folders[$k] = self::underscore($v);
             }
             return implode(DS, $folders);
         } else {
-            return self::underscore($class);
+            return self::underscore($class_name);
         }
     }
 } // END class Inflector extends ModuleBase

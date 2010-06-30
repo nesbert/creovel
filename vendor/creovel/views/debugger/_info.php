@@ -19,7 +19,7 @@
     <td class="sub">Registered Adapters</td>
     <td>
         <em>
-        <?php if ($adapters = get_creovel_adapters()) foreach ($adapters as $name => $file) { ?>
+        <?php if ($adapters = Creovel::adapters()) foreach ($adapters as $name => $file) { ?>
             <?php
                 // skip these
                 switch ($name) {
@@ -29,9 +29,9 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo view_source_url($file); ?>"><?php echo $name; ?></a>
+            <a href="<?php echo Creovel::source_url($file); ?>"><?php echo Inflector::classify($name); ?></a>
             <?php } else { ?>
-            <?php echo $name; ?>
+            <?php echo Inflector::classify($name); ?>
             <?php } ?>
         <?php } else { ?>
             Not Available
@@ -43,7 +43,7 @@
     <td class="sub">Registered Modules</td>
     <td>
         <em>
-        <?php if ($services = get_creovel_modules()) foreach ($services as $name => $file) { ?>
+        <?php if ($services = Creovel::modules()) foreach ($services as $name => $file) { ?>
             <?php
                 // skip these
                 switch ($name) {
@@ -52,9 +52,9 @@
                 }
             ?>
             <?php if (CREO('show_source')) { ?>
-            <a href="<?php echo view_source_url($file); ?>"><?php echo $name; ?></a>
+            <a href="<?php echo Creovel::source_url($file); ?>"><?php echo Inflector::classify($name); ?></a>
             <?php } else { ?>
-            <?php echo $name; ?>
+            <?php echo Inflector::classify($name); ?>
             <?php } ?>
         <?php } else { ?>
             Not Available
@@ -88,39 +88,13 @@
         <dl>
             <dt><?php echo strtolower($mode); ?></dt>
             <?php if (count($data)) foreach($data as $key => $val) { ?>
-            <dd><?php echo strtolower($key); ?> =&gt; <?php echo (strtoupper($key) == 'PASSWORD' ? mask('hidelength') : $val); ?></dd>
+            <dd><?php echo strtolower($key); ?> =&gt; <?php echo (strtoupper($key) == 'PASSWORD' ? CString::mask('hidelength') : $val); ?></dd>
             <?php } ?>
         </dl>
         <?php } ?>
     </td>
 </tr>
 <?php } ?>
-</table>
-
-<h1>Constants</h1>
-<?php
-$data = get_user_defined_constants();
-include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
-?>
-
-
-<h1>Files</h1>
-<table cellspacing="0" class="block constants">
-<?php $total_filesize = 0; ?>
-<?php foreach(get_included_files() as $file => $value) { ?>
-<?php $total_filesize += filesize($value); ?>
-<tr>
-    <td class="sub"><?php print($file + 1); ?>.</td>
-    <td>
-        <?php if (CREO('show_source')) { ?>
-        <a href="<?php echo view_source_url($value); ?>"><?php echo $value; ?> (<?php echo get_filesize($value); ?>)</a>
-        <?php } else { ?>
-        <?php echo $value; ?> (<?php echo get_filesize($value); ?>)
-        <?php } ?>
-    </td>
-</tr>
-<?php } ?>
-<tr><td class="sub">Total</td><td><?php print($file + 1); ?> Files (<?php echo get_filesize($total_filesize); ?>)</td></tr>
 </table>
 
 <?php if (isset($_GET) && count($_GET)) { ?>
@@ -160,3 +134,29 @@ include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
 $data = $_SERVER;
 include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
 ?>
+
+<h1>Constants</h1>
+<?php
+$data = CObject::user_defined_constants();
+include CREOVEL_PATH.'views'.DS.'debugger'.DS.'_info_table.php';
+?>
+
+
+<h1>Files</h1>
+<table cellspacing="0" class="block constants">
+<?php $total_filesize = 0; ?>
+<?php foreach(get_included_files() as $file => $value) { ?>
+<?php $total_filesize += filesize($value); ?>
+<tr>
+    <td class="sub"><?php print($file + 1); ?>.</td>
+    <td>
+        <?php if (CREO('show_source')) { ?>
+        <a href="<?php echo Creovel::source_url($value); ?>"><?php echo $value; ?> (<?php echo CFile::size($value); ?>)</a>
+        <?php } else { ?>
+        <?php echo $value; ?> (<?php echo CFile::size($value); ?>)
+        <?php } ?>
+    </td>
+</tr>
+<?php } ?>
+<tr><td class="sub">Total</td><td><?php print($file + 1); ?> Files (<?php echo CFile::size($total_filesize); ?>)</td></tr>
+</table>

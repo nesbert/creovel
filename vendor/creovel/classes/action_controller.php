@@ -9,7 +9,7 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-abstract class ActionController extends Object
+abstract class ActionController extends CObject
 {
     /**
      * Name of controller to use.
@@ -65,7 +65,7 @@ abstract class ActionController extends Object
      **/
     public function __set_events($events)
     {
-        $events['action'] = underscore($events['action']);
+        $events['action'] = Inflector::underscore($events['action']);
         $this->_controller = $events['controller'];
         $this->_action = $events['action'];
         if (!$this->render) {
@@ -271,7 +271,7 @@ abstract class ActionController extends Object
                     break;
             }
         } catch (Exception $e) {
-            CREO('error_code', 404);
+            CREO('application_error_code', 404);
             CREO('application_error', $e);
         }
     }
@@ -378,7 +378,7 @@ abstract class ActionController extends Object
                                 $route_name);
         $params = array();
         if ($id) $params['id'] = $id;
-        return Creovel::run($events, array_merge($params, $extras), $to_str);
+        return Creovel::web($events, array_merge($params, $extras), $to_str);
     }
     
     /**
@@ -454,12 +454,11 @@ abstract class ActionController extends Object
      **/
     public function throw_error($msg = null, $error_code = 404)
     {
-        if (!$msg) {
+        if (empty($msg)) {
             $msg = 'An error occurred while executing the action ' .
-            "<em>{$this->_action}</em> in the <strong> " . get_class($this) .
-            '</strong>.';
+            "<em>{$this->_action}</em> in the <strong>{$this->to_string()}</strong>.";
         }
-        CREO('error_code', $error_code);
+        CREO('application_error_code', $error_code);
         CREO('application_error', $msg);
     }
     
@@ -495,4 +494,4 @@ abstract class ActionController extends Object
         return VIEWS_PATH . 'layouts' . DS .
                 ($layout ? $layout : $this->layout) . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
     }
-} // END abstract class ActionController extends Object
+} // END abstract class ActionController extends CObject

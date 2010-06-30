@@ -11,40 +11,6 @@
 class MysqlImproved extends AdapterBase
 {
     /**
-     * Database resource.
-     *
-     * @var resource
-     **/
-    public $db;
-    
-    /**
-     * SQL query string.
-     *
-     * @var string
-     **/
-    public $query = '';
-    
-    /**
-     * Result row offset. Must be between zero and the total number
-     * of rows minus one.
-     *
-     * @var integer
-     **/
-    public $offset = 0;
-    
-    /**
-     * Pass an associative array of database settings to connect
-     * to database on construction of class.
-     *
-     * @return void
-     **/
-    public function  __construct($db_properties = null)
-    {
-        // if properties passed connect to database
-        if (is_array($db_properties)) $this->connect($db_properties);
-    }
-    
-    /**
      * Opens a connection to the MySQL Server with $db_properties an
      * array of database settings.
      *
@@ -53,14 +19,27 @@ class MysqlImproved extends AdapterBase
      **/
     public function connect($db_properties)
     {
+        if (empty($db_properties['host'])
+            || empty($db_properties['username'])
+            || empty($db_properties['password'])) {
+            self::throw_error('Could not connect to server because of '.
+                'missing arguments for $db_properties.');
+            
+        }
+        
+        if (!empty($db_properties['persistent'])
+            && PHP_VERSION >= '5.3') {
+            $db_properties['host'] = 'p:'.$db_properties['host'];
+        }
+        
         // open a connection to a MySQL Server and set db_link
         $this->db = @new mysqli(
             $db_properties['host'],
             $db_properties['username'],
             $db_properties['password'],
-            $db_properties['database'],
-            isset($db_properties['port']) ? $db_properties['port'] : null,
-            isset($db_properties['socket']) ? $db_properties['socket'] : null
+            !empty($db_properties['database']) ? $db_properties['database'] : null,
+            !empty($db_properties['port']) ? $db_properties['port'] : null,
+            !empty($db_properties['socket']) ? $db_properties['socket'] : null
             );
         
         if (mysqli_connect_error()) {
@@ -79,8 +58,8 @@ class MysqlImproved extends AdapterBase
         $this->close();
         
         // close MySQL connection
-        if (isset($this->db) && is_resource($this->db)) {
-            $this->db->close();
+        if (isset($this->db) && is_object($this->db)) {
+            return $this->db->close();
         }
     }
     
@@ -134,8 +113,8 @@ class MysqlImproved extends AdapterBase
      **/
     public function close()
     {
-        if (isset($this->result) && is_resource($this->result)) {
-            $this->result->close();
+        if (isset($this->result) && is_object($this->result)) {
+            $this->free_result();
         }
     }
     
@@ -147,7 +126,11 @@ class MysqlImproved extends AdapterBase
      **/
     public function get_row()
     {
-        return $this->result->fetch_object();
+        if ($this->valid()) {
+            return $this->result->fetch_object();
+        } else {
+            return false;
+        }
     }
     
     /**
@@ -238,24 +221,18 @@ class MysqlImproved extends AdapterBase
      **/
     public function reset()
     {
-        // reset properties
-        $this->query = '';
-        $this->offset = 0;
-        
-        // release result resource
-        if (is_resource($this->db) && is_resource($this->result)) {
-            $this->free_result();
-        }
+        parent::reset();
     }
     
     /**
      * Free results resource.
      *
-     * @return boolean
+     * @return void
      **/
     public function free_result()
     {
-        return $this->result->close();
+        $this->result->close();
+        $this->result = null;
     }
     
     /**
@@ -270,7 +247,11 @@ class MysqlImproved extends AdapterBase
      **/
     public function valid()
     {
-        return $this->result->data_seek($this->offset);
+        if ($this->result) {
+            return $this->result->data_seek($this->offset);
+        } else {
+            return false;
+        }
     }
     
     /**

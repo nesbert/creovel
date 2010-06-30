@@ -1,29 +1,33 @@
 <?php
 /**
- * Language and location functions.
+ * Base Locale class for language and location functions.
  *
  * @package     Creovel
- * @subpackage  Helpers
+ * @subpackage  Core
  * @license     http://creovel.org/license MIT License
- * @since       Class available since Release 0.4.0
-**/
-
-/**
- * Returns an array of countries and states. Only US and Canada
- * states/provinces for now.
- *
- * @return array
- * @author Nesbert Hidalgo
+ * @since       Class available since Release 0.4.5
+ * @author      Nesbert Hidalgo
  **/
-function countries_array($more_states = false)
+class CLocale extends CObject
 {
-    if (isset($GLOBALS['CREOVEL']['COUNTRIES'])) {
-        return $GLOBALS['CREOVEL']['COUNTRIES'];
-    } else {
+    /**
+     * Returns an array of countries and states. Only US and Canada
+     * states/provinces for now.
+     *
+     * @param boolean $more_states
+     * @return array
+     * @author Nesbert Hidalgo
+     **/
+    public static function countries_array($more_states = false)
+    {
+        if (!$more_states && isset($GLOBALS['CREOVEL']['COUNTRIES'])) {
+            return $GLOBALS['CREOVEL']['COUNTRIES'];
+        }
+        
         if ($more_states) {
             $usa = array(
-                'AK' => 'Alaska',
                 'AL' => 'Alabama',
+                'AK' => 'Alaska',
                 'AR' => 'Arkansas',
                 'AS' => 'American Samoa',
                 'AZ' => 'Arizona',
@@ -87,8 +91,8 @@ function countries_array($more_states = false)
                 );
         } else {
             $usa = array(
-                'AK' => 'Alaska',
                 'AL' => 'Alabama',
+                'AK' => 'Alaska',
                 'AR' => 'Arkansas',
                 'AZ' => 'Arizona',
                 'CA' => 'California',
@@ -139,7 +143,7 @@ function countries_array($more_states = false)
                 'WY' => 'Wyoming',
                 );
         }
-        
+
         $canada = array(
             'AB' => 'Alberta',
             'MB' => 'Manitoba',
@@ -157,7 +161,7 @@ function countries_array($more_states = false)
             'SK' => 'Saskatchewan',
             'YT' => 'Yukon Territory',
             );
-        
+
         return $GLOBALS['CREOVEL']['COUNTRIES'] = array(
             'AF' => array('name' => 'Afghanistan'),
             'AL' => array('name' => 'Albania'),
@@ -335,7 +339,7 @@ function countries_array($more_states = false)
             'PR' => array('name' => 'Puerto Rico'),
             'QA' => array('name' => 'Qatar'),
             'RE' => array('name' => 'Reunion'),
-            'RO' => array('name' => 'R omania'),
+            'RO' => array('name' => 'Romania'),
             'RU' => array('name' => 'Russian Federation'),
             'RW' => array('name' => 'Rwanda'),
             'SH' => array('name' => 'Saint Helena'),
@@ -400,152 +404,159 @@ function countries_array($more_states = false)
             'ZW' => array('name' => 'Zimbabwe')
             );
     }
-}
 
-/**
- * Returns an array of countries.
- *
- * @param boolean $us_first
- * @param boolean $show_abbr
- * @return array
- * @author Nesbert Hidalgo
- **/
-function countries($us_first = false, $show_abbr = false)
-{
-    if ($us_first) {
-        $countries = array(
-            'US' => 'United States',
-            'CA' => 'Canada',
-            'MX' => 'Mexico',
-            '   ' => '-----------------'
-        );
+    /**
+     * Returns an array of countries.
+     *
+     * @param boolean $us_first
+     * @param boolean $show_abbr
+     * @return array
+     * @author Nesbert Hidalgo
+     **/
+    public static function countries($us_first = false, $show_abbr = false)
+    {
+        if ($us_first) {
+            $countries = array(
+                'US' => 'United States',
+                'CA' => 'Canada',
+                'MX' => 'Mexico',
+                '   ' => '-----------------'
+            );
+        }
+        foreach (self::countries_array() as $k => $v) {
+            $countries[$k] = ($show_abbr ? $k . ' - ' : '') . $v['name'];
+        }
+        return $countries;
     }
-    foreach (countries_array() as $k => $v) {
-        $countries[$k] = ($show_abbr ? $k . ' - ' : '') . $v['name'];
-    }
-    return $countries;
-}
 
-/**
- * Returns an array of states/provinces.
- *
- * @param boolean $country Default is 'US'
- * @param boolean $show_abbr
- * @param boolean $more_states
- * @return array
- * @author Nesbert Hidalgo
- **/
-function states($country = 'US', $show_abbr = false, $more_states = false)
-{
-    static $states;
-    static $selected;
-    if ($selected != $country) {
-        $selected = $country;
-        $states = array();
-        $countries = countries_array($more_states);
-        if (!empty($countries[$country]['states'])) {
-            $states = $countries[$country]['states'];
-            if ($show_abbr) {
-                foreach ($states as $k => $v) $states[$k] = $k . ' - ' . $v;
-            } else {
-                if (!$more_states) asort($states);
+    /**
+     * Returns an array of states/provinces.
+     *
+     * @param boolean $country Default is 'US'
+     * @param boolean $show_abbr
+     * @param boolean $more_states
+     * @return array
+     * @author Nesbert Hidalgo
+     **/
+    public static function states($country = 'US', $show_abbr = false, $more_states = false)
+    {
+        static $states;
+        static $selected;
+        if ($selected != $country
+            || ($show_abbr != false || $more_states != false)) {
+            $selected = $country;
+            $states = array();
+            $countries = self::countries_array($more_states);
+            if (!empty($countries[$country]['states'])) {
+                $states = $countries[$country]['states'];
+                if ($show_abbr) {
+                    foreach ($states as $k => $v) {
+                        $states[$k] = $k . ' - ' . $v;
+                    }
+                } else {
+                    if (!$more_states) asort($states);
+                }
             }
         }
+        return $states;
     }
-    return $states;
-}
 
-/**
- * Returns an array of timezone with GMT labels for keys and
- * timezone name as value.
- *
- * @return void
- * @author Nesbert Hidalgo
- **/
-function timezones()
-{
-    if (isset($GLOBALS['CREOVEL']['TIMEZONES'])) {
-        return $GLOBALS['CREOVEL']['TIMEZONES'];
-    } else {
-        return $GLOBALS['CREOVEL']['TIMEZONES'] = array(
-            "US & Canada" => "US/Pacific",
-            "-10:00 Hawaii" => "US/Hawaii",
-            "-09:00 Alaska" => "US/Alaska",
-            "-08:00 Pacific Time" => "US/Pacific",
-            "-08:00 Pacific Time (Yukon)" =>"Canada/Yukon",
-            "-07:00 Arizona" => "US/Arizona",
-            "-07:00 Mountain Time" => "US/Mountain",
-            "-06:00 Central Time" => "US/Central",
-            "-06:00 Saskatchewan" => "Canada/Saskatchewan",
-            "-06:00 Saskatchewan (East)" => "Canada/East-Saskatchewan",
-            "-05:00 Eastern Time" => "US/Eastern",
-            "-05:00 Eastern Time (Michigan)" => "US/Michigan",
-            "-05:00 Indiana (East)" => "US/East-Indiana",
-            "-05:00 Indiana (Starke)" => "US/Indiana-Starke",
-            "-04:00 Atlantic Time (Canada)" => "Canada/Atlantic",
-            "-03:30 Newfoundland" => "Canada/Newfoundland",
-            "International" => "GMT",
-            "-12:00 Eniwetok, Kwajalein" => "Pacific/Kwajalein",
-            "-11:00 Midway Island, Samoa" => "US/Samoa",
-            "-06:00 Central America" => "Etc/GMT-6",
-            "-06:00 Mexico City" => "America/Mexico_City",
-            "-05:00 Bogota, Lima, Quito" => "America/Bogota",
-            "-04:00 Caracas, La Paz" => "America/Caracas",
-            "-04:00 Santiago" => "America/Santiago",
-            "-03:00 Brasilia" => "Brazil/West",
-            "-03:00 Greenland" => "Etc/GMT-3",
-            "-02:00 Mid-Atlantic" => "Etc/GMT-2",
-            "-01:00 Azores" => "Atlantic/Azores",
-            "-01:00 Cape Verde Is." => "Atlantic/Cape_Verde",
-            "GMT Casablanca, Monrovia" => "Africa/Casablanca",
-            "Greenwich Mean Time GMT: Dublin, Edinburgh, Lisbon, London" => "GMT",
-            "+01:00 Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna" => "Etc/GMT+1",
-            "+01:00 Belgrade, Bratislava, Budapest, Ljubljana, Prague" => "Etc/GMT+1",
-            "+01:00 Brussels, Copenhagen, Madrid, Paris" => "Etc/GMT+1",
-            "+01:00 Sarajevo, Skopje, Sofija, Vilnius, Warsaw, Zagreb" => "Etc/GMT+1",
-            "+01:00 West Central Africa" => "Etc/GMT+1",
-            "+02:00 Athens, Istanbul, Minsk" => "Etc/GMT+2",
-            "+02:00 Bucharest" => "Etc/GMT+2",
-            "+02:00 Cairo" => "Etc/GMT+2",
-            "+02:00 Harare, Pretoria" => "Etc/GMT+2",
-            "+02:00 Helsinki, Riga, Tallinn" => "Etc/GMT+2",
-            "+02:00 Jarusalem" => "Etc/GMT+2",
-            "+03:00 Baghdad" => "Etc/GMT+3",
-            "+03:00 Kuwait, Riyadh" => "Etc/GMT+3",
-            "+03:00 Moscow, St. Peter sburg, Volgograd" => "Etc/GMT+3",
-            "+03:00 Nairobi"=> "Etc/GMT+3",
-            "+03:30 Tehran" => "Etc/GMT+3",
-            "+04:00 Abu Dhabi, Muscat" => "Etc/GMT+4",
-            "+04:00 Baku, bilisi, erevan" => "Etc/GMT+4",
-            "+04:30 Kabul" => "Asia/Kabul",
-            "+05:00 Ekaterinburg" => "Etc/GMT+5",
-            "+05:00Islamabad, Karachi, Tashkent" => "Etc/GMT+5",
-            "+05:30 Calcutta, Chennai, Mumbai, New Delhi" => "Asia/Calcutta",
-            "+05:45 Kathmandu" => "Asia/Katmandu",
-            "+06:00 Almatay, Novosibirsk" => "Etc/GMT+6",
-            "+06:00Astana, Dhaki" => "Etc/GMT+6",
-            "+06:00 Sri Jayawardenepura" => "Etc/GMT+6",
-            "+06:30 Rangoon" => "Asia/Rangoon",
-            "+07:00 Bangkok, Hanoi, Jakarta" => "Etc/GMT+7",
-            "+07:00 Krasnoyarsk" => "Etc/GMT+7",
-            "+08:00Beijing, Chongqing, Hong Kong, Urumqi" => "Etc/GMT+8",
-            "+08:00 Irkutsk, Ulaan Bataar" => "Etc/GMT+8",
-            "+08:00 Kuala Lumpur, Singapore" => "Etc/GMT+8",
-            "+08:00 Perth" => "Etc/GMT+8",
-            "+08:00Taipei" => "Etc/GMT+8",
-            "+09:00 Osaka, Sapporo, Tokyo" => "Etc/GMT+9",
-            "+09:00 Seoul" => "Etc/GMT+9",
-            "+09:00 Yakutsk" => "Etc/GMT+9",
-            "+09:30 Adelaide" => "Etc/GMT+9",
-            "+09:30 Darwin" => "Australia/Darwin",
-            "+10:00 Brisbane" => "Etc/GMT+10",
-            "+10:00 Canberra, Melbourne, Sydney" => "Etc/GMT+10",
-            "+10:00 Guam, Port Moresby" => "Etc/GMT+10",
-            "+10:00 Hobart" => "Etc/GMT+10",
-            "+10:00 Vladivostok" => "Etc/GMT+10",
-            "+11:00 Magadan, Solomon Is., New Caledonia" => "Etc/GMT+11",
-            "+12:00 Auckland, ellington" => "Etc/GMT+12",
-            "+12:00 Fiji, Kamchatka, Marshall Is." => "Etc/GMT+12"
-            );
+    /**
+     * Returns an array of timezone with GMT labels for keys and
+     * timezone name as value.
+     *
+     * @return void
+     * @author Nesbert Hidalgo
+     **/
+    public static function timezones()
+    {
+        if (isset($GLOBALS['CREOVEL']['TIMEZONES'])) {
+            return $GLOBALS['CREOVEL']['TIMEZONES'];
+        } else {
+            return $GLOBALS['CREOVEL']['TIMEZONES'] = array(
+                "US & Canada" => "US/Pacific",
+                "-10:00 Hawaii" => "US/Hawaii",
+                "-09:00 Alaska" => "US/Alaska",
+                "-08:00 Pacific Time" => "US/Pacific",
+                "-08:00 Pacific Time (Yukon)" =>"Canada/Yukon",
+                "-07:00 Arizona" => "US/Arizona",
+                "-07:00 Mountain Time" => "US/Mountain",
+                "-06:00 Central Time" => "US/Central",
+                "-06:00 Saskatchewan" => "Canada/Saskatchewan",
+                "-06:00 Saskatchewan (East)" => "Canada/East-Saskatchewan",
+                "-05:00 Eastern Time" => "US/Eastern",
+                "-05:00 Eastern Time (Michigan)" => "US/Michigan",
+                "-05:00 Indiana (East)" => "US/East-Indiana",
+                "-05:00 Indiana (Starke)" => "US/Indiana-Starke",
+                "-04:00 Atlantic Time (Canada)" => "Canada/Atlantic",
+                "-03:30 Newfoundland" => "Canada/Newfoundland",
+                "International" => "GMT",
+                "-12:00 Eniwetok, Kwajalein" => "Pacific/Kwajalein",
+                "-11:00 Midway Island, Samoa" => "US/Samoa",
+                "-06:00 Central America" => "Etc/GMT-6",
+                "-06:00 Mexico City" => "America/Mexico_City",
+                "-05:00 Bogota, Lima, Quito" => "America/Bogota",
+                "-04:00 Caracas, La Paz" => "America/Caracas",
+                "-04:00 Santiago" => "America/Santiago",
+                "-03:00 Brasilia" => "Brazil/West",
+                "-03:00 Greenland" => "Etc/GMT-3",
+                "-02:00 Mid-Atlantic" => "Etc/GMT-2",
+                "-01:00 Azores" => "Atlantic/Azores",
+                "-01:00 Cape Verde Is." => "Atlantic/Cape_Verde",
+                "GMT Casablanca, Monrovia" => "Africa/Casablanca",
+                "Greenwich Mean Time GMT: Dublin, Edinburgh, Lisbon, London" => "GMT",
+                "+01:00 Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna" =>
+                    "Etc/GMT+1",
+                "+01:00 Belgrade, Bratislava, Budapest, Ljubljana, Prague" =>
+                    "Etc/GMT+1",
+                "+01:00 Brussels, Copenhagen, Madrid, Paris" => "Etc/GMT+1",
+                "+01:00 Sarajevo, Skopje, Sofija, Vilnius, Warsaw, Zagreb" =>
+                    "Etc/GMT+1",
+                "+01:00 West Central Africa" => "Etc/GMT+1",
+                "+02:00 Athens, Istanbul, Minsk" => "Etc/GMT+2",
+                "+02:00 Bucharest" => "Etc/GMT+2",
+                "+02:00 Cairo" => "Etc/GMT+2",
+                "+02:00 Harare, Pretoria" => "Etc/GMT+2",
+                "+02:00 Helsinki, Riga, Tallinn" => "Etc/GMT+2",
+                "+02:00 Jerusalem" => "Etc/GMT+2",
+                "+03:00 Baghdad" => "Etc/GMT+3",
+                "+03:00 Kuwait, Riyadh" => "Etc/GMT+3",
+                "+03:00 Moscow, St. Petersburg, Volgograd" => "Etc/GMT+3",
+                "+03:00 Nairobi"=> "Etc/GMT+3",
+                "+03:30 Tehran" => "Etc/GMT+3",
+                "+04:00 Abu Dhabi, Muscat" => "Etc/GMT+4",
+                "+04:00 Baku, bilisi, erevan" => "Etc/GMT+4",
+                "+04:30 Kabul" => "Asia/Kabul",
+                "+05:00 Ekaterinburg" => "Etc/GMT+5",
+                "+05:00Islamabad, Karachi, Tashkent" => "Etc/GMT+5",
+                "+05:30 Calcutta, Chennai, Mumbai, New Delhi" =>
+                    "Asia/Calcutta",
+                "+05:45 Kathmandu" => "Asia/Katmandu",
+                "+06:00 Almatay, Novosibirsk" => "Etc/GMT+6",
+                "+06:00 Astana, Dhaki" => "Etc/GMT+6",
+                "+06:00 Sri Jayawardenepura" => "Etc/GMT+6",
+                "+06:30 Rangoon" => "Asia/Rangoon",
+                "+07:00 Bangkok, Hanoi, Jakarta" => "Etc/GMT+7",
+                "+07:00 Krasnoyarsk" => "Etc/GMT+7",
+                "+08:00Beijing, Chongqing, Hong Kong, Urumqi" => "Etc/GMT+8",
+                "+08:00 Irkutsk, Ulaan Bataar" => "Etc/GMT+8",
+                "+08:00 Kuala Lumpur, Singapore" => "Etc/GMT+8",
+                "+08:00 Perth" => "Etc/GMT+8",
+                "+08:00Taipei" => "Etc/GMT+8",
+                "+09:00 Osaka, Sapporo, Tokyo" => "Etc/GMT+9",
+                "+09:00 Seoul" => "Etc/GMT+9",
+                "+09:00 Yakutsk" => "Etc/GMT+9",
+                "+09:30 Adelaide" => "Etc/GMT+9",
+                "+09:30 Darwin" => "Australia/Darwin",
+                "+10:00 Brisbane" => "Etc/GMT+10",
+                "+10:00 Canberra, Melbourne, Sydney" => "Etc/GMT+10",
+                "+10:00 Guam, Port Moresby" => "Etc/GMT+10",
+                "+10:00 Hobart" => "Etc/GMT+10",
+                "+10:00 Vladivostok" => "Etc/GMT+10",
+                "+11:00 Magadan, Solomon Is., New Caledonia" => "Etc/GMT+11",
+                "+12:00 Auckland, ellington" => "Etc/GMT+12",
+                "+12:00 Fiji, Kamchatka, Marshall Is." => "Etc/GMT+12"
+                );
+        }
     }
-}
+} // END class CLocale extends CObject

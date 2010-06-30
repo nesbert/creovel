@@ -6,10 +6,10 @@ require_once('base');
 // Genrate routine.
 
 switch (true) {
-	// create schema
-	case $args[0] == 'schema':
-		__create_schema($params, $flags);
-		break;
+    // create schema
+    case $args[0] == 'schema':
+        __create_schema($params, $flags);
+        break;
 }
 
 
@@ -20,12 +20,15 @@ switch (true) {
  **/
 function __create_schema($params, $flags = null)
 {
-	@$options = array(
+    if (!empty($params['model'])) {
+        $params['class_name'] = $params['model']; 
+    }
+    @$options = array(
         'class_name'    => $params['class_name'],
         'table_name'    => $params['table_name'],
         'file'          => $params['file']
-		);
-    if (DatabaseXML::create_file($options)) {
-        echo "Schema created!\n";
+        );
+    if ($file = DatabaseFile::create($options)) {
+        echo "Schema created ({$file})!\n";
     }
 }

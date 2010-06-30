@@ -8,91 +8,12 @@
  * @since       Class available since Release 0.1.0
  **/
 
-/**
- * Autoload routine for controllers, interfaces, adapters, services, vendor,
- * mailer and models.
- *
- * @access private
- * @param string $class
- * @author Nesbert Hidalgo
- **/
-function __autoload_creovel($class)
-{
-    try {
-        // check for nested paths
-        $class = Inflector::patherize($class);
-        
-        // make all file names under score
-        $class = strtolower($class);
-        
-        switch (true) {
-            
-            case (ends_with('controller', strtolower($class))):
-                $type = 'Controller';
-                $path = CONTROLLERS_PATH . $class . '.php';
-                break;
-                
-            case (true):
-                $type = 'Core Class';
-                $path = CREOVEL_PATH . 'classes' . DS . $class.'.php';
-                if (file_exists($path)) break;
-                
-            case (true):
-                $type = 'Adapter';
-                $path = CREOVEL_PATH . 'adapters' . DS . $class . '.php';
-                if (file_exists($path)) break;
-                
-            case (true):
-                $type = 'Module';
-                $path = CREOVEL_PATH . 'modules' . DS . $class . '.php';
-                if (file_exists($path)) break;
-                
-            case (true):
-                $type = 'Vendor';
-                $path = VENDOR_PATH . $class . '.php';
-                if (file_exists($path)) break;
-                
-            case (true):
-            
-                $type = in_string('Mailer', $class) ? 'Mailer' : 'Model';
-                $path = MODELS_PATH . $class . '.php';
-                // if model found locally
-                if (file_exists($path)) {
-                    break;
-                } else  {
-                    // check shared
-                    @$shared_path = SHARED_PATH . $class . '.php';
-                    if (file_exists($shared_path)) {
-                        $path = $shared_path;
-                        break;
-                    }
-                }
-        }
-        
-        if (file_exists($path)) {
-            require_once $path;
-        } else {
-            $file = $class;
-            if ($type == 'Controller') CREO('error_code', 404);
-            if ($type == 'Controller' || $type == 'Model' || $type == 'Mailer') {
-                $folders = explode('/', $class);
-                foreach ($folders as $k => $v) {
-                    $folders[$k] = Inflector::classify($v);
-                }
-                $class = implode('_', $folders);
-            }
-            throw new Exception("{$class} not found in <strong>{$path}</strong>");
-        }
-    } catch (Exception $e) {
-        // __PHP_Incomplete_Class Object bypass flag 
-        if (empty($GLOBALS['CREOVEL']['SKIP_AUTOLOAD_ERRORS'])) {
-            CREO('application_error', $e);
-        } else {
-            if (!empty($GLOBALS['CREOVEL']['LOG_ERRORS'])) {
-                CREO('log', 'Error: ' . $e->getMessage());
-            }
-        }
-    }
+// Be kind to existing __autoload routines
+if (PHP <= '5.1.2') {
+    function __autoload($class) { Creovel::autoload($class); }
+} else {
+    spl_autoload_register(array('Creovel', 'autoload'));
+    if (function_exists('__autoload')) spl_autoload_register('__autoload');
 }
 
 /**
@@ -120,7 +41,7 @@ function CREO()
     switch (true) {
         case $key == 'APPLICATION_ERROR':
             $GLOBALS['CREOVEL']['ERROR']->add($val);
-            break;
+            return;
             
         case $key == 'DATABASE':
             $mode = strtoupper($val['mode']);
@@ -143,20 +64,26 @@ function CREO()
             if (isset($val['schema'])) {
                 $GLOBALS['CREOVEL']['DATABASES'][$mode]['schema'] = $val['schema'];
             }
-            break;
+            if (isset($val['persistent'])) {
+                $GLOBALS['CREOVEL']['DATABASES'][$mode]['persistent'] = $val['persistent'];
+            }
+            return;
         
         case $key == 'LOG':
             $log = new Logger(empty($args[2]) ? @LOG_PATH . $GLOBALS['CREOVEL']['MODE'] . '.log' : $args[2]);
             $log->write(str_replace(array('<em>', '</em>', '<strong>', '</strong>'), '"', $val));
             break;
             
+        case $key == 'SESSION' && !empty($val):
+            $GLOBALS['CREOVEL'][$key] = $val;
+            ActiveSession::start();
+            return $GLOBALS['CREOVEL'][$key];
+            
         case $val !== null:
             return $GLOBALS['CREOVEL'][$key] = $val;
-            break;
             
         default:
             return $GLOBALS['CREOVEL'][$key];
-            break;
     }
 }
 
@@ -258,45 +185,6 @@ function flash_success($message = null)
 }
 
 /**
- * Stops the application and display an error message or handle error
- * gracefully if not in development mode.
- *
- * @param string $message Error message
- * @param boolean $thow_exception Optional displays additional debugging info
- * @return mixed String or boolean
- * @author Nesbert Hidalgo
- **/
-function application_error($message, $thow_exception = false)
-{
-    if ($thow_exception) {
-        $thow_exception = new Exception($message);
-    }
-    $GLOBALS['CREOVEL']['ERROR']->add($message, $thow_exception);
-}
-
-/**
- * Returns an array of the adapters available to the framework.
- *
- * @return array
- * @author Nesbert Hidalgo
- **/
-function get_creovel_adapters()
-{
-    return get_files_from_dir(CREOVEL_PATH.'adapters');
-}
-
-/**
- * Returns an array of the services available to the framework.
- *
- * @return array
- * @author Nesbert Hidalgo
- **/
-function get_creovel_modules()
-{
-    return get_files_from_dir(CREOVEL_PATH.'modules');
-}
-
-/**
  * Creates a url path for lazy programmers.
  *
  * <code>
@@ -313,7 +201,7 @@ function get_creovel_modules()
 function url_for()
 {
     $args = func_get_args();
-    $use_pretty_urls = ends_with('*', $GLOBALS['CREOVEL']['ROUTING']['current']['url']);
+    $use_pretty_urls = CString::ends_with('*', @$GLOBALS['CREOVEL']['ROUTING']['current']['url']);
     
     if (is_array($args[0])) {
         
@@ -362,8 +250,8 @@ function url_for()
         $https = true;
     }
     // build url
-    $uri = $GLOBALS['CREOVEL']['ROUTING']['base_url'] . (!$controller && $action
-                ? get_controller()
+    $uri = @$GLOBALS['CREOVEL']['ROUTING']['base_url'] . (!$controller && $action
+                ? Creovel::events('controller')
                 : $controller ) . ($action ? "/{$action}" : '');
     
     if (@$misc) {
@@ -413,33 +301,4 @@ function redirect_to_url($url)
 {
     header('location: ' . $url);
     die;
-}
-
-/**
- * Create a URL to view source of page. Used for when framework is 
- * in dev mode and viewing source set to "true".
- *
- * @access private
- * @param string $file
- * @return string
- * @author Nesbert Hidalgo
- **/
-function view_source_url($file)
-{
-    return $_SERVER['REQUEST_URI'] .
-                (strstr($_SERVER['REQUEST_URI'], '?') ? '&' : '?') .
-                    'view_source=' . $file;
-}
-
-/**
- * Create a Prototype object from $val. Helper function for the
- * Prototype data classes.
- *
- * @param mixed $val
- * @return mixed
- * @author Nesbert Hidalgo
- **/
-function p($val)
-{
-    return new Prototype($val);
 }

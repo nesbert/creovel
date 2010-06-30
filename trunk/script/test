@@ -1,5 +1,8 @@
 #!/usr/bin/php -q
 <?php
+// Sart timer
+$exe_seconds = microtime(true);
+
 // Include Creovel Base.
 require_once('base');
 
@@ -10,16 +13,16 @@ if (!is_file($args[0]) && !is_dir($args[0])) return;
  */
 
 $files = array();
-$filter = '/_test.php$/';
+$filter = '/test.php$/i';
 $recursive = true;
 
 foreach ($args as $path) {
-	if (is_dir($path)) {
-		// get test files
-		$files = array_merge($files, dir_to_array($path, array('recursive' => true, 'filter' => $filter)));
-	} elseif (is_file($path)) {
-		$files[] = $path;
-	}
+    if (is_dir($path)) {
+        // get test files
+        $files = array_merge($files, CDirectory::ls($path, array('recursive' => true, 'filter' => $filter)));
+    } elseif (is_file($path)) {
+        $files[] = $path;
+    }
 
 }
 
@@ -28,63 +31,109 @@ foreach ($args as $path) {
  */
 
 $ok = 0;
+$seconds = 0;
 $tests = 0;
 $assertions = 0;
 $failures = 0;
+$errors = 0;
+$incomplete = 0;
+$skipped = 0;
 $show_title = false;
 
+
 if (count($files)) foreach ($files as $file) {
-	if (file_exists($file)) {
-		
-		// run phpunit
-		exec("phpunit {$file}", $output, $return_var);
-		
-		if (!$show_title) {
-			echo "Creovel Test: {$output[0]}\n\n";
-			$show_title = true;
-		}
-		
-		$result = array_pop($output);
-		
-		if (starts_with('OK ', $result)) {
-			$ok++;
-			if (preg_match('/([0-9]+) test/', $result, $match1)) {
-				$tests += $match1[1];
-			}
+    if (file_exists($file)) {
+        $tag = '';
+        // run phpunit
+        exec("phpunit {$file}", $output, $return_var);
+        
+        if (!$show_title) {
+            echo "Creovel Test powered by {$output[0]}\n\n";
+            $show_title = true;
+        }
+        
+        $result = array_pop($output);
+        
+        foreach ($output as $line) {
+            if (preg_match('/Time: ([0-9]+)/', $line, $match1)) {
+                $seconds += $match1[1];
+            }
+        }
+        
+        if (CString::starts_with('OK ', $result)) {
+            $ok++;
+            if (preg_match('/([0-9]+) test/', $result, $match1)) {
+                $tests += $match1[1];
+            }
 
-			if (preg_match('/([0-9]+) assertion/', $result, $match2)) {
-				$assertions += $match2[1];
-			}
-		} else {
-			if (preg_match('/Tests: ([0-9]+)/', $result, $match1)) {
-				$tests += $match1[1];
-			}
+            if (preg_match('/([0-9]+) assertion/', $result, $match2)) {
+                $assertions += $match2[1];
+            }
+            
+        } else {
+            if (preg_match('/Tests: ([0-9]+)/', $result, $match1)) {
+                $tests += $match1[1];
+            }
 
-			if (preg_match('/Assertions: ([0-9]+)/', $result, $match2)) {
-				$assertions += $match2[1];
-			}
+            if (preg_match('/Assertions: ([0-9]+)/', $result, $match2)) {
+                $assertions += $match2[1];
+            }
 
-			if (preg_match('/Failures: ([0-9]+)/', $result, $match3)) {
-				$failures += $match3[1];
-			}
-		}
-		
-		echo "{$result} -> {$file}\n";
-		
-		if (!starts_with('OK ', $result)) {
-			
-			foreach ($output as $k => $line) {
-				if ($k < 2) continue;
-				echo "---- " . $line . "\n";
-			}
-			
-		}
-		
-	} else {
-		echo "File not found! -> {$file}\n";
-	}
+            if (preg_match('/Failures: ([0-9]+)/', $result, $match3)) {
+                $failures += $match3[1];
+                $tag .= 'F';
+            }
+            
+            if (preg_match('/Errors: ([0-9]+)/', $result, $match3)) {
+                $errors += $match3[1];
+                $tag .= 'E';
+            }
+            
+            if (preg_match('/Incomplete: ([0-9]+)/', $result, $match2)) {
+                $incomplete += $match2[1];
+                $tag .= 'I';
+            }
+            
+            if (preg_match('/Skipped: ([0-9]+)/', $result, $match2)) {
+                $skipped += $match2[1];
+                $tag .= 'S';
+            }
+        }
+        
+        $stat = explode(' (', $result);
+        
+        if (count($stat) == 2) {
+            echo "PASSED {$file} ({$stat[1]}\n";
+        } elseif (CString::starts_with('Tests: ', $result)) {
+            $result = strtolower($result);
+            $result = str_replace(array(':', '.'), '', $result);
+            
+            $pattern = '/(\w+) (\d+), (\w+) (\d+), (\w+) (\d+)/i';
+            $replacement = '$2 $1, $4 $3, $6 $5';
+            $result = preg_replace($pattern, $replacement, $result);
+            
+            if (CString::contains('F', $tag)) {
+                $error = 'FAILED';
+            } else {
+                $error = '------';
+            }
+            
+            echo "{$error} {$file} ({$result}) ". ($tag ? "*{$tag}*" : '') ."\n";
+        }
+        
+    } else {
+        echo "File not found! -> {$file}\n";
+    }
 }
 
 $total = count($files);
 
-echo "\nResults: {$ok} of {$total} Files \"OK\" (tests: {$tests}, assertions: {$assertions}, failures: {$failures})\n";
+$exe_seconds = number_format((microtime(true) - $exe_seconds), 2);
+
+echo "\nTime: {$exe_seconds} seconds\n";
+echo "\nResults: {$ok} of {$total} Files \"PASSED\" ({$tests} tests, {$assertions} assertions";
+echo $failures ? ", {$failures} failures" : '';
+echo $errors ? ", {$errors} errors" : '';
+echo $incomplete ? ", {$incomplete} incomplete" : '';
+echo $skipped ? ", {$skipped} skipped" : '';
+echo ")\n";

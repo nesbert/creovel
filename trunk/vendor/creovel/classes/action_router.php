@@ -8,14 +8,14 @@
  * @since       Class available since Release 0.1.0
  * @author      Nesbert Hidalgo
  **/
-class ActionRouter extends Object
+class ActionRouter extends CObject
 {
     /**
      * Add route to framework.
      *
      * @return void
      **/
-    public function map($name, $url, $options = null, $requirements = null, $nested_controller = false)
+    public static function map($name, $url, $options = null, $requirements = null, $nested_controller = false)
     {
         $events = array();
         $params = array();
@@ -78,7 +78,7 @@ class ActionRouter extends Object
             }
         }
         
-        if (in_string('*', $url)) {
+        if (CString::contains('*', $url)) {
             $astrik_path = explode('/', $url);
             $start = array_search('*', $astrik_path) - 
                         ($astrik_path[0] ? 0 : 1);
@@ -91,13 +91,13 @@ class ActionRouter extends Object
         }
         
         // if no events set events
-        if (@!$events['controller']) $events['controller'] = $options['controller'];
-        if (@!$events['action']) $events['action'] = $options['action'];
+        if (empty($events['controller'])) $events['controller'] = $options['controller'];
+        if (empty($events['action'])) $events['action'] = $options['action'];
         
         // controller index.php fix
         $events['controller'] = basename($events['controller'], '.php');
         
-        // ceate regex
+        // create regex
         $regex_all = '([A-Za-z0-9_\-\+.:\/]+|$)';
         $pattern = '/^';
         foreach ($segments as $segment) {
@@ -125,7 +125,7 @@ class ActionRouter extends Object
      * @param object $route Route object
      * @return void
      **/
-    public function add($name, $url, $events, $params = array(), $regex = '')
+    public static function add($name, $url, $events, $params = array(), $regex = '')
     {
         // clean up any file extension for a action
         $events['action'] = self::clean_event($events['action']);
@@ -147,45 +147,26 @@ class ActionRouter extends Object
     }
     
     /**
-     * Clean label string by removing ":" from string if the first character.
-     *
-     * @param string $label
-     * @return string
-     **/
-    public function clean_label($label)
-    {
-        return $label && $label{0} == ':' ? substr($label, 1) : $label;
-    }
-    
-    /**
-     * Clean trim pattern.
-     *
-     * @return void
-     **/
-    public function trim_slashes($pattern)
-    {
-        return preg_replace('/^\/(.*?)[\/]?$/', "\\1", $pattern);
-    }
-    
-    /**
      * Get the events route depending on URI pattern or params.
      *
      * @param string $uri
      * @param boolean $return_params Flag to return params
      * @return array Events|Params array.
      **/
-    public function which($uri = null, $return_params = false)
+    public static function which($uri = null, $return_params = false)
     {
         // set uri
-        $uri = $uri ? $uri : $GLOBALS['CREOVEL']['ROUTING']['base_path'];
+        if (empty($uri)
+            && !empty($GLOBALS['CREOVEL']['ROUTING']['base_path'])) {
+            $uri = $GLOBALS['CREOVEL']['ROUTING']['base_path'];
+        }
         
         // set static vars
         static $match;
         static $uri_check;
         
         // check if never matched and $uri never checked
-        if (empty($match) && ($uri_check != $uri)) {
-            // 
+        if ($uri_check != $uri) {
             $uri_checked = $uri;
             // create pattern to match against URI
             foreach ($GLOBALS['CREOVEL']['ROUTING']['routes'] as $name => $route) {
@@ -200,16 +181,27 @@ class ActionRouter extends Object
             }
         }
         
+        if (empty($match)) {
+            @$GLOBALS['CREOVEL']['ROUTING']['current'] = $GLOBALS['CREOVEL']['ROUTING']['routes']['default'];
+            @$match = $GLOBALS['CREOVEL']['ROUTING']['current'];
+        }
+        
         // return params or events
         if ($return_params) {
-            if (end($match['params'])) {
-                $last = key($match['params']);
-                $match['params'][$last] = self::clean_event($match['params'][$last]);
+            if (isset($match['params'])) {
+                if (is_array($match['params']) && end($match['params'])) {
+                    $last = key($match['params']);
+                    $match['params'][$last] = self::clean_event($match['params'][$last]);
+                }
+                return $match['params'];
+            } else {
+                return false;
             }
-            return $match['params'];
         } else {
             $match['events']['controller'] = self::clean_event($match['events']['controller']);
-            $match['events']['action'] = self::clean_event($match['events']['action']);
+            if (!empty($match['events']['action']))
+                $match['events']['action'] =
+                    self::clean_event($match['events']['action']);
             return $match['events'];
         }
     }
@@ -221,7 +213,7 @@ class ActionRouter extends Object
      * @param string $route_name Get events for specific route.
      * @return array Events array.
      **/
-    public function events($uri, $route_name = '')
+    public static function events($uri = null, $route_name = '')
     {
         if (isset($GLOBALS['CREOVEL']['ROUTING']['routes'][$route_name]['events'])) {
             return $GLOBALS['CREOVEL']['ROUTING']['routes'][$route_name]['events'];
@@ -235,7 +227,7 @@ class ActionRouter extends Object
      * @param string $uri
      * @return array Params array.
      **/
-    public function params($uri)
+    public static function params($uri = null)
     {
         return self::which($uri, true);
     }
@@ -245,9 +237,31 @@ class ActionRouter extends Object
      *
      * @return array Params array.
      **/
-    public function error()
+    public static function error()
     {
         return self::events('', 'errors');
+    }
+    
+    /**
+     * Clean label string by removing ":" from string if the first character.
+     *
+     * @param string $label
+     * @return string
+     **/
+    public static function clean_label($label)
+    {
+        return !empty($label) && CString::starts_with(':', $label)
+                ? substr($label, 1) : $label;
+    }
+    
+    /**
+     * Clean trim pattern.
+     *
+     * @return void
+     **/
+    public static function trim_slashes($pattern)
+    {
+        return preg_replace('/^[\/]?(.*?)[\/]?$/', "\\1", $pattern);
     }
     
     /**
@@ -256,13 +270,13 @@ class ActionRouter extends Object
      * @param string $event
      * @return string
      **/
-    public function clean_event($event)
+    public static function clean_event($event)
     {
         // clean up any file extension for a action
-        return preg_replace(
-                '/.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'] . '$/',
+        return @preg_replace(
+                '/.' . ($GLOBALS['CREOVEL']['VIEW_EXTENSION'] ? $GLOBALS['CREOVEL']['VIEW_EXTENSION'] : 'html') . '$/',
                 '',
                 $event
                 );
     }
-} // END class ActionRouter extends Object
+} // END class ActionRouter extends CObject

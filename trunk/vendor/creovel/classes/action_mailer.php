@@ -231,7 +231,7 @@ class ActionMailer extends ActionController
             $this->get_email_address($this->bcc) . "\n";
         
         $this->__header .= "Date: " .
-            date("r", strtotime(datetime($this->sent_on))) . "\n";
+            date("r", strtotime(CDate::datetime($this->sent_on))) . "\n";
         
         if ($this->has_attachments()) {
             $this->__header .= 'MIME-Version: 1.0'."\n";
@@ -313,7 +313,7 @@ class ActionMailer extends ActionController
      **/
     private function get_include_contents($filename)
     {
-        return ActionView::include_contents($filename);
+        return ActionView::process($filename);
     }
     
     /**
@@ -328,7 +328,7 @@ class ActionMailer extends ActionController
         
         if (!$return) {
             $text = $this->get_include_contents(
-                VIEWS_PATH . underscore($this->to_string()) . DS .
+                VIEWS_PATH . Inflector::underscore($this->to_string()) . DS .
                 $this->_action . '.txt'
                 );
             $return = $text ? $text : $this->get_html();
@@ -372,7 +372,7 @@ class ActionMailer extends ActionController
         if ($this->view_path) {
             $view_path = $this->view_path;
         } else {
-            $view_path = VIEWS_PATH . Inflector::patherize($this->to_string()) . DS;
+            $view_path = VIEWS_PATH . CString::patherize($this->to_string()) . DS;
         }
         
         $html = $this->get_include_contents($view_path . $this->_action . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION']);
@@ -467,7 +467,7 @@ class ActionMailer extends ActionController
      **/
     public function get_content_type($file_path)
     {
-        return get_mime_type($file_path);
+        return CFile::mime_type($file_path);
     }
     
     /**

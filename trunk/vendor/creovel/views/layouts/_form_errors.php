@@ -7,15 +7,15 @@
  * @subpackage  Views
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0
- * @see         error_messages_for()
+ * @see         CForm::error_messages_for()
  **/
 ?><div class="errors">
 <div class="top"></div>
 <div class="body">
-<?php echo($title ? '<h1 class="error_title">'.$title.'</h1>' : ''); ?>
-<?php echo($description ? '<p>'.$description.'</p>' : ''); ?>
+<?php echo(!empty($title) ? '<h1 class="error_title">'.$title.'</h1>' : ''); ?>
+<?php echo(!empty($description) ? '<p>'.$description.'</p>' : ''); ?>
 <ul>
-<?php echo $li_str; ?>
+<?php echo(!empty($li_str) ? $li_str : ''); ?>
 </ul>
 </div>
 <div class="bottom"></div>

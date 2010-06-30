@@ -12,8 +12,51 @@
 // include adapter interface.
 require_once 'adapter_interface.php';
 
-abstract class AdapterBase extends Object implements AdapterInterface, Iterator
+abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
 {
+    /**
+     * Database resource.
+     *
+     * @var resource
+     **/
+    public $db;
+    
+    /**
+     * Database result resource.
+     *
+     * @var resource
+     **/
+    public $result;
+    
+    /**
+     * SQL query string.
+     *
+     * @var string
+     **/
+    public $query = '';
+    
+    /**
+     * Result row offset. Must be between zero and the total number
+     * of rows minus one.
+     *
+     * @var integer
+     **/
+    public $offset = 0;
+    
+    /**
+     * Pass an associative array of database settings to connect
+     * to database on construction of class.
+     *
+     * @return void
+     **/
+    public function  __construct($db_properties = null)
+    {
+        $this->offset = 0;
+        
+        // if properties passed connect to database
+        if (is_array($db_properties)) $this->connect($db_properties);
+    }
+    
     /**
      * Stop the application and display/handle error.
      *
@@ -21,11 +64,11 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
      **/
     public function throw_error($msg = null)
     {
-        if (!$msg) {
+        if (empty($msg)) {
             $msg = 'An error occurred while interacting with a database ' .
                 "using <strong>{$this->to_string()}</strong> adapter.";
         }
-        CREO('error_code', 500);
+        CREO('application_error_code', 500);
         CREO('application_error', $msg);
     }
     
@@ -61,7 +104,7 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
      **/
     public function key()
     {
-        return (int) $this->offset;
+        return $this->offset;
     }
     
     /**
@@ -73,7 +116,7 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
      **/
     public function next()
     {
-        $this->offset++;
+        ++$this->offset;
         return $this->current();
     }
     
@@ -86,8 +129,26 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
      **/
     public function prev()
     {
-        $this->offset--;
+        --$this->offset;
         return $this->current();
+    }
+    
+    /**
+     * Resets DB properties and frees result resources.
+     *
+     * @return void
+     **/
+    public function reset()
+    {
+        // reset properties
+        $this->query = '';
+        $this->rewind();
+        
+        // release result resource
+        if (!empty($this->db) && !empty($this->result) &&
+            is_resource($this->db) && is_resource($this->result)) {
+            $this->free_result();
+        }
     }
     
     /**
@@ -113,7 +174,7 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
     {
         $this->execute('ROLLBACK;');
     }
-
+    
     /**
      * COMMIT transaction.
      *
@@ -123,4 +184,4 @@ abstract class AdapterBase extends Object implements AdapterInterface, Iterator
     {
         $this->execute('COMMIT;');
     }
-} // END abstract class AdapterBase extends Object implements AdapterInterface, Iterator
+} // END abstract class AdapterBase extends CObject implements AdapterInterface, Iterator

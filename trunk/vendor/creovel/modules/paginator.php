@@ -102,6 +102,7 @@ class Paginator extends ModuleBase
      **/
     public function __construct($data = null)
     {
+        parent::__construct();
         $this->set_properties($data);
     }
     
@@ -209,7 +210,7 @@ class Paginator extends ModuleBase
     {
         $extra_params = (isset($_GET['limit']) ? "&limit={$this->limit}" : '' ) . $this->params_to_str($extra_params);
         $html_options = (is_array($html_options) ? array_merge(array('href' => $this->url.'?page='.$page.$extra_params), $html_options) : array('href' => $this->url.'?page='.$page.$extra_params));
-        return link_to($label, null, null, null, $html_options);
+        return CTag::link_to($label, null, null, null, $html_options);
     }
     
     /**

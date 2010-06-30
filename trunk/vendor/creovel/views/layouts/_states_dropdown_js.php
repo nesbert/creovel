@@ -7,11 +7,14 @@
  * @subpackage  Views
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0 
- * @see         error_messages_for()
+ * @see         CForm::select_countries()
  **/
 
 // create JS objects
-$countries = array('US' => states('US'), 'CA' => states('CA'));
+$countries = array(
+    'US' => CLocale::states('US'),
+    'CA' => CLocale::states('CA')
+    );
 $objects = array();
 foreach ($countries as $country => $states) {
     $temp = array();

@@ -14,4 +14,6 @@ require_once BASE_PATH . 'config' . DIRECTORY_SEPARATOR . 'paths.php';
 
 // Initialize framework and include core libraries.
 require_once CREOVEL_PATH . 'classes' . DIRECTORY_SEPARATOR . 'creovel.php';
-Creovel::run();
+
+// Run framework.
+Creovel::main();

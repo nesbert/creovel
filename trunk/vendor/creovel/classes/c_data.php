@@ -5,12 +5,12 @@
  * framework created by Sam Stephenson.
  *
  * @package     Creovel
- * @subpackage  Prototype
+ * @subpackage  Core
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.4.0
  * @author      Nesbert Hidalgo
  **/
-class Prototype extends Object
+class CData extends CObject
 {
     /**
      * Storage for object values.
@@ -47,7 +47,7 @@ class Prototype extends Object
     public function __call($method, $arguments)
     {
         try {
-            $DataType = "Prototype{$this->type}";
+            $DataType = "C{$this->type}";
             switch (true) {
                 case method_exists($DataType, $method):
                     $value = call_user_func_array(
@@ -58,15 +58,15 @@ class Prototype extends Object
                             return $value;
                             break;
                         
-                        case ($DataType == 'PrototypeArray'
+                        case ($DataType == 'CArray'
                                 && $method == 'clear'):
                             $this->value = $value;
-                            return new Prototype(array());
+                            return new CData(array());
                             break;
                         
-                        case $DataType == 'PrototypeArray';
-                        case $DataType == 'PrototypeString';
-                            return new Prototype($value);
+                        case $DataType == 'CArray';
+                        case $DataType == 'CString';
+                            return new CData($value);
                             break;
                     }
                     break;
@@ -80,7 +80,7 @@ class Prototype extends Object
         } catch (Exception $e) {
             
             switch (true) {
-                case in_string('Controller', $this->to_string()):
+                case CString::contains('Controller', $this->to_string()):
                     $error_type = 404;
                     break;
                 
@@ -89,7 +89,7 @@ class Prototype extends Object
                     break;
             }
             
-            CREO('error_code', $error_type);
+            CREO('application_error_code', $error_type);
             CREO('application_error', $e);
         }
     }
@@ -104,9 +104,10 @@ class Prototype extends Object
     {
         #echo "$attribute, $value<br>";
         switch (true) {
+            case $attribute == 'val':
             case $attribute == 'value':
                 $this->_attribites_->type =
-                    ucwords(get_type($value));
+                    ucwords(self::type($value));
                 $this->_attribites_->value = $value;
                 break;
                 
@@ -153,18 +154,6 @@ class Prototype extends Object
     }
     
     /**
-     * Get value.
-     *
-     * @return string
-     **/
-    public function to_string()
-    {
-        return isset($this->_attribites_->value)
-                ? (string) $this->_attribites_->value
-                : '';
-    }
-    
-    /**
      * Initialize prototype.
      *
      * @param mixed $value Data to prototype.
@@ -184,7 +173,8 @@ class Prototype extends Object
      **/
     public function length()
     {
-        return is_array($this->value) ? count($this->value) : strlen($this->value);
+        return is_array($this->_attribites_->value)
+                    ? count($this->value) : strlen($this->value);
     }
     
     /**
@@ -194,6 +184,135 @@ class Prototype extends Object
      **/
     public function blank()
     {
-        return is_array($this->value) ? count($this->value) > 0 : trim($this->value);
+        return empty($this->_attribites_->value);
     }
-} // END class Prototype extends Object
+    
+    /**
+     * Get object value.
+     *
+     * @return mixed
+     **/
+    public function val()
+    {
+        return $this->_attribites_->value;
+    }
+    
+    /**
+     * Get the data type of a variable.
+     *
+     * @param $var
+     * @link http://us3.php.net/manual/en/function.gettype.php#78381
+     * @return string
+     **/
+    public static function type($var = null)
+    {
+        if (isset($this) && empty($var)) {
+            $var = $this->_attribites_->value;
+        }
+        
+        if (empty($var)) return false;
+        
+        return
+            (is_array($var) ? 'array' :
+            (is_bool($var) ? 'boolean' :
+            (is_float($var) ? 'float' :
+            (is_int($var) ? 'integer' :
+            (is_null($var) ? 'null' :
+            (is_numeric($var) ? 'numeric' :
+            (is_object($var) ? 'object' :
+            (is_resource($var) ? 'resource' :
+            (is_string($var) ? 'string' :
+            'unknown' )))))))));
+    }
+    
+    /**
+     * Add slashes to arrays, objects, and strings recursively.
+     *
+     * @param mixed $data
+     * @return mixed
+     * @author Nesbert Hidalgo
+     **/
+    public static function add_slashes($data)
+    {
+        switch (true) {
+            // clean data array
+            case is_array($data):
+                $clean_values = array();
+                foreach ($data as $name => $value) {
+                    $clean_values[$name] = is_array($value)
+                                            ? array_map('addslashes', $value)
+                                            : addslashes(trim($value));
+                }
+                break;
+
+            // get vars from object -> clean data -> update and return object
+            case is_object($data):
+                $clean_values = get_object_vars($data);
+                foreach ($clean_values as $name => $value) {
+                    $data->{$name} = self::add_slashes($value);
+                }
+                $clean_values = $data;
+                break;
+
+            // clean data
+            default:
+                $clean_values = addslashes(trim($data));
+                break;
+        }
+
+        return $clean_values;
+    }
+
+    /**
+     * Strip slashes to arrays, objects, and strings recursively.
+     *
+     * @param mixed $data
+     * @return mixed
+     * @author Nesbert Hidalgo
+     **/
+    public static function strip_slashes($data)
+    {
+        switch (true) {
+            // clean data array
+            case is_array($data):
+                $clean_values = array();
+                foreach ($data as $name => $value) {
+                    $clean_values[$name] = is_array($value)
+                                            ? array_map('strip_slashes', $value)
+                                            : stripslashes(trim($value));
+                }
+                break;
+
+            // get vars from object -> clean data -> update and return object
+            case is_object($data):
+                $clean_values = get_object_vars($data);
+                foreach ($clean_values as $name => $value) {
+                    $data->{$name} = self::strip_slashes($value);
+                }
+                $clean_values = $data;
+                break;
+
+            // clean data
+            default:
+                $clean_values = stripslashes(trim($data));
+                break;
+        }
+
+        return $clean_values;
+    }
+    
+    /**
+     * Returns the raw post from php://input. It is a less memory
+     * intensivealternative to $HTTP_RAW_POST_DATA and does not
+     * need any special php.ini directives. php://input is not
+     * available with enctype="multipart/form-data".
+     *
+     * @link http://us.php.net/wrappers.php
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public static function raw_post()
+    {
+        return trim(file_get_contents('php://input'));
+    }
+} // END class CData extends CObject

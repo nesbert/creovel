@@ -11,40 +11,6 @@
 class Mysql extends AdapterBase
 {
     /**
-     * Database resource.
-     *
-     * @var resource
-     **/
-    public $db;
-    
-    /**
-     * SQL query string.
-     *
-     * @var string
-     **/
-    public $query = '';
-    
-    /**
-     * Result row offset. Must be between zero and the total number
-     * of rows minus one.
-     *
-     * @var integer
-     **/
-    //public $offset = 0;
-    
-    /**
-     * Pass an associative array of database settings to connect
-     * to database on construction of class.
-     *
-     * @return void
-     **/
-    public function  __construct($db_properties = null)
-    {
-        // if properties passed connect to database
-        if (is_array($db_properties)) $this->connect($db_properties);
-    }
-    
-    /**
      * Opens a connection to the MySQL Server with $db_properties an
      * array of database settings.
      *
@@ -53,6 +19,14 @@ class Mysql extends AdapterBase
      **/
     public function connect($db_properties)
     {
+        if (empty($db_properties['host'])
+            || empty($db_properties['username'])
+            || empty($db_properties['password'])) {
+            self::throw_error('Could not connect to server because of '.
+                'missing arguments for $db_properties.');
+            
+        }
+        
         $server = $db_properties['host'];
         
         if (!empty($db_properties['port'])) {
@@ -64,11 +38,19 @@ class Mysql extends AdapterBase
         }
         
         // open a connection to a MySQL Server and set db_link
-        $this->db = @mysql_connect(
-            $server,
-            $db_properties['username'],
-            $db_properties['password']
-            );
+        if (empty($db_properties['persistent'])) {
+            $this->db = @mysql_connect(
+                $server,
+                $db_properties['username'],
+                $db_properties['password']
+                );
+        } else {
+            $this->db = @mysql_pconnect(
+                $server,
+                $db_properties['username'],
+                $db_properties['password']
+                );
+        }
         
         if (!$this->db) {
             self::throw_error("Could not connect to server ({$server}). " .
@@ -98,7 +80,7 @@ class Mysql extends AdapterBase
     }
     
     /**
-     * Execute query and return result object/resource or false. Option to log
+     * Execute query and return result object/resource or false. Option to
      * log queries if $GLOBALS['CREOVEL']['LOG_QUERIES'] is set to true. All
      * queries should pass through this function.
      *
@@ -107,6 +89,10 @@ class Mysql extends AdapterBase
      **/
     public function execute($query)
     {
+        if (!is_resource($this->db)) {
+            self::throw_error("Could not connect to server to execute query.");
+        }
+        
         $result = mysql_query($query, $this->db);
         
         // log queries
@@ -136,11 +122,6 @@ class Mysql extends AdapterBase
         // set database property
         $this->query = $query;
         
-        // if connection lost reconnect
-        if (!is_resource($this->db)) {
-            $this->connect(ActiveRecord::connection_properties());
-        }
-        
         // send a MySQL query and set query_link resource on success
         return $this->result = $this->execute($query);
     }
@@ -158,14 +139,22 @@ class Mysql extends AdapterBase
     }
     
     /**
-     * Returns an associative array that corresponds to the fetched row
-     * or NULL if there are no more rows.
+     * Returns an object that corresponds to the fetched row
+     * or false if there are no more rows.
      *
-     * @return object
+     * @return object||false
      **/
     public function get_row($result = null)
     {
-        return mysql_fetch_object($result ? $result : $this->result);
+        if ($result) {
+            return mysql_fetch_object($result);
+        } else {
+            if ($this->valid()) {
+                return mysql_fetch_object($this->result);
+            } else {
+                return false;
+            }
+        }
     }
     
     /**
@@ -215,7 +204,8 @@ class Mysql extends AdapterBase
      */
     public function total_rows($result = null)
     {
-        return @mysql_num_rows($result ? $result : $this->result);
+        $result = $result ? $result : $this->result;
+        return is_resource($result) ? mysql_num_rows($result) : 0;
     }
     
     /**
@@ -256,14 +246,7 @@ class Mysql extends AdapterBase
      **/
     public function reset()
     {
-        // reset properties
-        $this->query = '';
-        $this->offset = 0;
-        
-        // release result resource
-        if (is_resource($this->db) && !empty($this->result) && is_resource($this->result)) {
-            $this->free_result();
-        }
+        parent::reset();
     }
     
     /**
@@ -288,7 +271,9 @@ class Mysql extends AdapterBase
      **/
     public function valid()
     {
-        if ($this->offset < $this->total_rows()) {
+        if ($this->offset < $this->total_rows()
+            && $this->offset >= 0
+            && is_resource($this->result)) {
             return mysql_data_seek($this->result, $this->offset);
         } else {
             return false;

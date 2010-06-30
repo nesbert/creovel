@@ -7,30 +7,32 @@
  * @license     http://creovel.org/license MIT License
  * @since       Class available since Release 0.1.0 
  **/
-class ActiveSession extends Object
+class ActiveSession extends CObject
 {
+    /**
+     * Table name.
+     *
+     * @var string
+     **/
+    public static $_table_name_ = 'active_sessions';
+
     /**
      * Storage resource.
      *
      * @var object
      **/
-    private $r;
+    private $__r;
     
     /**
-     * Storage type.
-     *
-     * @var string
-     **/
-    private $type = 'table';
-    
-    /**
-     * undocumented function
+     * Class construct to set session save handlers.
      *
      * @return void
      * @author Nesbert Hidalgo
      **/
     public function __construct()
     {
+        parent::__construct();
+        
         ini_set('session.save_handler', 'user');
         
         session_set_save_handler(
@@ -50,7 +52,8 @@ class ActiveSession extends Object
      **/
     public function open()
     {
-        return is_object($this->r = ActiveRecord::table_object());
+        $this->__r = new ActiveQuery;
+        return is_object($this->__r->connect());
     }
     
     /**
@@ -60,7 +63,7 @@ class ActiveSession extends Object
      **/
     public function close()
     {
-        return @$this->r->disconnect();
+        return !empty($this->__r) && $this->__r->disconnect();
     }
     
     /**
@@ -73,14 +76,12 @@ class ActiveSession extends Object
     {
         if (!$id) return false;
         
-        $this->r->query(sprintf("SELECT * FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `id` = '%s';", $this->r->escape($id)));
-        $result = $this->r->next();
+        $result = $this->__r->find_row(
+            $GLOBALS['CREOVEL']['SESSIONS_TABLE'],
+            array('conditions' => array('ID' => $id))
+            );
         
-        if ($this->r->total_rows() == 1) {
-            return $result->data;
-        } else {
-            return "";
-        }
+        return $result ? $result->DATA : '';
     }
     
     /**
@@ -92,16 +93,34 @@ class ActiveSession extends Object
      **/
     public function write($id = false, $val = '')
     {
-        if (!$id) return false;
+        if (empty($id)) return false;
         
-        $this->r->query(sprintf(
-            "REPLACE INTO `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` VALUES('%s', '%s', '%s');",
-            $this->r->escape($id),
-            datetime(time() + get_cfg_var("session.gc_maxlifetime")),
-            $this->r->escape($val)
-            ));
+        $expires = CDate::datetime(time() + ini_get('session.gc_maxlifetime'));
         
-        return $this->r->affected_rows();
+        $columns = array(
+            'ID' => $id,
+            'EXPIRES' => $expires,
+            'DATA' => $val
+            );
+        
+        // find session
+        $this->read($id);
+        
+        if ($this->__r->total_rows() == 1) {
+            unset($columns['id']);
+            $affected_rows = $this->__r->update_row(
+                $GLOBALS['CREOVEL']['SESSIONS_TABLE'],
+                $columns,
+                array('ID' => $id)
+                );
+        } else {
+            $affected_rows = $this->__r->insert_row(
+                $GLOBALS['CREOVEL']['SESSIONS_TABLE'],
+                $columns
+                );
+        }
+        
+        return $affected_rows;
     }
     
     /**
@@ -112,20 +131,29 @@ class ActiveSession extends Object
      **/
     public function destroy($id)
     {
-        $this->r->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `id` = '" . $this->r->escape($id) . "'");
-        return $this->r->affected_rows();
+        $affected_rows = $this->__r->delete(
+            $GLOBALS['CREOVEL']['SESSIONS_TABLE'],
+            array('ID' => $id)
+            );
+        return $affected_rows;
     }
     
     /**
      * Delete all expired rows from session table.
      *
-     * @param maxlifetime Session max life time.
+     * @param integer $maxlifetime Session max life time.
      * @return integer
      **/
     public function gc($maxlifetime)
     {
-        $this->r->query("DELETE FROM `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}` WHERE `expires_at` < '" . datetime() . "';");
-        return $this->r->affected_rows();
+        $affected_rows = $this->__r->delete(
+            $GLOBALS['CREOVEL']['SESSIONS_TABLE'],
+            array(
+                "EXPIRES < :EXPIRES",
+                array('EXPIRES' => CDate::datetime())
+                )
+            );
+        return $affected_rows;
     }
     
     /**
@@ -136,17 +164,44 @@ class ActiveSession extends Object
      **/
     public function create_table($query_only = false)
     {
-        $sql = "CREATE TABLE IF NOT EXISTS `{$GLOBALS['CREOVEL']['SESSIONS_TABLE']}`
+        $sql = "CREATE TABLE {$GLOBALS['CREOVEL']['SESSIONS_TABLE']}
                 (
-                    `id` VARCHAR (255) NOT NULL,
-                    `expires_at` datetime NOT NULL,
-                    `data` TEXT NOT NULL,
-                    PRIMARY KEY (`id`)
+                    ID VARCHAR (255) NOT NULL,
+                    EXPIRES TIMESTAMP NOT NULL,
+                    DATA TEXT NOT NULL,
+                    PRIMARY KEY (ID)
                 );";
         if ($query_only) {
             return $sql;
         } else {
-            return ActiveRecord::table_object()->query($sql);
+            $a = new ActiveQuery;
+            return $a->query($sql);
         }
     }
-} // END class Session extends Object
+    
+    /**
+     * Start session if $GLOBALS['CREOVEL']['SESSION'] is
+     * set to true or 'table'.
+     *
+     * @return void
+     **/
+    static public function start()
+    {
+        if ($GLOBALS['CREOVEL']['SESSION']) {
+            
+            if ($GLOBALS['CREOVEL']['SESSION'] === 'table') {
+                // include/create session db object
+                require_once CREOVEL_PATH . 'classes/active_session.php';
+                $GLOBALS['CREOVEL']['SESSIONS_TABLE'] = self::$_table_name_;
+                $GLOBALS['CREOVEL']['SESSION_HANDLER'] = new ActiveSession;
+            }
+            
+            // Fix for PHP 5.05
+            // http://us2.php.net/manual/en/function.session-set-save-handler.php#61223
+            register_shutdown_function('session_write_close');
+            
+            // start session
+            if (session_id() == '') session_start();
+        }
+    }
+} // END class Session extends CObject

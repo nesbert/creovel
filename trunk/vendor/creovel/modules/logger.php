@@ -40,6 +40,7 @@ class Logger extends ModuleBase
     public function __construct($filename = '')
     {
         parent::__construct();
+        
         $this->filename = $filename;
     }
     
@@ -48,11 +49,16 @@ class Logger extends ModuleBase
      *
      * @param string $message
      * @param boolean $auto_break
-     * @return void
+     * @return boolean
      **/
     public function write($message, $auto_break = true)
     {
         clearstatcache();
+        
+        if (empty($this->filename)) {
+            error_log("Creovel: The filename is missing from logger!");
+            return false;
+        }
         
         if (@filesize($this->filename) >= $this->filesize_limit) {
             $this->partition($this->filename);
@@ -63,7 +69,10 @@ class Logger extends ModuleBase
                     
         if (!@file_put_contents($this->filename, $message, FILE_APPEND)) {
             error_log("Creovel: The file {$this->filename} is not writable!");
+            return false;
         }
+        
+        return true;
     }
     
     /**

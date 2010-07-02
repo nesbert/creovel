@@ -60,13 +60,6 @@ class Paginator extends ModuleBase
     public $last;
     
     /**
-     * Current page.
-     *
-     * @var integer
-     **/
-    public $page;
-    
-    /**
      * Pointer offset.
      *
      * @var integer
@@ -103,7 +96,8 @@ class Paginator extends ModuleBase
     public function __construct($data = null)
     {
         parent::__construct();
-        $this->set_properties($data);
+        
+        if (!empty($data)) $this->set_properties($data);
     }
     
     /**
@@ -117,8 +111,8 @@ class Paginator extends ModuleBase
     public function set_properties($data, $page = null, $limit = null)
     {
         // set vars by type
-        $page = $page ? $page : @$_GET['page'] ? $_GET['page'] : 1;
-        $limit = $limit ? $limit : @$_GET['limit'] ? $_GET['limit'] : 10;
+        $page = empty($page) ? (!empty($_GET['page']) ? @$_GET['page'] : 1) : $page;
+        $limit = empty($limit) ? (!empty($_GET['limit']) ? @$_GET['limit'] : 10) : $limit;
         
         switch (true) {
             case is_object($data):
@@ -222,8 +216,9 @@ class Paginator extends ModuleBase
      * @param array $html_options Optional associative array of HTML options.
      * @return string
      **/
-    public function link_to_next($label = 'Next', $extra_params = null, $html_options = null)
+    public function link_to_next($label = null, $extra_params = null, $html_options = null)
     {
+        if (empty($label)) $label = 'Next';
         return $this->current < $this->last ? $this->link_to($label, $this->next, $extra_params, $html_options) : '';
     }
     
@@ -236,8 +231,9 @@ class Paginator extends ModuleBase
      * @param array $html_options Optional associative array of HTML options.
      * @return string
      **/
-    public function link_to_prev($label = 'Prev', $extra_params = null, $html_options = null)
+    public function link_to_prev($label = null, $extra_params = null, $html_options = null)
     {
+        if (empty($label)) $label = 'Prev';
         return $this->current > $this->first ? $this->link_to($label, $this->prev, $extra_params, $html_options) : '';
     }
     
@@ -250,8 +246,9 @@ class Paginator extends ModuleBase
      * @param array $html_options Optional associative array of HTML options.
      * @return string
      **/
-    public function link_to_first($label = 'First', $extra_params = null, $html_options = null)
+    public function link_to_first($label = null, $extra_params = null, $html_options = null)
     {
+        if (empty($label)) $label = 'First';
         return $this->current > $this->first ? $this->link_to($label, $this->first, $extra_params, $html_options) : '';
     }
     
@@ -264,8 +261,9 @@ class Paginator extends ModuleBase
      * @param array $html_options Optional associative array of HTML options.
      * @return string
      **/
-    public function link_to_last($label = 'Last', $extra_params = null, $html_options = null)
+    public function link_to_last($label = null, $extra_params = null, $html_options = null)
     {
+        if (empty($label)) $label = 'Last';
         return ( $this->current < $this->last ? $this->link_to($label, $this->last, $extra_params, $html_options) : '' );
     }
     
@@ -408,7 +406,7 @@ class Paginator extends ModuleBase
     /**
      * Checks the result set have multiple pages.
      * 
-     * @return integer
+     * @return boolean
      **/
     public function needs_links()
     {

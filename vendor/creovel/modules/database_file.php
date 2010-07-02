@@ -36,35 +36,8 @@ class DatabaseFile extends ModuleBase
     public function __construct($file = null)
     {
         parent::__construct();
+        
         if ($file) $this->load($file);
-    }
-    
-    /**
-     * Load XML file.
-     *
-     * @param string $file
-     * @return void
-     **/
-    public function load($file)
-    {
-        if (!defined('SCHEMAS_PATH')) {
-            $this->throw_error("SCHEMAS_PATH not defined.");
-        }
-        
-        if ($file) {
-            $this->_schema_file_ = $file;
-        } else {
-            $this->throw_error("Missing argument $file for DatabaseFile::load.");
-         }
-        
-        if (file_exists($this->_schema_file_)) {
-            if (!class_exists('SimpleXMLElement')) {
-                $this->throw_error("SimpleXMLElement module needed for <strong>DatabaseXML</strong>");
-            }
-            $this->xml = simplexml_load_file($this->_schema_file_);
-        } else {
-            $this->throw_error("Schema not found in <strong>{$this->_schema_file_}</strong>");
-        }
     }
     
     /**
@@ -169,25 +142,9 @@ class DatabaseFile extends ModuleBase
                 $column->setAttribute('identity', 'YES');
             }
             
-            // if (preg_match('/(unsigned)/i', $col->type)) {
-            //     $column->setAttribute('unsigned', 'yes');
-            // }
-            
             // check for index
             if (!empty($col->key)) {
-                switch ($col->key) {
-                    case 'PK':
-                        $idxs['primary'][] = $name;
-                        break;
-                        
-                    case 'UNI':
-                        $idxs['unique'][] = $name;
-                        break;
-                        
-                    default:
-                        $idxs[$name][] = $name;
-                        break;
-                }
+                $idxs[$col->key][$col->key_name][] = $name;
             }
         } else {
             self::throw_error("Unable to load columns from table ".
@@ -205,25 +162,15 @@ class DatabaseFile extends ModuleBase
             $indexes = $table->appendChild($indexes);
             
             foreach ($idxs as $type => $idx) {
-            
                 $index = $doc->createElement('index');
                 $index = $indexes->appendChild($index);
                 
-                switch ($type) {
-                    case 'primary':
-                    case 'unique':
-                        $index->setAttribute('name', strtoupper($type));
-                        $index->setAttribute('type', strtoupper($type));
-                        break;
-                    
-                    default:
-                        $index->setAttribute('name', strtoupper('index_' . $type));
-                        $index->setAttribute('type', 'INDEX');
-                        break;
-                    
+                foreach ($idx as $key_name => $c) {
+                    $index->setAttribute('name', $key_name);
+                    $index->setAttribute('type', $type);
+                    $index->setAttribute('column', implode(',', $c));
                 }
             
-                $index->setAttribute('column', implode(',', $idx));
             }
         }
         
@@ -238,12 +185,46 @@ class DatabaseFile extends ModuleBase
     }
     
     /**
+     * Load XML file.
+     *
+     * @param string $file
+     * @return void
+     **/
+    public function load($file)
+    {
+        if (!defined('SCHEMAS_PATH')) {
+            $this->throw_error("SCHEMAS_PATH not defined.");
+        }
+        
+        if ($file) {
+            $this->_schema_file_ = $file;
+        } else {
+            $this->throw_error("Missing argument $file for DatabaseFile::load.");
+         }
+        
+        if (file_exists($this->_schema_file_)) {
+            if (!class_exists('SimpleXMLElement')) {
+                $this->throw_error("SimpleXMLElement module needed for <strong>DatabaseXML</strong>");
+            }
+            $this->xml = simplexml_load_file($this->_schema_file_);
+        } else {
+            $this->throw_error("Schema not found in <strong>{$this->_schema_file_}</strong>");
+        }
+        
+        $this->_columns_ = $this->columns();
+    }
+    
+    /**
      * Default file name.
      *
      * @return string
      **/
     public function default_file($schema, $table)
     {
+        if (!defined('SCHEMAS_PATH')) {
+            $this->throw_error("SCHEMAS_PATH not defined.");
+        }
+        
         return SCHEMAS_PATH . Inflector::underscore(
                 $schema . '_' . $table . '.xml', '.');
     }

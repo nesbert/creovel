@@ -3,6 +3,7 @@
  * Legacy Support class that hooks old top level functions to
  * object function that it was replaced by.
  *
+ * @access      private
  * @package     Creovel
  * @subpackage  Modules
  * @license     http://creovel.org/license MIT License

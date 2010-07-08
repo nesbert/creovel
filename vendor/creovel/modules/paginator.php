@@ -281,18 +281,19 @@ class Paginator extends ModuleBase
         
         if ($this->total_pages > 1) {
             
-            $str = '<div class="page-links">';
+            $str = '';
             
             if ($show_label) $str .= $this->paging_label();
             
             if ($this->current > 1) {
-                $str .= '<a class="prev" href="' . $this->paging_link($this->prev, $extra_params) .
-                        '">&laquo; Prev</a>';
+                $str .= CTag::create('a', array('class' => 'prev', 'href' => $this->paging_link($this->prev, $extra_params)), '&laquo; Prev');
             }
             
-            if ( ($this->current - 3) >= 1 ) {
-                $str .= '<a class="page-1" href="' . $this->paging_link(1, $extra_params) . '">1</a>';
-                if ( ($this->current - 3) > 1 ) $str .= '<span class="dots">...</span>';
+            if (($this->current - 3) >= 1) {
+                $str .= CTag::create('a', array('class' => 'page-1', 'href' => $this->paging_link(1, $extra_params)), 1);
+                if (($this->current - 3) > 1) {
+                    $str .= CTag::create('span', array('class' => 'dots'), '...');
+                }
             }
             
             for ($i = $start_page; $i <= $this->current + 2; $i++) {
@@ -300,27 +301,23 @@ class Paginator extends ModuleBase
                 if ($i > $this->total_pages) break;
                 
                 if ($this->current <> $i) {
-                    $str .= '<a class="page-'.$i.'" href="' . $this->paging_link($i, $extra_params) .
-                            '">' . $i . '</a>';
+                    $str .= CTag::create('a', array('class' => 'page-' . $i, 'href' => $this->paging_link($i, $extra_params)), $i);
                 } else {
-                    $str .= '<a class="page-'. $i . ' current">' . $i . '</a>';
+                    $str .= CTag::create('a', array('class' => "page-{$i} current"), $i);
                 }
                 
             }
             
-            if ( ($this->current + 3) <= $this->total_pages ) {
-                if (($this->current + 3) < $this->total_pages) $str .= '<span class="dots">...</span>';
-                $str .= '<a class="page-' . $this->total_pages . '" href="' . 
-                            $this->paging_link($this->total_pages, $extra_params) . '">' .
-                            $this->total_pages . '</a>';
+            if (($this->current + 3) <= $this->total_pages) {
+                if (($this->current + 3) < $this->total_pages) {
+                    $str .= CTag::create('span', array('class' => 'dots'), '...');
+                }
+                $str .= CTag::create('a', array('class' => "page-{$this->total_pages}", 'href' => $this->paging_link($this->total_pages, $extra_params)), $this->total_pages);
             }
             
             if ($this->current < $this->total_pages) {
-                $str .= '<a class="next" href="' . $this->paging_link($this->next, $extra_params) .
-                        '">Next &raquo;</a>';
+                $str .= CTag::create('a', array('class' => 'next', 'href' => $this->paging_link($this->next, $extra_params)), 'Next &raquo;');
             }
-            
-            $str .= '</div>';
             
         } else {
             
@@ -328,7 +325,8 @@ class Paginator extends ModuleBase
             
         }
         
-        return $str;
+        
+        return CTag::create('div', array('class' => 'page-links'), $str);
     }
     
     /**
@@ -344,7 +342,7 @@ class Paginator extends ModuleBase
         $extra_params = $this->params_to_str($extra_params);
         $default_limit = (int) ( $default_limit ? $default_limit : $this->limit );
         
-        $str = '<select OnChange="location.href=this.options[this.selectedIndex].value">'."\n";
+        $content = "\n";
         
         // if default_limit not a default value(20,50,100)
         // create option for limit
@@ -356,17 +354,26 @@ class Paginator extends ModuleBase
                 break;
                 
             default:
-                $str .= '<option value="'.$this->url.'?page='.$this->current.'&limit='.$default_limit.$extra_params.'"'.( $this->limit == $default_limit ? " selected" : "" ).'>'.$default_limit.'</option>'."\n";
-            break;
+                $opts = array('value' => $this->url.'?page='.$this->current.'&limit='.$default_limit.$extra_params);
+                if ($this->limit == $default_limit) $opts['selected'] = "selected";
+                $content .= CTag::create('option', $opts, $default_limit) . "\n";
+                break;
             
         }
         
-        $str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=20'.$extra_params.'"'.($this->limit == ($default_limit * 2) ? ' selected="selected"' : '' ).'>'.($default_limit * 2).'</option>'."\n";
-        $str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=50'.$extra_params.'"'.($this->limit == ($default_limit * 5) ? ' selected="selected"' : '' ).'>'.($default_limit * 5).'</option>'."\n";
-        $str .= '<option value="'.$this->url.'?page='.$this->current.'&limit=100'.$extra_params.'"'.($this->limit == ($default_limit * 10) ? ' selected="selected"' : '' ).'>'.($default_limit * 10).'</option>'."\n";
-        $str .= "</select>\n";
+        $opts = array('value' => $this->url.'?page='.$this->current.'&limit=20'.$extra_params);
+        if ($this->limit == ($default_limit * 2)) $opts['selected'] = "selected";
+        $content .= CTag::create('option', $opts, ($default_limit * 2)) . "\n";
         
-        return $str;
+        $opts = array('value' => $this->url.'?page='.$this->current.'&limit=50'.$extra_params);
+        if ($this->limit == ($default_limit * 5)) $opts['selected'] = "selected";
+        $content .= CTag::create('option', $opts, ($default_limit * 5)) . "\n";
+        
+        $opts = array('value' => $this->url.'?page='.$this->current.'&limit=100'.$extra_params);
+        if ($this->limit == ($default_limit * 10)) $opts['selected'] = "selected";
+        $content .= CTag::create('option', $opts, ($default_limit * 10)) . "\n";
+       
+        return CTag::create('select', array('onchange' => 'location.href=this.options[this.selectedIndex].value'), $content) . "\n";
     }
     
     /**
@@ -380,7 +387,7 @@ class Paginator extends ModuleBase
      **/
     public function paging_label()
     {
-        return '<span class="page-label">Page '.$this->current.' of '.$this->total_pages.'</span>';
+        return CTag::create('span', array('class' => 'page-label'), 'Page '.$this->current.' of '.$this->total_pages);
     }
     
     /**

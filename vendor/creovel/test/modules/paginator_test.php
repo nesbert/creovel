@@ -238,7 +238,7 @@ class PaginatorTest extends PHPUnit_Framework_TestCase
 
     public function testPaging_limit()
     {
-        $expected_str = '<select OnChange="location.href=this.options[this.selectedIndex].value">
+        $expected_str = '<select onchange="location.href=this.options[this.selectedIndex].value">
 <option value="?page=5&limit=10&city=LA&sort=ASC">10</option>
 <option value="?page=5&limit=20&city=LA&sort=ASC" selected="selected">20</option>
 <option value="?page=5&limit=50&city=LA&sort=ASC">50</option>

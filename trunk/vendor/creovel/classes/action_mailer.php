@@ -18,6 +18,11 @@
 */
 class ActionMailer extends ActionController
 {
+    /**#@+
+     * Public class members.
+     *
+     * @access public
+     */ 
     public $delivery_method = 'sendmail';
     public $bcc;
     public $cc;
@@ -34,7 +39,13 @@ class ActionMailer extends ActionController
     public $html;
     public $layout_path = '';
     public $view_path = '';
+    /**#@-*/
     
+    /**#@+
+     * Private class members.
+     *
+     * @access private
+     */ 
     private $__content_type = 'text/plain';
     private $__content_transfer_encoding = '7bit';
     private $__attachments;
@@ -42,6 +53,21 @@ class ActionMailer extends ActionController
     private $__message_boundary;
     private $__mime_boundary;
     private $__header;
+    /**#@-*/
+
+    /**
+     * Class construct.
+     *
+     * @return void
+     **/
+    public function __construct()
+    {
+        // initialize callback
+        $this->initialize();
+        
+        // initialize scope fix
+        $this->initialize_parents();
+    }
     
     /**
      * Set message boundaries.
@@ -79,11 +105,11 @@ class ActionMailer extends ActionController
                 if (preg_match('/^deliver_(.+)$/', $method)) {
                     return $this->send();
                 }
-                // if deliver_XXX send message
+                // if encode_XXX create message string
                 if (preg_match('/^encode_(.+)$/', $method)) {
                     return $this->encoded();
                 }
-            break;
+                break;
             
             default:
                 $this->throw_error("Undefined action '{$method}' in <strong>{$this->to_string()}</strong>");
@@ -99,12 +125,6 @@ class ActionMailer extends ActionController
      **/
     private function __call_action($args)
     {
-        // initialize callback
-        $this->initialize();
-        
-        // initialize scope fix
-        $this->initialize_parents();
-        
         // call before filter
         $this->before_filter();
         
@@ -125,9 +145,16 @@ class ActionMailer extends ActionController
      * @param string $type
      * @return string
      **/
-    public function set_content_type($type = 'text/plain')
+    public function set_content_type($type = 'text')
     {
-        return $this->__content_type = $type;
+        if ($type == 'text') {
+            $this->__content_type = 'text/plain'; 
+        } elseif ($type == 'html') {
+            $this->__content_type = 'text/html';
+        } else {
+            $this->__content_type = $type; 
+        }
+        return $this->__content_type;
     }
     
     /**
@@ -162,6 +189,7 @@ class ActionMailer extends ActionController
     {
         switch (true) {
             case $this->delivery_method == 'smtp':
+                // todo
                 return false;
                 break;
                 
@@ -306,17 +334,6 @@ class ActionMailer extends ActionController
     }
     
     /**
-     * Insert the view into the email.
-     *
-     * @param string $filename Path of file.
-     * @return string
-     **/
-    private function get_include_contents($filename)
-    {
-        return ActionView::process($filename);
-    }
-    
-    /**
      * Get text version of message and remove all html tags from a string. It
      * also replaces links with a text friendly link.
      *
@@ -326,8 +343,8 @@ class ActionMailer extends ActionController
     {
         $return = $this->text;
         
-        if (!$return) {
-            $text = $this->get_include_contents(
+        if (empty($return)) {
+            $text = ActionView::process(
                 VIEWS_PATH . Inflector::underscore($this->to_string()) . DS .
                 $this->_action . '.txt'
                 );
@@ -375,7 +392,7 @@ class ActionMailer extends ActionController
             $view_path = VIEWS_PATH . CString::patherize($this->to_string()) . DS;
         }
         
-        $html = $this->get_include_contents($view_path . $this->_action . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION']);
+        $html = ActionView::process($view_path . $this->_action . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION']);
         
         // insert html into layout (template) for html verison of the message
         if (!empty($this->layout)) {
@@ -390,7 +407,7 @@ class ActionMailer extends ActionController
             $html = str_replace(
                         '@@page_contents@@',
                         $html, 
-                        $this->get_include_contents($template_path)
+                        ActionView::process($template_path)
                         );
         }
         
@@ -417,7 +434,7 @@ class ActionMailer extends ActionController
      **/
     public function get_subject()
     {
-        return str_replace("\n", '', $this->subject);
+        return str_replace(array("\n", '   ', '  '), ' ', $this->subject);
     }
     
     /**
@@ -430,14 +447,14 @@ class ActionMailer extends ActionController
      **/
     public function add_attachment($file_path, $content_type = null, $content_transfer_encoding = null)
     {
-        $key = 'attachment'.count($this->__attachments);
+        $key = 'attachment'. (count($this->__attachments) + 1);
         $file_name = basename($file_path);
         
         $this->__attachments[$key]['content_id'] = $key;
         $this->__attachments[$key]['content_type'] =
             $content_type
             ? $content_type
-            : $this->get_content_type($file_name);
+            : CFile::mime_type($file_path);
         $this->__attachments[$key]['content_transfer_encoding'] =
             $content_transfer_encoding
             ? $content_transfer_encoding
@@ -457,17 +474,6 @@ class ActionMailer extends ActionController
     public function has_attachments()
     {
         return count($this->__attachments);
-    }
-    
-    /**
-     * Get file content type for attachments.
-     *
-     * @param string $file_path Path to file.
-     * @return string
-     **/
-    public function get_content_type($file_path)
-    {
-        return CFile::mime_type($file_path);
     }
     
     /**
@@ -512,12 +518,11 @@ class ActionMailer extends ActionController
         if ($this->has_attachments()) {
             $return = "\n--{$this->__message_boundary}--\n";
             foreach ($this->__attachments as $content_id => $attachment) {
-                
-                $return .= "\n--{$this->mime_boundary}\n";
-                $return .= "Content-Type: {$attachment[content_type]}; name={$attachment[file_name]}\n";
-                $return .= "Content-Transfer-Encoding: {$attachment[content_transfer_encoding]}\n"; 
+                $return .= "\n--{$this->__mime_boundary}\n";
+                $return .= "Content-Type: {$attachment['content_type']}; name={$attachment['file_name']}\n";
+                $return .= "Content-Transfer-Encoding: {$attachment['content_transfer_encoding']}\n"; 
                 $return .= "Content-ID: {$content_id}\n";
-                $return .= "Content-Disposition: attachment; filename=\"{$attachment[file_name]}\"\n\n";
+                $return .= "Content-Disposition: attachment; filename=\"{$attachment['file_name']}\"\n\n";
                 $return .= $attachment['content_data'];
                 $return .= "\n\n";
             }

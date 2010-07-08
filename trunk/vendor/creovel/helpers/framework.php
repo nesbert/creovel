@@ -300,5 +300,5 @@ function redirect_to($controller = '', $action = '', $id = '')
 function redirect_to_url($url)
 {
     header('location: ' . $url);
-    die;
+    exit;
 }

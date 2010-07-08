@@ -65,6 +65,10 @@ abstract class ActionController extends CObject
      **/
     public function __set_events($events)
     {
+        if (empty($events['controller']) || empty($events['action'])) {
+            return false;
+        }
+        
         $events['action'] = Inflector::underscore($events['action']);
         $this->_controller = $events['controller'];
         $this->_action = $events['action'];
@@ -136,40 +140,23 @@ abstract class ActionController extends CObject
     {}
     
     /**
-     * Output contents to user.
-     *
-     * @param boolean $return_as_str
-     * @return string
-     **/
-    public function __output($return_as_str)
-    {
-        // set execute routines then kill and render text
-        if (isset($this->render_text)) {
-            die($this->render_text);
-        }
-        
-        // set options for view
-        $options['controller'] = $this->_controller;
-        $options['action'] = $this->_action;
-        $options['layout'] = $this->layout;
-        $options['render'] = $this->render;
-        $options['to_str'] = $return_as_str;
-        return $this->render($options);
-    }
-    
-    /**
      * Render view from options array.
      *
      * @param array Options array.
      * @return string Output to screen or a string.
      **/
-    public function render($options)
+    private function __render($options)
     {
         try {
             // check options
             if (!is_array($options)) return false;
             
             // set and unset reserved $options
+            if (!empty($options['controller'])) {
+                $controller = $options['controller'];
+                unset($options['controller']);
+            }
+            
             if (isset($options['partial'])) {
                 $view = '_'.$options['partial'];
                 unset($options['partial']);
@@ -182,38 +169,20 @@ abstract class ActionController extends CObject
             
             if (isset($options['render'])) {
                 $view = $options['render'];
-                unset($options['render']);
+            } elseif (empty($view)) {
+                $options['render'] = false;
             }
             
-            if (isset($options['render'])) {
-                $view = $options['render'];
-                unset($options['render']);
+            if (empty($options['layout'])) {
+                $options['layout'] = false;
             }
-            
-            // if no view render nothing
-            if (!$view) return false;
-            
-            if (!empty($options['controller'])) {
-                $controller = $options['controller'];
-                unset($options['controller']);
-            }
-            
-            if (!empty($options['layout'])) {
-                $layout = $options['layout'];
-            } else {
-                $layout = false;
-            }
-            unset($options['layout']);
-            
-            if (!empty($options['to_str'])) {
-                $return_as_str = true;
-            } else {
-                $return_as_str = false;
-            }
-            unset($options['to_str']);
             
             // set view path
-            $view_path = @$this->__view_path($view, $controller);
+            if (empty($view)) {
+                return false;
+            } else {
+                $view_path = @$this->__view_path($view, $controller);
+            }
             
             // set non nested path
             if (!empty($this->_nested_controller_path)) {
@@ -222,21 +191,22 @@ abstract class ActionController extends CObject
             
             switch (true) {
                 // if layout get page content with layout
-                case $layout:
-                    if ($return_as_str) {
+                case $options['layout']:
+                    if (!empty($options['to_str'])) {
                         return ActionView::to_str(
                                             $view_path,
-                                            $this->__layout_path($layout),
+                                            $this->__layout_path($options['layout']),
                                             $options);
                     } else {
                         return ActionView::show(
                                             $view_path,
-                                            $this->__layout_path($layout),
+                                            $this->__layout_path($options['layout']),
                                             $options);
                     }
                     break;
                 // if same layout include files and set variables
-                case file_exists($view_path) || file_exists($non_nested_path):
+                case file_exists($view_path)
+                    || (!empty($non_nested_path) && file_exists($non_nested_path)):
                     // create a variable foreach other option, using its
                     // key as the variable name
                     if (count($options)) {
@@ -249,11 +219,11 @@ abstract class ActionController extends CObject
                         $view_path = $non_nested_path;
                     }
                     
-                    if ($return_as_str) {
+                    if (!empty($options['to_str'])) {
                         $options['layout'] = false;
                         return ActionView::to_str(
                                             $view_path,
-                                            $this->__layout_path($layout),
+                                            $this->__layout_path($options['layout']),
                                             $options);
                     } else {
                         // include partial
@@ -277,15 +247,26 @@ abstract class ActionController extends CObject
     }
     
     /**
-     * Renders view with options to a string.
+     * Output contents to user.
      *
-     * @param array Options array.
-     * @return string Output to screen or a string.
+     * @param boolean $return_as_str
+     * @return string
      **/
-    public function render_to_str($options)
+    public function __output($return_as_str)
     {
-        $options['to_str'] = true;
-        return $this->render($options);
+        // print text and skip render routine 
+        if (isset($this->render_text)) {
+            echo $this->render_text;
+            return;
+        }
+        
+        // set options for view
+        $options['controller'] = $this->_controller;
+        $options['action'] = $this->_action;
+        $options['layout'] = $this->layout;
+        $options['render'] = $this->render;
+        $options['to_str'] = $return_as_str;
+        return $this->__render($options);
     }
     
     /**
@@ -307,7 +288,28 @@ abstract class ActionController extends CObject
         if ($locals) $options['locals'] = $locals;
         if ($controller) $options['controller'] = $controller;
         if ($no_error) $options['no_error'] = $no_error;
-        $this->render($options);
+        return $this->__render($options);
+    }
+    
+    /**
+     * Alias to build_partial but will return a string instead of automatically
+     * outputing to screen.
+     *
+     * @param string $partial View to render or an array of render $options.
+     * @param array $locals Array of variables to pass to the view.
+     * @param string $controller Use if view is not in the current controller.
+     * @param boolean $no_error No application error if partial not found.
+     * @return string
+     **/
+    public function build_partial_to_str($view, $locals = null, $controller = null, $no_error = false)
+    {
+        if (is_array($view)) {
+            $options = $view;
+        } else {
+            $options['render'] = $view;
+        }
+        $options['to_str'] = true;
+        return $this->build_partial($options, $locals, $controller, $no_error);
     }
     
     /**
@@ -327,29 +329,27 @@ abstract class ActionController extends CObject
         } else {
             $options['partial'] = $partial;
         }
-        $this->build_partial($options, $locals, $controller, $no_error);
+        return $this->build_partial($options, $locals, $controller, $no_error);
     }
     
     /**
-     * Alias to build_partial and adds an underscore to the view name to
-     * signify partials.
+     * Alias to render_partial but will return a string instead of automatically
+     * outputing to screen.
      *
      * @param string $partial View to render or an array of render $options.
      * @param array $locals Array of variables to pass to the view.
      * @param string $controller Use if view is not in the current controller.
-     * @return string Output string.
+     * @return string
      **/
     public function render_partial_to_str($partial, $locals = null, $controller = null)
     {
-        if ( is_array($partial) ) {
+        if (is_array($partial)) {
             $options = $partial;
         } else {
             $options['partial'] = $partial;
         }
-        if ($locals) $options['locals'] = $locals;
-        if ($controller) $options['controller'] = $controller;
         $options['to_str'] = true;
-        return $this->render($options);
+        return $this->render_partial($options, $locals, $controller);
     }
     
     /**
@@ -430,7 +430,7 @@ abstract class ActionController extends CObject
      * @param boolean $append
      * @return void
      **/
-    public function render_text($text, $append = false)
+    final public function render_text($text, $append = false)
     {
         $this->render_text = $append ? $this->render_text . $text : $text;
     }
@@ -440,9 +440,9 @@ abstract class ActionController extends CObject
      *
      * @return boolean
      **/
-    public function is_posted()
+    final public function is_posted()
     {
-        return $_SERVER['REQUEST_METHOD'] == 'POST';
+        return @$_SERVER['REQUEST_METHOD'] == 'POST';
     }
     
     /**

@@ -115,6 +115,18 @@ class CString extends CObject
     }
 
     /**
+     * Uppercase words for a title.
+     *
+     * @param string $str
+     * @return string
+     * @author Nesbert Hidalgo
+     **/
+    public static function titleize($str)
+    {
+        return Inflector::titleize($str);
+    }
+
+    /**
      * Create a path string from class name. This method converts
      * API_PersonSubclass to api/person_subclass
      *

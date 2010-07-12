@@ -101,7 +101,7 @@ function time_ago($time)
  **/
 function date_range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
 {
-    return CDate::date_range($start, $end, $key_date_format, $value_date_format);
+    return CDate::range($start, $end, $key_date_format, $value_date_format);
 }
 
 # helpers/form.php

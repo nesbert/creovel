@@ -151,7 +151,7 @@ class CDate extends CObject
      * @return Array
      * @author Nesbert Hidalgo
      **/
-    public static function date_range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
+    public static function range($start, $end = '', $key_date_format = 'Y-m-d', $value_date_format = 'D')
     {
         $start = strtotime(self::datetime($start));
         $end = strtotime(self::datetime($end));

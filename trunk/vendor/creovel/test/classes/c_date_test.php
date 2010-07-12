@@ -73,9 +73,9 @@ class CDateTest extends PHPUnit_Framework_TestCase
             '2010-06-03' => 'Thu',
             '2010-06-04' => 'Fri',
         );
-        $this->assertEquals($array, CDate::date_range('2010-05-28', '2010-06-04'));
-        $this->assertEquals(array_flip($array), CDate::date_range('2010-05-28', '2010-06-04', 'D', 'Y-m-d'));
-        $this->assertTrue(is_array(CDate::date_range(strtotime('-1week'))));
+        $this->assertEquals($array, CDate::range('2010-05-28', '2010-06-04'));
+        $this->assertEquals(array_flip($array), CDate::range('2010-05-28', '2010-06-04', 'D', 'Y-m-d'));
+        $this->assertTrue(is_array(CDate::range(strtotime('-1week'))));
     }
 }
 ?>

@@ -1768,7 +1768,7 @@ class ActiveRecord extends CObject implements Iterator
      **/
     final public function rewind()
     {
-        return $this->select_query()->rewind();
+        $this->select_query()->rewind();
     }
     
     /**
@@ -1778,12 +1778,13 @@ class ActiveRecord extends CObject implements Iterator
      **/
     final public function current()
     {
-    	$attibutes = $this->select_query()->current();
-    	if ($attibutes) {
-	        // set attributes with current row
-	        $this->set_attributes_from_query($attibutes);
+        $attibutes = $this->select_query()->current();
+        
+        if ($attibutes) {
+            // set attributes with current row
+            $this->set_attributes_from_query($attibutes);
         } else {
-        	$this->reset_values();
+            $this->reset_values();
         }
         // initialize class vars foreach record
         $this->initialize_class_vars();
@@ -1804,23 +1805,21 @@ class ActiveRecord extends CObject implements Iterator
     /**
      * Advance the result object pointer.
      *
-     * @return object
+     * @return void
      **/
     final public function next()
     {
         $this->select_query()->next();
-        return $this->current();
     }
     
     /**
      * Rewind the result object pointer by one.
      *
-     * @return object
+     * @return void
      **/
     final public function prev()
-    {
+    {        
         $this->select_query()->prev();
-        return $this->current();
     }
     
     /**
@@ -1873,7 +1872,7 @@ class ActiveRecord extends CObject implements Iterator
      *
      * @return boolean
      **/
-    final function is_paged()
+    final public function is_paged()
     {
         return isset($this->_paging_);
     }
@@ -1962,4 +1961,3 @@ class ActiveRecord extends CObject implements Iterator
         }
     }
 } // END class ActiveRecord extends CObject implements Iterator
-

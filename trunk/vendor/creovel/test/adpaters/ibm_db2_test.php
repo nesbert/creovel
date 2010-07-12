@@ -282,7 +282,7 @@ class IbmDb2Test extends PHPUnit_Framework_TestCase
         $this->a->query("SELECT * FROM ITEMS;");
         $this->a->reset();
         
-        $this->assertEquals(1, $this->a->offset);
+        $this->assertEquals(0, $this->a->offset);
         $this->assertEquals('', $this->a->query);
         $this->assertFalse(is_resource($this->a->result));
         
@@ -316,10 +316,10 @@ class IbmDb2Test extends PHPUnit_Framework_TestCase
         $this->a->next();
         $this->a->next();
         $this->a->next();
-        $this->assertEquals(5, $this->a->offset);
+        $this->assertEquals(4, $this->a->offset);
         
         $this->a->rewind();
-        $this->assertEquals(1, $this->a->offset);
+        $this->assertEquals(0, $this->a->offset);
         
         $this->endDB2();
     }
@@ -355,13 +355,13 @@ class IbmDb2Test extends PHPUnit_Framework_TestCase
         $this->a->next();
         $this->a->next();
         
-        $this->assertEquals(3, $this->a->key());
+        $this->assertEquals(2, $this->a->key());
         $this->a->next();
         
-        $this->assertEquals(4, $this->a->key());
+        $this->assertEquals(3, $this->a->key());
         
         $this->a->rewind();
-        $this->assertEquals(1, $this->a->key());
+        $this->assertEquals(0, $this->a->key());
         
         $this->endDB2();
     }
@@ -377,11 +377,11 @@ class IbmDb2Test extends PHPUnit_Framework_TestCase
         $this->a->next();
         $this->a->next();
         
-        $this->assertEquals(3, $this->a->offset);
+        $this->assertEquals(2, $this->a->offset);
         
         $this->a->next();
         $this->a->next();
-        $this->assertEquals(5, $this->a->offset);
+        $this->assertEquals(4, $this->a->offset);
         
         $this->endDB2();
     }
@@ -412,8 +412,6 @@ class IbmDb2Test extends PHPUnit_Framework_TestCase
         $this->a->next();
         $this->a->next();
         $this->a->next();
-        $this->assertEquals(6, $this->a->offset);
-        $this->a->prev();
         $this->assertEquals(5, $this->a->offset);
         $this->a->prev();
         $this->assertEquals(4, $this->a->offset);
@@ -423,6 +421,8 @@ class IbmDb2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals(2, $this->a->offset);
         $this->a->prev();
         $this->assertEquals(1, $this->a->offset);
+        $this->a->prev();
+        $this->assertEquals(0, $this->a->offset);
         
         $this->endDB2();
     }

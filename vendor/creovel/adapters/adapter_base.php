@@ -51,8 +51,6 @@ abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
      **/
     public function  __construct($db_properties = null)
     {
-        $this->offset = 0;
-        
         // if properties passed connect to database
         if (is_array($db_properties)) $this->connect($db_properties);
     }
@@ -117,7 +115,6 @@ abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
     public function next()
     {
         ++$this->offset;
-        return $this->current();
     }
     
     /**
@@ -130,7 +127,6 @@ abstract class AdapterBase extends CObject implements AdapterInterface, Iterator
     public function prev()
     {
         --$this->offset;
-        return $this->current();
     }
     
     /**

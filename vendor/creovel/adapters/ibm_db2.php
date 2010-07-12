@@ -25,31 +25,11 @@ class IbmDb2 extends AdapterBase
     public $schema;
     
     /**
-     * Iterator offset DB2 starts 1.
-     *
-     * @var resource
-     **/
-    public $offset = 1;
-    
-    /**
      * Temporay autocommit mode holder.
      *
      * @var resource
      **/
     public $autocommit;
-    
-    /**
-     * Pass an associative array of database settings to connect
-     * to database on construction of class.
-     *
-     * @return void
-     **/
-    public function __construct($db_properties = null)
-    {
-    	parent::__construct($db_properties);
-    	
-    	$this->offset = 1;
-    }
     
     /**
      * Opens a connection to the server with $db_properties an
@@ -204,11 +184,14 @@ class IbmDb2 extends AdapterBase
     {
         if ($result) {
             return db2_fetch_object($result);
-        } else if ($this->offset >= 1) {
-            return db2_fetch_object($this->result, $this->offset);
-        } else {
-            return false;
+        } elseif ($this->valid()) {
+            if (DB2_SCROLLABLE == db2_cursor_type($this->result)) {
+                return db2_fetch_object($this->result, $this->offset + 1);
+            } else {
+                return db2_fetch_object($this->result);
+            }
         }
+        return false;
     }
     
     /**
@@ -248,9 +231,9 @@ class IbmDb2 extends AdapterBase
         $result = $this->execute($q);
         
         while ($row = db2_fetch_object($result)) {
-        	if ($row->IDENTITY == 'Y' && $row->GENERATED == true && $row->TYPENAME == 'INTEGER') {
+            if ($row->IDENTITY == 'Y' && $row->GENERATED == true && $row->TYPENAME == 'INTEGER') {
                $fields[$row->COLNAME]->IS_IDENTITY = true;
-        	}
+            }
         }
         $this->free_result($result);
         
@@ -299,18 +282,6 @@ class IbmDb2 extends AdapterBase
         return db2_escape_string($string);
     }
     
-    
-    
-    /**
-     * Resets DB properties and frees result resources.
-     *
-     * @return void
-     **/
-    public function reset()
-    {
-        parent::reset();
-    }
-    
     /**
      * Free results resource.
      *
@@ -318,24 +289,19 @@ class IbmDb2 extends AdapterBase
      **/
     public function free_result($result = null)
     {
-        $return = db2_free_result($result ? $result : $this->result);
-        if ($return ) $this->result = null;
+        $result = $result ? $result : $this->result;
+        if (get_resource_type($result) == 'DB2 Statement') {
+            $return = db2_free_stmt($result);
+        } else {
+            $return = db2_free_result($result);
+        }
+        if ($return) $this->result = null;
         return $return;
     }
     
     /**
      * Iterator methods.
      */
-    
-    /**
-     * Set the result object pointer to its first element.
-     *
-     * @return void
-     **/
-    public function rewind()
-    {
-        $this->offset = 1;
-    }
     
     /**
      * Adjusts the result pointer to an arbitrary row in the result
@@ -345,15 +311,9 @@ class IbmDb2 extends AdapterBase
      **/
     public function valid()
     {
-        if ($this->offset <= $this->total_rows()) {
-            if ($this->offset) {
-                return db2_fetch_object($this->result, $this->offset) !== false;
-            } else {
-                return true;
-            }
-        } else {
-            return false;
-        }
+        return (is_resource($this->result)
+            && ($this->total_rows() > 0)
+            && ($this->total_rows() > $this->offset));
     }
     
     /**

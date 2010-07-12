@@ -142,7 +142,7 @@ class ActionRouter extends CObject
         if ($name == 'default') {
             $GLOBALS['CREOVEL']['ROUTING']['routes']['default'] = $data;
         } else {
-            $GLOBALS['CREOVEL']['ROUTING']['routes'] = array($name => $data) + $GLOBALS['CREOVEL']['ROUTING']['routes'];
+            $GLOBALS['CREOVEL']['ROUTING']['routes'] = array($name => $data) + (array) $GLOBALS['CREOVEL']['ROUTING']['routes'];
         }
     }
     

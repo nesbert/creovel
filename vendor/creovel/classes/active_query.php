@@ -153,7 +153,7 @@ class ActiveQuery extends CObject implements Iterator
      **/
     public function rewind()
     {
-        return $this->db()->adapter()->rewind();
+        $this->db()->adapter()->rewind();
     }
     
     /**
@@ -180,23 +180,23 @@ class ActiveQuery extends CObject implements Iterator
     /**
      * Pass through function to adapter.
      * 
-     * @return array
+     * @return void
      * @see function current
      **/
     public function next()
     {
-        return $this->db()->adapter()->next();
+        $this->db()->adapter()->next();
     }
     
     /**
      * Pass through function to adapter.
      *
-     * @return array
+     * @return void
      * @see function current
      **/
     public function prev()
     {
-        return $this->db()->adapter()->prev();
+        $this->db()->adapter()->prev();
     }
     
     /**
@@ -217,7 +217,7 @@ class ActiveQuery extends CObject implements Iterator
      **/
     public function reset()
     {
-        return $this->db()->adapter()->reset();
+        $this->db()->adapter()->reset();
     }
     
     
@@ -419,10 +419,10 @@ class ActiveQuery extends CObject implements Iterator
      **/
     public function build_identifier($nodes,  $identifier_quote_character = null, $seperator = '.')
     {
-    	if (empty($identifier_quote_character)) {
-    		$identifier_quote_character = $this->get_identifier_quote_character();
-    	}
-    	
+        if (empty($identifier_quote_character)) {
+            $identifier_quote_character = $this->get_identifier_quote_character();
+        }
+        
         if (is_array($nodes)) {
             foreach ($nodes as $k => $node) {
                 $nodes[$k] = $identifier_quote_character . $node .

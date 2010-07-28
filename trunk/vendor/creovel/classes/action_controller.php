@@ -181,7 +181,8 @@ abstract class ActionController extends CObject
             if (empty($view)) {
                 return false;
             } else {
-                $view_path = @$this->__view_path($view, $controller);
+                $controller = empty($controller) ? null : $controller;
+                $view_path = $this->__view_path($view, $controller);
             }
             
             // set non nested path
@@ -473,13 +474,15 @@ abstract class ActionController extends CObject
     {
         // nested controllers check [NH] might need to find a
         // better way to do this
+        $ext = empty($GLOBALS['CREOVEL']['VIEW_EXTENSION'])
+                ? 'html' : $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
         if (isset($this->_nested_controller_path)) {
             return VIEWS_PATH . $this->_nested_controller_path .
                 DS . ($controller ? $controller : $this->_controller) .
-                DS . $view . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
+                DS . $view . '.' . $ext;
         } else {
             return VIEWS_PATH . ($controller ? $controller : $this->_controller)
-                . DS . $view . '.' . $GLOBALS['CREOVEL']['VIEW_EXTENSION'];
+                . DS . $view . '.' . $ext;
         }
     }
     

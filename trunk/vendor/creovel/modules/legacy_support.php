@@ -1573,3 +1573,77 @@ function search_array($i, $val, $array)
 {
     return CArray::search($i, $val, $array);
 }
+
+# helpers/framework.php
+
+/**
+ * Sets and unsets $_SESSION['flash']. Used by application notices.
+ *
+ * @param string $message Optional string to be displayed.
+ * @param string $type - Type of notice passed
+ * @return bool/string String or message
+ * @author Nesbert Hidalgo
+ **/
+function flash_message($message = null, $type = 'notice')
+{
+    return FlashMessage::notice($message, $type);
+}
+
+/**
+ * Returns the $_SESSION['flash']['type'].
+ *
+ * @return string
+ * @author Nesbert Hidalgo
+ **/
+function flash_type()
+{
+    return FlashMessage::type();
+}
+
+/**
+ * Alias for flash_message($message, 'notice').
+ *
+ * @param string $message Message for flash notice
+ * @return mixed String or boolean
+ * @author Nesbert Hidalgo
+ **/
+function flash_notice($message = null)
+{
+    return FlashMessage::notice($message, 'notice');
+}
+
+/**
+ * Alias for flash_message($message, 'error').
+ *
+ * @param string $message Message for flash notice
+ * @return mixed String or boolean
+ * @author Nesbert Hidalgo
+ **/
+function flash_error($message = null)
+{
+    return FlashMessage::notice($message, 'error');
+}
+
+/**
+ * Alias for flash_message($message, 'warning').
+ *
+ * @param string $message Message for flash notice
+ * @return mixed String or boolean
+ * @author Nesbert Hidalgo
+ **/
+function flash_warning($message = null)
+{
+    return FlashMessage::notice($message, 'warning');
+}
+
+/**
+ * Alias for flash_message($message, 'sucess').
+ *
+ * @param string $message Message for flash notice
+ * @return mixed String or boolean
+ * @author Nesbert Hidalgo
+ **/
+function flash_success($message = null)
+{
+    return FlashMessage::notice($message, 'success');
+}

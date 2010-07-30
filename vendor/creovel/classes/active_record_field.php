@@ -205,8 +205,8 @@ class ActiveRecordField extends CObject
             } else {
                 unset($this->is_identity);
             }
-        } elseif (isset($attributes['is_identity'])) {
-            if (!empty($attributes['identity'])) {
+        } elseif (isset($attributes['identity'])) {
+        	if (!empty($attributes['identity'])) {
                 $this->is_identity = true;
             } else {
                 unset($this->is_identity);

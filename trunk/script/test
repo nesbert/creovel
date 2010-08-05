@@ -13,7 +13,7 @@ if (!is_file($args[0]) && !is_dir($args[0])) return;
  */
 
 $files = array();
-$filter = '/test.php$/i';
+$filter = '/Test.php$/i';
 $recursive = true;
 
 foreach ($args as $path) {
@@ -39,7 +39,6 @@ $errors = 0;
 $incomplete = 0;
 $skipped = 0;
 $show_title = false;
-
 
 if (count($files)) foreach ($files as $file) {
     if (file_exists($file)) {

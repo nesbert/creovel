@@ -67,6 +67,10 @@ class ActionViewTest extends PHPUnit_Extensions_OutputTestCase
         $l = VIEWS_PATH . DS . 'layouts' . DS . 'default.html';
         $v = VIEWS_PATH . DS . 'index' . DS . 'index.html';
         
+        $this->o->_controller = 'index';
+        $this->o->_action = 'index';
+        $this->o->layout = 'default';
+        
         $r = $this->o->to_str($v, $l);
         $this->assertTrue(CString::contains('<head>', $r));
         $this->assertTrue(CString::contains('<h1>Hello World!</h1>', $r));

@@ -94,6 +94,10 @@ class ActionControllerTest extends PHPUnit_Extensions_OutputTestCase
         $this->o->__execute_action();
         $this->assertEquals(5, $this->o->count);
         
+        $this->_controller = 'index';
+        $this->_action = 'index';
+        $this->layout = 'default';
+                
         $l = VIEWS_PATH . DS . 'layouts' . DS . 'default.html';
         $v = VIEWS_PATH . DS . 'index' . DS . 'index.html';
         $r = ActionView::to_str($v, $l);

@@ -219,7 +219,8 @@ class CFormTest extends PHPUnit_Extensions_OutputTestCase
         $o = '<div class="errors">
 <div class="top"></div>
 <div class="body">
-<h1 class="error_title">1 error has prohibited this Form from being saved.</h1><ul>
+<h1 class="error_title">1 error has prohibited this Form from being saved.</h1>
+<ul>
 <li>First name is required</li>
 </ul>
 </div>
@@ -233,12 +234,6 @@ class CFormTest extends PHPUnit_Extensions_OutputTestCase
 
     public function testStart_form()
     {
-        $this->assertEquals(
-            '<form method="post" id="form_a" name="form_a" action="a">'."\n",
-            CForm::start_form(
-                array('controller'=>'a')
-                )
-            );
         $this->expectOutputString('<form method="post" id="form_a" name="form_a" action="a/b">
 ');
         echo CForm::start_form(

@@ -359,7 +359,7 @@ class ActionMailer extends ActionController
             }
             
             // clean empty lines and extra spaces
-            $lines = split("\n", $return);
+            $lines = explode("\n", $return);
             $return = '';
             foreach ($lines as $line) {
                 if (empty($line)) continue;

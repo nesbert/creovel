@@ -44,7 +44,7 @@ class CDirectoryTest extends PHPUnit_Framework_TestCase
     public function test_ls_with_file_name()
     {
         $ls = $this->d->ls_with_file_name(dirname(__FILE__));
-        $this->assertArrayHasKey('c_directory_test', $ls);
+        $this->assertArrayHasKey('CDirectoryTest', $ls);
         $this->assertFalse(array_key_exists('test', $ls));
     }
 

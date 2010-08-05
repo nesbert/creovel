@@ -127,7 +127,7 @@ class CForm extends CTag
             if ( $message == 'no_message') continue;
             $li_str .= self::create('li', null, $message) . "\n";
         }
-
+        
         if ($errors_count) {
             if (isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS_TITLE'])) {
                 $default_title =  $GLOBALS['CREOVEL']['VALIDATION_ERRORS_TITLE'];
@@ -143,8 +143,17 @@ class CForm extends CTag
                         array('@@errors_count@@','@@title@@'),
                         array($errors_count, $title),
                         $title);
-            include_once(CREOVEL_PATH . 'views' . DS . 'layouts' . DS .
-                        '_form_errors.php');
+            return
+                CTag::create('div', array('class' => 'errors'),
+                    "\n" . CTag::create('div', array('class' => 'top')) . "\n" .
+                    CTag::create('div', array('class' => 'body'),
+                        (!empty($title) ? "\n" . CTag::create('h1', array('class' => 'error_title'), $title) : '') .
+                        (!empty($description) ? "\n" . CTag::create('p', null, $description) : '') .
+                        "\n" . CTag::create('ul', null, (!empty($li_str) ? "\n" . $li_str : '')) . "\n"
+                    )  . "\n" .
+                    CTag::create('div', array('class' => 'bottom')) . "\n"
+                ) . "\n";
+                        
         }
     }
 

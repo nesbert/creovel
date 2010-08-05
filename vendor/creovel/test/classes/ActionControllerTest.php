@@ -32,8 +32,7 @@ class ActionControllerTest extends PHPUnit_Extensions_OutputTestCase
      * This method is called after a test is executed.
      */
     protected function tearDown()
-    {
-    }
+    {}
 
     public function test__set_events()
     {
@@ -218,7 +217,7 @@ class ActionControllerTest extends PHPUnit_Extensions_OutputTestCase
     }
 }
 
-class IndexController extends ActionController
+class IndexController extends ApplicationController
 {
     public $count = 0;
     public function index() { $this->count++; }

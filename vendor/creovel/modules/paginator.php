@@ -427,7 +427,8 @@ class Paginator extends ModuleBase
      **/
     public function paging_link($page, $extra_params = array())
     {
-        $params = array('page' => $page) + (is_array($extra_params) ? $extra_params : array());
+        $params = is_array($extra_params) ? $extra_params : array();
+        $params += array('page' => $page);
         if ($this->pretty_urls) {
             $return = array();
             foreach ($params as $k => $v) {

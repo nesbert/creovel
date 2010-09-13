@@ -38,10 +38,11 @@ class FlashMessage extends ModuleBase
             
             if ($message) {
                 
-                $_SESSION['FLASHMESSAGE'] = new FlashMessage;
-                $_SESSION['FLASHMESSAGE']->message = $message;
-                $_SESSION['FLASHMESSAGE']->type = $type;
-                $_SESSION['FLASHMESSAGE']->checked = false;
+                $_SESSION['FLASHMESSAGE'] = (object) array(
+                	'message' => $message,
+                    'type' => $type,
+                    'checked' => false
+                    );
             
             } elseif ($_SESSION['FLASHMESSAGE']->checked === false) {
             

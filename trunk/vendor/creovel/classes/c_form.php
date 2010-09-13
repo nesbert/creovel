@@ -17,7 +17,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function name_to_id($field_name)
+    public static function name_to_id($field_name)
     {
         return str_replace(
                 array('[', ']', '/'),
@@ -33,7 +33,7 @@ class CForm extends CTag
      * @return void
      * @author Nesbert Hidalgo
      **/
-    public function add_error($field_name, $message = null)
+    public static function add_error($field_name, $message = null)
     {
         $GLOBALS['CREOVEL']['VALIDATION_ERRORS'][self::name_to_id($field_name)] =
             $message ? $message : self::humanize($field_name) . ' is invalid.';
@@ -46,7 +46,7 @@ class CForm extends CTag
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function field_has_error($field_name)
+    public static function field_has_error($field_name)
     {
         return isset($GLOBALS['CREOVEL']['VALIDATION_ERRORS'][self::name_to_id($field_name)]);
     }
@@ -57,7 +57,7 @@ class CForm extends CTag
      * @return boolean
      * @author Nesbert Hidalgo
      **/
-    public function has_error()
+    public static function has_error()
     {
         return self::error_count() ? true : false;
     }
@@ -68,7 +68,7 @@ class CForm extends CTag
      * @return integer
      * @author Nesbert Hidalgo
      **/
-    public function error_count()
+    public static function error_count()
     {
         return (int) @count($GLOBALS['CREOVEL']['VALIDATION_ERRORS']);
     }
@@ -96,7 +96,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function error_messages_for($errors = null, $title = null,
+    public static function error_messages_for($errors = null, $title = null,
     $description = null) {
         $errors_count = 0;
         $errors_array = array();
@@ -168,7 +168,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function start_form($event_options,
+    public static function start_form($event_options,
                             $name_or_obj = null,
                             $name_value = null,
                             $method = 'post',
@@ -229,7 +229,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function end_form()
+    public static function end_form()
     {
         return "</form>\n";
     }
@@ -246,7 +246,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function input($type, $name, $value = null,
+    public static function input($type, $name, $value = null,
     $html_options = array(), $tag_value = null, $text = null) {
         $input = array();
         if (isset($type)) $input['type'] = $type;
@@ -277,7 +277,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function text_field($name, $value = '', $html_options = null, $text = null)
+    public static function text_field($name, $value = '', $html_options = null, $text = null)
     {
         return self::input('text', $name, $value, $html_options, null, $text);
     }
@@ -292,7 +292,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function hidden_field($name, $value = '', $html_options = null)
+    public static function hidden_field($name, $value = '', $html_options = null)
     {
         return self::input('hidden', $name, $value, $html_options);
     }
@@ -308,7 +308,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function password_field($name, $value = '', $html_options = null, $text = null)
+    public static function password_field($name, $value = '', $html_options = null, $text = null)
     {
         $html_options['autocomplete'] = 'off';
         return self::input('password', $name, $value, $html_options, $text);
@@ -326,7 +326,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null)
+    public static function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null)
     {
         return self::input('radio', $name, $value, $html_options, $on_value, $text);
     }
@@ -343,7 +343,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null)
+    public static function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null)
     {
         return self::input('checkbox', $name, $value, $html_options, $on_value, $text);
     }
@@ -357,7 +357,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function submit($value = 'Submit', $html_options = null)
+    public static function submit($value = 'Submit', $html_options = null)
     {
         return self::input('submit', @$html_options['name'], $value, $html_options);
     }
@@ -371,7 +371,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function button($value = 'Button', $html_options = null)
+    public static function button($value = 'Button', $html_options = null)
     {
         return self::input('button', @$html_options['name'], $value, $html_options);
     }
@@ -386,7 +386,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function textarea($name, $value = '', $html_options = array())
+    public static function textarea($name, $value = '', $html_options = array())
     {
         $textarea['id'] = self::name_to_id($name);
         $textarea['name'] = $name;
@@ -404,7 +404,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function text_area($name, $value = '', $html_options = array())
+    public static function text_area($name, $value = '', $html_options = array())
     {
         return self::textarea($name, $value, $html_options);
     }
@@ -419,7 +419,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public function label($name, $title = null, $html_options = null)
+    public static function label($name, $title = null, $html_options = null)
     {
         if (!$title) {
             $args = explode('[', $name);
@@ -441,7 +441,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function select($name, $selected = '', $choices = null,
+    public static function select($name, $selected = '', $choices = null,
         $html_options = null, $none_title = 'None Available',
         $have_none = false) {
         $og_options = array(
@@ -518,7 +518,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function select_states($name = 'state', $selected = null, $choices = null, $html_options = null, $country = 'US', $state_input = false)
+    public static function select_states($name = 'state', $selected = null, $choices = null, $html_options = null, $country = 'US', $state_input = false)
     {
         if ($state_input && ($country != 'US' && $country != 'CA')) {
             $html = self::input('text', $name, $selected, $html_options);
@@ -571,7 +571,7 @@ class CForm extends CTag
      * @return boolean $state_input
      * @author Nesbert Hidalgo
      **/
-    public function select_countries($name = 'country', $selected = null, $choices = null, $html_options = null, $state_id = null, $state_input = false)
+    public static function select_countries($name = 'country', $selected = null, $choices = null, $html_options = null, $state_id = null, $state_input = false)
     {
         $choices = $choices ? $choices : array('' => 'Please select...');
 
@@ -621,7 +621,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function select_redirect($name, $urls_and_names, $html_options = array())
+    public static function select_redirect($name, $urls_and_names, $html_options = array())
     {
         @$html_options['onchange'] .= 'location.href=this.options[this.selectedIndex].value;';
         return self::select($name, null, $urls_and_names, $html_options);
@@ -636,7 +636,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function date_select($name, $date = null, $html_options = null)
+    public static function date_select($name, $date = null, $html_options = null)
     {
         $date = strtotime(CDate::datetime($date));
 
@@ -669,7 +669,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function time_select($name, $time = null, $html_options = null)
+    public static function time_select($name, $time = null, $html_options = null)
     {
         switch (true) {
             case !$time  || ($time == '0000-00-00 00:00:00'):
@@ -716,7 +716,7 @@ class CForm extends CTag
      * @return string
      * @author Nesbert Hidalgo
      **/
-    public function date_time_select($name, $datetime = null, $html_options = null)
+    public static function date_time_select($name, $datetime = null, $html_options = null)
     {
         return self::date_select($name, $datetime, $html_options) .
             " @ ".self::time_select($name, $datetime, $html_options);
@@ -729,7 +729,7 @@ class CForm extends CTag
      * @return string
      * @author Russ Smith
      **/
-    public function get_timestamp_from_post($key)
+    public static function get_timestamp_from_post($key)
     {
         return self::get_timestamp_from_array($_POST[$key]);
     }
@@ -741,7 +741,7 @@ class CForm extends CTag
      * @return string
      * @author Russ Smith
      **/
-    public function get_timestamp_from_array($array)
+    public static function get_timestamp_from_array($array)
     {
         $array['hour'] = ($array['ampm'] == 'pm') ? ($array['hour'] + 12) : $array['hour'];
         return mktime($array['hour'], $array['minute'], 0, $array['month'], $array['day'], $array['year']);
@@ -757,7 +757,7 @@ class CForm extends CTag
      * @return void
      * @author Nesbert Hidalgo
      **/
-    public function select_time_zone($name, $selected = null, $choices = null, $html_options = null)
+    public static function select_time_zone($name, $selected = null, $choices = null, $html_options = null)
     {
         $time_zones = CLocale::timezones();
         $choices = ( $choices ? $choices : array('' => 'Please select...') );
@@ -778,7 +778,7 @@ class CForm extends CTag
      * @return void
      * @author Nesbert Hidalgo
      **/
-    public function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false, $type = 'checkbox')
+    public static function checkbox_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false, $type = 'checkbox')
     {
         if (!is_array($selected)) $selected = array();
 
@@ -838,7 +838,7 @@ class CForm extends CTag
      * @return void
      * @author Nesbert Hidalgo
      **/
-    public function radio_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
+    public static function radio_select($name, $selected = array(), $choices = null, $html_options = null, $none_title = 'None Available', $have_none = false)
     {
         return self::checkbox_select($name, $selected, $choices, $html_options, $none_title, $have_none, 'radio');
     }

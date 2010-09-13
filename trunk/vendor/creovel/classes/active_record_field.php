@@ -106,15 +106,21 @@ class ActiveRecordField extends CObject
         switch (strtolower($attributes->adapter_type)) {
             case 'db2':
                 $this->type = $attributes->TYPE_NAME;
-                if ($attributes->DATA_TYPE == 3) {
-                    $this->size = "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";
-                } else if ($attributes->DATA_TYPE == 1) {
-                    $this->size = "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";
-                } else if (!empty($attributes->COLUMN_SIZE)) {
-                    $this->size = $attributes->COLUMN_SIZE; "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";
-                } else {
-                    unset($this->size);
+                
+                switch (true) {
+                    case $this->type == 'DECIMAL':
+                        $this->size = "{$attributes->NUM_PREC_RADIX},{$attributes->DECIMAL_DIGITS}";
+                        break;
+                    case $this->type == 'VARCHAR':
+                    case $this->type == 'CHAR':
+                    case !empty($attributes->COLUMN_SIZE):
+                        $this->size = $attributes->COLUMN_SIZE;
+                        break;
+                    default:
+                        unset($this->size);
+                        break;
                 }
+                
                 if (!empty($attributes->KEY) && ($attributes->KEY == 'PRI' || $attributes->KEY == 'PK')) {
                     $this->key = 'PK';
                     $this->key_name = $attributes->KEY_NAME;

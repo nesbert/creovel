@@ -643,8 +643,6 @@ class ActiveQuery extends CObject implements Iterator
         
         // sanitize values
         foreach ($columns as $k => $field) {
-            // if same as default value skip
-            if ($field->value === $columns[$k]->default) continue;
             // if value has not changed 
             if (!$columns[$k]->has_changed) continue;
             $set_str[$k] = $this->build_identifier(array($k));

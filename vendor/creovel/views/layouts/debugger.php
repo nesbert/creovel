@@ -23,8 +23,8 @@
 #creovel h1 { margin-bottom: 0; font: 175% bold 'Myriad Apple', 'Lucida Grande', Geneva, Verdana, Arial, Helvetica, sans-serif; }
 #creovel h1.top { font-size: 250%; color: #b2a7a3; }
 #creovel p.top { font-size: 125%; color: #333; }
-#creovel ul.debug { padding: 0; list-style: none; }
-#creovel ul.debug li { margin-bottom: 2px; }
+#creovel table.debug { margin: 0 0 20px; padding: 0; }
+#creovel table.debug .line-num { padding-right:6px; text-align: right; }
 
 #creovel .block { margin: 0 0 20px 0; padding: 0; background: #f9f6f3; border: 1px solid #3b3b3b; text-align: left; }
 #creovel .block h1 { padding: 8px; }

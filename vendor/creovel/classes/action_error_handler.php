@@ -85,7 +85,7 @@ class ActionErrorHandler extends CObject
         // set header for error pages
         switch ($GLOBALS['CREOVEL']['APPLICATION_ERROR_CODE']) {
             case '401':
-                @header('Status: 401 Unauthorized', true, 404);
+                @header('Status: 401 Unauthorized', true, 401);
                 $action = 'unauthorized';
                 break;
                 

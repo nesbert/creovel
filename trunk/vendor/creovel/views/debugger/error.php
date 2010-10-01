@@ -13,7 +13,7 @@
 
 <?php if ((is_object($this->exception)) && ($error_count = count($this->exception->getTrace()))) { ?>
 <h1>Debug Trace</h1>
-<ul class="debug">
+<table class="debug" cellspacing="0">
 <?php
 $trace_count = 0;
 $offset = 0;
@@ -28,17 +28,20 @@ $offset = 0;
     
     $num = $error_count - $trace_count - $offset;
     ?>
-    <li>
+    <tr>
+    	<td class="line-num">#<?php echo $num; ?></td>
+    	<td>
         <?php if (CREO('show_source') && CREO('mode') == 'development' ) { ?>
-        #<?php echo $num; ?> <?php echo (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : ''); ?> in <strong><a href="javascript:void(0);" onclick="toggle('source_<?php echo $trace_count; ?>');"><?php echo $trace['file']; ?></a></strong> on line <strong><?php echo $trace['line']; ?></strong>
+        <?php echo (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : ''); ?> in <strong><a href="javascript:void(0);" onclick="toggle('source_<?php echo $trace_count; ?>');"><?php echo $trace['file']; ?></a></strong> on line <strong><?php echo $trace['line']; ?></strong>
         <?php include dirname(__FILE__).DS.'_source.php'; ?>
         <?php } else { ?>
-        #<?php echo $num; ?> <?php echo (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : ''); ?> in <strong><?php echo $trace['file']; ?></strong> on line <strong><?php echo $trace['line']; ?></strong>
+        <?php echo (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : ''); ?> in <strong><?php echo $trace['file']; ?></strong> on line <strong><?php echo $trace['line']; ?></strong>
         <?php } ?>
-    </li>
+        </td>
+    </tr>
     <?php $trace_count++; ?>
     <?php } ?>
-</ul>
+</table>
 <?php } ?>
 
 <?php if (CREO('mode') == 'development') { ?>

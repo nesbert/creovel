@@ -555,9 +555,12 @@ class ActiveQuery extends CObject implements Iterator
         $this->convert_columns($columns);
         
         // set created at
-        if (isset($columns['created_at'])) {
-            $columns['created_at']->has_changed = true;
-            $columns['created_at']->value = CDate::datetime($columns['created_at']);
+        $created_at = array('created_at', 'CREATED_AT');
+        foreach ($created_at as $col) {
+            if (isset($columns[$col])) {
+                $columns[$col]->has_changed = true;
+                $columns[$col]->value = CDate::datetime($columns[$col]);
+            }
         }
         
         // do any special magic for certain columns
@@ -629,11 +632,14 @@ class ActiveQuery extends CObject implements Iterator
         $this->convert_columns($columns);
         
         // set updated at
-        if (isset($columns['updated_at'])) {
-            $columns['updated_at']->has_changed = true;
-            $columns['updated_at']->value = CDate::datetime();
+        $updated_at = array('updated_at', 'UPDATED_AT');
+        foreach ($updated_at as $col) {
+            if (isset($columns[$col])) {
+                $columns[$col]->has_changed = true;
+                $columns[$col]->value = CDate::datetime();
+            }
         }
-        
+                
         // do any special magic for certain columns
         $this->prepare_columns($columns);
         

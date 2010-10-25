@@ -1116,15 +1116,12 @@ class ActiveRecord extends CObject implements Iterator
                     
                 // set column value
                 case isset($this->_columns_[$attribute]):
-                    if ($this->_columns_[$attribute]->value == $value) {
-                        $this->_columns_[$attribute]->has_changed = false;
-                    } else {
-                        $this->_columns_[$attribute]->has_changed = true;                        
-                    }
+                    $this->_columns_[$attribute]->has_changed = true;                        
                     // set value length for db2 char columns
                     if ($this->select_query()->db()->get_adapter_type() == 'db2') {
-                        if ($this->_columns_[$attribute]->type == 'VARCHAR'
-                            || $this->_columns_[$attribute]->type == 'CHAR') {
+                        if (is_string($value)
+                            && ($this->_columns_[$attribute]->type == 'VARCHAR'
+                                || $this->_columns_[$attribute]->type == 'CHAR')) {
                             $value = substr($value, 0, (int) $this->_columns_[$attribute]->size);
                         }
                     }

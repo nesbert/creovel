@@ -344,10 +344,14 @@ class ActionMailer extends ActionController
         $return = $this->text;
         
         if (empty($return)) {
-            $text = ActionView::process(
-                VIEWS_PATH . Inflector::underscore($this->to_string()) . DS .
-                $this->_action . '.txt'
-                );
+            
+            if ($this->view_path) {
+                $view_path = $this->view_path;
+            } else {
+                $view_path = VIEWS_PATH . CString::patherize($this->to_string()) . DS;
+            }            
+            
+            $text = ActionView::process($view_path . DS . $this->_action . '.txt');
             $return = $text ? $text : $this->get_html();
             $return = preg_split('~</head>~', $return);
             

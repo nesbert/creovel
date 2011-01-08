@@ -113,16 +113,19 @@ class Creovel
             
             // if global_xss_filtering is enabled
             if (!empty($GLOBALS['CREOVEL']['GLOBAL_XSS_FILTERING'])) {
+                // filter COOKIE, GET, POST, SERVER
                 if (empty($GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'])) {
-                    $xss_func = 'CArray::clean';
+                    $_COOKIE = CArray::clean($_COOKIE);
+                    $_GET = CArray::clean($_GET);
+                    $_POST = CArray::clean($_POST);
+                    $_SERVER = CArray::clean($_SERVER);
                 } else {
                     $xss_func = $GLOBALS['CREOVEL']['XSS_FILTERING_CALLBACK'];
+                    $_COOKIE = $xss_func($_COOKIE);
+                    $_GET = $xss_func($_GET);
+                    $_POST = $xss_func($_POST);
+                    $_SERVER = $xss_func($_SERVER);
                 }
-                // filter COOKIE, GET, POST, SERVER
-                $_COOKIE = $xss_func($_COOKIE);
-                $_GET = $xss_func($_GET);
-                $_POST = $xss_func($_POST);
-                $_SERVER = $xss_func($_SERVER);
             }
             
             // initialize web for web appliocations only run once

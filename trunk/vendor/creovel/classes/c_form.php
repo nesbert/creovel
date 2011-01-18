@@ -257,7 +257,7 @@ class CForm extends CTag
                 : '' );
         if (!empty($html_options['id'])) $input['id'] = $html_options['id'];
         if (!empty($name)) $input['name'] = $name;
-        if (!empty($value)) $input['value'] = $value;
+        if ($value !== null) $input['value'] = $value;
         if ($type == 'radio' || $type == 'checkbox') {
             $input['value'] = $tag_value;
             if ( $value == $tag_value ) $html_options['checked'] = 'checked';
@@ -277,7 +277,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public static function text_field($name, $value = '', $html_options = null, $text = null)
+    public static function text_field($name, $value = null, $html_options = null, $text = null)
     {
         return self::input('text', $name, $value, $html_options, null, $text);
     }
@@ -292,7 +292,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public static function hidden_field($name, $value = '', $html_options = null)
+    public static function hidden_field($name, $value = null, $html_options = null)
     {
         return self::input('hidden', $name, $value, $html_options);
     }
@@ -308,7 +308,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public static function password_field($name, $value = '', $html_options = null, $text = null)
+    public static function password_field($name, $value = null, $html_options = null, $text = null)
     {
         $html_options['autocomplete'] = 'off';
         return self::input('password', $name, $value, $html_options, $text);
@@ -326,7 +326,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public static function radio_button($name, $value = '', $html_options = null, $on_value = null, $text = null)
+    public static function radio_button($name, $value = null, $html_options = null, $on_value = null, $text = null)
     {
         return self::input('radio', $name, $value, $html_options, $on_value, $text);
     }
@@ -343,7 +343,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public static function check_box($name, $value = '', $html_options = null, $on_value = null, $text = null)
+    public static function check_box($name, $value = null, $html_options = null, $on_value = null, $text = null)
     {
         return self::input('checkbox', $name, $value, $html_options, $on_value, $text);
     }
@@ -386,7 +386,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public static function textarea($name, $value = '', $html_options = array())
+    public static function textarea($name, $value = null, $html_options = array())
     {
         $textarea['id'] = self::name_to_id($name);
         $textarea['name'] = $name;
@@ -404,7 +404,7 @@ class CForm extends CTag
      * @see CForm::input()
      * @author Nesbert Hidalgo
      **/
-    public static function text_area($name, $value = '', $html_options = array())
+    public static function text_area($name, $value = null, $html_options = array())
     {
         return self::textarea($name, $value, $html_options);
     }

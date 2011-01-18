@@ -76,16 +76,13 @@ class CFormTest extends PHPUnit_Extensions_OutputTestCase
 <option value="30">30</option>
 <option value="31">31</option>
 </select>
-<select name="date[year]" id="date_year">
-<option value="2007">2007</option>
-<option value="2008">2008</option>
-<option value="2009">2009</option>
-<option value="2010" selected="selected">2010</option>
-<option value="2011">2011</option>
-<option value="2012">2012</option>
-<option value="2013">2013</option>
-</select>
 ';
+        $i = (date('Y') - 3);
+        $years = array();
+        while ($i <= (date('Y') + 3)) { $years[$i] = $i; $i++; }
+        
+        $this->date_select .= CForm::select("date[year]", date('Y'), $years); 
+        
         $this->time_select = '<select name="date[hour]" id="date_hour">
 <option value="1">1</option>
 <option value="2">2</option>
@@ -266,6 +263,30 @@ class CFormTest extends PHPUnit_Extensions_OutputTestCase
         $this->assertEquals(
             '<input type="checkbox" id="a_d" name="a" value="d" class="c" checked="checked" /> APPEND'."\n",
             CForm::input('checkbox', 'a', 'd', array('class' => 'c'), 'd', 'APPEND'));
+        $this->assertEquals(
+            '<input type="text" id="a" name="a" value="0" />'."\n",
+            CForm::input('text', 'a', '0'));
+        $this->assertEquals(
+            '<input type="text" id="a" name="a" value="0" />'."\n",
+            CForm::input('text', 'a', 0));
+        $this->assertEquals(
+            '<input type="text" id="a" name="a" />'."\n",
+            CForm::input('text', 'a', null));
+        $this->assertEquals(
+            '<input type="text" id="a" name="a" value="123" />'."\n",
+            CForm::input('text', 'a', 123));
+        $this->assertEquals(
+            '<input type="text" id="a" name="a" value="0" />'."\n",
+            CForm::input('text', 'a', 0.0));
+        $this->assertEquals(
+            '<input type="text" id="a" name="a" value="0.01" />'."\n",
+            CForm::input('text', 'a', 0.01));
+        $this->assertEquals(
+            '<input type="text" id="a" name="a" value="0.00" />'."\n",
+            CForm::input('text', 'a', '0.00'));
+        $this->assertEquals(
+            '<input type="text" id="a" name="a" value="0.000" />'."\n",
+            CForm::input('text', 'a', '0.000'));
     }
 
     /**
@@ -783,7 +804,7 @@ class CFormTest extends PHPUnit_Extensions_OutputTestCase
             $this->date_select,
             CForm::date_select(
                 'date',
-                '2010-01-01'
+                date('Y').'-01-01'
                 ));
     }
 
@@ -808,7 +829,7 @@ class CFormTest extends PHPUnit_Extensions_OutputTestCase
      */
     public function testDate_time_select()
     {
-        $this->assertEquals($this->date_select.' @ '.$this->time_select, CForm::date_time_select('date', '2010-01-01 18:30:00'));
+        $this->assertEquals($this->date_select.' @ '.$this->time_select, CForm::date_time_select('date', date('Y').'-01-01 18:30:00'));
     }
 
     public function testGet_timestamp_from_post()

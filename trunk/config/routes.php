@@ -28,3 +28,20 @@ ActionRouter::map('blog', '/date/:year/:month/:day/:title/*', array(
                 )
             );
 */
+
+// Nested controller example:
+#
+#	/app/controllers
+#	    /admin_controler.php
+#	    /admin/index_controller.php
+#       /admin/user_controller.php
+#
+/*
+ActionRouter::map(
+			'nested_admin_controller', // route name
+			'/admin/:controller/:action/*', // URI qualifier
+			array(
+            	'nested_controller' => 'admin' // folder path
+            	) // options array
+            );
+*/

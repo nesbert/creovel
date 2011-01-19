@@ -119,6 +119,7 @@ class CForm extends CTag
             $model = get_class($errors);
         } else if (is_array($errors)) {
             $errors_array = $errors;
+            $errors_count = count($errors_array);
         }
 
         $li_str = '';

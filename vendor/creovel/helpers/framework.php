@@ -121,7 +121,7 @@ function url_for()
         unset($args[0]['id']);
         
         // secure mode
-        $https = $args[0]['https'];
+        $https = isset($args[0]['https']) && is_bool($args[0]['https']) ? $args[0]['https'] : false;
         unset($args[0]['https']);
         
         // set misc
@@ -145,7 +145,7 @@ function url_for()
         }
         
         // secure mode
-        $https = @$args[3];
+        $https = isset($args[3]) && is_bool($args[3]) ? $args[3] : false;
     }
     
     if (@is_array($_ENV['secure_controllers'])
@@ -174,7 +174,7 @@ function url_for()
         }
     }
     
-    return ($https ? str_replace('http://', 'https://', BASE_URL) : '') .
+    return ($https ? str_replace('http://', 'https://', CNetwork::http_host()) : '') .
         (($uri != '/') && ($uri{strlen($uri)-1} == '/') ? substr($uri, 0, -1) : $uri);
 }
 

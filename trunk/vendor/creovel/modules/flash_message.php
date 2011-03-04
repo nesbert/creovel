@@ -15,6 +15,21 @@ class FlashMessage extends ModuleBase
     public $checked = false;
     
     /**
+     * Returns the $_SESSION['FLASHMESSAGE']['message']. Sets
+     * $_SESSION['FLASHMESSAGE']['message'] if $msg passed. 
+     *
+     * @param string $msg
+     * @return string
+     **/
+    public static function message($msg = '')
+    {
+        if (!empty($msg)) {
+            $_SESSION['FLASHMESSAGE']->message = $msg;
+        }
+        return $_SESSION['FLASHMESSAGE']->message;
+    }
+
+    /**
      * Returns the $_SESSION['FLASHMESSAGE']['type'].
      *
      * @return string

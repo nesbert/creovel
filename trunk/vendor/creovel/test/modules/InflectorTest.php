@@ -201,6 +201,14 @@ class InflectorTest extends PHPUnit_Framework_TestCase
             Inflector::underscore('SomeLongVariable'));
         $this->assertEquals('some_s_long_variable',
             Inflector::underscore('Some\'s Long Variable'));
+        $this->assertEquals('some-s-long-variable',
+            Inflector::underscore('Some\'s Long Variable', '-'));
+        $this->assertEquals('SOME-LONG-VARIABLE',
+            Inflector::underscore('SOME-LONG-VARIABLE', '-', false));
+        $this->assertEquals('SOME_LONG_VARIABLE',
+            Inflector::underscore('SOME LONG VARIABLE', '_', false));
+        $this->assertEquals('SOME_LONG_VARIABLE',
+            Inflector::underscore('SOME LONG VARIABLE', null, false));
     }
 
     public function testHumanize()

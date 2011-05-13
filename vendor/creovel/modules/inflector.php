@@ -225,14 +225,16 @@ class Inflector extends ModuleBase
      *
      * @param string $word
      * @param string $sep Default separator is an underscore ("_").
+     * @param boolean $strtolower Default true
      * @return string
      **/
-    public static function underscore($word, $sep = '_')
+    public static function underscore($word, $sep = '_', $strtolower = true)
     {
-        return strtolower(
-                preg_replace('/[^A-Z^a-z^0-9]+/', $sep,
+        $sep = empty($sep) ? '_' : $sep;
+        $return = preg_replace('/[^A-Z^a-z^0-9]+/', $sep,
                     preg_replace('/([a-z\d])([A-Z])/','\1_\2',
-                        preg_replace('/([A-Z]+)([A-Z][a-z])/','\1_\2',$word))));
+                        preg_replace('/([A-Z]+)([A-Z][a-z])/','\1_\2',$word)));
+        return $strtolower ? strtolower($return) : $return;
     }
     
     /**

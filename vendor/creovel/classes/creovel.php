@@ -103,6 +103,11 @@ class Creovel
         try {
             self::init();
             
+            // dont buffer in dev mode
+            if (strtolower($GLOBALS['CREOVEL']['MODE']) == 'development') {
+                $GLOBALS['CREOVEL']['BUFFER_HEADER'] = false;
+            }
+            
             // gather up any output that occurs before output phase
             if ($GLOBALS['CREOVEL']['BUFFER_HEADER']) {
                 ob_start();

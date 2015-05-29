@@ -1,0 +1,3 @@
+The goal of the Creovel project is to encourage rapid application development. Based on the Rails approach, a variation of the classic MVC design paradigm, a 'model' manages business logic execution, the presentation logic resides in the 'view', and the 'controller' handles the processes & responses to actions that may invoke changes on the model and view.
+
+© 2005-2011 Nesbert Hidalgo and the Creovel Team.
